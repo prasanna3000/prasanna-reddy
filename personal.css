@@ -1,0 +1,16 @@
+.personal { border-top: 1px solid var(--line); }
+.personal-layout { display: grid; grid-template-columns: 1.06fr .94fr; gap: clamp(36px, 6vw, 100px); align-items: start; }
+.desk-art { position: sticky; top: 24px; background: #101018; border: 1px solid var(--line); overflow: hidden; }
+.desk-art img { width: 100%; display: block; aspect-ratio: 1.2 / 1; object-fit: cover; mix-blend-mode: screen; }
+.art-caption { display: block; padding: 12px 15px; border-top: 1px solid var(--line); color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .07em; }
+.personal-copy .big-copy { margin-top: 0; margin-bottom: 48px; }
+.personality-notes { border-top: 1px solid var(--line); }
+.personality-notes article { position: relative; padding: 20px 0 22px 42px; border-bottom: 1px solid var(--line); }
+.personality-notes article > span { position: absolute; left: 0; top: 23px; color: var(--lime); font: 11px 'DM Mono', monospace; }
+.personality-notes h3 { margin: 0 0 8px; font-size: 16px; letter-spacing: -.04em; }
+.personality-notes p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+.stack-label { margin: 46px 0 16px; color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .08em; }
+.stack-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+.stack-cloud span { padding: 8px 10px; border: 1px solid var(--line); color: var(--ink); font: 11px 'DM Mono', monospace; }
+.stack-cloud span:nth-child(3n + 1) { border-color: rgba(201, 255, 91, .48); color: var(--lime); }
+@media (max-width: 800px) { .personal-layout { grid-template-columns: 1fr; } .desk-art { position: relative; top: auto; } }

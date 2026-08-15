@@ -1,0 +1,15 @@
+/* Keep the AI mark and its orbital ring on one shared centre point. */
+.neural-core {
+  top: 50%;
+  left: 50%;
+  translate: none;
+  transform: translate(-50%, -50%);
+}
+
+.neural b {
+  top: 50%;
+  left: 50%;
+  translate: none;
+  transform: translate(-50%, -50%);
+  font-size: clamp(52px, 11vw, 150px);
+}

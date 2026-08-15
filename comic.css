@@ -1,0 +1,16 @@
+.comic-bio { border-top: 1px solid var(--line); }
+.comic-frame { border: 1px solid var(--line); background: #0d0d13; }
+.comic-frame > img { display: block; width: 100%; aspect-ratio: 2.08 / 1; object-fit: cover; }
+.comic-chapters { display: grid; grid-template-columns: repeat(3, 1fr); }
+.comic-chapters p { margin: 0; padding: 19px 20px; color: var(--muted); border-right: 1px solid var(--line); font-size: 13px; line-height: 1.55; }
+.comic-chapters p:last-child { border-right: 0; }
+.comic-chapters span { display: block; margin-bottom: 7px; color: var(--lime); font: 10px 'DM Mono', monospace; letter-spacing: .08em; }
+.web-illustrations { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 18px; }
+.web-illustrations a { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 16px; padding: 12px; border: 1px solid var(--line); color: var(--ink); text-decoration: none; transition: border-color .2s, transform .2s; }
+.web-illustrations a:hover { border-color: var(--lime); transform: translateY(-3px); }
+.web-illustrations img { width: 110px; height: 82px; object-fit: contain; filter: grayscale(.2) hue-rotate(42deg) saturate(.75); }
+.web-illustrations span { font: 10px 'DM Mono', monospace; line-height: 1.5; }
+@media (max-width: 700px) { .comic-chapters, .web-illustrations { grid-template-columns: 1fr; } .comic-chapters p { border-right: 0; border-bottom: 1px solid var(--line); } .comic-chapters p:last-child { border-bottom: 0; } }
+
+/* Keep every illustrated developer depiction consistent with Prasanna's story. */
+.personal .desk-art img { content: url("assets/prasanna-bio-comic-v2.png"); }

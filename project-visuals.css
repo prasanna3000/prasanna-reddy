@@ -1,0 +1,12 @@
+/* Seven projects, seven visual signatures. */
+.project-grid .project:nth-child(1) .project-visual { background: radial-gradient(circle at 50% 48%, #33423c, #15201e 33%, #121219 72%); }
+.project-grid .project:nth-child(2) .project-visual { background: linear-gradient(135deg, #11111d 0%, #232a52 100%); }
+.project-grid .project:nth-child(3) .project-visual { background: linear-gradient(135deg, #3d153a, #1a3842 52%, #c3fc55); }
+.project-grid .project:nth-child(4) .project-visual { background: repeating-linear-gradient(45deg, #171321 0 1px, transparent 1px 28px), radial-gradient(circle at 50% 40%, #513985, #101017 67%); }
+.project-grid .project:nth-child(4) .project-visual::before { content: "SBOM"; position: absolute; right: 8%; bottom: -9%; color: rgba(201,255,91,.16); font: 800 clamp(5rem, 15vw, 12rem) Manrope; letter-spacing: -.12em; }
+.project-grid .project:nth-child(5) .project-visual { background: linear-gradient(120deg, #071b2b, #102f38 45%, #bdff57); }
+.project-grid .project:nth-child(5) .project-visual::after { content: "↔  ◇  ↔"; position: absolute; inset: 0; display: grid; place-items: center; color: rgba(236,235,232,.7); font: 500 clamp(2rem, 6vw, 5rem) 'DM Mono', monospace; letter-spacing: .3em; }
+.project-grid .project:nth-child(6) .project-visual { background: radial-gradient(circle at 50% 50%, #192f2a 0 4%, #111 5% 17%, #405e3a 18% 19%, #111 20% 32%, #8c61d9 33% 34%, #111 35%); }
+.project-grid .project:nth-child(6) .project-visual::before { content: "KYC"; position: absolute; inset: 0; display: grid; place-items: center; color: #c9ff5b; font: 800 clamp(4rem, 12vw, 10rem) Manrope; letter-spacing: -.1em; opacity: .8; }
+.project-grid .project:nth-child(7) .project-visual { background-color: #101a19; background-image: linear-gradient(rgba(201,255,91,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(201,255,91,.15) 1px, transparent 1px), radial-gradient(circle at 70% 25%, #814fd5, transparent 28%); background-size: 42px 42px, 42px 42px, 100% 100%; }
+.project-grid .project:nth-child(7) .project-visual::before { content: "↑  FILES  ↑"; position: absolute; inset: 0; display: grid; place-items: center; color: rgba(236,235,232,.8); font: 500 clamp(1.3rem, 4vw, 3rem) 'DM Mono', monospace; }
