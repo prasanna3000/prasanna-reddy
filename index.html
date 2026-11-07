@@ -3,57 +3,670 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Portfolio of Prasanna Reddy — Senior DevSecOps Full-Stack Security Engineer." />
-    <meta name="theme-color" content="#08080d" />
-    <title>Prasanna Reddy — Digital Portfolio</title>
+    <meta name="description" content="Portfolio of Prasanna Reddy | Senior DevSecOps Full-Stack Security Engineer." />
+    <meta name="theme-color" content="#ff4500" />
+    <title>Prasanna Reddy | r/PrasannaReddy</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23ff4500'/%3E%3Ctext x='16' y='21' text-anchor='middle' font-family='Arial' font-weight='700' font-size='14' fill='white'%3Epr%3C/text%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="particles.css" />
-    <link rel="stylesheet" href="neural.css" />
-    <link rel="stylesheet" href="personal.css" />
-    <link rel="stylesheet" href="comic.css" />
-    <link rel="stylesheet" href="project-visuals.css" />
-    <link rel="stylesheet" href="history.css" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="reddit.css" />
+    <script>
+      try { const t = localStorage.getItem('pr-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+    </script>
   </head>
   <body>
-    <div id="particles-js" aria-hidden="true"></div>
-    <div class="noise"></div>
-    <div class="orb orb-one"></div><div class="orb orb-two"></div>
-    <main>
-      <nav class="nav"><a class="logo" href="#top">PR<span>•</span></a><div class="nav-links"><a href="#work">Work</a><a href="#about">About</a><a href="#contact">Contact</a></div><a class="nav-cta" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">GitHub <span>↗</span></a></nav>
+    <!-- Icon sprite -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <symbol id="i-up" viewBox="0 0 20 20"><path d="M10 3 3 11h4.5v6h5v-6H17z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></symbol>
+      <symbol id="i-down" viewBox="0 0 20 20"><path d="M10 17 3 9h4.5V3h5v6H17z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></symbol>
+      <symbol id="i-comment" viewBox="0 0 20 20"><path d="M4 4h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></symbol>
+      <symbol id="i-share" viewBox="0 0 20 20"><path d="M11 4l6 5.5-6 5.5v-3.2C7 11.8 4.6 13 3 16c.4-4.6 3-8 8-8.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></symbol>
+      <symbol id="i-save" viewBox="0 0 20 20"><path d="M5 3h10v14l-5-3.5L5 17z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></symbol>
+      <symbol id="i-out" viewBox="0 0 20 20"><path d="M8 4H4v12h12v-4M11 3h6v6M17 3l-8 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+      <symbol id="i-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="m13.2 13.2 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></symbol>
+      <symbol id="i-pin" viewBox="0 0 20 20"><path d="M12.5 2.5 17.5 7.5 15 8.5 11.5 12 12 15.5 10.5 17 7.5 12.5 3 17l-.5-.5 4.5-4.5L2.5 9.5 4 8l3.5.5L11 5z" fill="currentColor" /></symbol>
+      <symbol id="i-hot" viewBox="0 0 20 20"><path d="M10 2c1 3.2 5 4.8 5 9.3A5 5 0 0 1 5 11.5c0-2 1-3.5 2.2-4.5.1 1.6.8 2.8 2 3.3C8.8 7.2 9.4 4.4 10 2z" fill="currentColor" /></symbol>
+      <symbol id="i-new" viewBox="0 0 20 20"><path d="M10 2l1.8 5.2L17 9l-5.2 1.8L10 16l-1.8-5.2L3 9l5.2-1.8z" fill="currentColor" /></symbol>
+      <symbol id="i-top" viewBox="0 0 20 20"><path d="M3 15h14M5 12V8M10 12V4M15 12V7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none" /></symbol>
+      <symbol id="i-home" viewBox="0 0 20 20"><path d="M3 9.5 10 3l7 6.5V17h-5v-5H8v5H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></symbol>
+      <symbol id="i-briefcase" viewBox="0 0 20 20"><rect x="2.5" y="6" width="15" height="10.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M7 6V4h6v2M2.5 10.5h15" fill="none" stroke="currentColor" stroke-width="1.6" /></symbol>
+      <symbol id="i-code" viewBox="0 0 20 20"><path d="M7 5 2.5 10 7 15M13 5l4.5 5-4.5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+      <symbol id="i-mic" viewBox="0 0 20 20"><rect x="7.5" y="2.5" width="5" height="9" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M4.5 9.5a5.5 5.5 0 0 0 11 0M10 15v2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></symbol>
+      <symbol id="i-chat" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M7.7 8a2.3 2.3 0 1 1 3 2.2c-.5.2-.7.6-.7 1.1v.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><circle cx="10" cy="14" r="1" fill="currentColor" /></symbol>
+      <symbol id="i-cap" viewBox="0 0 20 20"><path d="M10 4 1.5 8 10 12l8.5-4zM5 10v3.5c0 1.2 2.2 2.5 5 2.5s5-1.3 5-2.5V10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></symbol>
+      <symbol id="i-heart" viewBox="0 0 20 20"><path d="M10 16.5S3 12.3 3 7.6A3.6 3.6 0 0 1 10 6a3.6 3.6 0 0 1 7 1.6c0 4.7-7 8.9-7 8.9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></symbol>
+      <symbol id="i-mail" viewBox="0 0 20 20"><rect x="2.5" y="4.5" width="15" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="m3 5.5 7 5.5 7-5.5" fill="none" stroke="currentColor" stroke-width="1.6" /></symbol>
+      <symbol id="i-moon" viewBox="0 0 20 20"><path d="M15.5 12.8A6.5 6.5 0 0 1 7.2 4.5a6.5 6.5 0 1 0 8.3 8.3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></symbol>
+      <symbol id="i-menu" viewBox="0 0 20 20"><path d="M3 5.5h14M3 10h14M3 14.5h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></symbol>
+      <symbol id="i-cake" viewBox="0 0 20 20"><path d="M3.5 17V11a1.5 1.5 0 0 1 1.5-1.5h10A1.5 1.5 0 0 1 16.5 11v6M2 17h16M3.5 13.5c1.5 1 3 1 4.3 0 1.3 1 2.9 1 4.3 0 1.4 1 3 1 4.4 0M10 9.5V7M10 5.5a1 1 0 0 1-1-1c0-.8 1-2 1-2s1 1.2 1 2a1 1 0 0 1-1 1z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></symbol>
+      <symbol id="i-book" viewBox="0 0 20 20"><path d="M3 4.5c2.5-1 5-1 7 .5 2-1.5 4.5-1.5 7-.5V16c-2.5-1-5-1-7 .5-2-1.5-4.5-1.5-7-.5zM10 5v11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></symbol>
+    </svg>
 
-      <section class="hero" id="top">
-        <p class="eyebrow reveal">✦ SENIOR DEVSECOPS FULL-STACK SECURITY ENGINEER · 2026</p>
-        <h1 class="reveal">Building <em>secure</em><br />systems for a digital<br />future<span class="dot">.</span></h1>
-        <div class="hero-bottom reveal"><p>I'm <strong>Prasanna Reddy</strong> — a full-stack engineer with 5 years of experience building secure, scalable applications for fintech and digital platforms.</p><a class="round-link" href="#work" aria-label="Explore my work"><span>↓</span></a></div>
-        <div class="marquee"><div>FULL-STACK ENGINEER <i>✦</i> DEVSECOPS <i>✦</i> FINTECH <i>✦</i> CLOUD SYSTEMS <i>✦</i>&nbsp; FULL-STACK ENGINEER <i>✦</i> DEVSECOPS <i>✦</i> FINTECH <i>✦</i> CLOUD SYSTEMS <i>✦</i></div></div>
-      </section>
+    <!-- Top bar -->
+    <header class="topbar">
+      <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="leftnav"><svg><use href="#i-menu" /></svg></button>
+      <a class="brand" href="#top" aria-label="Prasanna Reddy, home"><span class="brand-mark">pr</span><span class="brand-word">prasannareddy</span></a>
+      <label class="search">
+        <svg aria-hidden="true"><use href="#i-search" /></svg>
+        <span class="search-sub">r/PrasannaReddy</span>
+        <input id="search" type="search" placeholder="Search posts" autocomplete="off" />
+      </label>
+      <div class="top-actions">
+        <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg><use href="#i-moon" /></svg></button>
+        <a class="btn btn-classroom" href="classroom/index.html#/"><svg><use href="#i-cap" /></svg><span>Classroom</span></a>
+        <a class="btn btn-ghost hide-md" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">GitHub</a>
+        <a class="btn btn-primary hide-sm" href="#contact">Say hello</a>
+      </div>
+    </header>
 
-      <section class="comic-bio section" id="bio"><div class="section-heading"><p class="eyebrow">01 / ORIGIN STORY</p><h2>Code, community,<br /><em>and good energy.</em></h2></div><div class="comic-frame"><img src="assets/prasanna-bio-comic-v2.png" alt="Comic-book illustration of a woman developer coding, building secure systems, connecting with developers, and working late at night." /><div class="comic-chapters"><p><span>CHAPTER 01</span>Chennai-based full-stack developer with 5 years of experience.</p><p><span>CHAPTER 02</span>Building secure fintech and cloud systems with a DevSecOps mindset.</p><p><span>CHAPTER 03</span>Always up for a developer conversation, coffee, gum, and a great problem.</p></div></div><div class="web-illustrations"><a href="https://undraw.co/illustration/building-a-website_1wrp" target="_blank" rel="noreferrer"><img src="https://images.ctfassets.net/httuqftbm1yv/5VExncPEFf1WgMg9Hc2Rl2/3a1c9d00081d5bc75764f19aeff5d21d/undraw_web_developer_p3e5.png" alt="Web developer illustration from unDraw." /><span>WEB BUILDER / unDraw ↗</span></a><a href="https://iconscout.com/free-illustration/free-software-engineer-illustration_1731282" target="_blank" rel="noreferrer"><img src="https://cdni.iconscout.com/illustration/free/preview/free-software-engineer-illustration-svg-download-png-1731282.png?f=webp&amp;h=700" alt="Software engineer illustration from IconScout." /><span>SHIP · LEARN · REPEAT / IconScout ↗</span></a></div></section>
+    <div class="layout" id="top">
+      <!-- Left navigation -->
+      <nav class="leftnav" id="leftnav" aria-label="Sections">
+        <a class="nav-item is-active" href="#top"><svg><use href="#i-home" /></svg>Home</a>
+        <a class="nav-item" href="#post-career"><svg><use href="#i-briefcase" /></svg>Career quest</a>
+        <a class="nav-item" href="#post-projects" data-flair-link="projects"><svg><use href="#i-code" /></svg>Projects</a>
+        <a class="nav-item" href="#post-accelerate"><svg><use href="#i-mic" /></svg>Field notes</a>
+        <a class="nav-item" href="#post-ama"><svg><use href="#i-chat" /></svg>AMA · About</a>
+        <a class="nav-item" href="#post-education"><svg><use href="#i-cap" /></svg>Education</a>
+        <a class="nav-item" href="#post-writing" data-flair-link="writing"><svg><use href="#i-book" /></svg>Writing</a>
+        <a class="nav-item" href="#post-gym"><svg><use href="#i-heart" /></svg>Beyond the build</a>
+        <a class="nav-item" href="#contact"><svg><use href="#i-mail" /></svg>Contact</a>
+        <hr />
+        <p class="nav-label">Communities</p>
+        <a class="nav-item" href="#post-career" data-flair-link="career"><span class="sub-dot c-career">d</span>r/DevSecOps</a>
+        <a class="nav-item" href="#post-projects" data-flair-link="projects"><span class="sub-dot c-projects">b</span>r/BuildBreakRepeat</a>
+        <a class="nav-item" href="classroom/index.html#/"><span class="sub-dot c-edu">c</span>r/TheClassroom</a>
+        <a class="nav-item" href="#post-gym" data-flair-link="life"><span class="sub-dot c-life">s</span>r/StrongerThanYesterday</a>
+        <a class="nav-item" href="#post-writing" data-flair-link="writing"><span class="sub-dot c-write">w</span>r/NotAVeryGoodWriter</a>
+        <hr />
+        <p class="nav-label">Elsewhere</p>
+        <a class="nav-item" href="https://www.linkedin.com/in/prasanna3000/" target="_blank" rel="noreferrer"><svg><use href="#i-out" /></svg>LinkedIn</a>
+        <a class="nav-item" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><svg><use href="#i-out" /></svg>GitHub</a>
+        <a class="nav-item" href="https://substack.com/@prasannareddy" target="_blank" rel="noreferrer"><svg><use href="#i-out" /></svg>Substack</a>
+      </nav>
+      <div class="nav-scrim" hidden></div>
 
-      <section class="work section" id="work"><div class="section-heading"><p class="eyebrow">02 / SELECTED WORK</p><h2>A few ideas,<br /><em>made tangible.</em></h2></div>
-        <div class="project-grid">
-          <a class="project project-large magnetic" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><div class="project-visual neural"><span class="visual-label">01</span><div class="neural-core"></div><div class="node n1"></div><div class="node n2"></div><div class="node n3"></div><div class="node n4"></div><b>NPM</b></div><div class="project-info"><div><p class="project-type">DEVELOPER EXPERIENCE · PROJECT LEAD</p><h3>NpmDocs <span>↗</span></h3></div><p>A documentation hub that helps developers search, explore, and access rich NPM package information quickly.</p></div></a>
-          <a class="project magnetic" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><div class="project-visual terminal"><span class="visual-label">02</span><code><i>secure</i> savings =<br />&nbsp; <b>automated</b>();<br /><br /><small>→ AWS / GraphQL</small></code></div><div class="project-info"><div><p class="project-type">UK FINTECH</p><h3>Instant Savings Account <span>↗</span></h3></div><p>A flexible savings-account solution supporting fixed-rate profit and automated recurring transfers in GBP, EUR, and USD.</p></div></a>
-          <a class="project magnetic" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><div class="project-visual gradient"><span class="visual-label">03</span><div class="shape s1"></div><div class="shape s2"></div><div class="shape s3"></div></div><div class="project-info"><div><p class="project-type">REAL-TIME COMMUNICATION</p><h3>MyMeeting <span>↗</span></h3></div><p>A secure one-to-one video-calling platform with invite-token verification and moderator control.</p></div></a>
-          <a class="project magnetic" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><div class="project-visual terminal"><span class="visual-label">04</span><code><i>scan</i> → <b>secure</b><br /><br /><small>SBOM / SLSA / NTIA</small></code></div><div class="project-info"><div><p class="project-type">DEVSECOPS · SOFTWARE SUPPLY CHAIN</p><h3>SBOM360 <span>↗</span></h3></div><p>Compliance-ready SBOM generation for applications, vendor binaries, operating systems, and databases.</p></div></a>
-          <a class="project magnetic" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><div class="project-visual gradient"><span class="visual-label">05</span><div class="shape s1"></div><div class="shape s2"></div><div class="shape s3"></div></div><div class="project-info"><div><p class="project-type">TRANSACTION MANAGEMENT</p><h3>Switch as a Service <span>↗</span></h3></div><p>A platform for secure transaction authorization, validation, limit checks, bank authentication, and traceability.</p></div></a>
-          <a class="project magnetic" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><div class="project-visual terminal"><span class="visual-label">06</span><code><i>verify</i> (customer);<br />&nbsp; <b>queue</b>();</code></div><div class="project-info"><div><p class="project-type">KYC OPERATIONS</p><h3>CKYC <span>↗</span></h3></div><p>A scalable platform for customer KYC records, queued jobs, and scheduled operations.</p></div></a>
-          <a class="project magnetic" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><div class="project-visual gradient"><span class="visual-label">07</span><div class="shape s1"></div><div class="shape s2"></div><div class="shape s3"></div></div><div class="project-info"><div><p class="project-type">CLOUD STORAGE · PROJECT LEAD</p><h3>Storage Microservice <span>↗</span></h3></div><p>A large-file upload, storage, and deletion-history service with granular access control.</p></div></a>
-        </div><a class="text-link" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">View all projects on GitHub <span>↗</span></a>
-      </section>
+      <div class="center">
+        <!-- Community banner -->
+        <section class="banner" aria-label="Profile">
+          <div class="banner-art" aria-hidden="true"><span>Developer</span><span>Dreamer</span><span>Fighter</span></div>
+          <div class="banner-head">
+            <div class="banner-inner">
+              <div class="avatar avatar-xl" role="img" aria-label="Photo of Prasanna Reddy smiling"></div>
+              <div class="banner-title">
+                <h1>Prasanna Reddy</h1>
+                <p>r/PrasannaReddy <span>· Senior DevSecOps Full-Stack Security Engineer</span></p>
+              </div>
+              <a class="btn btn-primary join" href="https://www.linkedin.com/in/prasanna3000/" target="_blank" rel="noreferrer">Join</a>
+            </div>
+            <div class="banner-tabs banner-inner">
+              <a href="#top" class="is-active">Posts</a>
+              <a href="#post-career">Career</a>
+              <a href="#post-projects" data-flair-link="projects">Projects</a>
+              <a href="#post-ama">About</a>
+              <a href="#post-writing" data-flair-link="writing">Writing</a>
+              <a href="classroom/index.html#/" class="tab-classroom"><svg><use href="#i-cap" /></svg>Classroom</a>
+            </div>
+          </div>
+        </section>
 
-      <section class="about section" id="about"><div class="section-heading"><p class="eyebrow">02 / ABOUT ME</p><h2>Security is<br />built <em>into the system.</em></h2></div><div class="about-copy"><p class="big-copy">I design secure, reliable software across full-stack engineering and cloud platforms — with deep experience in fintech, compliance, and high-performance systems.</p><div class="facts"><div><span>CORE STACK</span><p>Java · Spring Boot · Node.js · React · TypeScript</p></div><div><span>CLOUD & DATA</span><p>AWS · GCP · PostgreSQL · MySQL · MongoDB</p></div><div><span>IMPACT</span><p>45% revenue growth · 54% cloud-cost reduction · 95% customer satisfaction</p></div></div></div></section>
+        <div class="content">
+          <main class="feed" id="feed">
+            <!-- Sort bar -->
+            <div class="card sortbar" role="toolbar" aria-label="Sort posts">
+              <button class="sort is-active" type="button" data-sort="hot"><svg><use href="#i-hot" /></svg>Hot</button>
+              <button class="sort" type="button" data-sort="new"><svg><use href="#i-new" /></svg>New</button>
+              <button class="sort" type="button" data-sort="top"><svg><use href="#i-top" /></svg>Top</button>
+              <span class="filter-chip" hidden>Flair: <b></b> <button type="button" aria-label="Clear flair filter">×</button></span>
+            </div>
+            <p class="card empty" hidden>No posts match that search. Try "AWS", "SBOM" or "moon".</p>
 
-      <section class="personal section" id="beyond-code"><div class="section-heading"><p class="eyebrow">03 / BEYOND THE BUILD</p><h2>Powered by<br /><em>good problems.</em></h2></div><div class="personal-layout"><div class="desk-art"><img src="assets/developer-desk.png" alt="A futuristic developer desk with a laptop, coffee, cloud infrastructure, hackathon badge, chewing gum, and a sword detail." /><span class="art-caption">THE PRASANNA BUILD STATION / 01</span></div><div class="personal-copy"><p class="big-copy">A passionate developer with a soft spot for ambitious side projects, deep technical rabbit holes, and the people who make the work better.</p><div class="personality-notes"><article><span>01</span><h3>Developer conversations</h3><p>I love talking with other developers and hearing about the amazing work they’re doing — the weird bugs, the elegant breakthroughs, and the ideas still on the whiteboard.</p></article><article><span>02</span><h3>Geeking out, properly</h3><p>Coffee nearby, a fresh problem to untangle, a hackathon-sized burst of focus, and enough curiosity to keep opening one more documentation tab.</p></article><article><span>03</span><h3>Small essentials</h3><p>Gum freak. Demon Slayer fan. Serious about scalable systems, equally serious about keeping a build session interesting.</p></article></div><div class="stack-label">CURRENT TOOLKIT</div><div class="stack-cloud"><span>React</span><span>TypeScript</span><span>Java</span><span>Spring Boot</span><span>Node.js</span><span>AWS</span><span>GCP</span><span>Kafka</span><span>Docker</span><span>PostgreSQL</span><span>GraphQL</span><span>Python</span></div></div></div></section>
+            <!-- PINNED: Intro -->
+            <article class="card post is-pinned" id="post-intro" data-flair="intro" data-date="2026-11-07" data-score="1420">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="pinned-label"><svg><use href="#i-pin" /></svg>Pinned by moderators</p>
+                <p class="meta"><span class="avatar avatar-sm"></span><b>r/PrasannaReddy</b> · Posted by <span class="user">u/prasanna3000</span> <span class="mod">MOD</span></p>
+                <h2 class="title">Hi, I'm Prasanna. I build secure systems for a digital future. <button class="flair f-intro" type="button" data-flair-btn="intro">Intro</button></h2>
+                <div class="text">
+                  <p>I'm a detail-oriented <strong>full-stack developer with 6 years of experience</strong> building secure, scalable web applications for fintech and digital platforms. Right now I'm a Senior DevSecOps Full-Stack Security Engineer at Standard Chartered GBS in Chennai.</p>
+                  <p>Developer, dreamer, fighter. Build, break, repeat. Scroll the feed for the career quest, my projects, an AMA, and a little of life outside the build.</p>
+                </div>
+                <figure class="media media-tall" style="--src: url('assets/3.jpeg')"><img src="assets/3.jpeg" alt="Illustration of Prasanna smiling with chin on hand at a desk, beside a laptop and a mug reading Build Break Repeat, with the words Developer, Dreamer, Fighter on the wall." loading="eager" /></figure>
+                <div class="tags"><span>Full-stack</span><span>DevSecOps</span><span>Fintech</span><span>Cloud systems</span></div>
+                <div class="actions"><a class="act" href="#post-ama"><svg><use href="#i-comment" /></svg>Read the AMA</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
 
-      <section class="contact" id="contact"><p class="eyebrow">04 / EXPLORE MY WORK</p><h2>Let's build<br /><em>what matters.</em></h2><a class="email" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">github.com/prasanna3000 <span>↗</span></a><div class="contact-bottom"><p>Senior full-stack engineer focused on secure, scalable digital systems.</p><div><a href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">GitHub ↗</a></div></div></section>
-      <section class="history section" id="history"><div class="section-heading"><p class="eyebrow">05 / WORK HISTORY</p><h2>Five years of<br /><em>building momentum.</em></h2></div><div class="history-list"><article><div class="history-date">JAN 2025 — NOW</div><div><p class="history-role">Senior DevSecOps Full-Stack Security Engineer</p><h3>Standard Chartered GBS</h3><p>Building secure inventory dashboards and REST APIs; developing SBOM workflows and researching secure developer tooling.</p><div class="history-tags"><span>Python</span><span>FastAPI</span><span>PostgreSQL</span><span>SBOM</span></div></div></article><article><div class="history-date">APR 2024 — JAN 2025</div><div><p class="history-role">Senior Software Developer</p><h3>Xoriant Solutions</h3><p>Designed resilient, serverless banking systems and secure APIs with cloud-native event-driven architecture.</p><div class="history-tags"><span>TypeScript</span><span>AWS</span><span>GraphQL</span><span>Lambda</span></div></div></article><article><div class="history-date">JAN 2023 — APR 2024</div><div><p class="history-role">Software Developer</p><h3>M2P Fintech</h3><p>Built scalable backend systems, real-time data flows, and reliable release pipelines for core fintech products.</p><div class="history-tags"><span>Spring Boot</span><span>Kafka</span><span>AWS KMS</span><span>MySQL</span></div></div></article><article><div class="history-date">AUG 2020 — JAN 2023</div><div><p class="history-role">Software Developer</p><h3>MyAnatomy Integration</h3><p>Delivered web platforms, real-time video calling, file storage services, and developer onboarding support.</p><div class="history-tags"><span>Node.js</span><span>React</span><span>Socket.io</span><span>AWS S3</span></div></div></article></div></section>
-      <footer><a class="logo" href="#top">PR<span>•</span></a><p>© <span id="year"></span> PRASANNA REDDY. DESIGNED FOR THE NEXT.</p><a href="#top">BACK TO TOP ↑</a></footer>
-    </main>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+            <!-- Accelerate 3.0 -->
+            <article class="card post" id="post-accelerate" data-flair="field-notes" data-date="2026-09-20" data-score="2140">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="avatar avatar-sm"></span><b>r/PrasannaReddy</b> · Posted by <span class="user">u/prasanna3000</span> · Sep 2026 · Kuala Lumpur <span class="award">🏆 Team milestone</span></p>
+                <h2 class="title">Accelerate 3.0, together. Presented our team's work on stage in Kuala Lumpur <button class="flair f-notes" type="button" data-flair-btn="field-notes">Field Notes</button></h2>
+                <figure class="media" style="--src: url('assets/2.jpeg')"><img src="assets/2.jpeg" alt="Illustration of Prasanna on stage with a microphone and clicker, in front of a screen reading Accelerate 3.0: Innovate, Collaborate, Grow." loading="lazy" /></figure>
+                <div class="text">
+                  <p>Still taking in the experience that was Accelerate 3.0. Getting to represent our team and present the work we have been building alongside my manager, Vincent Phelan, felt pretty special.</p>
+                  <p>Proud to see our work come together on stage, grateful for everyone who helped make it happen, and taking home great conversations and learnings.</p>
+                </div>
+                <a class="link-card" href="https://lnkd.in/p/gSGjwJMW" target="_blank" rel="noreferrer"><span><small>linkedin.com</small><b>Read the full post on LinkedIn</b></span><svg><use href="#i-out" /></svg></a>
+                <div class="actions"><a class="act" href="https://lnkd.in/p/gSGjwJMW" target="_blank" rel="noreferrer"><svg><use href="#i-comment" /></svg>Comments on LinkedIn</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+
+            <!-- Career megathread -->
+            <article class="card post" id="post-career" data-flair="career" data-date="2025-01-15" data-score="986">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="avatar avatar-sm"></span><b>r/PrasannaReddy</b> · Posted by <span class="user">u/prasanna3000</span> · 2020 to now</p>
+                <h2 class="title">[Megathread] Career quest: every role, a new level. 4 stages, 6 years of building <button class="flair f-career" type="button" data-flair-btn="career">Career</button></h2>
+                <div class="text"><p>Four chapters through the teams and challenges that shaped my work in software, fintech, cloud, and security. Each level is a comment below; collapse any thread with the line on its left.</p></div>
+                <ol class="quest" aria-label="Career progress">
+                  <li class="done"><a href="#experience-myanatomy"><b>01</b>MyAnatomy</a></li>
+                  <li class="done"><a href="#experience-m2p"><b>02</b>M2P Fintech</a></li>
+                  <li class="done"><a href="#experience-xoriant"><b>03</b>Xoriant</a></li>
+                  <li class="now"><a href="#experience-scb"><b>04</b>Standard Chartered</a></li>
+                </ol>
+                <div class="actions"><span class="act static"><svg><use href="#i-comment" /></svg>4 Comments</span><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+
+                <div class="comments">
+                  <div class="comment" id="experience-scb">
+                    <button class="thread" type="button" aria-label="Collapse comment"></button>
+                    <div class="c-main">
+                      <p class="c-meta"><span class="avatar avatar-sm"></span><b class="user">prasanna3000</b> <span class="op">OP</span> · Level 04 · Jan 2025 to present <span class="award">⭐ Current</span></p>
+                      <div class="c-body">
+                        <p class="c-role">Senior DevSecOps Full-Stack Security Engineer</p>
+                        <h3>Standard Chartered GBS</h3>
+                        <p>Built a TIP Inventory dashboard and PostgreSQL-backed APIs for SHR CIS and STIG Benchmarks. Implemented SBOM workflows across apps, vendor binaries, containers, operating systems, and databases, and researched MRVA for Secure Code Guardian.</p>
+                        <div class="chips"><span class="chip-strong">SBOM360</span><span class="chip-strong">TIP Inventory Dashboard</span></div>
+                        <div class="chips"><span>Python</span><span>FastAPI</span><span>PostgreSQL</span><span>cdxgen</span><span>Syft</span><span>Trivy</span><span>SBOM-Docker</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="comment" id="experience-xoriant">
+                    <button class="thread" type="button" aria-label="Collapse comment"></button>
+                    <div class="c-main">
+                      <p class="c-meta"><span class="avatar avatar-sm"></span><b class="user">prasanna3000</b> <span class="op">OP</span> · Level 03 · Apr 2024 to Jan 2025</p>
+                      <div class="c-body">
+                        <p class="c-role">Senior Software Developer</p>
+                        <h3>Xoriant Solutions</h3>
+                        <p>Designed serverless banking systems and secure APIs. Built event-driven services and automated delivery pipelines for scalable, compliant applications.</p>
+                        <div class="chips"><span class="chip-strong">NpmDocs · Project lead</span><span class="chip-strong">Instant Savings Account</span></div>
+                        <div class="chips"><span>TypeScript</span><span>AWS Lambda</span><span>DynamoDB</span><span>GraphQL</span><span>SNS / SQS</span><span>EventBridge</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="comment" id="experience-m2p">
+                    <button class="thread" type="button" aria-label="Collapse comment"></button>
+                    <div class="c-main">
+                      <p class="c-meta"><span class="avatar avatar-sm"></span><b class="user">prasanna3000</b> <span class="op">OP</span> · Level 02 · Jan 2023 to Apr 2024</p>
+                      <div class="c-body">
+                        <p class="c-role">Software Developer</p>
+                        <h3>M2P Fintech</h3>
+                        <p>Built scalable backend services and real-time data flows for fintech products. Applied AWS KMS encryption and supported testing, secure releases, monitoring, and on-call reliability.</p>
+                        <div class="chips"><span class="chip-strong">Switch as a Service</span><span class="chip-strong">CKYC</span></div>
+                        <div class="chips"><span>Spring Boot</span><span>Kafka</span><span>AWS KMS</span><span>PostgreSQL</span><span>MySQL</span><span>Node.js</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="comment" id="experience-myanatomy">
+                    <button class="thread" type="button" aria-label="Collapse comment"></button>
+                    <div class="c-main">
+                      <p class="c-meta"><span class="avatar avatar-sm"></span><b class="user">prasanna3000</b> <span class="op">OP</span> · Level 01 · Aug 2020 to Jan 2023</p>
+                      <div class="c-body">
+                        <p class="c-role">Software Developer</p>
+                        <h3>MyAnatomy Integration</h3>
+                        <p>Built secure one-to-one video calling and led a large-file storage microservice. Contributed to REST APIs, web platforms, sprint discussions, and new-joiner training.</p>
+                        <div class="chips"><span class="chip-strong">MyMeeting</span><span class="chip-strong">Storage Microservice</span></div>
+                        <div class="chips"><span>Node.js</span><span>React</span><span>Socket.io</span><span>Simple Peer</span><span>AWS S3</span><span>MongoDB</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Projects: one post per project -->
+            <article class="card post post-link" id="post-projects" data-flair="projects" data-date="2024-11-01" data-score="612">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · Developer experience</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000/npmdocs" target="_blank" rel="noreferrer">NpmDocs</a> <span class="l-flair">Project lead</span> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000/npmdocs" target="_blank" rel="noreferrer">github.com/prasanna3000/npmdocs <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">A documentation hub that helps developers search, explore, and access rich NPM package information quickly.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-neural" href="https://github.com/prasanna3000/npmdocs" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">NPM</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000/npmdocs" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-instant-savings" data-flair="projects" data-date="2024-09-01" data-score="388">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · UK fintech · AWS / GraphQL</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">Instant Savings Account</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">github.com/prasanna3000 <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">A flexible savings-account solution supporting fixed-rate profit and automated recurring transfers in GBP, EUR, and USD.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-code" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">£€$</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-sbom360" data-flair="projects" data-date="2025-08-01" data-score="704">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · DevSecOps · SBOM / SLSA / NTIA</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">SBOM360</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">github.com/prasanna3000 <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">Compliance-ready SBOM generation for applications, vendor binaries, operating systems, and databases.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-code" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">SBOM</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-mymeeting" data-flair="projects" data-date="2021-06-01" data-score="455">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · Real-time communication</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">MyMeeting</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">github.com/prasanna3000 <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">A secure one-to-one video-calling platform with invite-token verification and moderator control.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-grad" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">1:1</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-switch" data-flair="projects" data-date="2023-10-01" data-score="341">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · Transaction management</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">Switch as a Service</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">github.com/prasanna3000 <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">A platform for secure transaction authorization, validation, limit checks, bank authentication, and traceability.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-grad" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">TXN</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-ckyc" data-flair="projects" data-date="2023-06-01" data-score="219">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · KYC operations</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">CKYC</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">github.com/prasanna3000 <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">A scalable platform for customer KYC records, queued jobs, and scheduled operations.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-code" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">KYC</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-storage" data-flair="projects" data-date="2022-06-01" data-score="276">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · Cloud storage</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">Storage Microservice</a> <span class="l-flair">Project lead</span> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">github.com/prasanna3000 <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">A large-file upload, storage, and deletion-history service with granular access control.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-grad" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">S3</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-sara" data-flair="projects" data-date="2025-11-01" data-score="367">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · Python / ML · Spam risk assistant</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000/sara" target="_blank" rel="noreferrer">SARA</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000/sara" target="_blank" rel="noreferrer">github.com/prasanna3000/sara <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">A Streamlit app for comparing five tuned spam classifiers with held-out evaluation, cross-validation, and model metrics.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-code" href="https://github.com/prasanna3000/sara" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">ML</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000/sara" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-mira" data-flair="projects" data-date="2026-10-15" data-score="298">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · Local-first photo intelligence</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000/mira" target="_blank" rel="noreferrer">Mira</a> <span class="l-flair l-wip">In development</span> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000/mira" target="_blank" rel="noreferrer">github.com/prasanna3000/mira <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">A planned visual-intelligence app for organizing photo libraries with local analysis, semantic search, duplicate detection, and AI-assisted stories.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-neural" href="https://github.com/prasanna3000/mira" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">MIRA</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000/mira" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-nodejs-quiz" data-flair="projects" data-date="2021-02-01" data-score="142">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · React / JavaScript</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000/nodejsquiz" target="_blank" rel="noreferrer">Node.js Quiz</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000/nodejsquiz" target="_blank" rel="noreferrer">github.com/prasanna3000/nodejsquiz <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">A fun React quiz app adapted from a community Node.js quiz project.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-grad" href="https://github.com/prasanna3000/nodejsquiz" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">?</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000/nodejsquiz" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-tickets" data-flair="projects" data-date="2022-02-01" data-score="118">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · Backend prototype</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000/unified-ticket-management-system" target="_blank" rel="noreferrer">Unified Ticket Management</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000/unified-ticket-management-system" target="_blank" rel="noreferrer">github.com/prasanna3000/unified-ticket-management-system <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">A JavaScript service prototype for creating, retrieving, and updating ticket records.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-code" href="https://github.com/prasanna3000/unified-ticket-management-system" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">API</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000/unified-ticket-management-system" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-snakes-ladders" data-flair="projects" data-date="2020-05-01" data-score="187">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · Browser game</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000/Snakes-And-Ladders---Single-Player-Game" target="_blank" rel="noreferrer">Snakes &amp; Ladders</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000/Snakes-And-Ladders---Single-Player-Game" target="_blank" rel="noreferrer">github.com/prasanna3000/Snakes-And-Ladders---Single-Player-Game <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">A single-player online take on the traditional Snakes and Ladders board game.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-grad" href="https://github.com/prasanna3000/Snakes-And-Ladders---Single-Player-Game" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">🎲</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000/Snakes-And-Ladders---Single-Player-Game" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-emotion" data-flair="projects" data-date="2020-03-01" data-score="231">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · AI / ML experiment</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000/Real_Time_Facial_Emotion_Classification" target="_blank" rel="noreferrer">Facial Emotion Classification</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000/Real_Time_Facial_Emotion_Classification" target="_blank" rel="noreferrer">github.com/prasanna3000/Real_Time_Facial_Emotion_Classification <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">An early computer-vision project exploring real-time facial emotion classification.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-neural" href="https://github.com/prasanna3000/Real_Time_Facial_Emotion_Classification" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">CV</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000/Real_Time_Facial_Emotion_Classification" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-plagiarism" data-flair="projects" data-date="2020-01-15" data-score="164">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · Academic project</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000/Source_Code_Plagiarism_Detection" target="_blank" rel="noreferrer">Source Code Plagiarism Detection</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000/Source_Code_Plagiarism_Detection" target="_blank" rel="noreferrer">github.com/prasanna3000/Source_Code_Plagiarism_Detection <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">An academic prototype exploring source-code similarity and plagiarism detection.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-code" href="https://github.com/prasanna3000/Source_Code_Plagiarism_Detection" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">A≈B</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000/Source_Code_Plagiarism_Detection" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-mongo-perf" data-flair="projects" data-date="2021-09-01" data-score="129">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · Databases</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000/MongoDB-Performance" target="_blank" rel="noreferrer">MongoDB Performance</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000/MongoDB-Performance" target="_blank" rel="noreferrer">github.com/prasanna3000/MongoDB-Performance <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">Notes and examples for understanding MongoDB performance and query optimization.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-grad" href="https://github.com/prasanna3000/MongoDB-Performance" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">DB</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000/MongoDB-Performance" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="project-mongo-auth" data-flair="projects" data-date="2021-10-01" data-score="153">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-projects">b</span><b>r/BuildBreakRepeat</b> · Posted by <span class="user">u/prasanna3000</span> · MongoDB security reference</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://github.com/prasanna3000/MongoDB-Authentication-Authorization" target="_blank" rel="noreferrer">Authentication &amp; Authorization</a> <button class="flair f-projects" type="button" data-flair-btn="projects">Projects</button></h2>
+                    <a class="domain" href="https://github.com/prasanna3000/MongoDB-Authentication-Authorization" target="_blank" rel="noreferrer">github.com/prasanna3000/MongoDB-Authentication-Authorization <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc">A practical command reference for MongoDB authentication and authorization, including x.509 internal authentication.</p>
+                  </div>
+                  <a class="thumb thumb-lg t-code" href="https://github.com/prasanna3000/MongoDB-Authentication-Authorization" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">X.509</a>
+                </div>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000/MongoDB-Authentication-Authorization" target="_blank" rel="noreferrer"><svg><use href="#i-code" /></svg>View code</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <a class="card more-repos" href="https://github.com/prasanna3000?tab=repositories" target="_blank" rel="noreferrer" data-flair="projects"><svg><use href="#i-out" /></svg>Browse all public repositories on GitHub</a>
+
+            <!-- AMA -->
+            <article class="card post" id="post-ama" data-flair="ama" data-date="2026-10-01" data-score="531">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="avatar avatar-sm"></span><b>r/PrasannaReddy</b> · Posted by <span class="user">u/prasanna3000</span> <span class="award">🔒 Security-first</span></p>
+                <h2 class="title">I'm a full-stack engineer who believes security is built into the system, not bolted on. AMA! <button class="flair f-ama" type="button" data-flair-btn="ama">AMA</button></h2>
+                <div class="text"><p class="lead">I build secure, scalable web applications with a full-stack and DevSecOps mindset, focused on reliable, high-performance fintech systems.</p></div>
+                <div class="actions"><span class="act static"><svg><use href="#i-comment" /></svg>5 Comments</span><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+                <div class="comments">
+                  <div class="qa"><p class="q"><span class="q-badge">Q</span>What do you use on the front end?</p><p class="a"><span class="avatar avatar-sm"></span><span><b>prasanna3000</b> <span class="op">OP</span><br />React · Redux · HTML · CSS · JavaScript · TypeScript</span></p></div>
+                  <div class="qa"><p class="q"><span class="q-badge">Q</span>And the back end?</p><p class="a"><span class="avatar avatar-sm"></span><span><b>prasanna3000</b> <span class="op">OP</span><br />Spring Boot · Java · Node.js · Express · JSP · Servlets · GraphQL · Python · Socket.io · Simple Peer</span></p></div>
+                  <div class="qa"><p class="q"><span class="q-badge">Q</span>Data and cloud?</p><p class="a"><span class="avatar avatar-sm"></span><span><b>prasanna3000</b> <span class="op">OP</span><br />MongoDB · PostgreSQL · MySQL · DynamoDB · AWS · GCP</span></p></div>
+                  <div class="qa"><p class="q"><span class="q-badge">Q</span>Tools and testing?</p><p class="a"><span class="avatar avatar-sm"></span><span><b>prasanna3000</b> <span class="op">OP</span><br />Git · GitHub · Postman · Jest · Mocha · Chai</span></p></div>
+                  <div class="qa"><p class="q"><span class="q-badge">Q</span>What are you proudest of?</p>
+                    <div class="a"><span class="avatar avatar-sm"></span><div><b>prasanna3000</b> <span class="op">OP</span>
+                      <div class="stats">
+                        <p><b>45%</b>revenue uplift from video calling</p>
+                        <p><b>20</b>Campaign client onboardings</p>
+                        <p><b>50%</b>resource-cost savings</p>
+                        <p><b>54%</b>cloud-cost reduction</p>
+                        <p><b>20%</b>team productivity gain</p>
+                        <p><b>95%</b>customer satisfaction</p>
+                      </div>
+                    </div></div>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Education -->
+            <article class="card post" id="post-education" data-flair="education" data-date="2026-08-01" data-score="412">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="avatar avatar-sm"></span><b>r/PrasannaReddy</b> · Posted by <span class="user">u/prasanna3000</span> · 2026</p>
+                <h2 class="title">Back in class: started my M.Tech in AI &amp; Machine Learning at BITS Pilani <button class="flair f-edu" type="button" data-flair-btn="education">Education</button></h2>
+                <div class="edu">
+                  <div class="edu-row edu-now"><span class="edu-tag">Current program</span><h3>M.Tech in Artificial Intelligence and Machine Learning</h3><p>BITS Pilani · Work Integrated Learning Programmes · 2026 to present</p></div>
+                  <div class="edu-row"><span class="edu-tag">Bachelor of Computer Science</span><h3>Vignan's Foundation of Science, Technology &amp; Research</h3><p>Deemed to be University · Jun 2016 to Jun 2020</p><strong class="cgpa">9.5<small>/10</small></strong></div>
+                </div>
+                <a class="link-card" href="classroom/index.html#/"><span><small>prasannareddy.com/classroom</small><b>The Classroom: lessons, labs, flashcards and quizzes from my M.Tech courses</b></span><svg><use href="#i-book" /></svg></a>
+                <div class="actions"><a class="act" href="classroom/index.html#/"><svg><use href="#i-book" /></svg>Open the classroom</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+
+            <!-- Writing: one post per Substack article -->
+            <article class="card post post-link" id="post-writing" data-flair="writing" data-date="2026-11-02" data-score="164">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-write">w</span><b>r/NotAVeryGoodWriter</b> · Posted by <span class="user">u/prasanna3000</span> · Nov 2026</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://prasannareddy.substack.com/p/field-notes-the-goldfish" target="_blank" rel="noreferrer">Field Notes: The Goldfish</a> <button class="flair f-write" type="button" data-flair-btn="writing">Writing</button></h2>
+                    <a class="domain" href="https://prasannareddy.substack.com/p/field-notes-the-goldfish" target="_blank" rel="noreferrer">prasannareddy.substack.com <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc"><em>A documentary in observations, Bureau of Figuring People Out, Classified</em></p>
+                  </div>
+                  <a class="thumb thumb-lg t-write" href="https://prasannareddy.substack.com/p/field-notes-the-goldfish" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">✎</a>
+                </div>
+                <div class="actions"><a class="act" href="https://prasannareddy.substack.com/p/field-notes-the-goldfish" target="_blank" rel="noreferrer"><svg><use href="#i-book" /></svg>Read on Substack</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="writing-thirty" data-flair="writing" data-date="2026-10-13" data-score="233">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-write">w</span><b>r/NotAVeryGoodWriter</b> · Posted by <span class="user">u/prasanna3000</span> · Oct 2026</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://prasannareddy.substack.com/p/to-the-woman-ill-be-at-30" target="_blank" rel="noreferrer">To the Woman I’ll Be at 30</a> <button class="flair f-write" type="button" data-flair-btn="writing">Writing</button></h2>
+                    <a class="domain" href="https://prasannareddy.substack.com/p/to-the-woman-ill-be-at-30" target="_blank" rel="noreferrer">prasannareddy.substack.com <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc"><em>A letter written somewhere in the quiet hours of becoming.</em></p>
+                  </div>
+                  <a class="thumb thumb-lg t-write" href="https://prasannareddy.substack.com/p/to-the-woman-ill-be-at-30" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">✎</a>
+                </div>
+                <div class="actions"><a class="act" href="https://prasannareddy.substack.com/p/to-the-woman-ill-be-at-30" target="_blank" rel="noreferrer"><svg><use href="#i-book" /></svg>Read on Substack</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+            <article class="card post post-link" id="writing-sky" data-flair="writing" data-date="2026-09-29" data-score="189">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-write">w</span><b>r/NotAVeryGoodWriter</b> · Posted by <span class="user">u/prasanna3000</span> · Sep 2026</p>
+                <div class="link-post">
+                  <div class="link-main">
+                    <h2 class="title"><a class="title-link" href="https://prasannareddy.substack.com/p/the-sky-gets-quiet-up-here" target="_blank" rel="noreferrer">The Sky Gets Quiet Up Here</a> <button class="flair f-write" type="button" data-flair-btn="writing">Writing</button></h2>
+                    <a class="domain" href="https://prasannareddy.substack.com/p/the-sky-gets-quiet-up-here" target="_blank" rel="noreferrer">prasannareddy.substack.com <svg><use href="#i-out" /></svg></a>
+                    <p class="link-desc"><em>On the loneliness that comes with learning to carry yourself.</em></p>
+                  </div>
+                  <a class="thumb thumb-lg t-write" href="https://prasannareddy.substack.com/p/the-sky-gets-quiet-up-here" target="_blank" rel="noreferrer" aria-hidden="true" tabindex="-1">✎</a>
+                </div>
+                <div class="actions"><a class="act" href="https://prasannareddy.substack.com/p/the-sky-gets-quiet-up-here" target="_blank" rel="noreferrer"><svg><use href="#i-book" /></svg>Read on Substack</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+
+            <!-- Gym -->
+            <article class="card post" id="post-gym" data-flair="life" data-date="2026-10-20" data-score="1130">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="sub-dot c-life">s</span><b>r/StrongerThanYesterday</b> · Posted by <span class="user">u/prasanna3000</span> <span class="award">💪 Wholesome</span></p>
+                <h2 class="title">Move your body, reset your brain. Stronger than yesterday. <button class="flair f-life" type="button" data-flair-btn="life">Life</button></h2>
+                <figure class="media" style="--src: url('assets/1.jpeg')"><img src="assets/1.jpeg" alt="Illustration of Prasanna in a gym, winking with chin on a wrapped fist, beside the words Stronger Than Yesterday." loading="lazy" /></figure>
+                <div class="text"><p>The best debugging sessions start away from the keyboard. Training keeps the focus sharp and the build sessions honest.</p></div>
+                <div class="actions"><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+
+            <!-- Beyond the build -->
+            <article class="card post" id="post-beyond" data-flair="life" data-date="2026-07-01" data-score="308">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="avatar avatar-sm"></span><b>r/PrasannaReddy</b> · Posted by <span class="user">u/prasanna3000</span></p>
+                <h2 class="title">Beyond the build: what keeps me going between commits <button class="flair f-life" type="button" data-flair-btn="life">Life</button></h2>
+                <div class="text">
+                  <p class="lead">A passionate developer with a soft spot for ambitious side projects, deep technical rabbit holes, and the people who make the work better.</p>
+                  <ol class="notes">
+                    <li><b>Developer conversations.</b> I love talking with other developers and hearing about the amazing work they're doing: the weird bugs, the elegant breakthroughs, and the ideas still on the whiteboard.</li>
+                    <li><b>Geeking out, properly.</b> Coffee nearby, a fresh problem to untangle, a hackathon-sized burst of focus, and enough curiosity to keep opening one more documentation tab.</li>
+                    <li><b>Small essentials.</b> Gum freak. Demon Slayer fan. Serious about scalable systems, equally serious about keeping a build session interesting.</li>
+                  </ol>
+                  <div class="loop"><p><span>↗</span><b>Move</b>Move your body. Reset your brain.</p><p><span>✳</span><b>Refuel</b>Good food. Better brain fuel.</p><p><span>⌘</span><b>Stay curious</b>One more tab. One more idea.</p></div>
+                </div>
+                <div class="actions"><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+
+            <!-- Moon -->
+            <article class="card post" id="post-moon" data-flair="life" data-date="2025-09-29" data-score="877">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="avatar avatar-sm"></span><b>r/PrasannaReddy</b> · Posted by <span class="user">u/prasanna3000</span> · Sep 2025</p>
+                <h2 class="title">I took a picture of the moon. Camera roll 01. <button class="flair f-photo" type="button" data-flair-btn="life">Moon shot</button></h2>
+                <figure class="media" style="--src: url('assets/Prasanna_Moon.JPEG')"><img src="assets/Prasanna_Moon.JPEG" alt="A large orange moon against a night sky, photographed by Prasanna." loading="lazy" /></figure>
+                <div class="actions"><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button><button class="act save" type="button"><svg><use href="#i-save" /></svg><span>Save</span></button></div>
+              </div>
+            </article>
+
+            <!-- Contact -->
+            <article class="card post post-contact" id="contact" data-flair="contact" data-date="2026-11-06" data-score="256">
+              <div class="vote"><button class="up" type="button" aria-label="Upvote"><svg><use href="#i-up" /></svg></button><span class="score"></span><button class="down" type="button" aria-label="Downvote"><svg><use href="#i-down" /></svg></button></div>
+              <div class="post-body">
+                <p class="meta"><span class="avatar avatar-sm"></span><b>r/PrasannaReddy</b> · Posted by <span class="user">u/prasanna3000</span> <span class="mod">MOD</span></p>
+                <h2 class="title">Let's build what matters. Say hello <button class="flair f-intro" type="button" data-flair-btn="contact">Contact</button></h2>
+                <div class="text"><p>Senior full-stack engineer focused on secure, scalable fintech systems · Chennai, India · Telugu, Hindi, English, Tamil.</p></div>
+                <a class="email" href="mailto:iprasannareddy536@gmail.com"><svg><use href="#i-mail" /></svg>iprasannareddy536@gmail.com</a>
+                <div class="actions"><a class="act" href="https://github.com/prasanna3000" target="_blank" rel="noreferrer"><svg><use href="#i-out" /></svg>GitHub</a><a class="act" href="https://www.linkedin.com/in/prasanna3000/" target="_blank" rel="noreferrer"><svg><use href="#i-out" /></svg>LinkedIn</a><button class="act share" type="button"><svg><use href="#i-share" /></svg>Share</button></div>
+              </div>
+            </article>
+          </main>
+
+          <!-- Right sidebar -->
+          <aside class="sidebar" aria-label="About this community">
+            <section class="card side">
+              <div class="side-head">About community</div>
+              <div class="side-body">
+                <div class="side-who"><span class="avatar avatar-md"></span><b>r/PrasannaReddy</b></div>
+                <p>Secure systems, fintech, cloud, a classroom for AI/ML, some writing, and the occasional moon shot. Developer · Dreamer · Fighter.</p>
+                <div class="side-stats"><p><b>6 yrs</b><span>Building</span></p><p><b>4</b><span>Companies</span></p><p><b>16</b><span>Projects</span></p></div>
+                <p class="side-line"><svg><use href="#i-cake" /></svg>Shipping since Aug 2020 · Chennai, India</p>
+                <a class="btn btn-primary btn-block" href="mailto:iprasannareddy536@gmail.com">Message me</a>
+                <a class="btn btn-ghost btn-block" href="https://www.linkedin.com/in/prasanna3000/" target="_blank" rel="noreferrer">Connect on LinkedIn</a>
+                <a class="btn btn-ghost btn-block" href="https://substack.com/@prasannareddy" target="_blank" rel="noreferrer">Read me on Substack</a>
+              </div>
+            </section>
+
+            <section class="card side">
+              <div class="side-head side-head-plain">r/PrasannaReddy rules</div>
+              <div class="side-body rules">
+                <details open><summary><span>1.</span>Security is built into the system</summary><p>Not bolted on at release time. Threat-model early, scan always, ship SBOMs.</p></details>
+                <details><summary><span>2.</span>Scalable, not fragile</summary><p>Event-driven, observable, and boring in production. In the good way.</p></details>
+                <details><summary><span>3.</span>Build. Break. Repeat.</summary><p>Prototype fast, test hard, and learn from every failure on the way.</p></details>
+                <details><summary><span>4.</span>Be kind in code review</summary><p>The people make the work better. Always up for a developer conversation.</p></details>
+                <details><summary><span>5.</span>Stay curious</summary><p>One more tab. One more idea. Currently: M.Tech in AI &amp; ML.</p></details>
+              </div>
+            </section>
+
+            <section class="card side">
+              <div class="side-head side-head-plain">User flair · current toolkit</div>
+              <div class="side-body flairs"><span>React</span><span>TypeScript</span><span>Java</span><span>Spring Boot</span><span>Node.js</span><span>AWS</span><span>GCP</span><span>Kafka</span><span>Docker</span><span>PostgreSQL</span><span>GraphQL</span><span>Python</span></div>
+            </section>
+
+            <section class="card side">
+              <div class="side-head side-head-plain">Moderators</div>
+              <div class="side-body">
+                <p class="side-who"><span class="avatar avatar-sm"></span><b class="user">u/prasanna3000</b></p>
+                <p class="side-muted">Speaks Telugu, Hindi, English, Tamil.</p>
+                <a class="btn btn-ghost btn-block" href="mailto:iprasannareddy536@gmail.com"><svg><use href="#i-mail" /></svg>Message the mods</a>
+              </div>
+            </section>
+
+            <footer class="card side side-foot">
+              <p><a href="https://github.com/prasanna3000" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://www.linkedin.com/in/prasanna3000/" target="_blank" rel="noreferrer">LinkedIn</a> · <a href="https://substack.com/@prasannareddy" target="_blank" rel="noreferrer">Substack</a> · <a href="classroom/index.html#/">Classroom</a></p>
+              <p>© <span id="year"></span> Prasanna Reddy. Designed for the next.</p>
+              <a class="back-top" href="#top">Back to top ↑</a>
+            </footer>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite"></div>
     <script src="script.js"></script>
   </body>
 </html>

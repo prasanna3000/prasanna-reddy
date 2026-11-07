@@ -12,5 +12,3 @@
 .web-illustrations span { font: 10px 'DM Mono', monospace; line-height: 1.5; }
 @media (max-width: 700px) { .comic-chapters, .web-illustrations { grid-template-columns: 1fr; } .comic-chapters p { border-right: 0; border-bottom: 1px solid var(--line); } .comic-chapters p:last-child { border-bottom: 0; } }
 
-/* Keep every illustrated developer depiction consistent with Prasanna's story. */
-.personal .desk-art img { content: url("assets/prasanna-bio-comic-v2.png"); }
