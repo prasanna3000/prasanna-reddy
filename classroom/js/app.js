@@ -123,8 +123,8 @@
     app.innerHTML = `<section class="board big-board"><div class="board-inner">
       <h2 class="chalk-title">Oops: the board is blank</h2>
       <p>${esc(err.message || err)}</p>
-      ${local ? `<p>This page reads its lessons from <code>content/content-bundle.js</code>. If you just added or edited content, rebuild the bundle in the classroom folder:</p>
-      <div class="formula">python3 build-content.py</div><p>Then reload this page.</p>` : '<p>Check that the file path in <code>content/catalog.json</code> is right and the JSON is valid.</p>'}
+      ${local ? `<p>You opened the page straight from a file. Browsers block loading the lesson files that way. Start a tiny local server in this folder instead:</p>
+      <div class="formula">python3 -m http.server 8000</div><p>Then open <code>http://localhost:8000</code>.</p>` : '<p>Check that the file path in <code>content/catalog.json</code> is right and the JSON is valid.</p>'}
       <p><a class="btn btn-chalk" href="#/">Back to the corridor</a></p></div></section>`;
   }
 

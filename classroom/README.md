@@ -19,19 +19,13 @@ It is a plain static site: HTML, CSS and JavaScript with no build step and no de
 
 ## Run it locally
 
-Just open `index.html` in a browser. No server needed.
-
-All lesson JSON is packed into `content/content-bundle.js`, which the page loads with a normal
-`<script>` tag (browsers block `fetch()` for pages opened from `file://`, but allow scripts).
-**After adding or editing anything in `content/`, rebuild the bundle:**
+Browsers block `fetch()` for pages opened from `file://`, so serve the folder:
 
 ```bash
 cd classroom
-python3 build-content.py
+python3 -m http.server 8000
+# open http://localhost:8000
 ```
-
-On a real web host (GitHub Pages) the page fetches the live `.json` files first and only falls
-back to the bundle, so a stale bundle never hides new content online.
 
 ---
 

@@ -40,7 +40,7 @@
         {
           "type": "list",
           "items": [
-            "**Why the boundary value μ = K is used** in the statistic (section 5). His OneNote notes will be uploaded.",
+            "**Why the boundary value μ = K is used** in the statistic (board 6). His OneNote notes will be uploaded.",
             "**Reject does not mean accept H₁, and fail to reject does not mean accept H₀.** The jury says \"not guilty\", never \"innocent\".",
             "**Play with the numbers.** Change s, n and α and watch z move. He wants understanding, not just substitution.",
             "The standard error is s/√n, the SD of the **sample mean**, not the SD of single observations."
@@ -49,19 +49,19 @@
         {
           "type": "note",
           "label": "Open item",
-          "text": "The two-proportion example on the slide uses a pooled p*q*. In class he doubted it and promised to check and clarify next lecture. Section 8 shows why pooled is the standard answer when H₀ says P₁ = P₂, and that both versions reach the same decision here.",
+          "text": "The two-proportion example on the slide uses a pooled p*q*. In class he doubted it and promised to check and clarify next lecture. Board 9 shows why pooled is the standard answer when H₀ says P₁ = P₂, and that both versions reach the same decision here.",
           "color": "pink"
         },
         {
           "type": "note",
           "label": "Heads up",
-          "text": "No exam hints were given in this recording. The exam pattern comes from the past papers (last board).",
+          "text": "No exam hints were given in this recording. The exam pattern comes from the past papers (board 13).",
           "color": "blue"
         }
       ]
     },
     {
-      "title": "1 · Why test a hypothesis?",
+      "title": "Why test a hypothesis?",
       "lead": "A sample is a small, lucky-or-unlucky glimpse. Testing asks how likely that glimpse would be if the claim were true.",
       "blocks": [
         {
@@ -104,7 +104,7 @@
       ]
     },
     {
-      "title": "2 · H₀ and H₁: who gets the equals sign",
+      "title": "H₀ and H₁: who gets the equals sign",
       "lead": "The null always contains the equality. The alternative is the strict opposite.",
       "blocks": [
         {
@@ -177,12 +177,12 @@
         {
           "type": "note",
           "label": "Teacher says",
-          "text": "When H₀ is a range such as μ ≥ K, the test statistic still uses the single value μ = K. Section 5 explains why."
+          "text": "When H₀ is a range such as μ ≥ K, the test statistic still uses the single value μ = K. Board 6 explains why."
         }
       ]
     },
     {
-      "title": "3 · Two ways to be wrong",
+      "title": "Two ways to be wrong",
       "lead": "Every decision can be wrong in exactly two ways. α controls one of them.",
       "blocks": [
         {
@@ -234,7 +234,7 @@
       ]
     },
     {
-      "title": "4 · α, p-values and tails",
+      "title": "α, p-values and tails",
       "lead": "Two roads to the same verdict: the critical value, and the p-value.",
       "blocks": [
         {
@@ -316,11 +316,263 @@
           "type": "trap",
           "label": "Exam trap",
           "text": "For a two-tailed test the p-value is **twice** the one-tail area. Compare 2 × (tail area) with α, or compare |z| with z_{α/2}. Do not mix: using a one-tail critical value with a two-tail p-value flips decisions near the boundary."
+        },
+        {
+          "type": "h",
+          "text": "Left, right or two-tailed: what to do"
+        },
+        {
+          "type": "table",
+          "head": [
+            "",
+            "Left-tailed (H₁: μ < K)",
+            "Right-tailed (H₁: μ > K)",
+            "Two-tailed (H₁: μ ≠ K)"
+          ],
+          "rows": [
+            [
+              "Cut-off",
+              "−z_α (negative)",
+              "+z_α (positive)",
+              "±z_{α/2}"
+            ],
+            [
+              "Table lookup for the cut-off",
+              "search 1 − α, then put a minus sign",
+              "search 1 − α",
+              "search 1 − α/2"
+            ],
+            [
+              "Reject when",
+              "z ≤ −z_α",
+              "z ≥ z_α",
+              "z ≤ −z_{α/2} or z ≥ z_{α/2}"
+            ],
+            [
+              "p-value (|z| from the table)",
+              "1 − Φ(|z|), if z is negative",
+              "1 − Φ(|z|), if z is positive",
+              "2 × (1 − Φ(|z|))"
+            ],
+            [
+              "Example, α = 0.05",
+              "−1.645",
+              "1.645",
+              "±1.96"
+            ]
+          ]
+        },
+        {
+          "type": "trap",
+          "text": "Check the direction first. If the sample mean moved the opposite way to H₁ (for example H₁: μ > K but x̄ is below K), z is on the wrong side, p is bigger than 0.5, and you cannot reject. No table needed."
+        },
+        {
+          "type": "h",
+          "text": "Reading the exam z-table (area to the LEFT)"
+        },
+        {
+          "type": "p",
+          "text": "The May 2026 paper prints the **cumulative standard normal table**: \"Table values represent AREA to the LEFT of the Z score\". The **edges** (left column and top row) are z-values. The **inside** numbers are areas, between 0.5 and about 0.9936 (z up to 2.49). Negative z is not printed, so use symmetry."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**z to p-value:** split z (1.84 = row 1.8 + column 0.04), read the area inside (0.96712), then p = 1 − 0.96712 = 0.033. Double it for a two-tailed test.",
+            "**α to cut-off:** work out the left area (1 − α, or 1 − α/2 for two tails), search for it **inside** the table, and read z from the edges. For 0.95 you find 0.94950 (z = 1.64) and 0.95053 (z = 1.65), so the cut-off is 1.645.",
+            "**Add the sign from H₁:** \">\" gives plus, \"<\" gives minus, \"≠\" gives both. The table never decides the sign.",
+            "**Negative z:** the left area for −z is 1 − (area for +z), and the tail is the same size as for +z.",
+            "**z beyond 2.49:** read the cut-off from the bottom z row of the t-table instead (1.282, 1.645, 1.960, 2.326, 2.576)."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Common mix-up",
+          "text": "Searching 0.95 on the edges instead of inside the table gives 0.82894, which is the area for z = 0.95. That is not the cut-off. Areas live inside the table and z lives on the edges.",
+          "color": "pink"
+        },
+        {
+          "type": "h",
+          "text": "Every case: from z to the p-value"
+        },
+        {
+          "type": "p",
+          "text": "Φ(z) means the number you read from the left-area table for |z|. Always look up |z|, since the table has no negative z."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Test",
+            "Where z lies",
+            "p-value",
+            "Example",
+            "Decision"
+          ],
+          "rows": [
+            [
+              "Right-tailed",
+              "z positive",
+              "1 − Φ(z)",
+              "z = 1.84: 1 − 0.96712 = **0.033**",
+              "reject at 5%"
+            ],
+            [
+              "Right-tailed",
+              "z negative (wrong side)",
+              "Φ(|z|)",
+              "z = −0.5: **0.69**",
+              "do not reject"
+            ],
+            [
+              "Left-tailed",
+              "z negative",
+              "1 − Φ(|z|)",
+              "z = −0.5: 1 − 0.69146 = **0.31**",
+              "do not reject at 1%"
+            ],
+            [
+              "Left-tailed",
+              "z positive (wrong side)",
+              "Φ(z)",
+              "z = 1.84: **0.967**",
+              "do not reject"
+            ],
+            [
+              "Two-tailed",
+              "either sign",
+              "2 × (1 − Φ(|z|))",
+              "z = 2.36: 2 × 0.00914 = **0.018**",
+              "reject at 5%"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Every case: from α to the cut-off"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Test",
+            "Search inside the table for",
+            "Read z",
+            "Add sign",
+            "At 5%",
+            "At 1%"
+          ],
+          "rows": [
+            [
+              "Right-tailed",
+              "1 − α",
+              "z",
+              "+",
+              "0.95 gives **+1.645**",
+              "0.99 gives **+2.33**"
+            ],
+            [
+              "Left-tailed",
+              "1 − α",
+              "z",
+              "−",
+              "0.95 gives **−1.645**",
+              "0.99 gives **−2.33**"
+            ],
+            [
+              "Two-tailed",
+              "1 − α/2",
+              "z",
+              "±",
+              "0.975 gives **±1.96**",
+              "0.995 gives **±2.58**"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Cut-off and p-value: two directions through the same table"
+        },
+        {
+          "type": "table",
+          "head": [
+            "",
+            "You start with",
+            "You end with",
+            "Where the \"1 −\" comes",
+            "Steps"
+          ],
+          "rows": [
+            [
+              "**Cut-off**",
+              "α (given)",
+              "z",
+              "**Before** the lookup",
+              "1 − α, then search that number inside the table, then read z from the edges"
+            ],
+            [
+              "**p-value**",
+              "z (you computed it)",
+              "p",
+              "**After** the lookup",
+              "look up |z| to get the area, then p = 1 − area"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The table only gives the area to the **left**. The tail we care about is the small leftover piece on the end, and \"1 −\" is how you reach it. For the cut-off you need the area *up to* the cut-off, which is 1 − α. For p you have the area *up to* |z| and want what is left beyond it, which is 1 − area. The two are mirror images of each other."
+        },
+        {
+          "type": "note",
+          "label": "Sign versus size",
+          "text": "The **sign** of z and of the cut-off shows direction: negative means left, positive means right. **p is a probability**, so it is always between 0 and 1 and never negative. The sign comes from the data and H₁. The \"1 −\" comes from using a left-area table.",
+          "color": "blue"
+        },
+        {
+          "type": "note",
+          "label": "Two exceptions",
+          "text": "(1) If z is on the **wrong side** of what H₁ points to, p = Φ(|z|) with no \"1 −\". It comes out above 0.5 and you do not reject. (2) For a **two-tailed** test, compute 1 − Φ(|z|) and then double it.",
+          "color": "pink"
+        },
+        {
+          "type": "h",
+          "text": "Special cases"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Situation",
+            "What to do"
+          ],
+          "rows": [
+            [
+              "z bigger than 2.49 (off the table)",
+              "The tail is tiny, p is under 0.007. For cut-offs like ±2.58, use the bottom z row of the t-table."
+            ],
+            [
+              "Negative z, any test",
+              "Look up the positive version, then apply the rules above."
+            ],
+            [
+              "Sample on the wrong side of H₁",
+              "Do not reject. No lookup needed."
+            ],
+            [
+              "σ unknown and n small",
+              "Use the t-table: row by df, column by α, one-tail or two-tail."
+            ],
+            [
+              "p exactly equal to α",
+              "Reject (p ≤ α)."
+            ]
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "Reject H₀ if p ≤ α, or if z is beyond the cut-off in the direction of H₁'s arrow. Otherwise: do not reject H₀."
         }
       ]
     },
     {
-      "title": "5 · The test statistic, and why μ = K",
+      "title": "The test statistic, and why μ = K",
       "lead": "Every test is signal ÷ noise. The only thing that changes between tests is the noise recipe.",
       "blocks": [
         {
@@ -373,7 +625,7 @@
       ]
     },
     {
-      "title": "6 · Tests for one mean (z and t)",
+      "title": "Tests for one mean (z and t)",
       "lead": "Same five steps every time. Pick z or t from what you know about σ and n.",
       "blocks": [
         {
@@ -488,7 +740,7 @@
       ]
     },
     {
-      "title": "7 · Comparing two means",
+      "title": "Comparing two means",
       "lead": "Variances of independent sample means add, so the noise is √(s₁²/n₁ + s₂²/n₂).",
       "blocks": [
         {
@@ -522,6 +774,12 @@
           "text": "The slide prints z = 2.30; recomputing gives 2.37. The decision (reject) is the same either way, so don't lose sleep, but show your own working in the exam."
         },
         {
+          "type": "note",
+          "label": "Paired or unpaired?",
+          "text": "Ask: does the same person or item appear in both sets? If yes (before and after, same subjects), it is **paired**: work on the differences, df = pairs − 1. If the two groups are different people, it is **unpaired**: pooled t, df = n₁ + n₂ − 2.",
+          "color": "blue"
+        },
+        {
           "type": "h",
           "text": "Paired data"
         },
@@ -552,7 +810,7 @@
       ]
     },
     {
-      "title": "8 · Proportion tests",
+      "title": "Proportion tests",
       "lead": "A proportion is just a mean of 0s and 1s, so the same recipe works with a different standard error.",
       "blocks": [
         {
@@ -615,7 +873,7 @@
       ]
     },
     {
-      "title": "9 · The t-test and the F-test",
+      "title": "The t-test and the F-test",
       "lead": "For small samples with σ unknown. (Left for the next class, but asked in exams.)",
       "blocks": [
         {
@@ -685,7 +943,7 @@
       ]
     },
     {
-      "title": "10 · Chi-square tests",
+      "title": "Chi-square tests",
       "lead": "For counts in categories. Compare what you observed with what H₀ predicts.",
       "blocks": [
         {
@@ -754,7 +1012,7 @@
       ]
     },
     {
-      "title": "11 · Which test do I use?",
+      "title": "Which test do I use?",
       "lead": "Exams reward picking the right test in 30 seconds. Ask three questions.",
       "blocks": [
         {
@@ -824,7 +1082,7 @@
       ]
     },
     {
-      "title": "12 · How CS 9 appears in exams",
+      "title": "How CS 9 appears in exams",
       "lead": "Seven past comprehensives (open book, 40 marks) show where the marks are.",
       "blocks": [
         {
@@ -898,6 +1156,49 @@
           "label": "How to use",
           "text": "Practise each past-paper problem in the Worked problems tab: they are tagged \"Past paper\".",
           "color": "blue"
+        },
+        {
+          "type": "h",
+          "text": "Textbook practice (Anderson, Sweeney, Williams, Chapter 9)"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Model",
+            "Exercises",
+            "Notes"
+          ],
+          "rows": [
+            [
+              "Left-tailed z",
+              "9, 12, 15",
+              "12 has four sample means, so some fall on the wrong side"
+            ],
+            [
+              "Right-tailed z",
+              "10, 13, 16",
+              "10 uses α = 0.01"
+            ],
+            [
+              "Two-tailed z",
+              "11, 14, 17",
+              "14 uses α = 0.01"
+            ],
+            [
+              "t-test (σ unknown)",
+              "the exercises in 9.4",
+              "where you practise z versus t"
+            ],
+            [
+              "Proportions",
+              "the exercises in 9.5",
+              "after the z and t tests feel easy"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Do one of each tail first. Exercises 9 to 14 train the mechanics, and 15 to 17 train writing H₀ and H₁ from a sentence, which is where marks are lost."
         }
       ]
     }
@@ -944,6 +1245,90 @@
       "answer": "z = 1.84 > 1.645: reject H₀; the claim of at most 920 mg is doubtful."
     },
     {
+      "title": "Light bulbs (left-tailed z, α = 1%)",
+      "tags": [
+        "Class",
+        "z-test"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A manufacturer guarantees the mean life of a bulb is **not less than 750 hours**. A random sample of 36 bulbs has mean 745 hours and s = 60 hours. At the 1% level, is there enough evidence to reject the claim?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: μ ≥ 750 (the claim). H₁: μ < 750. The \"<\" sign makes it **left-tailed**."
+        },
+        {
+          "label": "Which test",
+          "text": "n = 36 ≥ 30, so z is fine (s stands in for σ). α = 0.01."
+        },
+        {
+          "label": "Statistic",
+          "text": "SE = 60/√36 = 10. z = (745 − 750)/10 = **−0.5**."
+        },
+        {
+          "label": "Critical value",
+          "text": "Search 1 − 0.01 = 0.99 inside the table: 0.99010 at z = 2.33. Left-tailed, so the cut-off is **−2.33**."
+        },
+        {
+          "label": "p-value",
+          "text": "Table area for 0.5 is 0.69146, so p = 1 − 0.69146 = **0.31**, far above 0.01."
+        },
+        {
+          "label": "Decision",
+          "text": "−0.5 is not below −2.33 (equivalently p = 0.31 > 0.01): **do not reject H₀**. Say \"do not reject\", not \"accept\"."
+        },
+        {
+          "label": "Plain English",
+          "text": "At the 1% level there is not enough evidence that the mean life is below 750 hours. The 5-hour gap is small next to the noise of 10 hours."
+        }
+      ],
+      "answer": "z = −0.5 > −2.33: do not reject H₀; the claim of at least 750 hours stands."
+    },
+    {
+      "title": "Textbook Ex. 9 (left-tailed z), walked line by line",
+      "tags": [
+        "Practice",
+        "z-test"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Anderson, Sweeney and Williams, Chapter 9, Exercise 9. H₀: μ ≥ 20 and H₁: μ < 20. A sample of 50 gives x̄ = 19.4, and the population standard deviation is 2. (a) Find the test statistic. (b) Find the p-value. (c) Conclude at α = 0.05. (d) Give the rejection rule using the critical value and conclude."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Setup",
+          "text": "H₁ has \"<\", so the test is **left-tailed** and the cut-off is negative. σ is given, so use **z**. Direction check: x̄ = 19.4 is below 20, which matches the arrow, so go on."
+        },
+        {
+          "label": "(a) Statistic",
+          "text": "SE = σ/√n = 2/√50 = 0.283. z = (19.4 − 20)/0.283 = **−2.12**. Use the boundary value 20."
+        },
+        {
+          "label": "(b) p-value",
+          "text": "Look up |z| = 2.12 (row 2.1, column 0.02): 0.98300. Left-tailed with z negative, so p = 1 − 0.98300 = **0.017**."
+        },
+        {
+          "label": "(c) Conclusion",
+          "text": "p = 0.017 ≤ 0.05, so **reject H₀**. There is evidence that the mean is below 20."
+        },
+        {
+          "label": "(d) Critical value",
+          "text": "Left-tailed at 5%: search 1 − 0.05 = 0.95 inside the table to get 1.645, then add the minus sign. Rule: reject if z ≤ −1.645. Here −2.12 ≤ −1.645, so **reject H₀**."
+        },
+        {
+          "label": "Check",
+          "text": "Parts (c) and (d) must agree. If they do not, look for an arithmetic or sign slip."
+        }
+      ],
+      "answer": "z = −2.12, p = 0.017, cut-off −1.645: reject H₀ at 5%."
+    },
+    {
       "title": "Delivery time (two-tailed z)",
       "tags": [
         "Class",
@@ -966,7 +1351,7 @@
         },
         {
           "label": "Critical values",
-          "text": "Two-tailed 5% splits into 2.5% per tail: ±1.96. p-value = 2 × (1 − Φ(2.36)) = 0.018."
+          "text": "Two-tailed 5% splits into 2.5% per tail. Search 1 − 0.025 = 0.975 inside the table (row 1.9, column 0.06): cut-offs **±1.96**. p-value: table area for 2.36 is 0.99086, so one tail = 0.00914 and p = 2 × 0.00914 = **0.018**."
         },
         {
           "label": "Decision",
@@ -1741,6 +2126,26 @@
       "back": "The strict complement of H₀ (≠, > or <). It is what we conclude if H₀ is rejected, and its sign fixes the tail."
     },
     {
+      "tag": "Definition",
+      "front": "What is a z-test?",
+      "back": "Test of a mean when σ is known (or n ≥ 30). The spread is trusted, so the standard normal curve is used."
+    },
+    {
+      "tag": "Definition",
+      "front": "What is a t-test, and how does it differ from z?",
+      "back": "Test of a mean when σ is unknown and n is small. The spread is estimated from the sample, so the fatter-tailed t curve (df = n − 1) is used and a bigger gap is needed to reject. As n grows, t becomes z."
+    },
+    {
+      "tag": "Definition",
+      "front": "What is an unpaired (independent two-sample) t-test?",
+      "back": "Compares the means of two separate groups with no link between their members. Pooled t, df = n₁ + n₂ − 2. H₀: μ₁ = μ₂."
+    },
+    {
+      "tag": "Definition",
+      "front": "What is a paired t-test?",
+      "back": "Compares two measurements on the same subjects (before and after). Take each difference d, then do a one-mean t-test on d with H₀: μ_d = 0. df = number of pairs − 1."
+    },
+    {
       "tag": "Tails",
       "front": "Which sign of H₁ gives which tail?",
       "back": "< is left-tailed, > is right-tailed, ≠ is two-tailed."
@@ -1854,6 +2259,51 @@
       "tag": "F-test",
       "front": "F-test statistic for two variances?",
       "back": "F = s₁²/s₂² with df (n₁−1, n₂−1); right-tailed when H₁ says σ₁² > σ₂²."
+    },
+    {
+      "tag": "z-table",
+      "front": "What does the exam z-table show, and where is z?",
+      "back": "Area to the LEFT of z. z is on the edges (row = first two digits, column = second decimal); the areas are the numbers inside."
+    },
+    {
+      "tag": "z-table",
+      "front": "How do you get the cut-off z from α for a right-tailed test?",
+      "back": "Search the inside of the table for 1 − α (0.95 for 5%), read z from the edges (1.645), and keep the plus sign."
+    },
+    {
+      "tag": "z-table",
+      "front": "How do you get the cut-off for a left-tailed test?",
+      "back": "Find the positive cut-off the same way (search 1 − α), then make it negative. Left 5% is −1.645."
+    },
+    {
+      "tag": "z-table",
+      "front": "How do you get a two-tailed cut-off?",
+      "back": "Split α: search 1 − α/2 (0.975 for 5%), giving ±1.96."
+    },
+    {
+      "tag": "z-table",
+      "front": "How do you get a p-value from z with a left-area table?",
+      "back": "Look up |z| to get the left area, then tail = 1 − area. Two-tailed: double it. Valid when z is on the side H₁ points to."
+    },
+    {
+      "tag": "Concept",
+      "front": "A right-tailed test has x̄ below the claim. What is the decision?",
+      "back": "Do not reject H₀. z is negative, p is above 0.5, and the data point away from H₁."
+    },
+    {
+      "tag": "z-table",
+      "front": "Cut-off versus p-value: which way do you go through the table?",
+      "back": "Cut-off: start with α, search 1 − α inside the table, read z. p-value: start with z, read the area, then p = 1 − area."
+    },
+    {
+      "tag": "z-table",
+      "front": "Where does the \"1 −\" come in for the cut-off, and for p?",
+      "back": "For the cut-off it comes before the lookup (search 1 − α). For p it comes after the lookup (1 − area)."
+    },
+    {
+      "tag": "Concept",
+      "front": "Can p be negative? What carries the sign?",
+      "back": "No. p is a probability between 0 and 1. The sign belongs to z and the cut-off, and shows direction (left negative, right positive)."
     }
   ],
   "quiz": [
@@ -2123,6 +2573,21 @@
     {
       "name": "Errors",
       "formula": "α = P(reject H₀ | H₀ true),  β = P(do not reject H₀ | H₀ false),  power = 1 − β"
+    },
+    {
+      "name": "5 core steps",
+      "formula": "1 H₀/H₁ and tail   2 α   3 statistic = (x̄ − μ₀)/SE   4 cut-off or p-value   5 verdict in words",
+      "note": "Say \"do not reject H₀\", never \"accept\"."
+    },
+    {
+      "name": "Cut-off by tail (left-area table)",
+      "formula": "Left: −z where Φ(z) = 1 − α   Right: +z where Φ(z) = 1 − α   Two: ±z where Φ(z) = 1 − α/2",
+      "note": "Search the area inside the table; z is on the edges."
+    },
+    {
+      "name": "p-value by tail",
+      "formula": "Right/Left: p = 1 − Φ(|z|)   Two-tailed: p = 2 × (1 − Φ(|z|))",
+      "note": "Use only if z lies on the side H₁ points to; otherwise p > 0.5 and you cannot reject."
     }
   ]
 }
