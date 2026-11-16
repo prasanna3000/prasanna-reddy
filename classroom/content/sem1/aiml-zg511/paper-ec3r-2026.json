@@ -1,0 +1,281 @@
+{
+  "id": "p-ec3r-2026",
+  "title": "EC-3 Regular · Comprehensive · May 2026",
+  "subtitle": "AIMLZG511 (Jan 2026 cluster batch) · open book · 40% · 2.5 hours · 23/05/2026 · 40 marks",
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "The open-book comprehensive mixes short calculations with \"diagnose and fix\" reasoning. Expect the same style on 5 Dec 2026.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Marks",
+            "Revise in"
+          ],
+          "rows": [
+            [
+              "1",
+              "Exploding gradients through 10 scalar layers",
+              "8",
+              "Ch 5, Ch 10"
+            ],
+            [
+              "2",
+              "CNN domain shift (camera A vs B)",
+              "7",
+              "Ch 6"
+            ],
+            [
+              "3",
+              "Context vector, sensitivity, exposure bias",
+              "8",
+              "Ch 8"
+            ],
+            [
+              "4",
+              "Scaled dot product, missing √d_k, heads vs width",
+              "6",
+              "Ch 8, Ch 9"
+            ],
+            [
+              "5",
+              "Two 3×3 filters with padding 1 + ReLU",
+              "6",
+              "Ch 6"
+            ],
+            [
+              "6",
+              "Momentum velocity and overshoot",
+              "5",
+              "Ch 10"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "How to use this paper",
+          "text": "Open **Worked problems** and try each question on paper before revealing the steps. Where the official answer key has a mistake, the solution says so and shows the correct working."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · Exploding gradients (8 marks)",
+      "tags": [
+        "Ch 5",
+        "Ch 10"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Input x = 1; every layer is y = w·(previous) with w = 2; dL/dy = 1; η = 0.01. Logs: epoch 1 loss 0.8, gradients 10–20; epoch 3 loss 15.2, gradients 300+; epoch 5 NaN."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Depth",
+          "text": "dL/dw₁ = dL/dy · (product of the other L − 1 weights) · x = 2^{L−1}. For L = 5: 2⁴ = **16** (matches 10–20). For L = 10: 2⁹ = 512. So the logs fit a **~5-layer** network at epoch 1."
+        },
+        {
+          "label": "(b) 10 layers",
+          "text": "dL/dw₁ = 1 · 2⁹ · 1 = **512**"
+        },
+        {
+          "label": "(c) Root cause",
+          "text": "Weights > 1 multiply through depth, so **exploding gradients**; each update grows the weights, which grows the gradients further (16 → 300+)."
+        },
+        {
+          "label": "(c) NaN",
+          "text": "The gradients and activations overflow floating point (inf); inf − inf or inf·0 gives NaN, and the loss becomes NaN."
+        },
+        {
+          "label": "(d) Fixes",
+          "text": "Initialisation: Xavier/He so the product of weights ≈ 1 (here w ≈ 1). Training: **gradient clipping** (norm ≤ 1–5) and/or a lower η with warmup. Architecture: residual connections or normalisation (batch/layer norm) to keep signal scales stable."
+        }
+      ],
+      "answer": "~5 layers (2⁴ = 16); 512 for 10 layers; exploding gradients → overflow → NaN; fix with init, clipping, residuals or normalisation."
+    },
+    {
+      "title": "Q2 · CNN fails on a new camera (7 marks)",
+      "tags": [
+        "Ch 6",
+        "debugging"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Training accuracy 96%, camera A 94%, camera B 58%. Camera B: lower light, motion blur, different angle."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "**Domain shift** (covariate shift), not overfitting: A's held-out accuracy (94%) is close to training (96%). Not underfitting either. Only B, whose image statistics differ, fails."
+        },
+        {
+          "label": "(b) Debug plan",
+          "text": "1) Compare input statistics (brightness histograms, blur, angle) between A and B. 2) Run B images through the **same preprocessing** and check normalisation and resize. 3) Evaluate on B subsets (dark only, blur only, angle only) to isolate which factor hurts. 4) Inspect feature maps / Grad-CAM on B errors. 5) Check the confusion matrix for which defect classes fail."
+        },
+        {
+          "label": "(c) Data fix",
+          "text": "Augment training data with brightness/contrast jitter, motion blur and rotation/perspective so the model sees B-like conditions; or collect a small labelled set from camera B. Histogram equalisation / normalisation of B inputs also helps."
+        },
+        {
+          "label": "(d) No full retrain",
+          "text": "**Fine-tune only the last layers** on a few labelled B images (transfer learning); or add test-time preprocessing (brightness normalisation, deblurring) and recalibrate the threshold for camera B; or re-estimate batch-norm statistics on B data."
+        }
+      ],
+      "answer": "Domain shift; debug the pipeline step by step; augment; fine-tune the head or recalibrate for camera B."
+    },
+    {
+      "title": "Q3 · Attention sensitivity (8 marks)",
+      "tags": [
+        "Ch 8"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "h = (0.3, 0.5, 0.2), α = (0.2, 0.6, 0.2)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(i)",
+          "text": "c = 0.06 + 0.30 + 0.04 = **0.40**"
+        },
+        {
+          "label": "(ii)",
+          "text": "h₂ = 0.1 → c = **0.16**; Δ = −0.24 (−60%)"
+        },
+        {
+          "label": "(iii)",
+          "text": "∂c/∂hᵢ = αᵢ: a token with weight 0.6 passes 60% of its noise into c; low-weight tokens barely matter. Attention concentrated on one token is fragile to that token's noise."
+        },
+        {
+          "label": "(iv)",
+          "text": "For long sequences: weights spread thin (dilution) or collapse on a few tokens; the cost is O(n²); the weights are not necessarily faithful explanations."
+        },
+        {
+          "label": "(v)",
+          "text": "**Exposure bias**: trained with teacher forcing (true previous tokens) but tested on its own predictions. One attention error causes a wrong token, then a wrong next query, then misaligned attention: errors cascade. Mitigations: scheduled sampling, beam search."
+        }
+      ],
+      "answer": "0.40 → 0.16."
+    },
+    {
+      "title": "Q4 · Scaling and heads (6 marks)",
+      "tags": [
+        "Ch 8",
+        "Ch 9"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Q = (2, 0), K = (2, 2), V = (1, 3), d_k = 2."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)(i)",
+          "text": "QKᵀ = 4"
+        },
+        {
+          "label": "(a)(ii)",
+          "text": "4/√2 = **2.83**"
+        },
+        {
+          "label": "(a)(iii)",
+          "text": "Scaling divides every score by √d_k, shrinking the differences between scores. Softmax depends on those differences, so the distribution stays soft rather than one-hot, and its gradients stay non-zero."
+        },
+        {
+          "label": "(b)",
+          "text": "With d_k = 512 and unit-variance entries, q·k has variance ≈ 512 (std ≈ 22.6), so scores of 100+ occur. Softmax becomes one-hot; its Jacobian diag(p) − ppᵀ ≈ 0, so gradients vanish. 1/√d_k restores unit variance."
+        },
+        {
+          "label": "(c)(i)",
+          "text": "A larger embedding raises capacity, but parameters and FLOPs grow ~d², with more memory and overfitting risk, and still only one attention pattern per layer."
+        },
+        {
+          "label": "(c)(ii)",
+          "text": "Multiple heads (d_k = d/h each) attend in different learned subspaces at the same cost, capturing several relations at once (syntax, coreference, position). A single wide head must average them into one distribution."
+        }
+      ],
+      "answer": "4 → 2.83."
+    },
+    {
+      "title": "Q5 · Two filters with padding 1 (6 marks)",
+      "tags": [
+        "Ch 6",
+        "convolution"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Input [[1, 2, 1], [0, 1, 0], [2, 1, 2]]; F1 = [[1, 0, −1]] × 3 (vertical edge); F2 = [[0, 1, 0], [1, −4, 1], [0, 1, 0]] (Laplacian); stride 1, padding 1, then ReLU."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Size",
+          "text": "(3 + 2 − 3)/1 + 1 = 3 → 3 × 3 each"
+        },
+        {
+          "label": "F1 map",
+          "text": "[[−3, 0, 3], [−4, 0, 4], [−2, 0, 2]] → ReLU **[[0, 0, 3], [0, 0, 4], [0, 0, 2]]**"
+        },
+        {
+          "label": "F2 map",
+          "text": "[[−2, −5, −2], [4, −1, 4], [−7, 1, −7]] → ReLU **[[0, 0, 0], [4, 0, 4], [0, 1, 0]]**"
+        },
+        {
+          "label": "(ii)",
+          "text": "F2 (Laplacian) responds more strongly overall (|values| up to 7; total |response| 33 vs 18) and in all directions. F1 only detects vertical intensity changes, and its strong right-hand values come from the bright image meeting the zero padding."
+        },
+        {
+          "label": "(iii)",
+          "text": "Very similar outputs mean redundant filters (low diversity) and wasted capacity: prune or merge one, add a diversity/orthogonality regulariser, or re-initialise it."
+        },
+        {
+          "label": "(iv)",
+          "text": "Consistently higher F1 output on one side means strong **vertical edges** with a consistent left-to-right intensity change in that region (bright on the left, dark on the right for positive outputs), or a padding/border artifact."
+        },
+        {
+          "label": "(v)",
+          "text": "3×3 filters see a tiny fraction of a 256×256 image (small receptive field relative to objects). Add depth or pooling/strided conv, use dilated convs or multi-scale (pyramid/Inception) features, or rescale the inputs."
+        }
+      ],
+      "answer": "F1 → [[0,0,3],[0,0,4],[0,0,2]]; F2 → [[0,0,0],[4,0,4],[0,1,0]]."
+    },
+    {
+      "title": "Q6 · Momentum overshoot (5 marks)",
+      "tags": [
+        "Ch 10"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "β = 0.95; gradients 12, 11, 10; v₀ = 0."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(i)",
+          "text": "v = 12 → 0.95·12 + 11 = 22.4 → 0.95·22.4 + 10 = **31.28** (deck form v = βv + g). EMA form: 0.6 → 1.12 → 1.564."
+        },
+        {
+          "label": "(ii)",
+          "text": "Velocity keeps the accumulated push (≈ 1/(1 − β) = 20× a single gradient) even after the gradient falls or flips, so the parameter shoots past the minimum and oscillates."
+        },
+        {
+          "label": "(iii)",
+          "text": "Lower β (0.9 or 0.8); lower η (or decay it / warm up). Nesterov momentum also damps overshoot."
+        }
+      ],
+      "answer": "v₃ = 31.28."
+    }
+  ]
+}

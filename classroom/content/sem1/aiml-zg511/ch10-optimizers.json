@@ -1,0 +1,958 @@
+{
+  "id": "ch10",
+  "title": "Optimizers",
+  "subtitle": "Module 10 · T1 Chapter 12 · GD variants, momentum, Nesterov, AdaGrad, RMSprop, Adam/AdamW, schedules, clipping and tuning",
+  "lesson": [
+    {
+      "title": "Why optimisation is hard",
+      "lead": "No closed form exists for deep networks, so we iterate, and the landscape fights back.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "θ* = argmin L(θ)        θ ← θ − η∇L(θ)"
+        },
+        {
+          "type": "p",
+          "text": "One step on f(x, y) = x² + y² from (3, 4), η = 0.1: ∇f = (6, 8) → (2.4, 3.2); loss 25 → 16 (−36%)."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Challenge",
+            "Symptom"
+          ],
+          "rows": [
+            [
+              "Saddle points",
+              "∇L = 0 but not a minimum (some directions up, some down); common in high dimensions"
+            ],
+            [
+              "Plateaus",
+              "Tiny gradients, very slow progress"
+            ],
+            [
+              "Non-convexity",
+              "Many local minima; the result depends on initialisation"
+            ],
+            [
+              "Ravines (elongated bowls)",
+              "Zig-zag across the steep direction, crawl along the flat one"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Variant",
+            "Gradient from",
+            "Updates per epoch (N = 10,000, B = 32)"
+          ],
+          "rows": [
+            [
+              "Batch GD",
+              "All N",
+              "1"
+            ],
+            [
+              "SGD",
+              "1 example",
+              "10,000"
+            ],
+            [
+              "Mini-batch",
+              "B examples",
+              "⌈10,000/32⌉ = 313"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The toy problem",
+      "lead": "All the deck's numericals use the elongated bowl **L = w₁² + 4w₂²**, starting at (4, 2).",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "∇L = (2w₁, 8w₂)      start (4, 2): L = 16 + 16 = 32,  g = (8, 16)"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Iter",
+            "L",
+            "g",
+            "w after (η = 0.1)"
+          ],
+          "rows": [
+            [
+              "0",
+              "32.00",
+              "(8, 16)",
+              "(3.20, 0.40)"
+            ],
+            [
+              "1",
+              "10.88",
+              "(6.4, 3.2)",
+              "(2.56, 0.08)"
+            ],
+            [
+              "2",
+              "6.58",
+              "(5.12, 0.64)",
+              "(2.05, 0.016)"
+            ],
+            [
+              "3",
+              "4.20",
+              "(4.10, 0.13)",
+              "(1.64, 0.003)"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "w₂ moves 1.6 on the first step but w₁ only 0.8: the steep direction dominates. That motivates **momentum** (smooth the path) and **adaptive** methods (a different rate per parameter)."
+        },
+        {
+          "type": "widget",
+          "widget": "optimizer-race",
+          "config": {
+            "a": 1,
+            "b": 4,
+            "w": "4, 2",
+            "eta": 0.1,
+            "beta": 0.9,
+            "gamma": 0.9,
+            "beta2": 0.999,
+            "steps": 4,
+            "opt": "gd"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Momentum and Nesterov",
+      "lead": "Momentum keeps a **velocity**: a running sum of past gradients, like a ball rolling downhill.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "vₜ = β vₜ₋₁ + gₜ          θₜ₊₁ = θₜ − η vₜ       (β ≈ 0.9: keep 90% of the old velocity)"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Iter",
+            "L",
+            "g",
+            "v",
+            "w after (η = 0.05, β = 0.9)"
+          ],
+          "rows": [
+            [
+              "0",
+              "32.00",
+              "(8, 16)",
+              "(8, 16)",
+              "(3.60, 1.20)"
+            ],
+            [
+              "1",
+              "18.72",
+              "(7.2, 9.6)",
+              "(14.4, 24.0)",
+              "(2.88, 0.00)"
+            ],
+            [
+              "2",
+              "8.29",
+              "(5.76, 0)",
+              "(18.72, 21.6)",
+              "(1.94, −1.08)"
+            ],
+            [
+              "3",
+              "8.44",
+              "(3.89, −8.64)",
+              "(20.74, 10.8)",
+              "(0.91, −1.62)"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Still oscillates in w₂ (2 → 1.2 → 0 → −1.08 → −1.62). Momentum **amplifies** steps, so it needs a smaller η than plain GD."
+        },
+        {
+          "type": "trap",
+          "label": "Convention",
+          "text": "Some sources write v = βv + (1 − β)g (an average) or v = βv + ηg. This deck uses **v = βv + g, θ ← θ − ηv**. Say which you use; the answers differ by a constant factor."
+        },
+        {
+          "type": "formula",
+          "text": "Nesterov: vₜ = β vₜ₋₁ + ∇L(θₜ − β vₜ₋₁),  θₜ₊₁ = θₜ − η vₜ",
+          "caption": "look ahead first, then compute the gradient: more responsive, slightly faster"
+        }
+      ]
+    },
+    {
+      "title": "AdaGrad and RMSprop",
+      "lead": "Adaptive methods divide each parameter's step by the size of its **gradient history**.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "AdaGrad:  sₜ = sₜ₋₁ + gₜ²,   θ ← θ − η gₜ / √(sₜ + ε)",
+          "caption": "s only grows, so the effective rate shrinks towards 0 and learning stops; good for sparse features"
+        },
+        {
+          "type": "formula",
+          "text": "RMSprop:  sₜ = γ sₜ₋₁ + (1 − γ) gₜ²,   θ ← θ − η gₜ / √(sₜ + ε)",
+          "caption": "an exponential moving average, so the rate doesn't vanish; γ = 0.9, η = 0.001"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Iter",
+            "g",
+            "s (γ = 0.9)",
+            "η_eff = 0.05/√s",
+            "w after"
+          ],
+          "rows": [
+            [
+              "0",
+              "(8, 16)",
+              "(6.4, 25.6)",
+              "(0.020, 0.010)",
+              "(3.84, 1.84)"
+            ],
+            [
+              "1",
+              "(7.68, 14.74)",
+              "(11.66, 44.75)",
+              "(0.015, 0.0075)",
+              "(3.73, 1.73)"
+            ],
+            [
+              "2",
+              "(7.46, 13.85)",
+              "(16.06, 59.47)",
+              "(0.0125, 0.0065)",
+              "(3.64, 1.64)"
+            ],
+            [
+              "3",
+              "(7.27, 13.14)",
+              "(19.74, 70.78)",
+              "(0.011, 0.006)",
+              "(3.55, 1.56)"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The larger gradient (w₂) gets a larger s and so a **smaller** effective rate: both coordinates move about 0.16 per step. Loss 32 → 28.3 → 25.9 → 24.0: steady but slow, with no velocity."
+        }
+      ]
+    },
+    {
+      "title": "Adam and AdamW",
+      "lead": "Adam = **momentum (first moment) + RMSprop (second moment) + bias correction**.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "m = β₁m + (1 − β₁)g      v = β₂v + (1 − β₂)g²      m̂ = m/(1 − β₁ᵗ)      v̂ = v/(1 − β₂ᵗ)      θ ← θ − η m̂/(√v̂ + ε)",
+          "caption": "defaults β₁ = 0.9, β₂ = 0.999, η = 0.001, ε = 1e-8"
+        },
+        {
+          "type": "p",
+          "text": "First step on the toy problem (η = 0.05): m = (0.8, 1.6), v = (0.064, 0.256); m̂ = (8, 16), v̂ = (64, 256); step = 0.05 × 8/8 = 0.05 for both → **(3.95, 1.95)**. Early steps are ≈ η per parameter, because m̂/√v̂ ≈ ±1."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Iter",
+            "L",
+            "w after"
+          ],
+          "rows": [
+            [
+              "0",
+              "32.00",
+              "(3.95, 1.95)"
+            ],
+            [
+              "1",
+              "30.81",
+              "(3.90, 1.90)"
+            ],
+            [
+              "2",
+              "29.65",
+              "(3.85, 1.85)"
+            ],
+            [
+              "3",
+              "28.52",
+              "(3.80, 1.80)"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Why bias correction? m and v start at 0, so early estimates are biased towards 0. Dividing by (1 − βᵗ) fixes that (at t = 1: m̂ = g, v̂ = g²)."
+        },
+        {
+          "type": "formula",
+          "text": "AdamW:  θ ← θ − η ( m̂/(√v̂ + ε) + λθ )",
+          "caption": "weight decay applied directly, decoupled from the adaptive scaling; λ = 0.01; usually generalises better than Adam + L2"
+        },
+        {
+          "type": "note",
+          "label": "Comparison from the deck",
+          "text": "After 3 steps on the toy (η = 0.05 for all but GD's 0.1): GD 4.21, momentum 8.43, RMSprop 23.9, Adam 28.5. Short-run speed on one toy isn't the whole story: Adam is the robust default."
+        }
+      ]
+    },
+    {
+      "title": "Learning-rate schedules",
+      "lead": "Start large to explore, **decay** to fine-tune; **warm up** big models first.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Schedule",
+            "Formula",
+            "Example"
+          ],
+          "rows": [
+            [
+              "Step decay",
+              "ηₜ = η₀ · γ^{⌊t/step⌋}",
+              "η₀ = 0.1, γ = 0.1, step = 30: epoch 10 → 0.1, epoch 40 → 0.01"
+            ],
+            [
+              "Exponential",
+              "ηₜ = η₀ e^{−λt}",
+              "η₀ = 0.1, λ = 0.05: epoch 10 → 0.061, epoch 20 → 0.037"
+            ],
+            [
+              "Cosine annealing",
+              "η_min + ½(η_max − η_min)(1 + cos(πt/T))",
+              "0.1 → 0.001 over T = 100: epoch 0 → 0.1, epoch 50 → 0.0505, epoch 100 → 0.001"
+            ],
+            [
+              "Linear warmup",
+              "ηₜ = η₀ · t / T_w for t ≤ T_w",
+              "η₀ = 0.1, T_w = 5: epoch 2 → 0.04, epoch 5 → 0.1, then decay"
+            ]
+          ]
+        },
+        {
+          "type": "trap",
+          "label": "Slide check",
+          "text": "The slide says the cosine schedule gives 0.001 at epoch 50. With T = 100, cos(π·50/100) = cos(π/2) = 0, so η₅₀ = 0.001 + 0.0495 = **0.0505**. The value 0.001 is reached at epoch 100."
+        }
+      ]
+    },
+    {
+      "title": "Clipping, batch size and stopping",
+      "lead": "Clip exploding gradients, scale η with the batch, and stop early.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "norm clipping: g ← g · τ/‖g‖ if ‖g‖ > τ   (τ ≈ 1–5; keeps the direction)        value clipping: gᵢ ← clip(gᵢ, −τ, τ)  (may change direction)"
+        },
+        {
+          "type": "p",
+          "text": "Example: g = (3, 4), ‖g‖ = 5, τ = 1 → g = (0.6, 0.8). Essential for RNNs, Transformers and very deep nets."
+        },
+        {
+          "type": "table",
+          "head": [
+            "",
+            "Small batch (16–32)",
+            "Large batch (256–1024)"
+          ],
+          "rows": [
+            [
+              "Gradient noise",
+              "High (a regulariser)",
+              "Low"
+            ],
+            [
+              "Generalisation",
+              "Often better",
+              "May need tricks"
+            ],
+            [
+              "Speed",
+              "Many updates, slower",
+              "GPU-efficient"
+            ],
+            [
+              "Memory",
+              "Low",
+              "High"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "**Linear scaling rule:** double the batch → double η (e.g. B 32 at η 0.01 → B 256 at η 0.08), with warmup."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Stopping criterion",
+            "Typical"
+          ],
+          "rows": [
+            [
+              "Max epochs",
+              "100–200"
+            ],
+            [
+              "Early stopping",
+              "Patience 5–10; restore the best checkpoint"
+            ],
+            [
+              "Gradient norm",
+              "< 1e-6"
+            ],
+            [
+              "Loss target",
+              "Problem-specific"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Symptom",
+            "Fix"
+          ],
+          "rows": [
+            [
+              "Loss not decreasing",
+              "η too small / bad init"
+            ],
+            [
+              "Oscillating",
+              "η too large (cut 10×)"
+            ],
+            [
+              "Exploding / NaN",
+              "Clip gradients, lower η"
+            ],
+            [
+              "Plateau",
+              "Try momentum or Adam"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Choosing an optimizer",
+      "lead": "**Adam/AdamW** is the default; **SGD + momentum** with careful tuning often generalises best in vision.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Optimizer",
+            "Key hyperparameters",
+            "Best for"
+          ],
+          "rows": [
+            [
+              "SGD",
+              "η 0.01–0.1 (very sensitive)",
+              "Baselines"
+            ],
+            [
+              "SGD + momentum",
+              "η, β = 0.9",
+              "Production computer vision, best final accuracy with tuning"
+            ],
+            [
+              "AdaGrad",
+              "η 0.01, ε",
+              "Sparse features, large vocabularies"
+            ],
+            [
+              "RMSprop",
+              "η 0.001, γ 0.9",
+              "RNNs, non-stationary/online problems"
+            ],
+            [
+              "Adam / AdamW",
+              "η 0.001, β₁ 0.9, β₂ 0.999 (+ λ 0.01)",
+              "Default; NLP; quick experiments"
+            ]
+          ]
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Start with Adam (η = 0.001).",
+            "Watch train/val loss and gradient norms.",
+            "Add cosine annealing; warm up big models and batches.",
+            "Clip gradients if unstable.",
+            "Early stopping (patience ≈ 10); save checkpoints."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Teacher's tip",
+          "text": "Tuning priority: **learning rate first** (try 1e-5 … 1e-2), then batch size, then the schedule; keep optimizer defaults. Common pitfall: η = 0.01 for Adam instead of 0.001."
+        },
+        {
+          "type": "widget",
+          "widget": "optimizer-race",
+          "config": {
+            "a": 1,
+            "b": 4,
+            "w": "4, 2",
+            "eta": 0.05,
+            "beta": 0.9,
+            "gamma": 0.9,
+            "beta2": 0.999,
+            "steps": 4,
+            "opt": "momentum"
+          }
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Momentum velocity (EC-3 2026 Q6)",
+      "tags": [
+        "past paper",
+        "momentum"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "β = 0.95, v₀ = 0, gradients 12, 11, 10. Find v after iteration 3. Why can it overshoot? Give two hyperparameter fixes."
+        }
+      ],
+      "steps": [
+        {
+          "label": "v₁",
+          "text": "0.95·0 + 12 = 12"
+        },
+        {
+          "label": "v₂",
+          "text": "0.95·12 + 11 = 22.4"
+        },
+        {
+          "label": "v₃",
+          "text": "0.95·22.4 + 10 = **31.28**"
+        },
+        {
+          "label": "EMA form",
+          "text": "If the course uses v = βv + (1 − β)g: 0.6 → 1.12 → **1.564**. State your convention."
+        },
+        {
+          "label": "Overshoot",
+          "text": "Velocity keeps the push even after the gradient shrinks or flips sign; with β = 0.95 the effective step is ≈ 1/(1 − β) = 20× the gradient, so it runs past the minimum and oscillates."
+        },
+        {
+          "label": "Fixes",
+          "text": "Lower β (e.g. 0.9 → effective 10×) and/or lower η; add LR decay or warmup; Nesterov momentum looks ahead and brakes earlier."
+        }
+      ],
+      "answer": "v₃ = 31.28 (deck form). Reduce β and η."
+    },
+    {
+      "title": "Three optimizers, one step each",
+      "tags": [
+        "toy problem"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "L = w₁² + 4w₂², start (4, 2), η = 0.05. Do the first step of momentum (β = 0.9), RMSprop (γ = 0.9) and Adam (β₁ 0.9, β₂ 0.999)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Gradient",
+          "text": "g = (8, 16)"
+        },
+        {
+          "label": "Momentum",
+          "text": "v = (8, 16) → w = (4 − 0.4, 2 − 0.8) = (3.6, 1.2)"
+        },
+        {
+          "label": "RMSprop",
+          "text": "s = 0.1·g² = (6.4, 25.6) → η_eff = (0.0198, 0.0099) → w = (3.84, 1.84)"
+        },
+        {
+          "label": "Adam",
+          "text": "m̂ = g, v̂ = g² → step = 0.05·sign(g) → w = (3.95, 1.95)"
+        }
+      ],
+      "answer": "(3.6, 1.2), (3.84, 1.84), (3.95, 1.95). Adaptive methods equalise the step across directions."
+    },
+    {
+      "title": "SGD on t = (2p + 3)² (EC-2 makeup 2023 Q4)",
+      "tags": [
+        "past paper",
+        "gradient descent"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Start p = 6, η = 0.1, 3 iterations."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Derivative",
+          "text": "dt/dp = 2(2p + 3)·2 = 8p + 12"
+        },
+        {
+          "label": "p₁",
+          "text": "6 − 0.1(60) = 0"
+        },
+        {
+          "label": "p₂",
+          "text": "0 − 0.1(12) = −1.2"
+        },
+        {
+          "label": "p₃",
+          "text": "−1.2 − 0.1(2.4) = −1.44"
+        }
+      ],
+      "answer": "−1.44 after 3 steps, heading to the minimum at p = −1.5 (where t = 0). Each step shrinks the gap by 1 − 0.1·8 = 0.2."
+    },
+    {
+      "title": "Learning-rate schedule values",
+      "tags": [
+        "schedules"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "η₀ = 0.1. Find (a) step decay γ = 0.1, step 30 at epoch 40; (b) exponential λ = 0.05 at epoch 20; (c) cosine 0.1 → 0.001, T = 100 at epochs 25 and 50; (d) warmup T_w = 5 at epoch 2."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "0.1 × 0.1^{⌊40/30⌋} = 0.01"
+        },
+        {
+          "label": "(b)",
+          "text": "0.1 × e^{−1} = 0.0368"
+        },
+        {
+          "label": "(c)",
+          "text": "epoch 25: 0.001 + 0.0495(1 + 0.707) = 0.0855; epoch 50: 0.0505"
+        },
+        {
+          "label": "(d)",
+          "text": "0.1 × 2/5 = 0.04"
+        }
+      ],
+      "answer": "0.01, 0.0368, 0.0855 / 0.0505, 0.04."
+    },
+    {
+      "title": "Gradient clipping",
+      "tags": [
+        "clipping"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "g = (3, 4), τ = 1. Clip by norm, then by value with τ = 1."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Norm",
+          "text": "‖g‖ = 5 > 1 → g·1/5 = (0.6, 0.8): same direction"
+        },
+        {
+          "label": "Value",
+          "text": "(clip(3), clip(4)) = (1, 1): the direction changes from 53° to 45°"
+        }
+      ],
+      "answer": "(0.6, 0.8) vs (1, 1)."
+    }
+  ],
+  "labs": [
+    {
+      "title": "Optimizer race",
+      "intro": "Every optimizer starts from the same point on L = a·w₁² + b·w₂². Pick one for the step table; all paths are drawn together.",
+      "tryThis": [
+        "Momentum with η = 0.05: reproduce the deck's table, including the w₂ oscillation.",
+        "Raise b to 20 (a narrower ravine): which optimizer copes best?",
+        "Adam with 50 steps: watch it settle; then try η = 0.5.",
+        "GD with η = 0.26 and b = 4: it diverges, because η > 2/(2b) = 0.25."
+      ],
+      "widget": "optimizer-race",
+      "config": {
+        "a": 1,
+        "b": 4,
+        "w": "4, 2",
+        "eta": 0.05,
+        "beta": 0.9,
+        "gamma": 0.9,
+        "beta2": 0.999,
+        "steps": 4,
+        "opt": "momentum"
+      }
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Challenges",
+      "front": "Saddle point",
+      "back": "∇L = 0 but some directions go up and some down; common in high dimensions."
+    },
+    {
+      "tag": "Variants",
+      "front": "Updates per epoch: batch, SGD, mini-batch",
+      "back": "1, N, ⌈N/B⌉"
+    },
+    {
+      "tag": "Momentum",
+      "front": "Momentum update (deck)",
+      "back": "v = βv + g; θ = θ − ηv"
+    },
+    {
+      "tag": "Momentum",
+      "front": "Why does momentum need a smaller η?",
+      "back": "It accumulates steps (≈ 1/(1 − β) times larger)."
+    },
+    {
+      "tag": "Momentum",
+      "front": "Nesterov",
+      "back": "Gradient at the look-ahead point θ − βv."
+    },
+    {
+      "tag": "Adaptive",
+      "front": "AdaGrad update",
+      "back": "s += g²; θ −= ηg/√(s + ε). Its rate decays to 0."
+    },
+    {
+      "tag": "Adaptive",
+      "front": "RMSprop fixes AdaGrad how?",
+      "back": "An exponential moving average of g² instead of a sum."
+    },
+    {
+      "tag": "Adam",
+      "front": "Adam moments",
+      "back": "m = β₁m + (1 − β₁)g, v = β₂v + (1 − β₂)g²"
+    },
+    {
+      "tag": "Adam",
+      "front": "Why bias correction?",
+      "back": "m, v start at 0; dividing by 1 − βᵗ removes the early bias."
+    },
+    {
+      "tag": "Adam",
+      "front": "Adam defaults",
+      "back": "η 0.001, β₁ 0.9, β₂ 0.999, ε 1e-8"
+    },
+    {
+      "tag": "AdamW",
+      "front": "Adam vs AdamW",
+      "back": "AdamW applies weight decay directly (decoupled), not through the gradient."
+    },
+    {
+      "tag": "Schedules",
+      "front": "Cosine annealing",
+      "back": "η_min + ½(η_max − η_min)(1 + cos(πt/T))"
+    },
+    {
+      "tag": "Schedules",
+      "front": "Why warmup?",
+      "back": "Large initial steps destabilise big models and batches."
+    },
+    {
+      "tag": "Clipping",
+      "front": "Norm vs value clipping",
+      "back": "Norm keeps the direction; value clips each component."
+    },
+    {
+      "tag": "Batch",
+      "front": "Linear scaling rule",
+      "back": "Double the batch size → double the learning rate (with warmup)."
+    },
+    {
+      "tag": "Choice",
+      "front": "Default optimizer",
+      "back": "Adam/AdamW, η = 0.001."
+    },
+    {
+      "tag": "Choice",
+      "front": "Optimizer for RNNs / sparse features",
+      "back": "RMSprop / AdaGrad."
+    },
+    {
+      "tag": "Tuning",
+      "front": "First hyperparameter to tune",
+      "back": "The learning rate."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "numeric",
+      "q": "Momentum (v = βv + g), β = 0.95, gradients 12, 11, 10, v₀ = 0. v₃?",
+      "answer": 31.28,
+      "tolerance": 0.01,
+      "explain": "12 → 22.4 → 31.28."
+    },
+    {
+      "type": "numeric",
+      "q": "Same with the EMA form v = βv + (1 − β)g. v₃?",
+      "answer": 1.564,
+      "tolerance": 0.002,
+      "explain": "0.6 → 1.12 → 1.564."
+    },
+    {
+      "type": "numeric",
+      "q": "GD on L = w₁² + 4w₂² from w₂ = 2, η = 0.1. New w₂?",
+      "answer": 0.4,
+      "tolerance": 0.001,
+      "explain": "2 − 0.1·16."
+    },
+    {
+      "type": "numeric",
+      "q": "RMSprop first step: g = 8, γ = 0.9, s₀ = 0. s₁?",
+      "answer": 6.4,
+      "tolerance": 0.001,
+      "explain": "0.1·64."
+    },
+    {
+      "type": "numeric",
+      "q": "Adam first step (bias-corrected) with η = 0.05: step size for any non-zero gradient?",
+      "answer": 0.05,
+      "tolerance": 0.001,
+      "explain": "m̂/√v̂ = g/|g| = ±1."
+    },
+    {
+      "type": "numeric",
+      "q": "Cosine schedule η_max = 0.1, η_min = 0.001, T = 100 at epoch 50?",
+      "answer": 0.0505,
+      "tolerance": 0.0005,
+      "explain": "cos(π/2) = 0."
+    },
+    {
+      "type": "numeric",
+      "q": "Step decay η₀ = 0.1, γ = 0.1, step 30 at epoch 65?",
+      "answer": 0.001,
+      "tolerance": 0.0001,
+      "explain": "0.1 × 0.1²."
+    },
+    {
+      "type": "numeric",
+      "q": "Norm clipping g = (6, 8), τ = 5. Clipped first component?",
+      "answer": 3,
+      "tolerance": 0.001,
+      "explain": "‖g‖ = 10 → × 0.5."
+    },
+    {
+      "type": "numeric",
+      "q": "N = 10,000, B = 32. Mini-batch updates per epoch?",
+      "answer": 313,
+      "tolerance": 0.01,
+      "explain": "⌈312.5⌉."
+    },
+    {
+      "type": "mcq",
+      "q": "Which optimizer's learning rate can shrink to zero over time?",
+      "options": [
+        "SGD",
+        "Momentum",
+        "AdaGrad",
+        "Adam"
+      ],
+      "answer": 2,
+      "explain": "Its accumulated sum s only grows."
+    },
+    {
+      "type": "mcq",
+      "q": "Adam combines…",
+      "options": [
+        "AdaGrad + Nesterov",
+        "Momentum + RMSprop",
+        "SGD + L2",
+        "Newton + momentum"
+      ],
+      "answer": 1,
+      "explain": "First and second moments."
+    },
+    {
+      "type": "mcq",
+      "q": "Loss explodes to NaN in an RNN. First fix?",
+      "options": [
+        "Raise η",
+        "Gradient clipping / lower η",
+        "Remove the bias",
+        "More epochs"
+      ],
+      "answer": 1,
+      "explain": "Exploding gradients."
+    },
+    {
+      "type": "mcq",
+      "q": "Doubling the batch size under the linear scaling rule means…",
+      "options": [
+        "Halve η",
+        "Keep η",
+        "Double η",
+        "Square η"
+      ],
+      "answer": 2,
+      "explain": "Plus warmup."
+    }
+  ],
+  "formulas": [
+    {
+      "name": "GD",
+      "formula": "θ ← θ − η∇L"
+    },
+    {
+      "name": "Momentum (deck)",
+      "formula": "v = βv + g;  θ ← θ − ηv"
+    },
+    {
+      "name": "Nesterov",
+      "formula": "v = βv + ∇L(θ − βv);  θ ← θ − ηv"
+    },
+    {
+      "name": "AdaGrad",
+      "formula": "s += g²;  θ ← θ − ηg/√(s + ε)"
+    },
+    {
+      "name": "RMSprop",
+      "formula": "s = γs + (1 − γ)g²;  θ ← θ − ηg/√(s + ε)"
+    },
+    {
+      "name": "Adam",
+      "formula": "m = β₁m + (1−β₁)g; v = β₂v + (1−β₂)g²; m̂ = m/(1−β₁ᵗ); v̂ = v/(1−β₂ᵗ); θ ← θ − ηm̂/(√v̂ + ε)"
+    },
+    {
+      "name": "AdamW",
+      "formula": "θ ← θ − η(m̂/(√v̂ + ε) + λθ)"
+    },
+    {
+      "name": "Schedules",
+      "formula": "step η₀γ^{⌊t/s⌋} · exp η₀e^{−λt} · cosine η_min + ½(η_max − η_min)(1 + cos πt/T) · warmup η₀t/T_w"
+    },
+    {
+      "name": "Clipping",
+      "formula": "g ← gτ/‖g‖ if ‖g‖ > τ"
+    },
+    {
+      "name": "Defaults",
+      "formula": "Adam η 0.001, β₁ 0.9, β₂ 0.999 · SGD η 0.01–0.1 · β 0.9"
+    }
+  ]
+}

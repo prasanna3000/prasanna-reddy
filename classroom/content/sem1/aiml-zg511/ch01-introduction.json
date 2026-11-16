@@ -1,0 +1,586 @@
+{
+  "id": "ch01",
+  "title": "Introduction to Deep Learning",
+  "subtitle": "Contact session 1 · T1 Chapter 1 · what DL is, why now, and the four parts of every learning problem",
+  "lesson": [
+    {
+      "title": "What deep learning is",
+      "lead": "Deep learning is machine learning with **many stacked layers** that learn increasingly meaningful representations of the data.",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "It is a subfield of machine learning built on artificial neural networks.",
+            "The **deep** refers to successive layers of representations. The number of layers is the model's **depth**.",
+            "Each layer extracts progressively higher-level features (pixels → edges → shapes → objects).",
+            "It learns by example, the way people do, instead of following hand-written rules."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Where it sits"
+        },
+        {
+          "type": "formula",
+          "text": "AI  ⊃  Machine Learning  ⊃  Neural Networks  ⊃  Deep Learning",
+          "caption": "Data science overlaps all of them"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Term",
+            "Meaning",
+            "Example"
+          ],
+          "rows": [
+            [
+              "AI",
+              "Making machines perform human tasks; includes approaches with no learning",
+              "A robot cleaning a room"
+            ],
+            [
+              "ML",
+              "An approach to AI: the machine learns from experience",
+              "A spam filter learning from labelled mail"
+            ],
+            [
+              "DL",
+              "A technique for ML that learns layered representations with neural networks",
+              "Recognising faces in photos"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Why now?",
+      "lead": "Deep learning took off because of **scale**: more data, cheaper compute and bigger networks.",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "Large amounts of unstructured data: images, text, audio, video.",
+            "Cheap, high-quality sensors and cheap storage.",
+            "Cheap computation: CPUs, **GPUs** and distributed clusters.",
+            "Automatic feature generation: no hand-crafted features.",
+            "Better learning ability and scalability."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Key picture",
+          "text": "Andrew Ng's curve: with little labelled data, traditional ML (logistic regression, SVM) and neural networks perform similarly. As data grows, large neural networks keep improving while traditional algorithms plateau. **Scale drives deep learning progress.**"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Amount of labelled data",
+            "What wins"
+          ],
+          "rows": [
+            [
+              "Small",
+              "About a tie; depends on hand-engineered features"
+            ],
+            [
+              "Large",
+              "Large NN > medium NN > small NN > traditional ML"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Applications and network types",
+      "lead": "The input and output types decide the kind of network.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Application",
+            "Input",
+            "Output",
+            "Network"
+          ],
+          "rows": [
+            [
+              "Real estate",
+              "House features",
+              "Price",
+              "Standard NN"
+            ],
+            [
+              "Photo tagging",
+              "Image",
+              "Text tags",
+              "CNN"
+            ],
+            [
+              "Object detection",
+              "Image",
+              "Bounding boxes",
+              "CNN"
+            ],
+            [
+              "Speech recognition",
+              "Audio",
+              "Text transcript",
+              "RNN"
+            ],
+            [
+              "Translation",
+              "English text",
+              "French text",
+              "RNN"
+            ],
+            [
+              "Autonomous driving",
+              "Image, radar, sensors",
+              "Positions of cars and objects",
+              "Hybrid NN"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Other examples from the deck: weather forecasting from satellite images, question answering, outlining every person in a photo, and recommending products a user wouldn't otherwise find."
+        },
+        {
+          "type": "trap",
+          "label": "Rule of thumb",
+          "text": "Match the network to the **input**: grids (images) → CNN, sequences (audio, text) → RNN, fixed-length tables → standard feed-forward NN."
+        }
+      ]
+    },
+    {
+      "title": "The four core components",
+      "lead": "Every deep learning problem has **data, a model, an objective function and a learning algorithm**.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "**Data:** examples converted to numbers. Each example has **features** (covariates); in supervised learning it also has a **label** (target).",
+            "**Model:** the machinery that turns inputs into predictions, built from many chained transformations.",
+            "**Objective (loss) function:** measures how good or bad the model is. By convention **lower is better**.",
+            "**Learning algorithm:** searches for parameters that minimise the loss. The workhorse is **gradient descent**."
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "D = {X, t},   N = number of examples,   d = number of features (dimensions)"
+        },
+        {
+          "type": "p",
+          "text": "As the number of features grows, the **dimensionality** grows. A table of 8 houses with bedrooms, location, sq ft and price has N = 8 and d = 3 (price is the target)."
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "Location is a word (Urban / Suburban / Rural), so it must be turned into numbers. Use **one-hot encoding** (Urban = [1,0,0], …), not 1/2/3, which would invent an order."
+        }
+      ]
+    },
+    {
+      "title": "From program to model",
+      "lead": "A **model** is a program whose behaviour is set by parameters that were learned from data.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "Start with a program whose behaviour depends on parameters.",
+            "Use labelled examples to measure the loss.",
+            "**Train**: adjust the parameters to reduce the loss.",
+            "Once the parameters are fixed, the program is called a **model**."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The set of all programs you can get just by changing the parameters is a **family of models**. The same family should suit both \"Alexa\" and \"Hey Siri\" wake-word detection, because the tasks are similar."
+        },
+        {
+          "type": "note",
+          "label": "Example from the deck",
+          "text": "Wake-word example: collect lots of audio clips, label each as containing the wake word or not, and train a model whose output is yes or no."
+        }
+      ]
+    },
+    {
+      "title": "Kinds of learning",
+      "lead": "Supervised learning (this course) learns from **labelled** examples.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Kind",
+            "Data",
+            "Examples"
+          ],
+          "rows": [
+            [
+              "Supervised",
+              "Features and labels",
+              "Regression, classification"
+            ],
+            [
+              "Unsupervised",
+              "Features only",
+              "Clustering, generative models (GANs), density estimation"
+            ],
+            [
+              "Reinforcement",
+              "An agent acting in an environment over time",
+              "Game playing, robotics"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Supervised tasks"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Regression:** how much or how many? (price, temperature)",
+            "**Binary classification:** one of two classes (spam / not spam).",
+            "**Multi-class classification:** one of K > 2 classes (digit 0–9).",
+            "**Multi-label classification:** several labels at once (movie genres).",
+            "**Recommender systems**, and **sequence learning**: tagging, speech recognition, text-to-speech, machine translation."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Quick numbers to practise",
+      "lead": "Mid-sem questions on this module are mostly counting: data shapes, splits, iterations and parameters.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "iterations per epoch = ⌈N_train / B⌉        total updates = iterations × epochs"
+        },
+        {
+          "type": "formula",
+          "text": "parameters of a Dense layer = inputs × units + units"
+        },
+        {
+          "type": "p",
+          "text": "Example: 12,500 clips split 80/10/10 → 10,000 train, 1,250 validation, 1,250 test. With batch size 64: ⌈10,000/64⌉ = 157 iterations per epoch; 15 epochs → 2,355 updates."
+        },
+        {
+          "type": "p",
+          "text": "Example: a 784 → 128 → 64 → 10 network has 100,480 + 8,256 + 650 = **109,386** parameters."
+        },
+        {
+          "type": "widget",
+          "widget": "lr-bowl",
+          "config": {
+            "c": 4,
+            "wstar": 2,
+            "w0": -2,
+            "eta": 0.15,
+            "steps": 8
+          }
+        },
+        {
+          "type": "note",
+          "label": "Preview",
+          "text": "This playground shows what \"learning algorithm\" means: gradient descent walking down a loss bowl. Module 3 covers it in full.",
+          "color": "blue"
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Data set shapes and one-hot encoding",
+      "tags": [
+        "data",
+        "shapes"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A table of 8 houses has columns ID, Bedrooms, Location (Urban / Suburban / Rural), Sq ft and Price. Price is the target. What are N and d? What is the design matrix shape if Location is one-hot encoded and ID is dropped?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "N",
+          "text": "8 rows, so **N = 8**."
+        },
+        {
+          "label": "Raw d",
+          "text": "Features: bedrooms, location, sq ft, so **d = 3** (ID is not a feature, price is the target)."
+        },
+        {
+          "label": "One-hot",
+          "text": "Location becomes 3 columns: Urban [1,0,0], Suburban [0,1,0], Rural [0,0,1]."
+        },
+        {
+          "label": "Shape",
+          "text": "bedrooms (1) + location (3) + sq ft (1) = 5 columns, so X is **8 × 5** and t is 8 × 1."
+        }
+      ],
+      "answer": "N = 8, d = 3 raw features; X is 8 × 5 after one-hot encoding. One-hot avoids the false order that 1/2/3 would create."
+    },
+    {
+      "title": "Splits, iterations and epochs",
+      "tags": [
+        "training arithmetic"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "12,500 audio clips are split 80/10/10. Training uses batch size 64 for 15 epochs. How many iterations per epoch and how many weight updates in total?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Split",
+          "text": "Train 0.8 × 12,500 = 10,000; validation 1,250; test 1,250."
+        },
+        {
+          "label": "Per epoch",
+          "text": "⌈10,000 / 64⌉ = ⌈156.25⌉ = **157** iterations (the last batch is partial)."
+        },
+        {
+          "label": "Total",
+          "text": "157 × 15 = **2,355** updates."
+        }
+      ],
+      "answer": "157 iterations per epoch; 2,355 updates in total. An epoch is one full pass over the training set."
+    },
+    {
+      "title": "Counting parameters",
+      "tags": [
+        "parameters"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Count the trainable parameters of a fully connected 784 → 128 → 64 → 10 network."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Layer 1",
+          "text": "784 × 128 + 128 = 100,480"
+        },
+        {
+          "label": "Layer 2",
+          "text": "128 × 64 + 64 = 8,256"
+        },
+        {
+          "label": "Layer 3",
+          "text": "64 × 10 + 10 = 650"
+        },
+        {
+          "label": "Total",
+          "text": "**109,386**"
+        }
+      ],
+      "answer": "109,386 parameters (each layer: inputs × units + one bias per unit)."
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Definition",
+      "front": "What is deep learning?",
+      "back": "ML based on neural networks with **multiple layers**, each extracting higher-level features from the data."
+    },
+    {
+      "tag": "Definition",
+      "front": "What does \"deep\" mean?",
+      "back": "The number of successive layers of representation: the model's depth."
+    },
+    {
+      "tag": "Concept",
+      "front": "AI vs ML vs DL",
+      "back": "AI: machines doing human tasks. ML: learning from experience. DL: ML with layered neural networks."
+    },
+    {
+      "tag": "Why now",
+      "front": "Three reasons deep learning took off",
+      "back": "Huge (unstructured) data, cheap compute (GPUs), and cheap storage and sensors. Scale drives progress."
+    },
+    {
+      "tag": "Concept",
+      "front": "The four components of a DL problem",
+      "back": "Data · Model · Objective (loss) function · Learning algorithm"
+    },
+    {
+      "tag": "Concept",
+      "front": "Feature vs label",
+      "back": "Features (covariates) are the inputs. The label (target) is what we predict."
+    },
+    {
+      "tag": "Concept",
+      "front": "Why is a loss \"lower is better\"?",
+      "back": "By convention objective functions are minimised, so they are called loss functions."
+    },
+    {
+      "tag": "Concept",
+      "front": "What is a family of models?",
+      "back": "All the input-output mappings you get by changing the parameters of one program."
+    },
+    {
+      "tag": "Kinds",
+      "front": "Supervised vs unsupervised vs reinforcement",
+      "back": "Labelled data · features only · an agent acting in an environment."
+    },
+    {
+      "tag": "Tasks",
+      "front": "Regression vs classification",
+      "back": "How much / how many vs which category."
+    },
+    {
+      "tag": "Tasks",
+      "front": "Multi-class vs multi-label",
+      "back": "Exactly one of K classes vs any number of labels at once."
+    },
+    {
+      "tag": "Networks",
+      "front": "Image → ? network; audio → ? network",
+      "back": "Images: CNN. Audio, text, sequences: RNN."
+    },
+    {
+      "tag": "Data",
+      "front": "Why one-hot encode a category?",
+      "back": "1/2/3 would invent an order and a distance. One-hot treats all categories equally."
+    },
+    {
+      "tag": "Arithmetic",
+      "front": "Iterations per epoch",
+      "back": "⌈N_train / batch size⌉"
+    }
+  ],
+  "quiz": [
+    {
+      "type": "mcq",
+      "q": "Which statement is true?",
+      "options": [
+        "DL ⊃ ML ⊃ AI",
+        "AI ⊃ ML ⊃ DL",
+        "ML ⊃ AI ⊃ DL",
+        "They are the same"
+      ],
+      "answer": 1,
+      "explain": "Deep learning is a subfield of ML, which is an approach to AI."
+    },
+    {
+      "type": "mcq",
+      "q": "The \"deep\" in deep learning refers to…",
+      "options": [
+        "Large datasets",
+        "Many successive layers of representation",
+        "Deep feature engineering",
+        "Long training time"
+      ],
+      "answer": 1,
+      "explain": "Depth = the number of layers."
+    },
+    {
+      "type": "mcq",
+      "q": "According to Andrew Ng's curve, with a very small labelled dataset…",
+      "options": [
+        "Large NNs always win",
+        "Traditional ML and NNs perform similarly",
+        "Small NNs always win",
+        "No model can learn"
+      ],
+      "answer": 1,
+      "explain": "The gap opens only as data grows."
+    },
+    {
+      "type": "mcq",
+      "q": "Translating English text to French is best matched to…",
+      "options": [
+        "CNN",
+        "RNN",
+        "Standard NN",
+        "Clustering"
+      ],
+      "answer": 1,
+      "explain": "Sequence in, sequence out."
+    },
+    {
+      "type": "mcq",
+      "q": "Which is NOT one of the four core components?",
+      "options": [
+        "Data",
+        "Model",
+        "GPU",
+        "Learning algorithm"
+      ],
+      "answer": 2,
+      "explain": "Data, model, objective function, learning algorithm."
+    },
+    {
+      "type": "mcq",
+      "q": "Clustering customers without labels is…",
+      "options": [
+        "Supervised",
+        "Unsupervised",
+        "Reinforcement",
+        "Regression"
+      ],
+      "answer": 1,
+      "explain": "Only features are given."
+    },
+    {
+      "type": "mcq",
+      "q": "Tagging a movie as both \"action\" and \"comedy\" is…",
+      "options": [
+        "Binary classification",
+        "Multi-class classification",
+        "Multi-label classification",
+        "Regression"
+      ],
+      "answer": 2,
+      "explain": "Several labels can apply at once."
+    },
+    {
+      "type": "numeric",
+      "q": "N_train = 10,000 and batch size = 64. How many iterations per epoch?",
+      "answer": 157,
+      "tolerance": 0.01,
+      "explain": "⌈10,000/64⌉ = ⌈156.25⌉ = 157."
+    },
+    {
+      "type": "numeric",
+      "q": "How many parameters does a Dense layer with 128 inputs and 64 units have?",
+      "answer": 8256,
+      "tolerance": 0.5,
+      "explain": "128 × 64 + 64 = 8,256."
+    },
+    {
+      "type": "numeric",
+      "q": "A categorical feature with 3 values is one-hot encoded. How many columns does it become?",
+      "answer": 3,
+      "tolerance": 0.01,
+      "explain": "One column per category."
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Dataset",
+      "formula": "D = {X, t},  N examples,  d features"
+    },
+    {
+      "name": "Core components",
+      "formula": "Data · Model · Objective (loss) · Learning algorithm"
+    },
+    {
+      "name": "Iterations per epoch",
+      "formula": "⌈N_train / B⌉",
+      "note": "Total updates = iterations × epochs"
+    },
+    {
+      "name": "Dense layer parameters",
+      "formula": "inputs × units + units"
+    },
+    {
+      "name": "Learning types",
+      "formula": "Supervised (labels) · Unsupervised (no labels) · Reinforcement (agent + environment)"
+    }
+  ]
+}

@@ -1,0 +1,2128 @@
+{
+  "id": "ch09",
+  "title": "Hypothesis Testing",
+  "subtitle": "Contact session 9 · T1 & T2 · Prof. Srinath R Naidu (live class 4 Oct 2026)",
+  "lesson": [
+    {
+      "title": "Class 9 at a glance",
+      "lead": "What Prof. Naidu covered on 4 Oct, what he left for next time, and what he said that is not on the slides.",
+      "blocks": [
+        {
+          "type": "h",
+          "text": "Covered in the live class"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Why we test: draw a small sample, say something about a huge population, and put a number on how wrong we might be",
+            "H₀ and H₁, Type I and Type II error, α and the p-value, left, right and two-tailed tests",
+            "The z statistic, and **why μ is set to the boundary value K** when H₀ is μ ≥ K",
+            "z-test for one mean (sodium sandwich, delivery time), two means (taxi tyres)",
+            "z-test for one proportion (disease survival) and two proportions (the two judges)"
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Left for the next class"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Student's t-test (one sample, two sample, paired)",
+            "Chi-square: independence and goodness of fit",
+            "These are still in the slides (pp. 35 to 64 of the CS 9 deck) and they are asked in exams, so they are in this chapter."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Not on the slides, said in class"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Why the boundary value μ = K is used** in the statistic (section 5). His OneNote notes will be uploaded.",
+            "**Reject does not mean accept H₁, and fail to reject does not mean accept H₀.** The jury says \"not guilty\", never \"innocent\".",
+            "**Play with the numbers.** Change s, n and α and watch z move. He wants understanding, not just substitution.",
+            "The standard error is s/√n, the SD of the **sample mean**, not the SD of single observations."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Open item",
+          "text": "The two-proportion example on the slide uses a pooled p*q*. In class he doubted it and promised to check and clarify next lecture. Section 8 shows why pooled is the standard answer when H₀ says P₁ = P₂, and that both versions reach the same decision here.",
+          "color": "pink"
+        },
+        {
+          "type": "note",
+          "label": "Heads up",
+          "text": "No exam hints were given in this recording. The exam pattern comes from the past papers (last board).",
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "title": "1 · Why test a hypothesis?",
+      "lead": "A sample is a small, lucky-or-unlucky glimpse. Testing asks how likely that glimpse would be if the claim were true.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "A tyre maker claims the **average life is 50,000 km**. You cannot test every tyre, so you take 30 at random and get a mean of **47,000 km** (s = 5,500 km). Is the claim false, or were you unlucky?"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Assume the claim is true (μ = 50,000).",
+            "Ask: if so, how probable is a sample mean of 47,000 or lower? Here that is about 0.0013 (a tiny tail area).",
+            "So either you drew a very unusual sample, or the claim is probably false. The smaller the probability, the more doubt you have."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Teacher says",
+          "text": "More data makes the argument stronger. Getting a low average from 30 tyres is unlikely; getting it from 100 tyres is far less likely. He also stressed that every statement comes with an error bound: \"I am wrong at most 2.5% of the time\" beats \"I think so\"."
+        },
+        {
+          "type": "h",
+          "text": "Why bother"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Validate an assumption** about a process or population",
+            "**Support a decision** with data instead of a hunch",
+            "**Judge significance:** is the effect real, or just chance? (Five heads in a row: possible with a fair coin, probability 1/32.)"
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Parametric or not"
+        },
+        {
+          "type": "p",
+          "text": "A **parametric** test assumes the data follow a known distribution (normal, t, χ²), so errors can be written as areas under a curve. **Non-parametric** tests assume no distribution, so they cannot give such error statements. This course uses parametric tests."
+        }
+      ]
+    },
+    {
+      "title": "2 · H₀ and H₁: who gets the equals sign",
+      "lead": "The null always contains the equality. The alternative is the strict opposite.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "",
+            "H₀ (null)",
+            "H₁ (alternative)"
+          ],
+          "rows": [
+            [
+              "Idea",
+              "No difference, or a difference due to sampling variation",
+              "The difference you are trying to establish"
+            ],
+            [
+              "Symbols",
+              "=, ≤ or ≥",
+              "≠, > or <"
+            ],
+            [
+              "Role",
+              "What we try to reject",
+              "What we conclude if H₀ is rejected"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "The three examples from class"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Statement",
+            "H₀",
+            "H₁",
+            "Who owns the claim?"
+          ],
+          "rows": [
+            [
+              "School: 61% join an activity",
+              "P = 0.61",
+              "P ≠ 0.61",
+              "The claim is H₀"
+            ],
+            [
+              "Dealership: oil change is less than 15 min",
+              "μ ≥ 15",
+              "μ < 15",
+              "The claim is H₁"
+            ],
+            [
+              "Furnace lasts more than 18 years",
+              "μ ≤ 18",
+              "μ > 18",
+              "The claim is H₁"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Notice that the claim can be either hypothesis. Look at the symbol, not at who said it: if the claim contains = (or ≤, ≥), it is H₀; if it is strict (<, >), it is H₁."
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "The tail comes from H₁. **<** means left-tailed, **>** means right-tailed, **≠** means two-tailed. Words like \"significantly different\" mean two-tailed; \"more than\" and \"at least\" point you to the sign."
+        },
+        {
+          "type": "note",
+          "label": "Teacher says",
+          "text": "When H₀ is a range such as μ ≥ K, the test statistic still uses the single value μ = K. Section 5 explains why."
+        }
+      ]
+    },
+    {
+      "title": "3 · Two ways to be wrong",
+      "lead": "Every decision can be wrong in exactly two ways. α controls one of them.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "",
+            "H₀ true",
+            "H₀ false"
+          ],
+          "rows": [
+            [
+              "Reject H₀",
+              "**Type I error** (probability α)",
+              "Correct decision (power = 1 − β)"
+            ],
+            [
+              "Do not reject H₀",
+              "Correct decision",
+              "**Type II error** (probability β)"
+            ]
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "α = P(reject H₀ | H₀ true)      β = P(do not reject H₀ | H₀ false)"
+        },
+        {
+          "type": "p",
+          "text": "**Level of significance α** is the largest Type I error you will accept. Pushing the cut-off further into the tail lowers α but makes Type II errors more likely: you cannot shrink both for free."
+        },
+        {
+          "type": "h",
+          "text": "The courtroom"
+        },
+        {
+          "type": "p",
+          "text": "H₀: the defendant is innocent. With heavy evidence the jury **rejects H₀** (guilty). With weak evidence the verdict is **not guilty**, which only says the evidence was not enough. It does not say innocent."
+        },
+        {
+          "type": "note",
+          "label": "Teacher says",
+          "text": "This is a one-way test. **Reject H₀** is a strong statement. **Fail to reject H₀** only means there is insufficient evidence. In the exam, write \"do not reject H₀\", never \"accept H₀\" (several slide solutions say \"accept\", but the careful wording is \"fail to reject\")."
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "Never write \"H₀ is proved\" or \"H₁ is proved\". Write: \"At the 5% level there is (not) enough evidence to conclude …\" and finish with the answer in plain words."
+        }
+      ]
+    },
+    {
+      "title": "4 · α, p-values and tails",
+      "lead": "Two roads to the same verdict: the critical value, and the p-value.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "**α** is fixed by you before seeing the data: it defines the rejection region. The **p-value** belongs to your sample: it is the probability, if H₀ is true, of a statistic at least as extreme as the one you got."
+        },
+        {
+          "type": "formula",
+          "text": "p ≤ α  ⇒  reject H₀            p > α  ⇒  do not reject H₀"
+        },
+        {
+          "type": "note",
+          "label": "Teacher says",
+          "text": "A p-value of 0.0005 is far stronger evidence than 0.01. The smaller p is, the less likely your sample would be under H₀, so the more safely you can reject."
+        },
+        {
+          "type": "h",
+          "text": "Critical z values"
+        },
+        {
+          "type": "table",
+          "head": [
+            "α",
+            "Left-tailed",
+            "Right-tailed",
+            "Two-tailed"
+          ],
+          "rows": [
+            [
+              "0.10",
+              "−1.28",
+              "1.28",
+              "±1.645"
+            ],
+            [
+              "0.05",
+              "−1.645",
+              "1.645",
+              "±1.96"
+            ],
+            [
+              "0.01",
+              "−2.33",
+              "2.33",
+              "±2.58"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "In a two-tailed test α is **split in half**, α/2 in each tail. That pushes the cut-offs outwards (1.645 becomes 1.96 at 5%; 2.33 becomes 2.58 at 1%)."
+        },
+        {
+          "type": "table",
+          "head": [
+            "H₁ says",
+            "Test",
+            "Reject when"
+          ],
+          "rows": [
+            [
+              "μ < K",
+              "left-tailed",
+              "z < −z_α"
+            ],
+            [
+              "μ > K",
+              "right-tailed",
+              "z > z_α"
+            ],
+            [
+              "μ ≠ K",
+              "two-tailed",
+              "|z| > z_{α/2}"
+            ]
+          ]
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "For a two-tailed test the p-value is **twice** the one-tail area. Compare 2 × (tail area) with α, or compare |z| with z_{α/2}. Do not mix: using a one-tail critical value with a two-tail p-value flips decisions near the boundary."
+        }
+      ]
+    },
+    {
+      "title": "5 · The test statistic, and why μ = K",
+      "lead": "Every test is signal ÷ noise. The only thing that changes between tests is the noise recipe.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "statistic = (what the sample shows − what H₀ says) ÷ standard error"
+        },
+        {
+          "type": "p",
+          "text": "If H₀ is true, the sample mean x̄ is itself roughly normal, with mean μ₀ and standard deviation σ/√n. Standardising gives the familiar statistic:"
+        },
+        {
+          "type": "formula",
+          "text": "z = (x̄ − μ₀) / (σ/√n)  ~ N(0, 1)"
+        },
+        {
+          "type": "p",
+          "text": "When σ is unknown, replace it by the sample SD s. The statistic then follows a **t distribution with n − 1 degrees of freedom**; for large n, t is almost the same as z."
+        },
+        {
+          "type": "note",
+          "label": "Teacher says",
+          "text": "The denominator s/√n is the SD of the **sample mean**. s alone is the SD of individual observations. (A student asked about exactly this in class.)"
+        },
+        {
+          "type": "h",
+          "text": "Why use the boundary value μ = K? (not on the slides)"
+        },
+        {
+          "type": "p",
+          "text": "Say H₀ is μ ≥ K, a whole range of possible means, but the formula needs one number. The cut-off z_α is placed using μ = K, the edge of the range."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "With μ = K, the chance of landing below the cut-off is exactly α.",
+            "If the true mean is larger than K, the whole curve slides right, so less probability lies below the same cut-off: the error falls **below** α.",
+            "So for every mean allowed by H₀ the Type I error is **at most α**. That is the guarantee practitioners want (\"at most 5%\", never \"at least\")."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Numbers: left-tailed test at 5%, cut-off −1.645. If the true mean sits one standard error above K, the chance of a false rejection is Φ(−1.645 − 1) = **0.004**, far below 0.05. Centring the test anywhere below K could let the error exceed α."
+        },
+        {
+          "type": "note",
+          "label": "Teacher says",
+          "text": "He said this was not in the slides because it is a doubt you will certainly have, and that his OneNote notes would be uploaded.",
+          "color": "pink"
+        }
+      ]
+    },
+    {
+      "title": "6 · Tests for one mean (z and t)",
+      "lead": "Same five steps every time. Pick z or t from what you know about σ and n.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "Write H₀ and H₁ (this fixes the tail).",
+            "Choose α.",
+            "Compute the statistic with the boundary value μ₀.",
+            "Compare with the critical value, or compute the p-value.",
+            "Write the verdict in one plain sentence."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Use",
+            "When"
+          ],
+          "rows": [
+            [
+              "z",
+              "σ known, or n ≥ 30 (then s can stand in for σ)"
+            ],
+            [
+              "t, n − 1 df",
+              "σ unknown **and** n < 30"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Slide 35 adds that for σ unknown and n ≥ 30, t is technically more accurate but z is acceptable because they are close."
+        },
+        {
+          "type": "h",
+          "text": "Worked in class: sodium"
+        },
+        {
+          "type": "p",
+          "text": "Claim: mean sodium **no more than 920 mg**. n = 44, x̄ = 925, s = 18, α = 0.05. H₀: μ ≤ 920 vs H₁: μ > 920. z = (925 − 920)/(18/√44) = **1.84 > 1.645**, so reject: the claim is doubtful."
+        },
+        {
+          "type": "h",
+          "text": "Play with the numbers (his advice)"
+        },
+        {
+          "type": "table",
+          "head": [
+            "s",
+            "n",
+            "z",
+            "Verdict at 5% (right-tailed)"
+          ],
+          "rows": [
+            [
+              "18",
+              "44",
+              "1.84",
+              "Reject"
+            ],
+            [
+              "50",
+              "44",
+              "0.66",
+              "Do not reject: noisy sample"
+            ],
+            [
+              "18",
+              "440",
+              "5.83",
+              "Reject, much more strongly"
+            ],
+            [
+              "180",
+              "440",
+              "0.58",
+              "Do not reject"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Bigger s means more noise, so a weaker signal. Bigger n cuts the noise, but only by √n."
+        },
+        {
+          "type": "trap",
+          "label": "Check the numbers",
+          "text": "In the recording he suggested that n = 440 with s = 180 would give about the same z as before. Working it out gives 0.58, not 1.84. Ten times the sample size cuts noise by √10 ≈ 3.2, so s could only grow to about 57 to keep z near 1.84. The idea (more data can offset noise) is right; just don't copy those numbers."
+        },
+        {
+          "type": "h",
+          "text": "Two-tailed example: delivery time"
+        },
+        {
+          "type": "p",
+          "text": "Company claims a mean of 3 days. n = 50, x̄ = 3.4, σ = 1.2. \"Significantly different\" so two-tailed: z = 0.4/(1.2/√50) = **2.36 > 1.96**, reject."
+        },
+        {
+          "type": "widget",
+          "widget": "htest-calc",
+          "config": {
+            "kind": "mean",
+            "dist": "z",
+            "xbar": 925,
+            "mu0": 920,
+            "s": 18,
+            "n": 44,
+            "tail": "right",
+            "alpha": 0.05
+          }
+        }
+      ]
+    },
+    {
+      "title": "7 · Comparing two means",
+      "lead": "Variances of independent sample means add, so the noise is √(s₁²/n₁ + s₂²/n₂).",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "z = (x̄₁ − x̄₂) / √(σ₁²/n₁ + σ₂²/n₂)"
+        },
+        {
+          "type": "note",
+          "label": "Teacher says",
+          "text": "Why the variances add: x̄₁ and x̄₂ are independent normal variables, and the variance of their difference is the sum of their variances. If the σ's are unknown, use s₁ and s₂ (large samples)."
+        },
+        {
+          "type": "p",
+          "text": "**Small samples:** use the pooled t-test, with df = n₁ + n₂ − 2."
+        },
+        {
+          "type": "formula",
+          "text": "s_p² = [(n₁ − 1)s₁² + (n₂ − 1)s₂²] / (n₁ + n₂ − 2)      t = (x̄₁ − x̄₂) / (s_p √(1/n₁ + 1/n₂))"
+        },
+        {
+          "type": "h",
+          "text": "Taxi tyres (class)"
+        },
+        {
+          "type": "p",
+          "text": "Brand A: n = 30, x̄ = 38,600, s = 5,000. Brand B: n = 40, x̄ = 35,450, s = 6,100. H₀: μ₁ = μ₂, two-tailed, α = 0.05. SE = 1,328, z = 3,150/1,328 = **2.37 > 1.96**, so the brands differ."
+        },
+        {
+          "type": "trap",
+          "label": "Slide check",
+          "text": "The slide prints z = 2.30; recomputing gives 2.37. The decision (reject) is the same either way, so don't lose sleep, but show your own working in the exam."
+        },
+        {
+          "type": "h",
+          "text": "Paired data"
+        },
+        {
+          "type": "p",
+          "text": "If the **same subjects** are measured twice (before and after), take the differences d and do a one-sample t-test on d with df = n − 1. Treating paired data as two independent samples throws away information."
+        },
+        {
+          "type": "formula",
+          "text": "t = d̄ / (s_d/√n)"
+        },
+        {
+          "type": "widget",
+          "widget": "htest-calc",
+          "config": {
+            "kind": "mean2",
+            "dist": "z",
+            "x1": 38600,
+            "s1": 5000,
+            "n1": 30,
+            "x2": 35450,
+            "s2": 6100,
+            "n2": 40,
+            "tail": "two",
+            "alpha": 0.05
+          }
+        }
+      ]
+    },
+    {
+      "title": "8 · Proportion tests",
+      "lead": "A proportion is just a mean of 0s and 1s, so the same recipe works with a different standard error.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Let each person be Xᵢ = 1 (has the characteristic, probability P) or 0 (probability 1 − P). Then E(Xᵢ) = P and Var(Xᵢ) = P − P² = **PQ**. The sample proportion is the average, so its variance is PQ/n."
+        },
+        {
+          "type": "formula",
+          "text": "z = (p̂ − P₀) / √(P₀Q₀/n)"
+        },
+        {
+          "type": "note",
+          "label": "Teacher says",
+          "text": "The exact standard deviation carries a finite-population factor √((N − n)/(N − 1)), because sampling is done without replacement. If n is small compared with N the factor is almost 1 and is dropped. Under H₀, use P₀ (not p̂) in the denominator."
+        },
+        {
+          "type": "h",
+          "text": "Disease survival (class)"
+        },
+        {
+          "type": "p",
+          "text": "20 patients, 18 survived: p̂ = 0.90. H₀: P = 0.85, H₁: P > 0.85, α = 0.05. z = 0.05/√(0.85×0.15/20) = **0.63 < 1.645**, so do not reject: not enough evidence that survival exceeds 85%."
+        },
+        {
+          "type": "h",
+          "text": "Two proportions (the two judges)"
+        },
+        {
+          "type": "p",
+          "text": "Judge 1: 90 false positives in 3,000 (3.00%). Judge 2: 48 in 2,500 (1.92%). H₀: P₁ = P₂ vs H₁: P₁ > P₂."
+        },
+        {
+          "type": "formula",
+          "text": "p* = (x₁ + x₂)/(n₁ + n₂) = 138/5,500 = 0.0251      z = (p̂₁ − p̂₂) / √(p*q*(1/n₁ + 1/n₂)) = 2.55"
+        },
+        {
+          "type": "p",
+          "text": "**Why pooled?** The test assumes H₀ is true, and H₀ says both groups share one proportion, so the best single estimate pools the data. The unpooled form √(p̂₁q̂₁/n₁ + p̂₂q̂₂/n₂) gives z = 2.60 here, the same decision. Unpooled is the natural choice for a confidence interval for P₁ − P₂, where no H₀ is assumed."
+        },
+        {
+          "type": "note",
+          "label": "Open item",
+          "text": "In class the professor thought the pooled p*q* looked wrong and said he would verify it next lecture. Use pooled when H₀: P₁ = P₂ (the Feb 2026 answer key does).",
+          "color": "pink"
+        },
+        {
+          "type": "widget",
+          "widget": "htest-calc",
+          "config": {
+            "kind": "prop2",
+            "x1": 90,
+            "n1": 3000,
+            "x2": 48,
+            "n2": 2500,
+            "pooled": true,
+            "tail": "right",
+            "alpha": 0.05
+          }
+        }
+      ]
+    },
+    {
+      "title": "9 · The t-test and the F-test",
+      "lead": "For small samples with σ unknown. (Left for the next class, but asked in exams.)",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "The t curve is bell-shaped like z but with fatter tails; the fewer degrees of freedom, the fatter the tails. So the critical value is larger than z's: at 5% one-tailed, t(9) = 1.833, t(23) = 1.714, t(30) = 1.697, closing in on z's 1.645 as df grows."
+        },
+        {
+          "type": "h",
+          "text": "One mean (slide 36)"
+        },
+        {
+          "type": "p",
+          "text": "Claim: mean annual mileage 18,580 km. n = 10, x̄ = 17,352, s = 2,012. t = (17,352 − 18,580)/(2,012/√10) = **−1.93**, df = 9."
+        },
+        {
+          "type": "trap",
+          "label": "Slide check",
+          "text": "The sample mean is **below** the claim. A right-tailed test (H₁: μ > 18,580) can never reject here, because t is negative (p = 0.96). The slide compares |t| = 1.929 with 1.833 and rejects, which only makes sense for H₁: μ < 18,580 (left-tailed, p = 0.043, reject at 5% but not at 1% where the cut-off is 2.821). Always check the **sign** against H₁."
+        },
+        {
+          "type": "h",
+          "text": "Two means, small samples (slide 41)"
+        },
+        {
+          "type": "p",
+          "text": "Courier packets: 15 at month start (x̄ = 5.25, s² = 1.20), 10 at month end (x̄ = 4.26, s² = 1.15). Pooled s_p² = 1.180, SE = 0.4436, t = 0.99/0.4436 = **2.23**, df = 23. \"Heavier at the start\" is one-tailed: critical 1.714, so reject; p = 0.018. The 95% CI for μ₁ − μ₂ is 0.99 ± 2.069 × 0.4436 = (0.07, 1.91)."
+        },
+        {
+          "type": "trap",
+          "label": "Slide check",
+          "text": "The slide uses the two-tailed cut-off 2.069 with H₁: μ₁ ≠ μ₂, yet the question asks \"heavier\" (one-tailed) and quotes a one-tailed p-value (0.01 to 0.025). Decide the tail from the question text."
+        },
+        {
+          "type": "h",
+          "text": "Paired (slide 43)"
+        },
+        {
+          "type": "p",
+          "text": "9 trainees, differences d = after − before: −5, 7, 11, −8, 11, 21, 0, 9, −1. d̄ = 5, s_d = 9.21, t = 5/(9.21/3) = **1.63**, df = 8. One-tailed 5% critical value is **1.860**, two-tailed 2.306: fail to reject either way."
+        },
+        {
+          "type": "trap",
+          "label": "Slide check",
+          "text": "The slide uses 1.833, which is the df = 9 value. With 9 pairs, df = n − 1 = 8, so the critical value is 1.860. Count df from the number of **pairs**."
+        },
+        {
+          "type": "h",
+          "text": "F-test for two variances (not in the slides, asked in Sep 2025)"
+        },
+        {
+          "type": "formula",
+          "text": "F = s₁²/s₂²   with df (n₁ − 1, n₂ − 1)      H₁: σ₁² > σ₂² is right-tailed"
+        },
+        {
+          "type": "p",
+          "text": "Sep 2025: s₁ = 0.032 (n = 10), s₂ = 0.028 (n = 14). F = 1.306 against F₀.₀₅(9, 13) = 2.714, so there is no evidence that method A is more variable. The Hypothesis Testing guide (pp. 21 to 22) covers it."
+        },
+        {
+          "type": "widget",
+          "widget": "htest-calc",
+          "config": {
+            "kind": "paired",
+            "tail": "two",
+            "alpha": 0.05
+          }
+        }
+      ]
+    },
+    {
+      "title": "10 · Chi-square tests",
+      "lead": "For counts in categories. Compare what you observed with what H₀ predicts.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "χ² = Σ (O − E)² / E        (always a right-tailed test)"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Use **frequencies only**, never percentages, means or proportions.",
+            "Variables are categorical; the test shows **association**, not cause.",
+            "Check that every expected count is **at least 5**; otherwise merge categories (or use an exact test)."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Independence (r × c table)"
+        },
+        {
+          "type": "p",
+          "text": "H₀: the two variables are independent. Expected count E = (row total × column total) / N. Degrees of freedom = **(r − 1)(c − 1)**."
+        },
+        {
+          "type": "p",
+          "text": "Accident timing vs fatality (slide 51): E = 69.3, 210.7, 29.7, 90.3, χ² = **7.32**, df = 1, critical 3.841, reject: timing and outcome are associated."
+        },
+        {
+          "type": "p",
+          "text": "Smoking vs hypertension (2 × 3): χ² = **14.46**, df = 2, critical 5.991, reject."
+        },
+        {
+          "type": "h",
+          "text": "Goodness of fit"
+        },
+        {
+          "type": "p",
+          "text": "H₀: the data follow a stated distribution. df = **k − 1 − m**, where k is the number of categories and m the number of parameters estimated from the data."
+        },
+        {
+          "type": "p",
+          "text": "Digits in a phone directory, expected 1,000 each (as on the slide): χ² = **59.4**, df = 9, critical 16.919, reject uniformity. (The slide prints 58.54; recomputing gives 59.36. The listed counts actually add to 9,990, not 10,000. Same decision.)"
+        },
+        {
+          "type": "p",
+          "text": "Bus arrivals vs Poisson: λ = 2.96 was **estimated**, so df = 6 − 1 − 1 = **4**. χ² = 11.75 < 13.28 (α = 0.01), so a Poisson model is acceptable."
+        },
+        {
+          "type": "trap",
+          "label": "Spot it",
+          "text": "Exercise 10 (slide 71): insurance type vs hospital stay has an expected count of 25×10/70 = **3.57 < 5**, so the χ² test should not be applied as it stands. That is the answer being looked for."
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "Do not forget to subtract estimated parameters from the df in goodness-of-fit tests."
+        },
+        {
+          "type": "widget",
+          "widget": "chisq-calc",
+          "config": {
+            "mode": "independence",
+            "table": "80, 200\n19, 101",
+            "alpha": 0.05
+          }
+        }
+      ]
+    },
+    {
+      "title": "11 · Which test do I use?",
+      "lead": "Exams reward picking the right test in 30 seconds. Ask three questions.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "**1. What did you measure?** Numbers (times, weights) or yes/no and categories?   **2. How many groups?**   **3. If two groups: the same subjects twice, or different subjects?**"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Situation",
+            "Test",
+            "Slides"
+          ],
+          "rows": [
+            [
+              "One mean vs a claim; σ known or n ≥ 30",
+              "z-test",
+              "pp. 18 to 22"
+            ],
+            [
+              "One mean vs a claim; σ unknown, n < 30",
+              "t-test, df = n − 1",
+              "pp. 35 to 38"
+            ],
+            [
+              "Two independent means",
+              "z (large) or pooled t, df = n₁ + n₂ − 2",
+              "pp. 23 to 29, 41 to 42"
+            ],
+            [
+              "Same subjects before/after",
+              "paired t on the differences",
+              "pp. 43 to 45"
+            ],
+            [
+              "Three or more means",
+              "one-way ANOVA (CS 10)",
+              "CS 10 deck"
+            ],
+            [
+              "Two variances",
+              "F-test",
+              "not in slides"
+            ],
+            [
+              "One or two proportions",
+              "z for proportions (pooled p* for two)",
+              "pp. 30 to 34"
+            ],
+            [
+              "Counts in categories vs a model",
+              "χ² goodness of fit",
+              "pp. 60 to 64"
+            ],
+            [
+              "Association of two categorical variables",
+              "χ² independence",
+              "pp. 46 to 59"
+            ]
+          ]
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "Never run several t-tests on three or more groups: the false-alarm rate climbs. That is what ANOVA is for."
+        }
+      ]
+    },
+    {
+      "title": "12 · How CS 9 appears in exams",
+      "lead": "Seven past comprehensives (open book, 40 marks) show where the marks are.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Hypothesis testing took **8 to 18 of 40 marks in every paper (about 13 on average, roughly a third)**. ANOVA is included here because it is the most frequent test."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Test",
+            "Papers (of 7)",
+            "Typical marks"
+          ],
+          "rows": [
+            [
+              "One-way ANOVA",
+              "4",
+              "5 to 6"
+            ],
+            [
+              "χ² (independence 3, fit 1)",
+              "4",
+              "5"
+            ],
+            [
+              "One-sample z or t",
+              "5",
+              "2 to 5"
+            ],
+            [
+              "Two-sample mean test",
+              "3",
+              "3 to 6"
+            ],
+            [
+              "Proportion test (one or two)",
+              "2",
+              "3 to 5"
+            ],
+            [
+              "Paired t",
+              "1",
+              "3"
+            ],
+            [
+              "F-test for variances",
+              "1",
+              "4"
+            ],
+            [
+              "Confidence interval for a mean",
+              "2",
+              "2"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Direct or thinking?"
+        },
+        {
+          "type": "list",
+          "items": [
+            "About 80% is **plug-in**: numbers given, standard template, look like the slide examples.",
+            "The thinking is in **choosing the test**, **choosing the tail** from the wording, setting up expected counts and df, and one **plain-English conclusion** (one paper asked about decision risk in a clinical setting).",
+            "Tables are printed at the back of the paper; the exam is open book, so concentrate on the method, not on memorising formulas."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "How to use",
+          "text": "Practise each past-paper problem in the Worked problems tab: they are tagged \"Past paper\".",
+          "color": "blue"
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Sodium in a sandwich (z, one mean)",
+      "tags": [
+        "Class",
+        "z-test"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A restaurant says its breakfast sandwich has **no more than 920 mg** of sodium. A random sample of 44 has mean 925 mg and s = 18 mg. At α = 0.05, is there enough evidence to reject the claim?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: μ ≤ 920 (the claim, contains ≤). H₁: μ > 920. The sign in H₁ makes it **right-tailed**."
+        },
+        {
+          "label": "Which test",
+          "text": "n = 44 ≥ 30, so z is fine, and s stands in for σ."
+        },
+        {
+          "label": "Statistic",
+          "text": "SE = s/√n = 18/√44 = 2.714. z = (925 − 920)/2.714 = **1.84**. (Use μ = 920, the boundary, even though H₀ is a range.)"
+        },
+        {
+          "label": "Critical value",
+          "text": "Right-tailed, α = 0.05: z₀.₀₅ = 1.645. p-value = 1 − Φ(1.84) = 0.033."
+        },
+        {
+          "label": "Decision",
+          "text": "1.84 > 1.645 (equivalently p = 0.033 < 0.05): **reject H₀**."
+        },
+        {
+          "label": "Plain English",
+          "text": "At the 5% level there is enough evidence that the mean sodium exceeds 920 mg, so the restaurant's claim is doubtful."
+        }
+      ],
+      "answer": "z = 1.84 > 1.645: reject H₀; the claim of at most 920 mg is doubtful."
+    },
+    {
+      "title": "Delivery time (two-tailed z)",
+      "tags": [
+        "Class",
+        "z-test"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A company claims an average delivery time of 3 days. A watchdog samples 50 deliveries: mean 3.4 days, σ = 1.2 days. At α = 0.05, is the average **significantly different** from 3?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: μ = 3, H₁: μ ≠ 3. \"Different\" in either direction means **two-tailed**."
+        },
+        {
+          "label": "Statistic",
+          "text": "z = (3.4 − 3)/(1.2/√50) = 0.4/0.1697 = **2.36**."
+        },
+        {
+          "label": "Critical values",
+          "text": "Two-tailed 5% splits into 2.5% per tail: ±1.96. p-value = 2 × (1 − Φ(2.36)) = 0.018."
+        },
+        {
+          "label": "Decision",
+          "text": "|2.36| > 1.96 and p = 0.018 < 0.05: **reject H₀**."
+        }
+      ],
+      "answer": "z = 2.36, beyond ±1.96: the mean delivery time is significantly different from 3 days."
+    },
+    {
+      "title": "Taxi tyres (two-sample z)",
+      "tags": [
+        "Class",
+        "z-test"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Brand A: n = 30, mean 38,600 km, s = 5,000. Brand B: n = 40, mean 35,450 km, s = 6,100. Test at 5% whether the brands differ."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: μ₁ = μ₂, H₁: μ₁ ≠ μ₂ (two-tailed)."
+        },
+        {
+          "label": "Standard error",
+          "text": "√(5,000²/30 + 6,100²/40) = √(833,333 + 930,250) = **1,328**."
+        },
+        {
+          "label": "Statistic",
+          "text": "z = (38,600 − 35,450)/1,328 = **2.37**. (μ₁ − μ₂ = 0 under H₀.)"
+        },
+        {
+          "label": "Decision",
+          "text": "|2.37| > 1.96, p = 0.018: reject H₀."
+        },
+        {
+          "label": "Note",
+          "text": "The slide shows 2.30; the arithmetic gives 2.37. Same decision."
+        }
+      ],
+      "answer": "z = 2.37 > 1.96: the two brands do not have equal mean life."
+    },
+    {
+      "title": "Disease survival (one proportion)",
+      "tags": [
+        "Class",
+        "Proportion"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Of 20 people who caught a disease, 18 survived. At α = 0.05, test H₀: survival rate = 85% against the alternative that it is higher."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: P = 0.85, H₁: P > 0.85 (right-tailed)."
+        },
+        {
+          "label": "Sample proportion",
+          "text": "p̂ = 18/20 = 0.90."
+        },
+        {
+          "label": "Statistic",
+          "text": "SE under H₀ = √(0.85 × 0.15/20) = 0.0799, z = (0.90 − 0.85)/0.0799 = **0.63**."
+        },
+        {
+          "label": "Decision",
+          "text": "0.63 < 1.645 (p = 0.27): **do not reject H₀**."
+        },
+        {
+          "label": "Plain English",
+          "text": "With only 20 patients the sample does not give enough evidence that survival exceeds 85%."
+        }
+      ],
+      "answer": "z = 0.63 < 1.645: do not reject H₀."
+    },
+    {
+      "title": "Two judges (two proportions, pooled)",
+      "tags": [
+        "Class",
+        "Proportion"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Judge 1 made 90 false positives in 3,000 cases; Judge 2 made 48 in 2,500. At α = 0.05, has Judge 1 made more false positives (right-tailed)?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: P₁ = P₂, H₁: P₁ > P₂."
+        },
+        {
+          "label": "Sample proportions",
+          "text": "p̂₁ = 0.0300, p̂₂ = 0.0192."
+        },
+        {
+          "label": "Pooled",
+          "text": "p* = (90 + 48)/(3,000 + 2,500) = 138/5,500 = 0.0251, q* = 0.9749. H₀ says one common P, so pool the data."
+        },
+        {
+          "label": "Statistic",
+          "text": "SE = √(0.0251 × 0.9749 × (1/3,000 + 1/2,500)) = 0.004235. z = 0.0108/0.004235 = **2.55**."
+        },
+        {
+          "label": "Decision",
+          "text": "2.55 > 1.645, p = 0.005: reject H₀."
+        },
+        {
+          "label": "Cross-check",
+          "text": "Unpooled SE (0.004151) gives z = 2.60: same decision. The professor's doubt about the slide does not change the answer here."
+        }
+      ],
+      "answer": "z = 2.55 > 1.645: Judge 1 has a higher false-positive rate."
+    },
+    {
+      "title": "Sports-car mileage (one-sample t, check the sign)",
+      "tags": [
+        "Slides",
+        "t-test"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A claim: mean annual mileage is 18,580 km. A sample of 10 owners has mean 17,352 and s = 2,012. A consumer firm suspects the true mean is **lower**. Test at 5% and at 1%."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: μ ≥ 18,580, H₁: μ < 18,580 (left-tailed)."
+        },
+        {
+          "label": "Statistic",
+          "text": "t = (17,352 − 18,580)/(2,012/√10) = −1,228/636.3 = **−1.93**, df = 9."
+        },
+        {
+          "label": "5% level",
+          "text": "Left-tailed critical value −1.833. −1.93 < −1.833 (p = 0.043): reject H₀."
+        },
+        {
+          "label": "1% level",
+          "text": "Critical value −2.821. −1.93 > −2.821: do not reject H₀."
+        },
+        {
+          "label": "Trap",
+          "text": "If H₁ were μ > 18,580 (as printed on the slide), t = −1.93 could never reject (p = 0.96). Match the tail to the sign."
+        }
+      ],
+      "answer": "t = −1.93: reject at 5% but not at 1% (left-tailed)."
+    },
+    {
+      "title": "Courier packets (pooled two-sample t)",
+      "tags": [
+        "Slides",
+        "t-test"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "15 packets at the start of the month: mean 5.25 kg, variance 1.20. 10 packets at the end: mean 4.26 kg, variance 1.15. At 5%, are start-of-month packets heavier? Give the p-value and a 95% CI for the difference."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: μ₁ ≤ μ₂, H₁: μ₁ > μ₂ (one-tailed: \"heavier\")."
+        },
+        {
+          "label": "Pooled variance",
+          "text": "s_p² = (14 × 1.20 + 9 × 1.15)/23 = 1.1804."
+        },
+        {
+          "label": "Standard error",
+          "text": "SE = √(1.1804 × (1/15 + 1/10)) = 0.4436."
+        },
+        {
+          "label": "Statistic",
+          "text": "t = (5.25 − 4.26)/0.4436 = **2.23**, df = 15 + 10 − 2 = 23."
+        },
+        {
+          "label": "Decision",
+          "text": "One-tailed 5% critical value 1.714 < 2.23, p = 0.018: reject H₀."
+        },
+        {
+          "label": "95% CI",
+          "text": "0.99 ± 2.069 × 0.4436 = (0.07, 1.91). It excludes 0, which agrees with rejecting equality."
+        }
+      ],
+      "answer": "t = 2.23 > 1.714 (p ≈ 0.018): packets at the start of the month are heavier."
+    },
+    {
+      "title": "Trainee test scores (paired t)",
+      "tags": [
+        "Slides",
+        "t-test"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Nine trainees took an aptitude test before and after a programme. Differences d = after − before: −5, 7, 11, −8, 11, 21, 0, 9, −1. Is there an improvement at 5%?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: μ_d ≤ 0, H₁: μ_d > 0."
+        },
+        {
+          "label": "Mean and spread",
+          "text": "d̄ = 45/9 = 5. Σ(d − d̄)² = 678, s_d = √(678/8) = 9.206."
+        },
+        {
+          "label": "Statistic",
+          "text": "t = 5/(9.206/√9) = **1.63**, df = 9 − 1 = 8."
+        },
+        {
+          "label": "Critical value",
+          "text": "t₀.₀₅(8) = **1.860** (the slide's 1.833 is the df = 9 value)."
+        },
+        {
+          "label": "Decision",
+          "text": "1.63 < 1.860, p = 0.071: do not reject H₀. A two-tailed test (critical 2.306) also fails to reject."
+        }
+      ],
+      "answer": "t = 1.63 < 1.860: not enough evidence of improvement."
+    },
+    {
+      "title": "Accident timing vs fatality (χ² independence, 2 × 2)",
+      "tags": [
+        "Slides",
+        "Chi-square"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Of 400 accidents, 280 happened in the early hours and 120 at other times. 99 accidents were fatal overall; 80 of the fatal ones were early-hours. Test at 5% whether timing and outcome are associated."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Table",
+          "text": "Early: fatal 80, non-fatal 200 (total 280). Other: fatal 19, non-fatal 101 (total 120). Column totals 99 and 301."
+        },
+        {
+          "label": "Expected",
+          "text": "E = row × column / 400: 69.3, 210.7, 29.7, 90.3. All ≥ 5, so χ² is fine."
+        },
+        {
+          "label": "Contributions",
+          "text": "(80−69.3)²/69.3 = 1.652; (200−210.7)²/210.7 = 0.543; 3.855; 1.268."
+        },
+        {
+          "label": "Statistic",
+          "text": "χ² = **7.32**, df = (2−1)(2−1) = 1."
+        },
+        {
+          "label": "Decision",
+          "text": "Critical value 3.841; 7.32 > 3.841 (p = 0.007): reject H₀. Timing and fatality are associated."
+        }
+      ],
+      "answer": "χ² = 7.32 > 3.841: reject independence."
+    },
+    {
+      "title": "Smoking and hypertension (χ², 2 × 3)",
+      "tags": [
+        "Slides",
+        "Chi-square"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "180 people: hypertension yes: 21 non-smokers, 36 moderate, 30 heavy (87). No: 48, 26, 19 (93). Column totals 69, 62, 49. Test independence at 5%."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Expected",
+          "text": "Row 1: 87×69/180 = 33.35, 87×62/180 = 29.97, 87×49/180 = 23.68. Row 2: 35.65, 32.03, 25.32."
+        },
+        {
+          "label": "Statistic",
+          "text": "Σ(O − E)²/E = **14.46**."
+        },
+        {
+          "label": "df",
+          "text": "(2 − 1)(3 − 1) = 2. Critical value 5.991."
+        },
+        {
+          "label": "Decision",
+          "text": "14.46 > 5.991 (p < 0.001): reject H₀. Smoking habit and hypertension are associated."
+        }
+      ],
+      "answer": "χ² = 14.46 > 5.991: associated."
+    },
+    {
+      "title": "Digits in a phone book (goodness of fit)",
+      "tags": [
+        "Slides",
+        "Chi-square"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "10,000 digits from a directory: counts for 0 to 9 are 1026, 1107, 997, 966, 1075, 933, 1107, 972, 954, 853. Test whether the digits are uniform (α = 0.05)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "H₀",
+          "text": "Every digit has probability 0.1. The slide takes E = 1,000 each. (The listed counts add to 9,990, not the stated 10,000; using E = 999 gives 59.41, the same decision.)"
+        },
+        {
+          "label": "Statistic",
+          "text": "Σ(O − 1,000)²/1,000 = (676 + 11,449 + 9 + 1,156 + 5,625 + 4,489 + 11,449 + 784 + 2,116 + 21,609)/1,000 = **59.36**. (The slide prints 58.54.)"
+        },
+        {
+          "label": "df",
+          "text": "k − 1 = 9. Critical value 16.919."
+        },
+        {
+          "label": "Decision",
+          "text": "59.36 > 16.919: reject uniformity."
+        }
+      ],
+      "answer": "χ² ≈ 59.4 > 16.919: digits are not uniformly distributed."
+    },
+    {
+      "title": "Bus arrivals and Poisson (χ² with an estimated parameter)",
+      "tags": [
+        "Slides",
+        "Chi-square"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "200 buses fall into 6 categories (0, 1, 2, 3, 4, ≥5 arrivals) with O = 10, 13, 45, 49, 32, 41. Poisson probabilities with λ = 2.96 give E = 10.48, 30.90, 45.54, 44.76, 33.02, 35.30. Test at α = 0.01 whether arrivals follow a Poisson law."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Contributions",
+          "text": "0.022, 10.369, 0.006, 0.402, 0.032, 0.920."
+        },
+        {
+          "label": "Statistic",
+          "text": "χ² = **11.75**."
+        },
+        {
+          "label": "df",
+          "text": "k − 1 − m = 6 − 1 − 1 = **4** (λ = 2.96 was estimated from the data)."
+        },
+        {
+          "label": "Decision",
+          "text": "Critical value 13.277; 11.75 < 13.277: do not reject. A Poisson model is acceptable."
+        },
+        {
+          "label": "Trap",
+          "text": "Using df = 5 would give critical 15.09: the same decision here, but wrong in general."
+        }
+      ],
+      "answer": "χ² = 11.75 < 13.28: Poisson fit is acceptable (df = 4)."
+    },
+    {
+      "title": "Pension plans (χ² independence, 2 × 3)",
+      "tags": [
+        "Slides",
+        "Chi-square"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "500 employees: Salaried 166, 86, 68 (320) for plans 1, 2, 3. Hourly 84, 64, 32 (180). Is plan choice associated with job class (α = 0.05)?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Expected",
+          "text": "Salaried: 160, 96, 64. Hourly: 90, 54, 36."
+        },
+        {
+          "label": "Statistic",
+          "text": "(6²/160) + (10²/96) + (4²/64) + (6²/90) + (10²/54) + (4²/36) = **4.21**."
+        },
+        {
+          "label": "Decision",
+          "text": "df = 2, critical 5.991. 4.21 < 5.991 (p = 0.12): do not reject H₀."
+        }
+      ],
+      "answer": "χ² = 4.21 < 5.991: no evidence of association."
+    },
+    {
+      "title": "Insurance type and hospital stay: can χ² be used?",
+      "tags": [
+        "Slides",
+        "Chi-square"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Counts: Type 1: 42 stays ≤ 10 days, 3 stays > 10. Type 2: 18 and 7. Total 70. Can a χ² test of independence be applied?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Expected counts",
+          "text": "Type 1: 38.57, 6.43. Type 2: 21.43, 3.57."
+        },
+        {
+          "label": "Check the rule",
+          "text": "The smallest expected count is **3.57 < 5**."
+        },
+        {
+          "label": "Conclusion",
+          "text": "The χ² approximation is unreliable. Merge categories if sensible, or use an exact test. (Computed anyway, χ² = 5.97 and df = 1, but don't trust it.)"
+        }
+      ],
+      "answer": "No: an expected count is below 5."
+    },
+    {
+      "title": "Two training programmes (two-sample t) · Mar 2026",
+      "tags": [
+        "Past paper",
+        "t-test"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Program A: n = 20, mean 81, s = 9. Program B: n = 25, mean 77, s = 8. At 5%, does A give significantly higher productivity?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: μ_A ≤ μ_B, H₁: μ_A > μ_B (right-tailed)."
+        },
+        {
+          "label": "Statistic",
+          "text": "The key used SE = √(s₁²/n₁ + s₂²/n₂) = 2.571, t = 4/2.571 = **1.56**. The pooled version gives 1.58."
+        },
+        {
+          "label": "Critical value",
+          "text": "df = 43; one-tailed 5% critical value is about 1.68."
+        },
+        {
+          "label": "Decision",
+          "text": "1.56 < 1.68: do not reject H₀. No significant evidence that A is better."
+        }
+      ],
+      "answer": "t ≈ 1.56 < 1.68: not significant."
+    },
+    {
+      "title": "Underfilled packets (one-sample z) · Mar 2026",
+      "tags": [
+        "Past paper",
+        "z-test"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Claimed mean weight 500 g. n = 81, x̄ = 496 g, known σ = 18 g. At 5%, is the machine underfilling?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: μ ≥ 500, H₁: μ < 500 (left-tailed)."
+        },
+        {
+          "label": "Statistic",
+          "text": "z = (496 − 500)/(18/√81) = −4/2 = **−2**."
+        },
+        {
+          "label": "Decision",
+          "text": "−2 < −1.645 (p = 0.023): reject H₀. The machine is underfilling."
+        }
+      ],
+      "answer": "z = −2 < −1.645: reject; underfilling."
+    },
+    {
+      "title": "Paired scores and a drug claim · Feb 2026",
+      "tags": [
+        "Past paper",
+        "t-test"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(a) Six students' scores before: 32, 35, 30, 33, 31, 34; after: 36, 38, 34, 37, 35, 39. Does the strategy improve scores at 5%? (b) A tool is claimed to cut diagnosis time by 20 min; 36 patients show a mean cut of 18.2 min with σ = 7.5. Evaluate the claim at 5%."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Differences",
+          "text": "4, 3, 4, 4, 4, 5: d̄ = 4, s_d = 0.632."
+        },
+        {
+          "label": "(a) Statistic",
+          "text": "t = 4/(0.632/√6) = **15.5**, df = 5. One-tailed critical 2.015 (the key used 2.571, the two-tailed value). Reject H₀: the strategy helps."
+        },
+        {
+          "label": "(b) Statistic",
+          "text": "H₀: μ ≥ 20, H₁: μ < 20. z = (18.2 − 20)/(7.5/√36) = −1.8/1.25 = **−1.44**."
+        },
+        {
+          "label": "(b) Decision",
+          "text": "−1.44 > −1.645: do not reject. The data do not show that the reduction is below the claimed 20 minutes."
+        }
+      ],
+      "answer": "(a) t = 15.5: reject. (b) z = −1.44: do not reject."
+    },
+    {
+      "title": "Two fertilisers (two-sample z) · May 2026",
+      "tags": [
+        "Past paper",
+        "z-test"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Fertiliser A: n = 64, mean 25 kg, σ = 4. Fertiliser B: n = 81, mean 22 kg, σ = 5. Is there a significant difference at 5%?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: μ_A = μ_B, H₁: μ_A ≠ μ_B."
+        },
+        {
+          "label": "Standard error",
+          "text": "√(16/64 + 25/81) = √(0.25 + 0.3086) = 0.7474."
+        },
+        {
+          "label": "Statistic",
+          "text": "z = 3/0.7474 = **4.01**."
+        },
+        {
+          "label": "Decision",
+          "text": "|4.01| > 1.96: reject H₀ (p < 0.0001)."
+        }
+      ],
+      "answer": "z = 4.01: the mean yields differ significantly."
+    },
+    {
+      "title": "Vaccination in two cities (two proportions) · Feb 2026",
+      "tags": [
+        "Past paper",
+        "Proportion"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "City A: 180 of 300 vaccinated. City B: 135 of 250. Is the proportion different at 5%?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Hypotheses",
+          "text": "H₀: P₁ = P₂, H₁: P₁ ≠ P₂."
+        },
+        {
+          "label": "Proportions",
+          "text": "p̂₁ = 0.60, p̂₂ = 0.54, pooled p* = 315/550 = 0.5727."
+        },
+        {
+          "label": "Statistic",
+          "text": "SE = √(0.5727 × 0.4273 × (1/300 + 1/250)) = 0.04236. z = 0.06/0.04236 = **1.42**."
+        },
+        {
+          "label": "Decision",
+          "text": "|1.42| < 1.96 (p = 0.157): do not reject H₀."
+        }
+      ],
+      "answer": "z = 1.42: no significant difference."
+    },
+    {
+      "title": "Device type and purchase (χ²) · Mar 2026",
+      "tags": [
+        "Past paper",
+        "Chi-square"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Mobile: 80 bought, 120 did not. Laptop: 70 and 50. Tablet: 50 and 30. Test independence at 5%."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Totals",
+          "text": "Rows 200, 120, 80; columns 200, 200; N = 400."
+        },
+        {
+          "label": "Expected",
+          "text": "Mobile 100, 100. Laptop 60, 60. Tablet 40, 40."
+        },
+        {
+          "label": "Contributions",
+          "text": "4, 4, 1.667, 1.667, 2.5, 2.5."
+        },
+        {
+          "label": "Statistic",
+          "text": "χ² = **16.33**, df = (3 − 1)(2 − 1) = 2, critical 5.991."
+        },
+        {
+          "label": "Decision",
+          "text": "16.33 > 5.991 (p = 0.0003): reject. Device type and purchase are associated."
+        },
+        {
+          "label": "Answer-key note",
+          "text": "The key writes \"χ² calc = 5.991\" at the end; that number is the table value."
+        }
+      ],
+      "answer": "χ² = 16.33 > 5.991: associated."
+    },
+    {
+      "title": "Drug claim and a proportion claim · Sep 2025 / earlier batch",
+      "tags": [
+        "Past paper",
+        "t-test",
+        "Proportion"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(a) A drug is claimed to cut blood pressure by 15 mmHg. 25 patients: mean cut 13, s = 5. Test at 5%. (b) A drug is claimed effective in 75% of patients; 380 of 500 recovered. Test at 1%."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Statistic",
+          "text": "H₀: μ = 15, H₁: μ ≠ 15. t = (13 − 15)/(5/√25) = **−2.0**, df = 24."
+        },
+        {
+          "label": "(a) Decision",
+          "text": "Two-tailed 5% critical value ±2.064: |−2.0| < 2.064, do not reject. (A one-tailed H₁: μ < 15 would reject, critical −1.711, so say which tail you used and why.)"
+        },
+        {
+          "label": "(b) Statistic",
+          "text": "p̂ = 0.76, H₀: P = 0.75. z = 0.01/√(0.75 × 0.25/500) = **0.52**."
+        },
+        {
+          "label": "(b) Decision",
+          "text": "|0.52| < 2.576: do not reject. The 75% claim stands."
+        }
+      ],
+      "answer": "(a) t = −2.0: do not reject (two-tailed). (b) z = 0.52: do not reject."
+    }
+  ],
+  "labs": [
+    {
+      "title": "One mean: change s and n",
+      "intro": "The sodium test. Watch what happens to z, the p-value and the verdict as you push s and n around.",
+      "tryThis": [
+        "Raise s from 18 to 50. Does the verdict flip?",
+        "Set n = 440 and s = 180. What is z now?",
+        "Flip the test to left-tailed. Why can it not reject?",
+        "Switch z to t and see the cut-off grow."
+      ],
+      "widget": "htest-calc",
+      "config": {
+        "kind": "mean",
+        "dist": "z",
+        "xbar": 925,
+        "mu0": 920,
+        "s": 18,
+        "n": 44,
+        "tail": "right",
+        "alpha": 0.05
+      }
+    },
+    {
+      "title": "Two means: taxi tyres",
+      "intro": "Compare two brands. Try z (large samples) and then the pooled t.",
+      "tryThis": [
+        "Make the two means closer together.",
+        "Cut both n's to 8 and switch to the t test.",
+        "Try one-tailed and compare the p-value with the two-tailed one."
+      ],
+      "widget": "htest-calc",
+      "config": {
+        "kind": "mean2",
+        "dist": "z",
+        "x1": 38600,
+        "s1": 5000,
+        "n1": 30,
+        "x2": 35450,
+        "s2": 6100,
+        "n2": 40,
+        "tail": "two",
+        "alpha": 0.05
+      }
+    },
+    {
+      "title": "Two proportions: pooled or not",
+      "intro": "The two judges. Untick \"pooled\" to see the other version.",
+      "tryThis": [
+        "Compare z with pooled and unpooled.",
+        "Make n₂ much smaller. What happens to the standard error?"
+      ],
+      "widget": "htest-calc",
+      "config": {
+        "kind": "prop2",
+        "x1": 90,
+        "n1": 3000,
+        "x2": 48,
+        "n2": 2500,
+        "pooled": true,
+        "tail": "right",
+        "alpha": 0.05
+      }
+    },
+    {
+      "title": "Paired t-test",
+      "intro": "Trainee scores before and after. Edit the pairs.",
+      "tryThis": [
+        "Change the last pair and see how t moves.",
+        "Switch to two-tailed.",
+        "Add a large positive difference. What happens to s_d?"
+      ],
+      "widget": "htest-calc",
+      "config": {
+        "kind": "paired",
+        "tail": "right",
+        "alpha": 0.05
+      }
+    },
+    {
+      "title": "Chi-square: independence",
+      "intro": "Device type vs purchase. Edit the counts; the expected table and χ² update.",
+      "tryThis": [
+        "Make the three rows proportional (e.g. 100, 100 / 60, 60 / 40, 40) and see χ² drop to 0.",
+        "Shrink one row to 2, 1 and watch the warning about expected counts."
+      ],
+      "widget": "chisq-calc",
+      "config": {
+        "mode": "independence",
+        "table": "80, 120\n70, 50\n50, 30",
+        "alpha": 0.05
+      }
+    },
+    {
+      "title": "Chi-square: goodness of fit",
+      "intro": "Digits from a phone directory. Then try the Poisson bus arrivals.",
+      "tryThis": [
+        "Set \"parameters estimated\" to 1 and see how df and the cut-off change.",
+        "For the buses: observed 10, 13, 45, 49, 32, 41; expected 10.48, 30.9, 45.54, 44.76, 33.02, 35.3; parameters 1; α = 0.01."
+      ],
+      "widget": "chisq-calc",
+      "config": {
+        "mode": "gof",
+        "observed": "1026, 1107, 997, 966, 1075, 933, 1107, 972, 954, 853",
+        "expected": "1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000",
+        "alpha": 0.05
+      }
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Definition",
+      "front": "What is the null hypothesis H₀?",
+      "back": "A statement of no difference or of the claim being tested, always containing an equality (=, ≤ or ≥). It is what we try to reject."
+    },
+    {
+      "tag": "Definition",
+      "front": "What is the alternative hypothesis H₁?",
+      "back": "The strict complement of H₀ (≠, > or <). It is what we conclude if H₀ is rejected, and its sign fixes the tail."
+    },
+    {
+      "tag": "Tails",
+      "front": "Which sign of H₁ gives which tail?",
+      "back": "< is left-tailed, > is right-tailed, ≠ is two-tailed."
+    },
+    {
+      "tag": "Errors",
+      "front": "What is a Type I error?",
+      "back": "Rejecting H₀ when it is true. Its probability is α."
+    },
+    {
+      "tag": "Errors",
+      "front": "What is a Type II error?",
+      "back": "Not rejecting H₀ when it is false. Its probability is β; power = 1 − β."
+    },
+    {
+      "tag": "Concept",
+      "front": "What does α represent?",
+      "back": "The maximum Type I error probability you accept; it sets the rejection region (usually 0.05 or 0.01)."
+    },
+    {
+      "tag": "Concept",
+      "front": "Define the p-value.",
+      "back": "The probability, if H₀ is true, of a statistic as extreme or more extreme than the one observed. Reject if p ≤ α."
+    },
+    {
+      "tag": "Concept",
+      "front": "What does \"fail to reject H₀\" mean?",
+      "back": "There is not enough evidence against H₀. It does not prove H₀ true (not guilty is not innocent)."
+    },
+    {
+      "tag": "Critical values",
+      "front": "z cut-offs at 5%?",
+      "back": "One-tailed 1.645, two-tailed ±1.96."
+    },
+    {
+      "tag": "Critical values",
+      "front": "z cut-offs at 1%?",
+      "back": "One-tailed 2.33, two-tailed ±2.58."
+    },
+    {
+      "tag": "Concept",
+      "front": "Why does a two-tailed test use α/2 in each tail?",
+      "back": "The total Type I error must still be α, shared between both tails, which pushes the cut-offs outwards."
+    },
+    {
+      "tag": "Statistic",
+      "front": "Statistic for one mean when σ is known?",
+      "back": "z = (x̄ − μ₀)/(σ/√n)."
+    },
+    {
+      "tag": "Statistic",
+      "front": "When do you use t instead of z?",
+      "back": "σ unknown and n < 30. The statistic is (x̄ − μ₀)/(s/√n) with n − 1 degrees of freedom."
+    },
+    {
+      "tag": "Concept",
+      "front": "Why use μ = K when H₀ is μ ≥ K?",
+      "back": "K is the boundary, the most conservative choice: for any larger true μ the Type I error is smaller, so it never exceeds α."
+    },
+    {
+      "tag": "Statistic",
+      "front": "Standard error for two independent means?",
+      "back": "√(s₁²/n₁ + s₂²/n₂), because the variances of independent sample means add."
+    },
+    {
+      "tag": "Statistic",
+      "front": "Pooled variance and df in the two-sample t-test?",
+      "back": "s_p² = [(n₁−1)s₁² + (n₂−1)s₂²]/(n₁+n₂−2), df = n₁ + n₂ − 2."
+    },
+    {
+      "tag": "Statistic",
+      "front": "When is the paired t-test used, and its df?",
+      "back": "The same subjects measured twice. t = d̄/(s_d/√n) on the differences, df = n − 1 (pairs)."
+    },
+    {
+      "tag": "Statistic",
+      "front": "Standard error for a proportion test?",
+      "back": "√(P₀Q₀/n), using the claimed P₀ under H₀."
+    },
+    {
+      "tag": "Statistic",
+      "front": "Pooled proportion for two proportions?",
+      "back": "p* = (x₁ + x₂)/(n₁ + n₂); z = (p̂₁ − p̂₂)/√(p*q*(1/n₁ + 1/n₂)) when H₀ is P₁ = P₂."
+    },
+    {
+      "tag": "Chi-square",
+      "front": "Formula and tail for chi-square?",
+      "back": "χ² = Σ(O − E)²/E, right-tailed only."
+    },
+    {
+      "tag": "Chi-square",
+      "front": "Expected count in an r × c table and df?",
+      "back": "E = row total × column total / N. df = (r − 1)(c − 1)."
+    },
+    {
+      "tag": "Chi-square",
+      "front": "df for goodness of fit?",
+      "back": "k − 1 − m, where m is the number of parameters estimated from the data (Poisson with estimated λ: k − 2)."
+    },
+    {
+      "tag": "Chi-square",
+      "front": "Conditions for using chi-square?",
+      "back": "Counts only (not percentages), categorical data, every expected count at least 5."
+    },
+    {
+      "tag": "Choice",
+      "front": "Which test for three or more means?",
+      "back": "One-way ANOVA (CS 10), never repeated t-tests."
+    },
+    {
+      "tag": "F-test",
+      "front": "F-test statistic for two variances?",
+      "back": "F = s₁²/s₂² with df (n₁−1, n₂−1); right-tailed when H₁ says σ₁² > σ₂²."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "mcq",
+      "q": "A car dealership announces that the mean time for an oil change is less than 15 minutes. What is H₀?",
+      "options": [
+        "μ < 15",
+        "μ ≥ 15",
+        "μ ≠ 15",
+        "μ > 15"
+      ],
+      "answer": 1,
+      "explain": "H₀ must contain the equality, and it is the complement of H₁: μ < 15, so H₀ is μ ≥ 15."
+    },
+    {
+      "type": "mcq",
+      "q": "A study reports p = 0.03 and uses α = 0.01. What is the decision?",
+      "options": [
+        "Reject H₀",
+        "Do not reject H₀",
+        "Accept H₁ with 99% certainty",
+        "The test is invalid"
+      ],
+      "answer": 1,
+      "explain": "p = 0.03 > α = 0.01, so there is not enough evidence to reject H₀."
+    },
+    {
+      "type": "mcq",
+      "q": "\"Fail to reject H₀\" means…",
+      "options": [
+        "H₀ is proved true",
+        "H₁ is proved false",
+        "The evidence is not strong enough against H₀",
+        "α was set too high"
+      ],
+      "answer": 2,
+      "explain": "It is a one-way test: weak evidence against H₀ is not proof for H₀ (not guilty is not innocent)."
+    },
+    {
+      "type": "mcq",
+      "q": "A Type I error is…",
+      "options": [
+        "Rejecting a true H₀",
+        "Not rejecting a false H₀",
+        "Using the wrong tail",
+        "Using z instead of t"
+      ],
+      "answer": 0,
+      "explain": "Type I: false alarm, probability α. Type II is the miss."
+    },
+    {
+      "type": "mcq",
+      "q": "For a two-tailed z-test at α = 0.05, the critical values are…",
+      "options": [
+        "±1.645",
+        "±1.96",
+        "±2.33",
+        "±2.58"
+      ],
+      "answer": 1,
+      "explain": "α/2 = 0.025 in each tail, which gives ±1.96."
+    },
+    {
+      "type": "mcq",
+      "q": "n = 15, σ is unknown, the population is roughly normal. Which statistic?",
+      "options": [
+        "z",
+        "t with 14 df",
+        "t with 15 df",
+        "χ² with 14 df"
+      ],
+      "answer": 1,
+      "explain": "σ unknown and small n: t with n − 1 = 14 df."
+    },
+    {
+      "type": "mcq",
+      "q": "Why do we compute the statistic at μ = K when H₀ is μ ≥ K?",
+      "options": [
+        "Because K is the average value in H₀",
+        "It makes the Type I error at most α for every μ allowed by H₀",
+        "It makes the test two-tailed",
+        "It removes the need for s"
+      ],
+      "answer": 1,
+      "explain": "K is the boundary. For any larger true μ the curve shifts right and the Type I error shrinks, so α is an upper bound."
+    },
+    {
+      "type": "mcq",
+      "q": "The same 10 patients are weighed before and after a diet. Which test?",
+      "options": [
+        "Two-sample pooled t",
+        "Paired t on the differences",
+        "z for two proportions",
+        "χ² independence"
+      ],
+      "answer": 1,
+      "explain": "The same subjects measured twice are dependent, so use the differences."
+    },
+    {
+      "type": "mcq",
+      "q": "A question says the average is \"significantly different\" from the claim. The test is…",
+      "options": [
+        "Left-tailed",
+        "Right-tailed",
+        "Two-tailed",
+        "Cannot be decided"
+      ],
+      "answer": 2,
+      "explain": "Different in either direction means H₁ uses ≠, a two-tailed test."
+    },
+    {
+      "type": "mcq",
+      "q": "In a goodness-of-fit test of 6 categories where λ of a Poisson model was estimated from the data, df =…",
+      "options": [
+        "5",
+        "4",
+        "6",
+        "3"
+      ],
+      "answer": 1,
+      "explain": "k − 1 − m = 6 − 1 − 1 = 4."
+    },
+    {
+      "type": "mcq",
+      "q": "Which situation breaks the rules for a χ² test?",
+      "options": [
+        "A 3 × 3 table",
+        "An expected count of 3.57 in one cell",
+        "Counts of 80 and 120",
+        "df = 1"
+      ],
+      "answer": 1,
+      "explain": "Every expected count should be at least 5; with 3.57 the approximation is unreliable."
+    },
+    {
+      "type": "mcq",
+      "q": "The variance of a single 0/1 observation with success probability P is…",
+      "options": [
+        "P",
+        "P²",
+        "PQ",
+        "P/Q"
+      ],
+      "answer": 2,
+      "explain": "E(X²) − (E X)² = P − P² = P(1 − P) = PQ, which gives the proportion's SE √(PQ/n)."
+    },
+    {
+      "type": "numeric",
+      "q": "Sodium test: n = 44, x̄ = 925, s = 18, μ₀ = 920. Compute z.",
+      "answer": 1.84,
+      "tolerance": 0.02,
+      "explain": "z = 5/(18/√44) = 5/2.714 = 1.84."
+    },
+    {
+      "type": "numeric",
+      "q": "Delivery time: n = 50, x̄ = 3.4, σ = 1.2, μ₀ = 3. Compute z.",
+      "answer": 2.36,
+      "tolerance": 0.02,
+      "explain": "z = 0.4/(1.2/√50) = 0.4/0.1697 = 2.36."
+    },
+    {
+      "type": "numeric",
+      "q": "Survival: 18 of 20 survived, H₀: P = 0.85. Compute z.",
+      "answer": 0.63,
+      "tolerance": 0.02,
+      "explain": "z = 0.05/√(0.85×0.15/20) = 0.05/0.0799 = 0.63."
+    },
+    {
+      "type": "numeric",
+      "q": "Two judges: 90/3,000 and 48/2,500. Compute the pooled proportion p*.",
+      "answer": 0.0251,
+      "tolerance": 0.0005,
+      "explain": "p* = (90 + 48)/(3,000 + 2,500) = 138/5,500 = 0.0251."
+    },
+    {
+      "type": "numeric",
+      "q": "Device table: Laptop row total 120, \"Purchased\" column total 200, N = 400. Expected count?",
+      "answer": 60,
+      "tolerance": 0.01,
+      "explain": "E = 120 × 200 / 400 = 60."
+    },
+    {
+      "type": "numeric",
+      "q": "Degrees of freedom for a 3 × 4 contingency table?",
+      "answer": 6,
+      "tolerance": 0,
+      "explain": "(3 − 1)(4 − 1) = 6."
+    },
+    {
+      "type": "numeric",
+      "q": "Packets: n = 81, x̄ = 496, μ₀ = 500, σ = 18. Compute z.",
+      "answer": -2,
+      "tolerance": 0.02,
+      "explain": "z = −4/(18/9) = −4/2 = −2."
+    },
+    {
+      "type": "numeric",
+      "q": "Device table χ² (expected 100, 100, 60, 60, 40, 40; observed 80, 120, 70, 50, 50, 30).",
+      "answer": 16.33,
+      "tolerance": 0.05,
+      "explain": "4 + 4 + 1.667 + 1.667 + 2.5 + 2.5 = 16.33."
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Hypotheses",
+      "formula": "H₀ contains =, ≤ or ≥; H₁ is <, > or ≠",
+      "note": "The sign of H₁ sets the tail."
+    },
+    {
+      "name": "Decision rule",
+      "formula": "p ≤ α  ⇒  reject H₀    |    statistic beyond the critical value  ⇒  reject H₀",
+      "note": "Two-tailed: p = 2 × tail area, or compare with z_{α/2}."
+    },
+    {
+      "name": "Critical z",
+      "formula": "5%: 1.645 (one tail), ±1.96 (two)   1%: 2.33 (one), ±2.58 (two)   10%: 1.28 (one), ±1.645 (two)"
+    },
+    {
+      "name": "One mean, z",
+      "formula": "z = (x̄ − μ₀)/(σ/√n)",
+      "note": "σ known, or n ≥ 30 with s in place of σ."
+    },
+    {
+      "name": "One mean, t",
+      "formula": "t = (x̄ − μ₀)/(s/√n),  df = n − 1",
+      "note": "σ unknown and n < 30."
+    },
+    {
+      "name": "Two means, z",
+      "formula": "z = (x̄₁ − x̄₂)/√(σ₁²/n₁ + σ₂²/n₂)"
+    },
+    {
+      "name": "Two means, pooled t",
+      "formula": "s_p² = [(n₁−1)s₁² + (n₂−1)s₂²]/(n₁+n₂−2);  t = (x̄₁ − x̄₂)/(s_p√(1/n₁ + 1/n₂)),  df = n₁ + n₂ − 2"
+    },
+    {
+      "name": "Paired t",
+      "formula": "t = d̄/(s_d/√n),  df = n − 1",
+      "note": "d = after − before; n = number of pairs."
+    },
+    {
+      "name": "One proportion",
+      "formula": "z = (p̂ − P₀)/√(P₀Q₀/n)",
+      "note": "Finite-population factor √((N−n)/(N−1)) is dropped when n ≪ N."
+    },
+    {
+      "name": "Two proportions",
+      "formula": "p* = (x₁+x₂)/(n₁+n₂);  z = (p̂₁ − p̂₂)/√(p*q*(1/n₁ + 1/n₂))",
+      "note": "Pooled when H₀: P₁ = P₂. Unpooled SE: √(p̂₁q̂₁/n₁ + p̂₂q̂₂/n₂)."
+    },
+    {
+      "name": "Confidence interval, mean",
+      "formula": "x̄ ± z_{α/2}·σ/√n   or   x̄ ± t_{α/2, n−1}·s/√n"
+    },
+    {
+      "name": "Chi-square",
+      "formula": "χ² = Σ (O − E)²/E,   E = row total × column total / N",
+      "note": "Right-tailed. Independence df = (r−1)(c−1). Goodness-of-fit df = k − 1 − m. Need E ≥ 5."
+    },
+    {
+      "name": "F-test (two variances)",
+      "formula": "F = s₁²/s₂²,   df = (n₁ − 1, n₂ − 1)",
+      "note": "Not in the CS 9 slides; asked in Sep 2025."
+    },
+    {
+      "name": "Errors",
+      "formula": "α = P(reject H₀ | H₀ true),  β = P(do not reject H₀ | H₀ false),  power = 1 − β"
+    }
+  ]
+}

@@ -1,0 +1,239 @@
+{
+  "id": "p-es-mkp-2023",
+  "title": "EC-3 Makeup · End-Semester · 2023-24",
+  "subtitle": "AIMLCZG511 cluster · I semester 2023-24 · closed book · 5 questions",
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "Heavy on parameter counting and shape tracking: practise the formulas until they're automatic.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Marks",
+            "Revise in"
+          ],
+          "rows": [
+            [
+              "1",
+              "LeNet-5 + RNN captioner: vocab, parameters, time steps",
+              "6",
+              "Ch 6, Ch 7"
+            ],
+            [
+              "2",
+              "Multi-head W^Q, W^K, W^V, W^O shapes",
+              "5",
+              "Ch 9"
+            ],
+            [
+              "3",
+              "NiN block parameter count",
+              "5",
+              "Ch 6"
+            ],
+            [
+              "4",
+              "Fill in a Keras CNN (shapes)",
+              "8",
+              "Ch 6"
+            ],
+            [
+              "5",
+              "GRU parameters, bidirectional",
+              "6",
+              "Ch 7"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "How to use this paper",
+          "text": "Open **Worked problems** and try each question on paper before revealing the steps. Where the official answer key has a mistake, the solution says so and shows the correct working."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · LeNet-5 + RNN digit captioner",
+      "tags": [
+        "Ch 6",
+        "Ch 7"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Digit image → spelled word (\"seven\"); non-digits → \"none\". One-hot I/O, 50 RNN hidden units, the RNN hidden state initialised from a linear map of LeNet's unrolled features. No attention."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Vocabulary",
+          "text": "Letters in zero…nine + none: z e r o n t w h f u i v s x g = 15, plus start and end tokens = **17** input and output nodes"
+        },
+        {
+          "label": "(b) Image → h₀",
+          "text": "LeNet-5 final feature map 5×5×16 = 400 → 400·50 + 50 = 20,050"
+        },
+        {
+          "label": "(b) RNN",
+          "text": "W_hx 17·50 + W_hh 50·50 + b 50 = 3,400; W_ho 50·17 + 17 = 867"
+        },
+        {
+          "label": "(b) Total",
+          "text": "20,050 + 3,400 + 867 = **24,317**"
+        },
+        {
+          "label": "(c) Time steps",
+          "text": "Longest words (three, seven, eight) have 5 letters + end token = **6** steps"
+        }
+      ],
+      "answer": "17 nodes; 24,317 trainable parameters; 6 time steps."
+    },
+    {
+      "title": "Q2 · Multi-head projection shapes",
+      "tags": [
+        "Ch 9"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Input/attention dimension 1024, query 256, key and value 512, 6 heads."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Per head",
+          "text": "W^Q 1024×256, W^K 1024×512, W^V 1024×512"
+        },
+        {
+          "label": "Key's stacked form",
+          "text": "(6 × 1024) × 256, (6 × 1024) × 512, (6 × 1024) × 512"
+        },
+        {
+          "label": "Attention vector",
+          "text": "concat of 6 heads × d_v = 6 × 512 = 3072"
+        },
+        {
+          "label": "W^O",
+          "text": "(6 × 512) × 1024"
+        }
+      ],
+      "answer": "Concatenated attention 3072 → W^O → 1024."
+    },
+    {
+      "title": "Q3 · NiN block parameters",
+      "tags": [
+        "Ch 6",
+        "key check"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Grayscale 512×512 input. One NiN block: a 1×1 conv (32 filters), two separate 3×3 convs (64 filters each), two separate 5×5 convs (24 filters each), ReLU; then GAP and a sigmoid output."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Assumption",
+          "text": "As in the key, every conv reads the 1-channel input directly (parallel branches)."
+        },
+        {
+          "label": "1×1",
+          "text": "1·1·1·32 + 32 = 64"
+        },
+        {
+          "label": "3×3 × 2",
+          "text": "2 × (9·64 + 64) = 1,280"
+        },
+        {
+          "label": "5×5 × 2",
+          "text": "2 × (25·24 + 24) = 1,248"
+        },
+        {
+          "label": "Block",
+          "text": "64 + 1,280 + 1,248 = **2,592**"
+        },
+        {
+          "label": "Whole net",
+          "text": "GAP has 0 parameters. If the branches are concatenated (32 + 128 + 48 = 208 channels) and fed to one sigmoid unit: + 209 → **2,801**."
+        },
+        {
+          "label": "Key check",
+          "text": "The key's final figure (47,230) doesn't follow from its own block count; show your assumption and arithmetic."
+        }
+      ],
+      "answer": "2,592 per block; ≈ 2,801 in total under the stated assumption."
+    },
+    {
+      "title": "Q4 · Complete the Keras CNN",
+      "tags": [
+        "Ch 6",
+        "shapes"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Input 1024×1024×3 → Conv2D(64, 11×11) → MaxPool 2 → Conv2D(xxA, 7×7) [line 1 → 501×501×64] → Dropout(xxB) → MaxPool 2 → Conv2D(128, xxC) [line 2 → 246×246×128] → Dropout(0.3) → MaxPool(xxD) [halves] → Conv2D(256, 3×3, xxE) → MaxPool 2 → Dropout(0.2) → Flatten → xxF → Dense(xxG, xxH); 3 classes."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Trace",
+          "text": "1024 − 11 + 1 = 1014 → pool 507 → 507 − 7 + 1 = 501 ✓ → pool 250 → 250 − k + 1 = 246 → k = 5"
+        },
+        {
+          "label": "Answers",
+          "text": "A = **64**; B = **0.3** (any rate is valid syntax); C = **(5, 5)**; D = **(2, 2)**; E = **activation=\"relu\"**"
+        },
+        {
+          "label": "F",
+          "text": "**layers.GlobalAveragePooling2D()** (it replaces Flatten)"
+        },
+        {
+          "label": "G, H",
+          "text": "**3**, **\"softmax\"** (three mutually exclusive eras)"
+        }
+      ],
+      "answer": "64, 0.3, (5,5), (2,2), activation='relu', GlobalAveragePooling2D(), 3, 'softmax'."
+    },
+    {
+      "title": "Q5 · GRU parameters for weather forecasting",
+      "tags": [
+        "Ch 7"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "24 features per day, 15 days, hidden 128, 5 outputs (next 5 days)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Per gate",
+          "text": "24·128 + 128·128 + 128 = 3,072 + 16,384 + 128 = 19,584"
+        },
+        {
+          "label": "3 blocks",
+          "text": "reset + update + candidate = 3 × 19,584 = **58,752**"
+        },
+        {
+          "label": "Output",
+          "text": "128·5 + 5 = 645 → total **59,397**"
+        },
+        {
+          "label": "Bidirectional",
+          "text": "Recurrent part doubles: 117,504; output sees 256 → 1,285 → total **118,789**"
+        },
+        {
+          "label": "Justified?",
+          "text": "**No.** Forecasting is causal: the backward pass over past days doesn't add future information. Bidirectionality suits tasks where the whole sequence is known (tagging, classification)."
+        }
+      ],
+      "answer": "58,752 (+645 output = 59,397); bidirectional ≈ 2×; not justified for forecasting."
+    }
+  ]
+}

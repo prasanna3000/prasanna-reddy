@@ -1,0 +1,249 @@
+{
+  "school": {
+    "name": "The Classroom",
+    "tagline": "learn it, then teach it",
+    "welcome": "Welcome to class!",
+    "intro": "Pick a classroom door. Every chapter has a chalkboard lesson, worked problems you reveal step by step, a lab bench to play with, flashcards, a pop quiz and a printable cheat sheet. Your stars are saved in this browser."
+  },
+  "semesters": [
+    {
+      "id": "sem1",
+      "title": "Semester 1",
+      "subtitle": "M.Tech AIML · BITS Pilani WILP · 2026",
+      "courses": [
+        {
+          "id": "aiml-zg511",
+          "code": "AIML ZG511",
+          "title": "Deep Neural Networks",
+          "room": "Room 511",
+          "color": "#b5523b",
+          "description": "Main text: Zhang, Lipton, Li & Smola, **Dive into Deep Learning** (2023). EC-2 mid-sem (closed book, done) and EC-3 comprehensive (open book, **5 Dec 2026**, all topics).",
+          "chapters": [
+            {
+              "id": "ch01",
+              "number": 1,
+              "title": "Introduction to Deep Learning",
+              "blurb": "What DL is, why now, and the four parts of every learning problem.",
+              "file": "content/sem1/aiml-zg511/ch01-introduction.json"
+            },
+            {
+              "id": "ch02",
+              "number": 2,
+              "title": "Artificial Neuron & Perceptron",
+              "blurb": "From biological neurons to the perceptron rule, logic gates and XOR.",
+              "file": "content/sem1/aiml-zg511/ch02-perceptron.json"
+            },
+            {
+              "id": "ch03",
+              "number": 3,
+              "title": "Linear Neural Networks for Regression",
+              "blurb": "One neuron that answers \"how much\": squared loss and batch gradient descent.",
+              "file": "content/sem1/aiml-zg511/ch03-linear-regression.json"
+            },
+            {
+              "id": "ch04",
+              "number": 4,
+              "title": "Linear Neural Networks for Classification",
+              "blurb": "Sigmoid + BCE with SGD, softmax + cross-entropy with mini-batches, metrics.",
+              "file": "content/sem1/aiml-zg511/ch04-classification.json"
+            },
+            {
+              "id": "ch05",
+              "number": 5,
+              "title": "Deep Feedforward Networks",
+              "blurb": "Hidden layers, activations, forward pass and backpropagation by hand.",
+              "file": "content/sem1/aiml-zg511/ch05-feedforward.json"
+            },
+            {
+              "id": "ch06",
+              "number": 6,
+              "title": "Convolutional Neural Networks",
+              "blurb": "Convolution, padding, stride, pooling, parameters, ResNet and transfer learning.",
+              "file": "content/sem1/aiml-zg511/ch06-cnn.json"
+            },
+            {
+              "id": "ch07",
+              "number": 7,
+              "title": "Recurrent Neural Networks",
+              "blurb": "Sequences, BPTT, vanishing gradients, GRU and LSTM.",
+              "file": "content/sem1/aiml-zg511/ch07-rnn.json"
+            },
+            {
+              "id": "ch08",
+              "number": 8,
+              "title": "Attention Mechanism",
+              "blurb": "Context bottleneck, Q-K-V, scaled dot product, Bahdanau, self/cross/masked/multi-head, positional encoding.",
+              "file": "content/sem1/aiml-zg511/ch08-attention.json"
+            },
+            {
+              "id": "ch09",
+              "number": 9,
+              "title": "Transformers",
+              "blurb": "Encoder and decoder blocks, parameter counts, ViT, BERT/GPT/T5 families, fine-tuning.",
+              "file": "content/sem1/aiml-zg511/ch09-transformer.json"
+            },
+            {
+              "id": "ch10",
+              "number": 10,
+              "title": "Optimizers",
+              "blurb": "Momentum, Nesterov, AdaGrad, RMSprop, Adam/AdamW, schedules, clipping and tuning.",
+              "file": "content/sem1/aiml-zg511/ch10-optimizers.json"
+            },
+            {
+              "id": "p-ec2r-2026",
+              "group": "Exam hall",
+              "label": "Mid-sem · EC-2R",
+              "title": "Mid-Semester, Mar 2026",
+              "blurb": "Closed book, 30 marks. Metrics, perceptron network, backprop, GD + normal equations, overfitting.",
+              "file": "content/sem1/aiml-zg511/paper-ec2r-2026.json"
+            },
+            {
+              "id": "p-ec3r-2026",
+              "group": "Exam hall",
+              "label": "Comprehensive · EC-3R",
+              "title": "Comprehensive, May 2026",
+              "blurb": "Open book, 40 marks. Exploding gradients, domain shift, attention, scaling, conv filters, momentum.",
+              "file": "content/sem1/aiml-zg511/paper-ec3r-2026.json"
+            },
+            {
+              "id": "p-ms-reg-2023",
+              "group": "Exam hall",
+              "label": "Mid-sem · 2023 regular",
+              "title": "Mid-Semester 2023-24 (Regular)",
+              "blurb": "NOR perceptron, Boolean MLP, 6-input XOR, BCE derivative, ReLU graph, learning-rate bounds.",
+              "file": "content/sem1/aiml-zg511/paper-ms-reg-2023.json"
+            },
+            {
+              "id": "p-ms-mkp-2023",
+              "group": "Exam hall",
+              "label": "Mid-sem · 2023 makeup",
+              "title": "Mid-Semester 2023-24 (Makeup)",
+              "blurb": "Perceptron epoch, CCE derivative, rectangle MLP, GD, sigmoid graph, cubic surface.",
+              "file": "content/sem1/aiml-zg511/paper-ms-mkp-2023.json"
+            },
+            {
+              "id": "p-es-mkp-2023",
+              "group": "Exam hall",
+              "label": "End-sem · 2023 makeup",
+              "title": "End-Semester 2023-24 (Makeup)",
+              "blurb": "LeNet+RNN captioner, multi-head shapes, NiN params, Keras CNN fill-in, GRU params.",
+              "file": "content/sem1/aiml-zg511/paper-es-mkp-2023.json"
+            }
+          ],
+          "groupIntros": {
+            "Exam hall": "Past papers, solved step by step. Each solution flags where the official answer key has a mistake. Your next exam: **EC-3 comprehensive, 5 Dec 2026** (open book)."
+          }
+        },
+        {
+          "id": "aiml-zc418",
+          "code": "AIML ZC418",
+          "title": "Introduction to Statistical Methods",
+          "room": "Room 418",
+          "color": "#2f7d6d",
+          "teacher": "Prof. Srinath R Naidu",
+          "description": "Texts: T1 Kaptein et al., **Statistics for Data Scientists**; T2 Devore, **Probability and Statistics for Engineering and the Sciences**; T3 Brockwell & Davis, **Introduction to Time Series and Forecasting**. EC-3 comprehensive: open book, 40%. Roughly 10–15% of it comes from CS 1–7, the rest from CS 9 onwards. There is no CS 8 in the slide deck.",
+          "chapters": [
+            {
+              "id": "ch01",
+              "number": 1,
+              "title": "Descriptive Statistics",
+              "blurb": "Central tendency, spread, skew, outliers, five-number summary.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch02",
+              "number": 2,
+              "title": "Probability Basics",
+              "blurb": "Axioms, addition rule, mutually exclusive vs independent events.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch03",
+              "number": 3,
+              "title": "Conditional & Total Probability",
+              "blurb": "Conditioning, independence, the law of total probability.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch04",
+              "number": 4,
+              "title": "Bayes' Theorem & Naïve Bayes",
+              "blurb": "Bayes with proof, Naïve Bayes classification, Laplace smoothing.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch05",
+              "number": 5,
+              "title": "Random Variables",
+              "blurb": "Discrete and continuous, expectation, variance, joint distributions.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch06",
+              "number": 6,
+              "title": "Probability Distributions",
+              "blurb": "Bernoulli, Binomial, Poisson, Normal; t, F and χ² introduced.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch07",
+              "number": 7,
+              "title": "Sampling & Estimation",
+              "blurb": "Sampling distributions, CLT, point and interval estimation.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch09",
+              "number": 9,
+              "title": "Hypothesis Testing",
+              "blurb": "H₀/H₁, errors, p-values, z and t tests, proportions, paired data, chi-square.",
+              "file": "content/sem1/aiml-zc418/ch09-hypothesis-testing.json"
+            },
+            {
+              "id": "ch10",
+              "number": 10,
+              "title": "Maximum Likelihood & ANOVA",
+              "blurb": "MLE, and comparing three or more means.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch11",
+              "number": 11,
+              "title": "Correlation & Regression",
+              "blurb": "Pearson and Spearman, least squares.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch12",
+              "number": 12,
+              "title": "Prediction & Forecasting",
+              "blurb": "Trend, seasonality, moving averages.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch13",
+              "number": 13,
+              "title": "Time Series Models",
+              "blurb": "AR, MA, ARMA, ARIMA.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch14",
+              "number": 14,
+              "title": "Smoothing & ARIMA in practice",
+              "blurb": "Exponential smoothing, Holt, autocorrelation.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch15",
+              "number": 15,
+              "title": "Gaussian Mixture Models & EM",
+              "blurb": "Soft clustering, mixtures of Gaussians, expectation-maximisation.",
+              "comingSoon": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

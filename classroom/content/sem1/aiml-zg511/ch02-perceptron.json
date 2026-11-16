@@ -1,0 +1,796 @@
+{
+  "id": "ch02",
+  "title": "Artificial Neuron & Perceptron",
+  "subtitle": "Contact session 2 · from the biological neuron to the perceptron learning rule, logic gates and the XOR problem",
+  "lesson": [
+    {
+      "title": "The brain in numbers",
+      "lead": "The brain is a mass of interconnected neurons that learn by **association** and compute in **parallel**.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Quantity",
+            "Value"
+          ],
+          "rows": [
+            [
+              "Neurons",
+              "≈ 10¹⁰"
+            ],
+            [
+              "Connections per neuron",
+              "≈ 10⁴ to 10⁵"
+            ],
+            [
+              "Neuron switching time",
+              "≈ 0.001 s"
+            ],
+            [
+              "Scene recognition time",
+              "≈ 1 s"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "1 s ÷ 0.001 s = only about **100 sequential steps**, yet we recognise a scene. That's only possible with massive **parallel** computation."
+        },
+        {
+          "type": "h",
+          "text": "Biological neuron"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Part",
+            "Role"
+          ],
+          "rows": [
+            [
+              "Dendrites",
+              "Receive signals from other neurons"
+            ],
+            [
+              "Cell body (soma)",
+              "Processes incoming signals"
+            ],
+            [
+              "Axon",
+              "Transmits the output signal"
+            ],
+            [
+              "Synapses",
+              "Connection points between neurons"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The artificial neuron",
+      "lead": "An artificial neuron computes a **weighted sum plus a bias**, then applies an activation function.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "z = Σᵢ wᵢxᵢ + b          ŷ = f(z)"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Each weight wᵢ shows how important feature xᵢ is.",
+            "Knowledge is stored in the **weights** (the connections).",
+            "The neuron outputs one number ŷ."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Biological",
+            "Artificial"
+          ],
+          "rows": [
+            [
+              "Complex biochemistry",
+              "Simple maths"
+            ],
+            [
+              "Analog signals",
+              "Digital computation"
+            ],
+            [
+              "Adaptive synaptic strengths",
+              "Adjustable weights"
+            ],
+            [
+              "Learns from experience",
+              "Learns by algorithms"
+            ],
+            [
+              "Fault tolerant",
+              "Deterministic"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Connectionism"
+        },
+        {
+          "type": "p",
+          "text": "Neural networks are **connectionist machines**: intelligence emerges from many simple units, knowledge is stored in connection weights, and learning changes those weights. Connections can be forward, recursive or self-loops."
+        }
+      ]
+    },
+    {
+      "title": "When to use a neural network",
+      "lead": "ANNs suit high-dimensional, noisy data where the target function is unknown and explainability isn't critical.",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "Input is high-dimensional, discrete or real-valued (raw sensor data).",
+            "Data may be noisy or contain errors.",
+            "Output is discrete, real-valued or a vector.",
+            "The form of the target function is unknown.",
+            "Human readability of the result is not important."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Examples: speech recognition, image classification, financial prediction. Properties: many neurons, many weighted connections, highly parallel, weights tuned automatically."
+        }
+      ]
+    },
+    {
+      "title": "The perceptron",
+      "lead": "The perceptron (Rosenblatt, 1958) is the simplest neuron: a weighted sum followed by a **step** threshold.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "h = w₀ + w₁x₁ + … + wₙxₙ = wᵀx̃        ŷ = 1 if h ≥ 0, else 0",
+          "caption": "x̃ = [1, x₁, …, xₙ]: the leading 1 multiplies the bias w₀"
+        },
+        {
+          "type": "p",
+          "text": "Its decision boundary w₀ + w₁x₁ + w₂x₂ = 0 is a **straight line** (a hyperplane in more dimensions)."
+        },
+        {
+          "type": "trap",
+          "label": "Convention",
+          "text": "Rosenblatt's original uses outputs **{−1, +1}**; the deck's gate examples use **{0, 1}**. Both work, but the bias/threshold values change. Use whichever the question states."
+        }
+      ]
+    },
+    {
+      "title": "Logic gates by hand",
+      "lead": "Write one inequality per truth-table row, then pick weights that satisfy all of them.",
+      "blocks": [
+        {
+          "type": "h",
+          "text": "AND"
+        },
+        {
+          "type": "table",
+          "head": [
+            "x₁",
+            "x₂",
+            "t",
+            "Condition"
+          ],
+          "rows": [
+            [
+              "0",
+              "0",
+              "0",
+              "w₀ < 0"
+            ],
+            [
+              "0",
+              "1",
+              "0",
+              "w₀ + w₂ < 0"
+            ],
+            [
+              "1",
+              "0",
+              "0",
+              "w₀ + w₁ < 0"
+            ],
+            [
+              "1",
+              "1",
+              "1",
+              "w₀ + w₁ + w₂ ≥ 0"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "One solution: **w₀ = −1, w₁ = 0.75, w₂ = 0.75**. Check: −1, −0.25, −0.25 are < 0 and 0.5 ≥ 0. ✓"
+        },
+        {
+          "type": "h",
+          "text": "OR"
+        },
+        {
+          "type": "p",
+          "text": "Conditions: w₀ < 0, w₀ + w₂ ≥ 0, w₀ + w₁ ≥ 0, w₀ + w₁ + w₂ ≥ 0. One solution: **w₀ = −1, w₁ = 2, w₂ = 2**."
+        },
+        {
+          "type": "note",
+          "label": "Teacher says",
+          "text": "Any weights that satisfy every inequality are correct. There are infinitely many separating lines."
+        }
+      ]
+    },
+    {
+      "title": "The perceptron learning rule",
+      "lead": "Only update when the prediction is wrong; move each weight by **η(t − ŷ)xᵢ**.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "wᵢ ← wᵢ + η (t − ŷ) xᵢ          b ← b + η (t − ŷ)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Initialise the weights (random or zero) and choose η (e.g. 0.1 or 1).",
+            "For each example (x, t): compute ŷ.",
+            "If ŷ ≠ t, update every weight including the bias.",
+            "Repeat epochs until a full pass makes no mistakes (or a max number of epochs)."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Key fact",
+          "text": "**Convergence theorem:** if the data is linearly separable, the perceptron rule converges in a finite number of steps."
+        },
+        {
+          "type": "h",
+          "text": "NOT gate, traced (w₀ = w₁ = 0, η = 1)"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Epoch",
+            "x",
+            "t",
+            "h",
+            "ŷ",
+            "Update → (w₀, w₁)"
+          ],
+          "rows": [
+            [
+              "1",
+              "0",
+              "1",
+              "0",
+              "1 ✓",
+              "(0, 0)"
+            ],
+            [
+              "1",
+              "1",
+              "0",
+              "0",
+              "1 ✗",
+              "(−1, −1)"
+            ],
+            [
+              "2",
+              "0",
+              "1",
+              "−1",
+              "0 ✗",
+              "(0, −1)"
+            ],
+            [
+              "2",
+              "1",
+              "0",
+              "−1",
+              "0 ✓",
+              "(0, −1)"
+            ],
+            [
+              "3",
+              "0",
+              "1",
+              "0",
+              "1 ✓",
+              "—"
+            ],
+            [
+              "3",
+              "1",
+              "0",
+              "−1",
+              "0 ✓",
+              "converged"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Final weights: **w₁ = −1, w₀ = 0**."
+        },
+        {
+          "type": "widget",
+          "widget": "perceptron",
+          "config": {
+            "gate": "NOT",
+            "eta": 1,
+            "w": "0, 0"
+          }
+        }
+      ]
+    },
+    {
+      "title": "The XOR problem",
+      "lead": "XOR is **not linearly separable**, so no single perceptron can learn it.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "x₁",
+            "x₂",
+            "XOR"
+          ],
+          "rows": [
+            [
+              "0",
+              "0",
+              "0"
+            ],
+            [
+              "0",
+              "1",
+              "1"
+            ],
+            [
+              "1",
+              "0",
+              "1"
+            ],
+            [
+              "1",
+              "1",
+              "0"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The 1s sit on one diagonal and the 0s on the other. No straight line w₁x₁ + w₂x₂ + b = 0 can put both 1s on one side and both 0s on the other."
+        },
+        {
+          "type": "p",
+          "text": "Proof sketch: (0,0)→0 needs b < 0; (0,1) and (1,0) need w₂ + b ≥ 0 and w₁ + b ≥ 0; adding these gives w₁ + w₂ + 2b ≥ 0, so w₁ + w₂ + b ≥ −b > 0, which makes (1,1) output 1. Contradiction."
+        },
+        {
+          "type": "note",
+          "label": "Teacher says",
+          "text": "**Solution:** a multilayer perceptron (hidden layer + non-linear activation). Module 5 builds it."
+        },
+        {
+          "type": "widget",
+          "widget": "perceptron",
+          "config": {
+            "gate": "XOR",
+            "eta": 1,
+            "w": "0, 0, 0"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Linear separability",
+      "lead": "Two classes are linearly separable in n-D if an **(n − 1)-dimensional hyperplane** can split them.",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "In 2-D the separator is a line; in 3-D a plane; in n-D a hyperplane.",
+            "If one separating line exists, infinitely many do.",
+            "AND, OR, NAND, NOR, NOT are separable; XOR (and XNOR) are not."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "The perceptron as four components"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Component",
+            "Perceptron"
+          ],
+          "rows": [
+            [
+              "Data",
+              "Truth tables / labelled examples"
+            ],
+            [
+              "Model",
+              "Weighted sum + step function"
+            ],
+            [
+              "Objective",
+              "Mismatch between t and ŷ"
+            ],
+            [
+              "Learning",
+              "The perceptron learning rule"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Homework",
+          "text": "Practice from the deck: find perceptron weights for OR, AND, NOR and NAND **using the learning algorithm**. Use the lab bench to check each trace."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Verify AND weights",
+      "tags": [
+        "logic gates"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Show that w₀ = −1, w₁ = 0.75, w₂ = 0.75 implements AND with ŷ = 1 if h ≥ 0."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(0,0)",
+          "text": "h = −1 → 0 ✓"
+        },
+        {
+          "label": "(0,1)",
+          "text": "h = −1 + 0.75 = −0.25 → 0 ✓"
+        },
+        {
+          "label": "(1,0)",
+          "text": "h = −0.25 → 0 ✓"
+        },
+        {
+          "label": "(1,1)",
+          "text": "h = −1 + 1.5 = 0.5 → 1 ✓"
+        }
+      ],
+      "answer": "All four rows match AND. The decision line is 0.75x₁ + 0.75x₂ = 1."
+    },
+    {
+      "title": "Train OR with the learning rule",
+      "tags": [
+        "learning rule",
+        "trace"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Train a perceptron for OR from w = (w₀, w₁, w₂) = (0, 0, 0) with η = 1, presenting rows in the order (0,0), (0,1), (1,0), (1,1)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Epoch 1",
+          "text": "(0,0): h = 0 → ŷ = 1, t = 0 ✗ → w = (−1, 0, 0). (0,1): h = −1 → 0, t = 1 ✗ → w = (0, 0, 1). (1,0): h = 0 → 1 ✓. (1,1): h = 1 → 1 ✓."
+        },
+        {
+          "label": "Epoch 2",
+          "text": "(0,0): h = 0 → 1 ✗ → w = (−1, 0, 1). (0,1): h = 0 → 1 ✓. (1,0): h = −1 → 0 ✗ → w = (0, 1, 1). (1,1): ✓."
+        },
+        {
+          "label": "Epoch 3",
+          "text": "(0,0): h = 0 → 1 ✗ → w = (−1, 1, 1). The other three rows are correct."
+        },
+        {
+          "label": "Epoch 4",
+          "text": "h = −1, 0, 0, 1 → ŷ = 0, 1, 1, 1. All correct: **converged**."
+        }
+      ],
+      "answer": "w = (w₀, w₁, w₂) = (−1, 1, 1) after 4 epochs. Check it in the Lab bench with gate OR."
+    },
+    {
+      "title": "Train NOT (deck example)",
+      "tags": [
+        "slides",
+        "learning rule"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "NOT gate, h = w₀ + w₁x₁, start w₀ = w₁ = 0, η = 1."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Epoch 1",
+          "text": "x = 0: h = 0 → 1 = t ✓. x = 1: h = 0 → 1 ≠ 0 → w₁ = 0 + 1(0 − 1)·1 = −1, w₀ = −1."
+        },
+        {
+          "label": "Epoch 2",
+          "text": "x = 0: h = −1 → 0 ≠ 1 → w₀ = −1 + 1 = 0 (w₁ unchanged because x = 0). x = 1: h = −1 → 0 ✓."
+        },
+        {
+          "label": "Epoch 3",
+          "text": "x = 0: h = 0 → 1 ✓. x = 1: h = −1 → 0 ✓. Converged."
+        }
+      ],
+      "answer": "w₁ = −1, w₀ = 0."
+    },
+    {
+      "title": "Brain arithmetic",
+      "tags": [
+        "numbers"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Neurons switch in about 0.001 s and scene recognition takes about 1 s. With about 10¹⁰ neurons and 10⁴ connections each, roughly how many connections are there, and what does the timing tell us?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Steps",
+          "text": "1 / 0.001 = **100** sequential steps at most."
+        },
+        {
+          "label": "Connections",
+          "text": "10¹⁰ × 10⁴ = **10¹⁴** connections."
+        },
+        {
+          "label": "Conclusion",
+          "text": "100 steps is far too few for serial processing, so the brain must compute massively in **parallel**."
+        }
+      ],
+      "answer": "≈ 10¹⁴ connections; ≈ 100 serial steps → parallel distributed processing."
+    }
+  ],
+  "labs": [
+    {
+      "title": "Perceptron trainer",
+      "intro": "Pick a gate, set η and the start weights, and run the learning rule epoch by epoch. Watch the decision line move.",
+      "tryThis": [
+        "OR from zeros with η = 1: it should converge to (−1, 1, 1).",
+        "AND from zeros with η = 1: count the epochs.",
+        "XOR: press \"Run until it converges\" and see why it never does.",
+        "Change η to 0.1: does the number of epochs change for AND?"
+      ],
+      "widget": "perceptron",
+      "config": {
+        "gate": "OR",
+        "eta": 1,
+        "w": "0, 0, 0"
+      }
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Numbers",
+      "front": "Neurons in the brain; connections per neuron",
+      "back": "≈ 10¹⁰ neurons; ≈ 10⁴–10⁵ connections each."
+    },
+    {
+      "tag": "Numbers",
+      "front": "Neuron switching time vs scene recognition",
+      "back": "0.001 s vs 1 s: only ~100 serial steps, so the brain must be parallel."
+    },
+    {
+      "tag": "Biology",
+      "front": "Dendrites, soma, axon, synapse",
+      "back": "Receive · process · transmit · connect."
+    },
+    {
+      "tag": "Formula",
+      "front": "Artificial neuron",
+      "back": "z = Σwᵢxᵢ + b, then ŷ = f(z)."
+    },
+    {
+      "tag": "Concept",
+      "front": "Where is knowledge stored in a neural network?",
+      "back": "In the connection weights (parameters)."
+    },
+    {
+      "tag": "Concept",
+      "front": "Connectionism",
+      "back": "Intelligence emerges from simple units; knowledge lives in connection weights; learning changes them."
+    },
+    {
+      "tag": "Perceptron",
+      "front": "Perceptron output rule (0/1 convention)",
+      "back": "ŷ = 1 if w₀ + Σwᵢxᵢ ≥ 0, else 0."
+    },
+    {
+      "tag": "Perceptron",
+      "front": "Perceptron learning rule",
+      "back": "wᵢ ← wᵢ + η(t − ŷ)xᵢ, b ← b + η(t − ŷ); update only when wrong."
+    },
+    {
+      "tag": "Perceptron",
+      "front": "Convergence theorem",
+      "back": "If the data is linearly separable, the rule converges in finitely many steps."
+    },
+    {
+      "tag": "Gates",
+      "front": "AND weights from the deck",
+      "back": "w₀ = −1, w₁ = w₂ = 0.75."
+    },
+    {
+      "tag": "Gates",
+      "front": "OR weights from the deck",
+      "back": "w₀ = −1, w₁ = w₂ = 2."
+    },
+    {
+      "tag": "Gates",
+      "front": "NOT gate result (w₀ = w₁ = 0, η = 1)",
+      "back": "w₁ = −1, w₀ = 0 after 3 epochs."
+    },
+    {
+      "tag": "XOR",
+      "front": "Why can't a perceptron learn XOR?",
+      "back": "XOR is not linearly separable: no single line splits {(0,1),(1,0)} from {(0,0),(1,1)}."
+    },
+    {
+      "tag": "XOR",
+      "front": "How is XOR solved?",
+      "back": "A multilayer perceptron: a hidden layer with a non-linear activation."
+    },
+    {
+      "tag": "Definition",
+      "front": "Linearly separable in n-D",
+      "back": "Separable by an (n − 1)-dimensional hyperplane."
+    },
+    {
+      "tag": "Convention",
+      "front": "{0,1} vs {−1,+1} outputs",
+      "back": "Both are valid; they change the bias/threshold values."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "mcq",
+      "q": "Which part of a biological neuron transmits the output signal?",
+      "options": [
+        "Dendrite",
+        "Soma",
+        "Axon",
+        "Synapse"
+      ],
+      "answer": 2,
+      "explain": "Dendrites receive, the soma processes, the axon transmits."
+    },
+    {
+      "type": "mcq",
+      "q": "A perceptron's decision boundary is…",
+      "options": [
+        "A circle",
+        "A straight line / hyperplane",
+        "Any curve",
+        "A set of points"
+      ],
+      "answer": 1,
+      "explain": "w₀ + Σwᵢxᵢ = 0 is linear."
+    },
+    {
+      "type": "mcq",
+      "q": "Which gate can a single perceptron NOT represent?",
+      "options": [
+        "AND",
+        "NAND",
+        "XOR",
+        "NOR"
+      ],
+      "answer": 2,
+      "explain": "XOR is not linearly separable."
+    },
+    {
+      "type": "numeric",
+      "q": "Perceptron with w₀ = −1, w₁ = 2, w₂ = 2 and input (0, 1). What is h?",
+      "answer": 1,
+      "tolerance": 0.001,
+      "explain": "−1 + 0 + 2 = 1, so ŷ = 1 (OR)."
+    },
+    {
+      "type": "numeric",
+      "q": "w = 0.5, η = 1, x = 1, t = 0, ŷ = 1. What is the new w after one perceptron update?",
+      "answer": -0.5,
+      "tolerance": 0.001,
+      "explain": "0.5 + 1(0 − 1)(1) = −0.5."
+    },
+    {
+      "type": "numeric",
+      "q": "w = 0.3, η = 0.1, x = 0, t = 1, ŷ = 0. New w?",
+      "answer": 0.3,
+      "tolerance": 0.001,
+      "explain": "x = 0, so the update η(t − ŷ)x = 0."
+    },
+    {
+      "type": "mcq",
+      "q": "The perceptron learning rule changes the weights when…",
+      "options": [
+        "Every example",
+        "Only when ŷ ≠ t",
+        "Only at the end of an epoch",
+        "Only when ŷ = t"
+      ],
+      "answer": 1,
+      "explain": "Correct predictions give t − ŷ = 0."
+    },
+    {
+      "type": "mcq",
+      "q": "The convergence theorem guarantees convergence when…",
+      "options": [
+        "η is small",
+        "Data is linearly separable",
+        "Weights start at zero",
+        "There are fewer than 4 examples"
+      ],
+      "answer": 1,
+      "explain": "Linear separability is the condition."
+    },
+    {
+      "type": "numeric",
+      "q": "Roughly how many sequential steps fit in a 1 s recognition if a neuron switches in 0.001 s?",
+      "answer": 100,
+      "tolerance": 0.5,
+      "explain": "1 / 0.001 = 100."
+    },
+    {
+      "type": "mcq",
+      "q": "In 3-D feature space, linearly separable classes are split by a…",
+      "options": [
+        "Line",
+        "Plane",
+        "Point",
+        "Cube"
+      ],
+      "answer": 1,
+      "explain": "An (n − 1) = 2-D hyperplane: a plane."
+    },
+    {
+      "type": "mcq",
+      "q": "Which weights implement AND (ŷ = 1 if h ≥ 0)?",
+      "options": [
+        "w₀ = −1, w₁ = w₂ = 0.75",
+        "w₀ = −1, w₁ = w₂ = 2",
+        "w₀ = 1, w₁ = w₂ = −1",
+        "w₀ = 0, w₁ = w₂ = 1"
+      ],
+      "answer": 0,
+      "explain": "Only (1,1) gives h ≥ 0: −1 + 1.5 = 0.5."
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Artificial neuron",
+      "formula": "z = Σᵢ wᵢxᵢ + b,   ŷ = f(z)"
+    },
+    {
+      "name": "Perceptron (0/1)",
+      "formula": "ŷ = 1 if w₀ + Σwᵢxᵢ ≥ 0, else 0"
+    },
+    {
+      "name": "Learning rule",
+      "formula": "wᵢ ← wᵢ + η(t − ŷ)xᵢ,   b ← b + η(t − ŷ)"
+    },
+    {
+      "name": "Decision boundary",
+      "formula": "w₀ + w₁x₁ + w₂x₂ = 0  (a line)"
+    },
+    {
+      "name": "AND / OR weights",
+      "formula": "AND: (−1, 0.75, 0.75)  ·  OR: (−1, 2, 2)"
+    },
+    {
+      "name": "Brain numbers",
+      "formula": "10¹⁰ neurons · 10⁴–10⁵ connections · 1 ms switching · 1 s recognition"
+    }
+  ]
+}

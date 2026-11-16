@@ -1,0 +1,248 @@
+{
+  "id": "p-ec2r-2026",
+  "title": "EC-2 Regular · Mid-Semester · Mar 2026",
+  "subtitle": "AIMLZG511 · closed book · 30% · 2 hours · 14/03/2026 · 30 marks",
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "A very hands-on paper: 25 of 30 marks are calculations straight from Modules 2–5.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Marks",
+            "Revise in"
+          ],
+          "rows": [
+            [
+              "1",
+              "Thresholds, confusion matrix, precision/recall/F1",
+              "6",
+              "Ch 4"
+            ],
+            [
+              "2",
+              "2-layer perceptron network for (x₁∧x₂)∨(x₃∧x₄)",
+              "5",
+              "Ch 2, Ch 5"
+            ],
+            [
+              "3",
+              "Forward + backward pass, 2→3→2, ReLU/sigmoid, BCE",
+              "8",
+              "Ch 5"
+            ],
+            [
+              "4",
+              "Batch GD on 4 points + normal equations",
+              "6",
+              "Ch 3"
+            ],
+            [
+              "5",
+              "Diagnosing overfitting, parameter counts, funnel design",
+              "5",
+              "Ch 5"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "How to use this paper",
+          "text": "Open **Worked problems** and try each question on paper before revealing the steps. Where the official answer key has a mistake, the solution says so and shows the correct working."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · Threshold choice and metrics (6 marks)",
+      "tags": [
+        "Ch 4",
+        "metrics"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Probabilities 0.90, 0.80, 0.70, 0.60, 0.55, 0.40, 0.30, 0.20, 0.10, 0.05; true labels 1, 1, 0, 0, 1, 0, 0, 0, 0, 0. (a) Threshold 0.50, (b) threshold 0.30: confusion matrix, precision, recall, F1. (c) Which threshold for credit risk and for disease detection? Why may 0.50 be poor on imbalanced data?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) 0.50",
+          "text": "Predicted 1 for the first five. TP = 3 (0.9, 0.8, 0.55), FP = 2 (0.7, 0.6), FN = 0, TN = 5."
+        },
+        {
+          "label": "(a) metrics",
+          "text": "Precision = 3/5 = **0.60**; recall = 3/3 = **1.00**; F1 = 2(0.6)(1)/1.6 = **0.75** (accuracy 0.8)"
+        },
+        {
+          "label": "(b) 0.30",
+          "text": "Predicted 1 for the first seven: TP = 3, FP = 4, FN = 0, TN = 3."
+        },
+        {
+          "label": "(b) metrics",
+          "text": "Precision = 3/7 = **0.429**; recall = **1.00**; F1 = 0.857/1.429 = **0.60** (accuracy 0.6)"
+        },
+        {
+          "label": "(c) Credit risk",
+          "text": "If \"1\" = risky borrower, missing a defaulter (FN) is costly, so lean to the **lower** threshold for high recall. If the cost is wrongly rejecting good customers (FP), keep 0.5 for precision. State your assumption."
+        },
+        {
+          "label": "(c) Disease",
+          "text": "Missing a sick patient (FN) is the worst error, so use the **lower threshold (0.30)** to keep recall at 1, accepting more false alarms."
+        },
+        {
+          "label": "(c) Imbalance",
+          "text": "Only 3 of 10 are positive. 0.5 assumes balanced classes and equal costs; a model on skewed data outputs lower probabilities for the rare class, so the best cut-off is usually below 0.5. Tune it on validation data (PR curve, F1 or cost)."
+        }
+      ],
+      "answer": "0.50: P 0.60, R 1.00, F1 0.75 · 0.30: P 0.43, R 1.00, F1 0.60. Here both thresholds catch all positives, so 0.50 is better on F1, but the decision depends on error costs."
+    },
+    {
+      "title": "Q2 · Perceptron network for (x₁∧x₂)∨(x₃∧x₄) (5 marks)",
+      "tags": [
+        "Ch 2",
+        "logic gates"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "f(z) = 1 if z ≥ 0, else 0. (a) Decompose into hidden and output layers. (b) Derive AND and OR inequalities and weights. (c) Draw the network with final weights."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Decompose",
+          "text": "Hidden h₁ = x₁ AND x₂, h₂ = x₃ AND x₄; output F = h₁ OR h₂."
+        },
+        {
+          "label": "(b) AND",
+          "text": "z = w₁a + w₂b + b: (0,0): b < 0; (0,1): w₂ + b < 0; (1,0): w₁ + b < 0; (1,1): w₁ + w₂ + b ≥ 0 → e.g. **w₁ = w₂ = 1, b = −1.5**."
+        },
+        {
+          "label": "(b) OR",
+          "text": "(0,0): b < 0; (0,1): w₂ + b ≥ 0; (1,0): w₁ + b ≥ 0; (1,1) ≥ 0 → e.g. **w₁ = w₂ = 1, b = −0.5**."
+        },
+        {
+          "label": "(c) Network",
+          "text": "4 inputs → 2 hidden units [h₁: weights (1, 1, 0, 0), b = −1.5; h₂: (0, 0, 1, 1), b = −1.5] → output [weights (1, 1), b = −0.5]."
+        },
+        {
+          "label": "Check",
+          "text": "x = (1,1,0,0): h = (1, 0) → F: 1 − 0.5 ≥ 0 → 1 ✓. x = (1,0,1,0): h = (0, 0) → F = 0 ✓."
+        }
+      ],
+      "answer": "Hidden: two AND units (1, 1, −1.5); output: OR unit (1, 1, −0.5). Depth 2."
+    },
+    {
+      "title": "Q3 · Forward and backward pass (8 marks)",
+      "tags": [
+        "Ch 5",
+        "backprop"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x = (1, 0.5), y = (1, 0); W⁽¹⁾ = [[0.5, 0.2], [−0.3, 0.8], [0.1, −0.4]], b⁽¹⁾ = (0.1, −0.2, 0.3); W⁽²⁾ = [[0.4, −0.1, 0.6], [0.2, 0.7, −0.3]], b⁽²⁾ = (0.2, −0.1); ReLU then sigmoid, BCE."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "z⁽¹⁾ = (0.7, −0.1, 0.2); a⁽¹⁾ = (0.7, 0, 0.2)"
+        },
+        {
+          "label": "(b)",
+          "text": "z⁽²⁾ = (0.6, −0.02); a⁽²⁾ = (0.646, 0.495)"
+        },
+        {
+          "label": "(c)",
+          "text": "δ⁽²⁾ = a⁽²⁾ − y = (−0.354, 0.495); dW⁽²⁾ = δ⁽²⁾a⁽¹⁾ᵀ = [[−0.248, 0, −0.071], [0.347, 0, 0.099]]; db⁽²⁾ = δ⁽²⁾"
+        },
+        {
+          "label": "(d)",
+          "text": "W⁽²⁾ᵀδ⁽²⁾ = (−0.043, 0.382, −0.361) ⊙ ReLU′(z⁽¹⁾) = (1, 0, 1) → δ⁽¹⁾ = (−0.043, 0, −0.361)"
+        },
+        {
+          "label": "(d) Dead ReLU",
+          "text": "Neuron 2 has z⁽¹⁾ = −0.1 ≤ 0, so its derivative is 0: its error signal and all its incoming weight gradients are 0. It doesn't learn from this example; if that holds for all inputs it is a **dead ReLU** (fix: Leaky ReLU, better init, lower η)."
+        }
+      ],
+      "answer": "Same network as the Chapter 5 numerical. The MLP lab reproduces every number."
+    },
+    {
+      "title": "Q4 · Batch GD and normal equations (6 marks)",
+      "tags": [
+        "Ch 3"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Data (1,2), (2,5), (4,11), (5,14); η = 0.05; w₀ = 1, w₁ = −1; J = (1/2N)Σ(y − ŷ)²."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Residuals",
+          "text": "ŷ = 1 − x = (0, −1, −3, −4); r = y − ŷ = (2, 6, 14, 18); Σr = 40, Σrx = 160; J = 560/8 = 70"
+        },
+        {
+          "label": "(a) Gradient",
+          "text": "∂J/∂w₀ = −Σr/N = **−10**; ∂J/∂w₁ = −Σrx/N = **−40**"
+        },
+        {
+          "label": "(b) Update",
+          "text": "w₀ = 1 + 0.5 = **1.5**; w₁ = −1 + 2 = **1.0**; new J = 11.125"
+        },
+        {
+          "label": "(c) Normal eqs",
+          "text": "Σx = 12, Σy = 32, Σxy = 126, Σx² = 46 → w₁ = 120/40 = **3**, w₀ = (32 − 36)/4 = **−1**"
+        },
+        {
+          "label": "(c) Direction",
+          "text": "Distance to the optimum 4.47 → 3.20, so yes overall, though w₀ moved away (1 → 1.5 vs −1)."
+        }
+      ],
+      "answer": "Gradient (−10, −40); w = (1.5, 1.0); optimum ŷ = −1 + 3x."
+    },
+    {
+      "title": "Q5 · Overfitting and funnel architectures (5 marks)",
+      "tags": [
+        "Ch 5",
+        "design"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "500 samples, 20 features, regression. Model A: 6 hidden layers × 512 (train loss → 0, validation rises). Model B: 64 → 32 → 16 (moderate train, low validation)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "Model A is **overfitting**: it memorises the training set (train ≈ 0, validation up). High variance."
+        },
+        {
+          "label": "(b)",
+          "text": "Fewer/narrower layers (e.g. a funnel); dropout; L2 weight decay; batch norm; early stopping. (More data or augmentation helps too.)"
+        },
+        {
+          "label": "(c)",
+          "text": "First hidden layer: 20 × 512 + 512 = **10,752**"
+        },
+        {
+          "label": "(d)",
+          "text": "A: 10,752 + 5 × (512·512 + 512) + 513 ≈ **1.32M**. B: (20·64 + 64) + (64·32 + 32) + (32·16 + 16) + 17 = **3,969**. About 330× (≈ 10⁶ vs 10³–10⁴)."
+        },
+        {
+          "label": "(e)",
+          "text": "Funnels compress progressively, forcing a compact representation that keeps only useful features. Far fewer parameters means less memorisation: 500/3,969 ≈ 0.13 samples per parameter for B vs 500/1.32M ≈ 0.0004 for A. (The Ch 5 sizing rule, parameters ≤ M/5 = 100, says even B is generous, so add regularisation.)"
+        }
+      ],
+      "answer": "Overfitting; 10,752; ~1.3M vs ~4K parameters."
+    }
+  ]
+}

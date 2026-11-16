@@ -1,5 +1,4 @@
-/* Classroom content: plain JSON wrapped in ClassroomContent(...) so it loads from file:// too. */
-ClassroomContent({
+{
   "id": "ch03",
   "title": "Linear Neural Networks for Regression",
   "subtitle": "Contact session 3 · T1 Chapter 3 + Chapter 12 (12.1–12.3) · Lab 1: Auto MPG",
@@ -332,6 +331,94 @@ ClassroomContent({
             "eta": 0.1,
             "w0": "0, 0"
           }
+        }
+      ]
+    },
+    {
+      "title": "Watching w, b and J over epochs",
+      "lead": "On ŷ = wx + b with α = 0.01, the cost falls sharply in the first few epochs and then flattens as w and b settle.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Epoch",
+            "w",
+            "b",
+            "J(w, b)"
+          ],
+          "rows": [
+            [
+              "0",
+              "0.0000",
+              "0.0000",
+              "122.1338"
+            ],
+            [
+              "1",
+              "1.1147",
+              "0.2007",
+              "27.5793"
+            ],
+            [
+              "2",
+              "1.6429",
+              "0.2972",
+              "6.3355"
+            ],
+            [
+              "5",
+              "2.0672",
+              "0.3800",
+              "0.2478"
+            ],
+            [
+              "10",
+              "2.1147",
+              "0.4005",
+              "0.1753"
+            ],
+            [
+              "20",
+              "2.1119",
+              "0.4233",
+              "0.1699"
+            ],
+            [
+              "40",
+              "2.1043",
+              "0.4660",
+              "0.1605"
+            ],
+            [
+              "80",
+              "2.0908",
+              "0.5418",
+              "0.1457"
+            ]
+          ]
+        },
+        {
+          "type": "list",
+          "items": [
+            "**w** changes the slope: it rises fast (2.07 by epoch 5), then barely moves.",
+            "**b** shifts the line up or down: it creeps up slowly the whole time (0.38 → 0.54).",
+            "**J** drops 95% in the first 2 epochs, then the curve is nearly flat."
+          ]
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Update w (adjust the slope).",
+            "Update b (adjust the position).",
+            "Recompute J (measure the new error).",
+            "Repeat until the parameters stabilise and J flattens."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "From the extra slides",
+          "text": "The biggest cost reduction comes from the **earliest** updates. A slow-moving b while J is already flat is normal: the bias gradient is small once the slope is right.",
+          "color": "blue"
         }
       ]
     },
@@ -1384,4 +1471,4 @@ ClassroomContent({
       "formula": "inputs × units + units"
     }
   ]
-});
+}

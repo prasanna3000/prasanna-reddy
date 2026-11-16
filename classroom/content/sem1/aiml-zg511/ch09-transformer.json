@@ -1,0 +1,734 @@
+{
+  "id": "ch09",
+  "title": "Transformers",
+  "subtitle": "Module 9 · T1 Chapter 11 · encoder and decoder blocks, parameters, ViT, the three Transformer families and fine-tuning",
+  "lesson": [
+    {
+      "title": "Why Transformers?",
+      "lead": "\"Attention is all you need\" (2017): drop recurrence and let every token attend to every other token **in parallel**.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Problem",
+            "RNN",
+            "Transformer"
+          ],
+          "rows": [
+            [
+              "Parallelisation",
+              "Sequential (h₁ before h₂ …)",
+              "All positions at once"
+            ],
+            [
+              "Long-range dependencies",
+              "Vanishing gradients (struggles past 100–200 tokens)",
+              "Direct connections"
+            ],
+            [
+              "Memory",
+              "Fixed hidden state",
+              "Attends to all tokens"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Impact: translation (2017) → BERT (2018) → GPT series → today's LLMs (100B+ parameters), small models for on-device use (1–7B), ViT and CLIP for vision, Whisper for speech, and multimodal models."
+        }
+      ]
+    },
+    {
+      "title": "The encoder block",
+      "lead": "Embedding + position → [**multi-head attention → add & norm → FFN → add & norm**] × N.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "X = Embedding(tokens) + PE(positions)      E ∈ R^{|V| × d_model}"
+        },
+        {
+          "type": "formula",
+          "text": "Z₁ = X + MHA(LayerNorm(X))        Z₂ = Z₁ + FFN(LayerNorm(Z₁))",
+          "caption": "the deck's pre-norm form"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Sub-layer",
+            "What it does"
+          ],
+          "rows": [
+            [
+              "Multi-head attention",
+              "Tokens \"communicate\": headₕ = softmax(QₕKₕᵀ/√d_k)Vₕ; e.g. H = 12, d_k = D/H = 64"
+            ],
+            [
+              "Feed-forward (position-wise)",
+              "Each token \"thinks\" alone: D → 4D → D with ReLU (GELU in ViT); same weights at every position"
+            ],
+            [
+              "Layer norm",
+              "LN(x) = γ(x − E[x])/√(Var[x] + ε) + β over features, not the batch; the same at train and test"
+            ],
+            [
+              "Residual",
+              "out = x + sublayer(x): gradient highways (from ResNet) for 100+ layers"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The encoder is **bidirectional**: every token sees all others (\"bank\" in \"river bank\" vs \"bank account\"). Stacks: original N = 6, BERT-base 12, BERT-large 24."
+        }
+      ]
+    },
+    {
+      "title": "The decoder block",
+      "lead": "Three sub-layers: **masked self-attention → cross-attention to the encoder → FFN**.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "Z₁ = Y + MaskedMHA(LN(Y))    Z₂ = Z₁ + CrossAttn(LN(Z₁), H_enc)    Z₃ = Z₂ + FFN(LN(Z₂))"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Masked** self-attention: token t sees only positions ≤ t, so training matches token-by-token generation.",
+            "**Cross-attention**: Q from the decoder, K and V from the encoder output H_enc; no mask over source tokens.",
+            "Output: logits = D W_out + b (W_out is d_model × |V|) → softmax → pick a token (greedy, sampling, or beam search)."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Training uses teacher forcing: all target positions are predicted in parallel under the mask. Inference generates one token at a time: ⟨s⟩ → \"yeh\" → \"kitab\" → …"
+        }
+      ]
+    },
+    {
+      "title": "Counting parameters",
+      "lead": "Per layer the deck counts ≈ **12 d_model²** for an encoder and ≈ **16 d_model²** for a decoder.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Part",
+            "Encoder layer",
+            "Decoder layer"
+          ],
+          "rows": [
+            [
+              "Attention projections W^Q, W^K, W^V, W^O",
+              "4d² (one MHA)",
+              "8d² (masked MHA + cross-attention)"
+            ],
+            [
+              "FFN (d → 4d → d)",
+              "2 × d × 4d = 8d²",
+              "8d²"
+            ],
+            [
+              "Layer norms (γ, β)",
+              "2 × 2d = 4d",
+              "3 × 2d = 6d"
+            ],
+            [
+              "Total ≈",
+              "12d²",
+              "16d² (33% more)"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "With d_model = 512: encoder layer ≈ 12 × 512² = **3,145,728**; decoder layer ≈ 16 × 512² = **4,194,304** (biases ignored). Embeddings add |V| × d_model (30K–50K tokens × 512)."
+        },
+        {
+          "type": "trap",
+          "label": "Common slip",
+          "text": "Multi-head attention does **not** multiply parameters by h: each head uses d_k = d_model/h, so the four projection matrices are still d_model × d_model in total."
+        }
+      ]
+    },
+    {
+      "title": "Vision Transformer (ViT)",
+      "lead": "Cut the image into **patches**, treat them as tokens, and use an encoder-only Transformer.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "N = HW / P² = 224·224 / 16² = 196 patches;  each patch 16·16·3 = 768 values → linear projection Wₚ ∈ R^{(P²C)×d}"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Split into 16 × 16 patches and flatten.",
+            "Project each to d (e.g. 768).",
+            "Prepend a learnable **[CLS]** token → 197 tokens.",
+            "Add **learned** 1-D positional embeddings (197 × d).",
+            "L encoder layers (ViT-Base: L = 12, H = 12, d_k = 64, FFN with GELU).",
+            "Classify from the [CLS] output: LayerNorm → W_head (d × K) → softmax."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "",
+            "CNN",
+            "ViT"
+          ],
+          "rows": [
+            [
+              "Inductive bias",
+              "Strong (locality, translation equivariance)",
+              "Weak (learned)"
+            ],
+            [
+              "Data needs",
+              "Good on small data",
+              "Needs large-scale pre-training"
+            ],
+            [
+              "Global context",
+              "Limited receptive field",
+              "Global from layer 1"
+            ],
+            [
+              "Cost",
+              "Efficient convolutions",
+              "Quadratic in the number of patches"
+            ],
+            [
+              "Transfer learning",
+              "Good",
+              "Excellent"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Use CNNs for < 100K images or little compute; ViT when large pre-training is available; hybrids put a CNN stem under a Transformer body."
+        }
+      ]
+    },
+    {
+      "title": "Three families",
+      "lead": "Encoder-only **understands**, decoder-only **generates**, encoder–decoder **transforms**.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "",
+            "Encoder-only",
+            "Decoder-only",
+            "Encoder–decoder"
+          ],
+          "rows": [
+            [
+              "Attention",
+              "Bidirectional",
+              "Causal (masked)",
+              "Encoder bi + decoder causal + cross"
+            ],
+            [
+              "Pre-training",
+              "Masked LM (mask 15%, predict)",
+              "Next-token prediction P(xₜ | x<ₜ)",
+              "Span corruption / denoising"
+            ],
+            [
+              "Tasks",
+              "Classification, NER, extractive QA, embeddings",
+              "Chat, completion, code, few-shot",
+              "Translation, summarisation"
+            ],
+            [
+              "Models",
+              "BERT, RoBERTa, DistilBERT",
+              "GPT, LLaMA, Mistral, Claude",
+              "T5, BART, mT5"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Exam rule",
+          "text": "Selection guide: classify or extract → encoder-only; generate text → decoder-only; input and output very different (another language, a summary) → encoder–decoder."
+        },
+        {
+          "type": "p",
+          "text": "NER example (encoder-only): \"Teddy was US President\" → [PER, O, LOC, O]. Completion (decoder-only): \"The weather today is\" → \"sunny and warm…\"."
+        }
+      ]
+    },
+    {
+      "title": "Pre-training and fine-tuning",
+      "lead": "Pre-train on huge unlabelled text, then **fine-tune** on 1K–100K labelled examples.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "Load a pre-trained model and tokenizer (e.g. bert-base-uncased from Hugging Face).",
+            "Tokenise the task data with the same tokenizer; split train/validation.",
+            "Fine-tune with a **small learning rate** (2e-5 to 5e-5), **2–5 epochs**, AdamW with weight decay 0.01, batch 16–32, gradient clipping at 1.0.",
+            "Evaluate on validation; early stopping."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Approach",
+            "What is trained"
+          ],
+          "rows": [
+            [
+              "Full fine-tuning",
+              "All parameters (best results)"
+            ],
+            [
+              "Gradual unfreezing",
+              "Top layers first"
+            ],
+            [
+              "LoRA / adapters",
+              "< 1% of parameters: W = W_frozen + α·BA, B ∈ R^{d×r}, A ∈ R^{r×d}, r ≪ d"
+            ],
+            [
+              "Prompting",
+              "Nothing (zero/few-shot)"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Task",
+            "Metrics"
+          ],
+          "rows": [
+            [
+              "Classification",
+              "Accuracy, F1, confusion matrix"
+            ],
+            [
+              "NER",
+              "Entity-level F1, token accuracy"
+            ],
+            [
+              "QA",
+              "Exact match, F1"
+            ],
+            [
+              "Generation",
+              "BLEU (translation), ROUGE (summaries), perplexity"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Exam angles",
+      "lead": "Expect dimension bookkeeping, \"why scale by √d_k\", and design trade-offs.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "**Heads vs width (EC-3 2026 Q4c):** raising d_model gives one richer attention pattern per layer but costs O(d²) more parameters and compute and can overfit. More heads (same d_model) cost the same parameters but let different heads specialise in different relations (syntax, coreference, position). Many heads of d_k = d_model/h learn diverse, complementary subspaces; one big head averages them into a single pattern."
+        },
+        {
+          "type": "p",
+          "text": "**Missing scaling (EC-3 2026 Q4b):** with d_k = 512 and no 1/√d_k, dot products have variance ≈ d_k, so scores exceed 100. Softmax becomes one-hot, its Jacobian diag(p) − ppᵀ ≈ 0, and learning stalls."
+        },
+        {
+          "type": "p",
+          "text": "**W^Q, W^K, W^V shapes (EC-3 makeup 2023 Q2):** with input d, query size d_q, key/value sizes d_k, d_v and h heads, the per-head projections are d × d_q, d × d_k, d × d_v; stacked over heads (h·d) × d_q etc.; W^O is (h·d_v) × d. The answer key writes W^Q = (6 × 1024) × 256, W^K = W^V = (6 × 1024) × 512, W^O = (6 × 512) × 1024."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Scaled score for one query and one key (EC-3 2026 Q4)",
+      "tags": [
+        "past paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Q = (2, 0), K = (2, 2), V = (1, 3), d_k = 2."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Raw",
+          "text": "Q·K = 2·2 + 0·2 = **4**"
+        },
+        {
+          "label": "Scaled",
+          "text": "4/√2 = **2.83**"
+        },
+        {
+          "label": "Softmax",
+          "text": "With a single key the weight is 1 whatever the score, so the output is V = (1, 3)."
+        },
+        {
+          "label": "Why scaling matters",
+          "text": "With many keys, dividing by √d_k shrinks gaps between scores, so softmax stays soft and gradients flow. Without it, large d_k gives near one-hot weights and vanishing gradients."
+        }
+      ],
+      "answer": "4 → 2.83."
+    },
+    {
+      "title": "Encoder and decoder layer parameters",
+      "tags": [
+        "parameters"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "d_model = 512, d_ff = 4d_model. Estimate the parameters of one encoder layer and one decoder layer (ignore biases)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Attention",
+          "text": "4 projections × 512² = 1,048,576 per multi-head attention"
+        },
+        {
+          "label": "FFN",
+          "text": "2 × 512 × 2048 = 2,097,152"
+        },
+        {
+          "label": "Encoder",
+          "text": "1,048,576 + 2,097,152 = **3,145,728** (= 12d²) + 2,048 layer-norm"
+        },
+        {
+          "label": "Decoder",
+          "text": "2 × 1,048,576 + 2,097,152 = **4,194,304** (= 16d²) + 3,072 layer-norm"
+        }
+      ],
+      "answer": "≈ 3.1M per encoder layer, ≈ 4.2M per decoder layer."
+    },
+    {
+      "title": "ViT tokens",
+      "tags": [
+        "ViT"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A 224 × 224 × 3 image with 16 × 16 patches and d = 768. How many tokens enter the encoder, and what is the shape of Wₚ and E_pos?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Patches",
+          "text": "(224/16)² = 14² = 196"
+        },
+        {
+          "label": "Tokens",
+          "text": "196 + 1 [CLS] = 197"
+        },
+        {
+          "label": "Wₚ",
+          "text": "(16·16·3) × 768 = 768 × 768"
+        },
+        {
+          "label": "E_pos",
+          "text": "197 × 768 (learned)"
+        }
+      ],
+      "answer": "197 tokens; Wₚ is 768 × 768; E_pos is 197 × 768."
+    },
+    {
+      "title": "Multi-head projection shapes (EC-3 makeup 2023 Q2)",
+      "tags": [
+        "past paper",
+        "dimensions"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Input/attention dimension 1024, query dimension 256, key and value dimensions 512, 6 heads. Give W^Q, W^K, W^V, W^O and the attention vector size."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Per head",
+          "text": "W^Q 1024 × 256, W^K 1024 × 512, W^V 1024 × 512"
+        },
+        {
+          "label": "All heads (answer key)",
+          "text": "W^Q (6 × 1024) × 256, W^K (6 × 1024) × 512, W^V (6 × 1024) × 512"
+        },
+        {
+          "label": "Concat",
+          "text": "6 heads × d_v = 6 × 512 = 3072"
+        },
+        {
+          "label": "W^O",
+          "text": "(6 × 512) × 1024 → back to 1024"
+        }
+      ],
+      "answer": "Attention vector after concatenation: 6 × 512 = 3072; W^O maps 3072 → 1024."
+    }
+  ],
+  "labs": [
+    {
+      "title": "Attention calculator",
+      "intro": "The core of every Transformer layer. Try the causal mask to see what a decoder's masked self-attention allows.",
+      "widget": "attention-calc",
+      "config": {
+        "Q": "1 0; 0 1; 1 1",
+        "K": "1 0; 0 1; 1 1",
+        "V": "1 2; 3 4; 5 6",
+        "scale": true,
+        "mask": true
+      }
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Why",
+      "front": "Three RNN problems Transformers fix",
+      "back": "Sequential computation, vanishing long-range gradients, fixed-size memory."
+    },
+    {
+      "tag": "Encoder",
+      "front": "Encoder layer equations (pre-norm)",
+      "back": "Z₁ = X + MHA(LN(X)); Z₂ = Z₁ + FFN(LN(Z₁))."
+    },
+    {
+      "tag": "Encoder",
+      "front": "Position-wise FFN",
+      "back": "d → 4d → d with ReLU/GELU, the same weights at every position."
+    },
+    {
+      "tag": "Encoder",
+      "front": "Layer norm vs batch norm",
+      "back": "Layer norm normalises across features per token; the same at train and test."
+    },
+    {
+      "tag": "Decoder",
+      "front": "Decoder sub-layers",
+      "back": "Masked self-attention → cross-attention → FFN (each with residual + LN)."
+    },
+    {
+      "tag": "Decoder",
+      "front": "Cross-attention Q, K, V",
+      "back": "Q from the decoder; K and V from the encoder output."
+    },
+    {
+      "tag": "Parameters",
+      "front": "Encoder vs decoder layer parameters",
+      "back": "≈ 12d² vs ≈ 16d²."
+    },
+    {
+      "tag": "ViT",
+      "front": "Number of patches for 224 × 224, P = 16",
+      "back": "196 (+1 [CLS] = 197 tokens)."
+    },
+    {
+      "tag": "ViT",
+      "front": "Role of [CLS]",
+      "back": "A learnable token whose final state is used for classification."
+    },
+    {
+      "tag": "ViT",
+      "front": "ViT positional embeddings",
+      "back": "Learned 1-D, (N + 1) × d."
+    },
+    {
+      "tag": "ViT",
+      "front": "CNN vs ViT on small data",
+      "back": "CNN wins (strong inductive bias); ViT needs big pre-training."
+    },
+    {
+      "tag": "Families",
+      "front": "BERT pre-training",
+      "back": "Masked language modelling (15% masked)."
+    },
+    {
+      "tag": "Families",
+      "front": "GPT pre-training",
+      "back": "Autoregressive next-token prediction."
+    },
+    {
+      "tag": "Families",
+      "front": "Which family for translation?",
+      "back": "Encoder–decoder (T5, BART, mT5)."
+    },
+    {
+      "tag": "Fine-tuning",
+      "front": "Typical fine-tuning learning rate and epochs",
+      "back": "2e-5 to 5e-5; 2–5 epochs."
+    },
+    {
+      "tag": "Fine-tuning",
+      "front": "LoRA",
+      "back": "Freeze W; learn low-rank BA (r ≪ d); < 1% of parameters."
+    },
+    {
+      "tag": "Metrics",
+      "front": "BLEU vs ROUGE",
+      "back": "BLEU: precision-based (translation). ROUGE: recall-based (summaries)."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "numeric",
+      "q": "d_model = 512. Approximate parameters of one encoder layer (12d²)?",
+      "answer": 3145728,
+      "tolerance": 2,
+      "explain": "12 × 262,144."
+    },
+    {
+      "type": "numeric",
+      "q": "Patches for a 224 × 224 image with 16 × 16 patches?",
+      "answer": 196,
+      "tolerance": 0.01,
+      "explain": "14 × 14."
+    },
+    {
+      "type": "numeric",
+      "q": "Values in one 16 × 16 RGB patch?",
+      "answer": 768,
+      "tolerance": 0.01,
+      "explain": "16·16·3."
+    },
+    {
+      "type": "numeric",
+      "q": "d_model = 768 with 12 heads. d_k per head?",
+      "answer": 64,
+      "tolerance": 0.01,
+      "explain": "768/12."
+    },
+    {
+      "type": "mcq",
+      "q": "Which block appears only in the decoder of an encoder–decoder Transformer?",
+      "options": [
+        "Feed-forward",
+        "Layer norm",
+        "Cross-attention",
+        "Residual connection"
+      ],
+      "answer": 2,
+      "explain": "It connects to the encoder output."
+    },
+    {
+      "type": "mcq",
+      "q": "A sentiment classifier on reviews is best built on…",
+      "options": [
+        "Encoder-only",
+        "Decoder-only",
+        "Encoder–decoder",
+        "An RNN only"
+      ],
+      "answer": 0,
+      "explain": "Understanding/classification."
+    },
+    {
+      "type": "mcq",
+      "q": "BERT is pre-trained with…",
+      "options": [
+        "Next-token prediction",
+        "Masked language modelling",
+        "Span corruption only",
+        "Contrastive images"
+      ],
+      "answer": 1,
+      "explain": "Mask 15% and predict them."
+    },
+    {
+      "type": "mcq",
+      "q": "Why mask the decoder's self-attention during training?",
+      "options": [
+        "To save memory",
+        "So token t cannot see future tokens, matching generation",
+        "To add noise",
+        "Because of layer norm"
+      ],
+      "answer": 1,
+      "explain": "Causal consistency."
+    },
+    {
+      "type": "mcq",
+      "q": "Removing 1/√d_k with d_k = 512 causes…",
+      "options": [
+        "Faster learning",
+        "Near one-hot softmax and vanishing gradients",
+        "Exploding positional encodings",
+        "No change"
+      ],
+      "answer": 1,
+      "explain": "Scores grow ~√d_k in magnitude."
+    },
+    {
+      "type": "mcq",
+      "q": "ViT vs CNN on 20K labelled images with no pre-training: usually…",
+      "options": [
+        "ViT wins",
+        "CNN wins",
+        "They're identical",
+        "Neither trains"
+      ],
+      "answer": 1,
+      "explain": "ViT lacks inductive bias and needs lots of data."
+    },
+    {
+      "type": "mcq",
+      "q": "LoRA updates…",
+      "options": [
+        "All weights",
+        "Only low-rank matrices A and B",
+        "Only layer norms",
+        "Only embeddings"
+      ],
+      "answer": 1,
+      "explain": "W = W_frozen + αBA."
+    },
+    {
+      "type": "mcq",
+      "q": "ROUGE is mainly used for…",
+      "options": [
+        "Classification",
+        "Summarisation",
+        "NER",
+        "Speech"
+      ],
+      "answer": 1,
+      "explain": "Recall-oriented n-gram overlap."
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Encoder layer",
+      "formula": "Z₁ = X + MHA(LN(X));  Z₂ = Z₁ + FFN(LN(Z₁))"
+    },
+    {
+      "name": "Decoder layer",
+      "formula": "Z₁ = Y + MaskedMHA(LN(Y)); Z₂ = Z₁ + Cross(LN(Z₁), H_enc); Z₃ = Z₂ + FFN(LN(Z₂))"
+    },
+    {
+      "name": "Layer norm",
+      "formula": "γ(x − E[x])/√(Var[x] + ε) + β"
+    },
+    {
+      "name": "FFN",
+      "formula": "max(0, xW₁ + b₁)W₂ + b₂,  d → 4d → d"
+    },
+    {
+      "name": "Parameters per layer",
+      "formula": "encoder ≈ 12d²,  decoder ≈ 16d²"
+    },
+    {
+      "name": "ViT",
+      "formula": "N = HW/P²;  tokens N + 1;  Wₚ ∈ R^{(P²C)×d}"
+    },
+    {
+      "name": "LoRA",
+      "formula": "W = W_frozen + α·BA,  B ∈ R^{d×r}, A ∈ R^{r×d}"
+    },
+    {
+      "name": "Fine-tuning",
+      "formula": "lr 2e-5 to 5e-5 · 2–5 epochs · AdamW wd 0.01 · clip 1.0"
+    }
+  ]
+}

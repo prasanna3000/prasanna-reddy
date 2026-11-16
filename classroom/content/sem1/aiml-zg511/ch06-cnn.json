@@ -1,0 +1,977 @@
+{
+  "id": "ch06",
+  "title": "Convolutional Neural Networks",
+  "subtitle": "Contact session 6 · T1 Chapters 7–8 · convolution, padding, stride, pooling, parameters, classic architectures and transfer learning",
+  "lesson": [
+    {
+      "title": "Why not a plain MLP for images?",
+      "lead": "Images are huge, and objects can appear **anywhere**. CNNs exploit locality and reuse the same filter everywhere.",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "A 50 × 50 image is already 2,500 inputs; a 1920 × 1080 HD image is about 2 million per channel.",
+            "**Invariance:** a cat is a cat wherever it sits in the frame.",
+            "**Locality:** small patterns (edges, eyes) don't need the whole image.",
+            "**Sub-sampling:** shrinking an image doesn't change the object."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Three key principles"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Principle",
+            "Meaning"
+          ],
+          "rows": [
+            [
+              "Local connectivity (sparse interactions)",
+              "Each neuron sees only a small region: its receptive field"
+            ],
+            [
+              "Parameter sharing",
+              "The same filter slides over the whole input, so far fewer parameters"
+            ],
+            [
+              "Equivariance",
+              "Shift the input and the feature map shifts the same way"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Tasks: image classification, face detection, object recognition, image captioning, segmentation."
+        }
+      ]
+    },
+    {
+      "title": "The CNN pipeline",
+      "lead": "**INPUT → [CONV → ReLU → POOL] × N → FLATTEN → FC → SOFTMAX**",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Example (LeNet-style): 32×32×3 → conv 5×5, 6 filters → 28×28×6 → pool → 14×14×6 → conv 5×5, 16 filters → 10×10×16 → pool → 5×5×16 → FC → output."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Layers",
+            "Learn"
+          ],
+          "rows": [
+            [
+              "Early (1–2)",
+              "Edges, corners, colours (small receptive field)"
+            ],
+            [
+              "Middle (3–4)",
+              "Textures, shapes, patterns"
+            ],
+            [
+              "Deep (5+)",
+              "Object parts: eyes, wheels"
+            ],
+            [
+              "Fully connected",
+              "Combine all features into class scores"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Design pattern",
+          "text": "Pattern to remember: as you go deeper, **spatial size shrinks and channel depth grows** (224×224×3 → … → 14×14×512)."
+        }
+      ]
+    },
+    {
+      "title": "The convolution operation",
+      "lead": "Slide the filter, multiply element-wise, add up (plus bias): one number per position.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "(I ⋆ K)(i, j) = Σₘ Σₙ I(i + m, j + n) · K(m, n) + b",
+          "caption": "deep learning frameworks actually compute cross-correlation but call it convolution"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Start at the top-left corner.",
+            "Multiply element-wise and sum.",
+            "Slide right by the stride s.",
+            "At the end of a row, jump down by s to the leftmost position.",
+            "The filter must fit **completely** inside the input, never partly."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The 6 × 6 image below with the diagonal filter (1 on the diagonal, −1 elsewhere) gives a 4 × 4 feature map whose top-left value is **3**: the diagonal pattern is strongly present."
+        },
+        {
+          "type": "widget",
+          "widget": "conv-calc",
+          "config": {
+            "input": "1 0 0 0 0 1\n0 1 0 0 1 0\n0 0 1 1 0 0\n1 0 0 0 1 0\n0 1 0 0 1 0\n0 0 1 0 1 0",
+            "kernel": "1 -1 -1\n-1 1 -1\n-1 -1 1",
+            "stride": 1,
+            "padding": 0,
+            "pool": 2
+          }
+        },
+        {
+          "type": "p",
+          "text": "The kernel values are **learned** by backpropagation. Trained first-layer kernels look like edge detectors, e.g. vertical [[−1, 0, 1], [−1, 0, 1], [−1, 0, 1]]."
+        }
+      ]
+    },
+    {
+      "title": "Output size: padding and stride",
+      "lead": "Memorise **O = ⌊(n + 2p − k)/s⌋ + 1**.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "O = ⌊(n + 2p − k) / s⌋ + 1",
+          "caption": "n = input size, k = kernel, p = padding, s = stride"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Padding",
+            "Effect"
+          ],
+          "rows": [
+            [
+              "Valid (p = 0)",
+              "Output shrinks: n − k + 1"
+            ],
+            [
+              "Same",
+              "p = (k − 1)/2 with s = 1, so output = input"
+            ],
+            [
+              "Full",
+              "Maximum padding"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Examples: 6 × 6, k = 3, s = 1, p = 0 → 4 × 4. 6 × 6, k = 3, s = 2 → ⌊3/2⌋ + 1 = 2 × 2. 32 × 32, k = 5 → 28 × 28. 28 × 28, k = 3, p = 1 → 28 × 28 (same)."
+        },
+        {
+          "type": "h",
+          "text": "Stride vs dilation"
+        },
+        {
+          "type": "table",
+          "head": [
+            "",
+            "Strided conv (s > 1)",
+            "Dilated conv (rate r)"
+          ],
+          "rows": [
+            [
+              "Output size",
+              "Smaller (downsampling)",
+              "Same as input"
+            ],
+            [
+              "Receptive field",
+              "Larger",
+              "Larger: k_eff = k + (k − 1)(r − 1)"
+            ],
+            [
+              "Parameters",
+              "Same",
+              "Same"
+            ],
+            [
+              "Typical use",
+              "Classification",
+              "Segmentation, WaveNet audio"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "A 3 × 3 kernel with r = 2 covers 5 × 5 with only 9 weights."
+        }
+      ]
+    },
+    {
+      "title": "Channels and parameters",
+      "lead": "A filter is as **deep as its input**; the number of filters is the number of output channels.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "parameters = (K × K × Cᵢₙ + 1) × Cₒᵤₜ",
+          "caption": "independent of the image's height and width"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Multi-channel: convolve each channel with its own kernel slice, then **sum across channels** plus one bias → one feature map.",
+            "64 filters of 3 × 3 on 32 × 32 × 3 → 30 × 30 × 64.",
+            "5 × 5 filters, 3 input channels, 64 filters: (75 + 1) × 64 = **4,864**.",
+            "3 × 3 filters, 128 channels, 256 filters: (1,152 + 1) × 256 = **295,168**.",
+            "Pooling layers have **0** parameters (only hyperparameters k and s)."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Receptive field"
+        },
+        {
+          "type": "formula",
+          "text": "RF_l = RF_{l−1} + (K_l − 1) × Πᵢ<l Sᵢ",
+          "caption": "stacked 3×3, stride 1: 3 → 5 → 7 → 9"
+        },
+        {
+          "type": "note",
+          "label": "Why small kernels",
+          "text": "Two stacked 3 × 3 convs see 5 × 5 with 18 weights per channel pair instead of 25, and add an extra non-linearity. That's why VGG uses only 3 × 3."
+        }
+      ]
+    },
+    {
+      "title": "Pooling, ReLU and 1×1 convolutions",
+      "lead": "Pooling downsamples with **no parameters**; a 1×1 conv mixes channels cheaply.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Pooling",
+            "Output",
+            "Note"
+          ],
+          "rows": [
+            [
+              "Max",
+              "Largest value in each window",
+              "Most common; keeps the strongest activation"
+            ],
+            [
+              "Average",
+              "Mean of each window",
+              "Smoother"
+            ],
+            [
+              "Global average (GAP)",
+              "One number per channel",
+              "Replaces FC layers, no parameters"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Pooling gives translation invariance, reduces computation and acts as mild regularisation. Max-pool 2 × 2, s = 2: 4 × 4 → 2 × 2."
+        },
+        {
+          "type": "p",
+          "text": "ReLU is applied after each conv: cheap, non-saturating for positive inputs, gives sparse activations, scale-invariant. Downsides: dying ReLU, not zero-centred."
+        },
+        {
+          "type": "h",
+          "text": "1×1 convolution (\"network in network\")"
+        },
+        {
+          "type": "list",
+          "items": [
+            "A weighted sum **across channels** at each pixel: no spatial context.",
+            "Reduces channels (256 → 64), adds non-linearity, cuts computation."
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "5×5 conv 256 → 256: 5·5·256·256 = 1,638,400    vs    1×1 (256→64) + 5×5 (64→64) + 1×1 (64→256) = 16,384 + 102,400 + 16,384 = 135,168",
+          "caption": "about 12× fewer weights: the bottleneck design"
+        },
+        {
+          "type": "trap",
+          "label": "Slide check",
+          "text": "The slide prints 147,456 for the bottleneck and calls it 11×. The arithmetic gives 135,168 (≈ 12×). If this comes up, show your sum."
+        }
+      ]
+    },
+    {
+      "title": "Fully connected head and softmax",
+      "lead": "Flatten the final maps, then a dense layer y = f(Wx + b) maps features to class scores.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Example: x = (2, −1, 3), W = [[0.5, −0.2, 0.1], [−0.3, 0.4, 0.2]], b = (0.1, −0.2). z₁ = 1.0 + 0.2 + 0.3 + 0.1 = 1.6, z₂ = −0.6 − 0.4 + 0.6 − 0.2 = −0.6; ReLU → **(1.6, 0)**. Parameters 3 × 2 + 2 = 8."
+        },
+        {
+          "type": "p",
+          "text": "FC layers are parameter-heavy, lose spatial structure and need a fixed input size. Modern alternatives: global average pooling and 1×1 convs."
+        },
+        {
+          "type": "formula",
+          "text": "softmax(z)ᵢ = e^{zᵢ}/Σe^{zⱼ}:  z = (2, 1, 0.1) → (0.659, 0.242, 0.099)"
+        }
+      ]
+    },
+    {
+      "title": "Classic architectures",
+      "lead": "Each landmark network added one idea that is still used today.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Network",
+            "Year",
+            "Key ideas",
+            "Size"
+          ],
+          "rows": [
+            [
+              "LeNet-5",
+              "1998",
+              "First successful CNN; conv-pool-conv-pool-FC; tanh/sigmoid; average pooling; MNIST",
+              "60K params"
+            ],
+            [
+              "AlexNet",
+              "2012",
+              "ReLU, dropout, data augmentation, GPUs, LRN; 5 conv + 3 FC; won ImageNet (top-5 error 15.3%)",
+              "60M"
+            ],
+            [
+              "VGG-16",
+              "2014",
+              "Only 3×3 conv (s 1, p 1) and 2×2 max-pool; 13 conv + 3 FC; simple and deep",
+              "138M"
+            ],
+            [
+              "NiN",
+              "2013",
+              "MLPconv (1×1 convs), global average pooling replaces FC",
+              "Few params"
+            ],
+            [
+              "GoogLeNet / Inception",
+              "2014",
+              "Parallel 1×1, 3×3, 5×5, pool branches, concatenated; 1×1 bottlenecks; 22 layers; auxiliary classifiers",
+              "5M (12× fewer than AlexNet)"
+            ],
+            [
+              "ResNet",
+              "2015",
+              "Residual blocks y = F(x) + x; skip connections; 50–152 layers; won ImageNet 2015 (3.6%)",
+              "25M (ResNet-50)"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Inception's 1×1 reduction cut one module from about 390M to 118M operations (3.3×). Factorisation (v3): 5×5 → two 3×3 (28% fewer operations); 3×3 → 3×1 + 1×3."
+        }
+      ]
+    },
+    {
+      "title": "ResNet and residual learning",
+      "lead": "Learn the **residual** F(x) = H(x) − x, so the block outputs **y = F(x) + x**.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "The surprise: a 56-layer plain network had **higher training error** than an 18-layer one. Not overfitting, but an optimisation problem (degradation)."
+        },
+        {
+          "type": "list",
+          "items": [
+            "If the identity is the best mapping, the block only has to push F(x) to 0, which is easy.",
+            "**Gradient highway:** ∂L/∂x = ∂L/∂y · (1 + ∂F/∂x); the \"1\" always lets the gradient through.",
+            "It behaves like an ensemble of 2ⁿ paths; earlier features are reused.",
+            "Dimension mismatch is handled by a **projection shortcut**: a 1×1 conv with stride 2."
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "Bottleneck block: 1×1 (256→64) + 3×3 (64→64) + 1×1 (64→256) = 16,384 + 36,864 + 16,384 ≈ 70K  vs  3×3 (256→256) ≈ 590K",
+          "caption": "≈ 8.4× fewer"
+        }
+      ]
+    },
+    {
+      "title": "Design, transfer learning and tips",
+      "lead": "Start from a proven network and **transfer** it whenever you can.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Strategy",
+            "What you train",
+            "When"
+          ],
+          "rows": [
+            [
+              "Feature extraction",
+              "Only the new classifier; conv layers frozen",
+              "Small dataset, similar to ImageNet"
+            ],
+            [
+              "Fine-tuning",
+              "Whole network, low learning rate",
+              "Medium dataset, somewhat similar"
+            ],
+            [
+              "Selective fine-tuning",
+              "Later layers; early layers frozen",
+              "Medium dataset, different but related"
+            ],
+            [
+              "From scratch",
+              "Everything",
+              "Large dataset, very different domain"
+            ]
+          ]
+        },
+        {
+          "type": "list",
+          "items": [
+            "Always: spatial reduction + channel expansion. Deep networks: skip connections. Tight budget: bottlenecks (MobileNet, EfficientNet).",
+            "Underfitting → add depth or width. Overfitting → data augmentation, dropout, L2 before shrinking the model.",
+            "Depth vs width: deeper gives more complex features but is harder to train; wider is easier and faster. EfficientNet scales depth, width and resolution together.",
+            "Practical: normalise pixels, augment (flip, crop, rotate, colour jitter), batch norm, early stopping, gradient clipping."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Beyond classification: detection (R-CNN family, YOLO, SSD), segmentation (FCN, U-Net, DeepLab), face recognition, style transfer, super-resolution, 1-D convs for audio and time series."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Convolve, ReLU, max-pool",
+      "tags": [
+        "convolution",
+        "by hand"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "6 × 6 binary image (rows: 100001, 010010, 001100, 100010, 010010, 001010) with filter [[1, −1, −1], [−1, 1, −1], [−1, −1, 1]], stride 1, no padding. Then ReLU, then 2 × 2 max-pool with stride 2."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Size",
+          "text": "(6 − 3)/1 + 1 = 4 → 4 × 4"
+        },
+        {
+          "label": "Top-left",
+          "text": "Diagonal 1·1 + 1·1 + 1·1 = 3, and every off-diagonal input is 0 → **3**"
+        },
+        {
+          "label": "Feature map",
+          "text": "[[3, −1, −3, −1], [−3, 1, 0, −3], [−3, −3, 0, 1], [3, −2, −2, −1]]"
+        },
+        {
+          "label": "ReLU",
+          "text": "[[3, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [3, 0, 0, 0]]"
+        },
+        {
+          "label": "Max-pool",
+          "text": "[[3, 0], [3, 1]]"
+        }
+      ],
+      "answer": "Pooled output [[3, 0], [3, 1]]. Values of 3 mark where the diagonal pattern appears."
+    },
+    {
+      "title": "Stride 2",
+      "tags": [
+        "output size"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Same image and filter with stride 2. Size and values?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Size",
+          "text": "⌊(6 − 3)/2⌋ + 1 = ⌊1.5⌋ + 1 = 2 → 2 × 2"
+        },
+        {
+          "label": "Positions",
+          "text": "Top-left corners at (0,0), (0,2), (2,0), (2,2)"
+        },
+        {
+          "label": "Values",
+          "text": "[[3, −3], [−3, 0]]"
+        }
+      ],
+      "answer": "2 × 2 map [[3, −3], [−3, 0]]. Take the floor when the division isn't exact."
+    },
+    {
+      "title": "Shapes and parameters through a small CNN",
+      "tags": [
+        "shapes",
+        "parameters"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "32×32×3 → conv 3×3, 16 filters, p = 1 → max-pool 2 → conv 3×3, 32 filters, p = 0 → max-pool 2 → flatten → dense 10. Give each shape and the parameter count."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Conv1",
+          "text": "(32 + 2 − 3)/1 + 1 = 32 → 32×32×16; params (3·3·3 + 1)·16 = **448**"
+        },
+        {
+          "label": "Pool1",
+          "text": "16×16×16; 0 params"
+        },
+        {
+          "label": "Conv2",
+          "text": "16 − 3 + 1 = 14 → 14×14×32; params (3·3·16 + 1)·32 = **4,640**"
+        },
+        {
+          "label": "Pool2",
+          "text": "7×7×32; 0 params"
+        },
+        {
+          "label": "Flatten",
+          "text": "7·7·32 = 1,568"
+        },
+        {
+          "label": "Dense",
+          "text": "1,568·10 + 10 = **15,690**"
+        }
+      ],
+      "answer": "Total 448 + 4,640 + 15,690 = 20,778 parameters. Most are in the dense layer."
+    },
+    {
+      "title": "Conv parameter counts",
+      "tags": [
+        "parameters"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(a) First layer: 224×224×3 input, 64 filters of 5×5. (b) Deeper layer: 56×56×128 input, 256 filters of 3×3. (c) A 2×2 max-pool on 56×56×128."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "(5·5·3 + 1)·64 = 76·64 = **4,864**"
+        },
+        {
+          "label": "(b)",
+          "text": "(3·3·128 + 1)·256 = 1,153·256 = **295,168**"
+        },
+        {
+          "label": "(c)",
+          "text": "**0**; the output is 28×28×128"
+        }
+      ],
+      "answer": "4,864 · 295,168 · 0. The image's height and width never enter the count."
+    },
+    {
+      "title": "Receptive field and dilation",
+      "tags": [
+        "receptive field"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(a) Receptive field after four stacked 3×3 convs, stride 1. (b) Effective size of a 3×3 kernel with dilation r = 3."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "3 → 3 + 2 = 5 → 7 → **9**"
+        },
+        {
+          "label": "(b)",
+          "text": "k + (k − 1)(r − 1) = 3 + 2·2 = **7**, so 7 × 7 with 9 weights"
+        }
+      ],
+      "answer": "9 × 9; 7 × 7."
+    },
+    {
+      "title": "Bottleneck savings",
+      "tags": [
+        "1×1 conv",
+        "ResNet"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Compare weights (ignore biases) for a 3×3 conv 256 → 256 with a bottleneck 1×1 (256→64), 3×3 (64→64), 1×1 (64→256)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Plain",
+          "text": "3·3·256·256 = 589,824"
+        },
+        {
+          "label": "Bottleneck",
+          "text": "256·64 + 9·64·64 + 64·256 = 16,384 + 36,864 + 16,384 = 69,632"
+        },
+        {
+          "label": "Ratio",
+          "text": "589,824/69,632 ≈ **8.5×**"
+        }
+      ],
+      "answer": "About 590K vs 70K: the ResNet-50 bottleneck block."
+    },
+    {
+      "title": "Dense layer by hand",
+      "tags": [
+        "FC layer"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x = (2, −1, 3), W = [[0.5, −0.2, 0.1], [−0.3, 0.4, 0.2]], b = (0.1, −0.2), ReLU."
+        }
+      ],
+      "steps": [
+        {
+          "label": "z₁",
+          "text": "1.0 + 0.2 + 0.3 + 0.1 = 1.6"
+        },
+        {
+          "label": "z₂",
+          "text": "−0.6 − 0.4 + 0.6 − 0.2 = −0.6"
+        },
+        {
+          "label": "ReLU",
+          "text": "(1.6, 0)"
+        },
+        {
+          "label": "Params",
+          "text": "3·2 + 2 = 8"
+        }
+      ],
+      "answer": "y = (1.6, 0); 8 parameters."
+    }
+  ],
+  "labs": [
+    {
+      "title": "Convolution calculator",
+      "intro": "Type any image and filter, then set stride, padding and pooling. You'll see the feature map, ReLU and max-pool, plus the output-size formula.",
+      "tryThis": [
+        "Set stride 2: the output becomes 2 × 2 = [[3, −3], [−3, 0]].",
+        "Set padding 1: 'same' size for a 3×3 kernel.",
+        "Try the vertical-edge kernel `-1 0 1; -1 0 1; -1 0 1`.",
+        "Use the parameter counter for 5×5, Cᵢₙ = 3, 64 filters → 4,864."
+      ],
+      "widget": "conv-calc",
+      "config": {
+        "input": "1 0 0 0 0 1\n0 1 0 0 1 0\n0 0 1 1 0 0\n1 0 0 0 1 0\n0 1 0 0 1 0\n0 0 1 0 1 0",
+        "kernel": "1 -1 -1\n-1 1 -1\n-1 -1 1",
+        "stride": 1,
+        "padding": 0,
+        "pool": 2
+      }
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Why",
+      "front": "Three key principles of CNNs",
+      "back": "Local connectivity · parameter sharing · equivariance."
+    },
+    {
+      "tag": "Formula",
+      "front": "Conv output size",
+      "back": "⌊(n + 2p − k)/s⌋ + 1"
+    },
+    {
+      "tag": "Formula",
+      "front": "Same padding for stride 1",
+      "back": "p = (k − 1)/2"
+    },
+    {
+      "tag": "Formula",
+      "front": "Conv layer parameters",
+      "back": "(K·K·Cᵢₙ + 1)·Cₒᵤₜ"
+    },
+    {
+      "tag": "Fact",
+      "front": "Parameters in a pooling layer",
+      "back": "Zero."
+    },
+    {
+      "tag": "Fact",
+      "front": "Number of output channels",
+      "back": "= number of filters."
+    },
+    {
+      "tag": "Fact",
+      "front": "Filter depth",
+      "back": "= input depth (number of input channels)."
+    },
+    {
+      "tag": "Formula",
+      "front": "Dilated conv effective size",
+      "back": "k + (k − 1)(r − 1)"
+    },
+    {
+      "tag": "Formula",
+      "front": "Receptive field recursion",
+      "back": "RF_l = RF_{l−1} + (K_l − 1)·Π strides before l"
+    },
+    {
+      "tag": "Concept",
+      "front": "Strided vs dilated conv",
+      "back": "Stride downsamples; dilation enlarges the receptive field and keeps the size."
+    },
+    {
+      "tag": "Concept",
+      "front": "1×1 convolution",
+      "back": "Mixes channels at each pixel: reduces channels, adds non-linearity, saves compute."
+    },
+    {
+      "tag": "Concept",
+      "front": "Global average pooling",
+      "back": "One average per channel; replaces FC with no parameters."
+    },
+    {
+      "tag": "Concept",
+      "front": "Why stack 3×3 instead of 5×5?",
+      "back": "Same receptive field, fewer weights (18 vs 25), extra non-linearity."
+    },
+    {
+      "tag": "History",
+      "front": "AlexNet innovations",
+      "back": "ReLU, dropout, data augmentation, GPUs, LRN; ImageNet 2012."
+    },
+    {
+      "tag": "History",
+      "front": "VGG rule",
+      "back": "Only 3×3 conv (s 1, p 1) and 2×2 max-pool."
+    },
+    {
+      "tag": "History",
+      "front": "Inception idea",
+      "back": "Parallel 1×1/3×3/5×5/pool branches, concatenated; 1×1 bottlenecks."
+    },
+    {
+      "tag": "ResNet",
+      "front": "Residual block",
+      "back": "y = F(x) + x; learn the residual."
+    },
+    {
+      "tag": "ResNet",
+      "front": "Why do skip connections help?",
+      "back": "Gradient highway (1 + ∂F/∂x), easy identity, feature reuse."
+    },
+    {
+      "tag": "ResNet",
+      "front": "Degradation problem",
+      "back": "Deeper plain nets get HIGHER training error: an optimisation issue, not overfitting."
+    },
+    {
+      "tag": "Transfer",
+      "front": "Small dataset similar to ImageNet",
+      "back": "Feature extraction: freeze conv layers, train only the classifier."
+    },
+    {
+      "tag": "Transfer",
+      "front": "Medium dataset, somewhat similar",
+      "back": "Fine-tune the whole network with a low learning rate."
+    },
+    {
+      "tag": "Design",
+      "front": "Spatial vs channel trend with depth",
+      "back": "Spatial size shrinks, channels grow."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "numeric",
+      "q": "Input 32×32, kernel 5×5, stride 1, no padding. Output width?",
+      "answer": 28,
+      "tolerance": 0.01,
+      "explain": "(32 − 5)/1 + 1 = 28."
+    },
+    {
+      "type": "numeric",
+      "q": "Input 6×6, kernel 3×3, stride 2, no padding. Output width?",
+      "answer": 2,
+      "tolerance": 0.01,
+      "explain": "⌊3/2⌋ + 1 = 2."
+    },
+    {
+      "type": "numeric",
+      "q": "Input 28×28, kernel 3×3, padding 1, stride 1. Output width?",
+      "answer": 28,
+      "tolerance": 0.01,
+      "explain": "Same padding."
+    },
+    {
+      "type": "numeric",
+      "q": "Padding for 'same' output with a 5×5 kernel at stride 1?",
+      "answer": 2,
+      "tolerance": 0.01,
+      "explain": "(5 − 1)/2 = 2."
+    },
+    {
+      "type": "numeric",
+      "q": "Parameters: 3×3 filters on 64 input channels, 128 filters (with bias)?",
+      "answer": 73856,
+      "tolerance": 0.5,
+      "explain": "(576 + 1) × 128 = 73,856."
+    },
+    {
+      "type": "numeric",
+      "q": "Parameters of a 2×2 max-pool layer?",
+      "answer": 0,
+      "tolerance": 0.01,
+      "explain": "Pooling has none."
+    },
+    {
+      "type": "numeric",
+      "q": "Effective size of a 3×3 kernel with dilation 2?",
+      "answer": 5,
+      "tolerance": 0.01,
+      "explain": "3 + 2 × 1 = 5."
+    },
+    {
+      "type": "numeric",
+      "q": "Receptive field after three stacked 3×3 convs, stride 1?",
+      "answer": 7,
+      "tolerance": 0.01,
+      "explain": "3 → 5 → 7."
+    },
+    {
+      "type": "numeric",
+      "q": "Input 4×4 max-pooled with 2×2, stride 2. Output width?",
+      "answer": 2,
+      "tolerance": 0.01,
+      "explain": "(4 − 2)/2 + 1 = 2."
+    },
+    {
+      "type": "mcq",
+      "q": "The number of output feature maps of a conv layer equals…",
+      "options": [
+        "The kernel size",
+        "The number of filters",
+        "The input channels",
+        "The stride"
+      ],
+      "answer": 1,
+      "explain": "One map per filter."
+    },
+    {
+      "type": "mcq",
+      "q": "Which architecture introduced residual (skip) connections?",
+      "options": [
+        "AlexNet",
+        "VGG",
+        "GoogLeNet",
+        "ResNet"
+      ],
+      "answer": 3,
+      "explain": "He et al., 2015."
+    },
+    {
+      "type": "mcq",
+      "q": "A 1×1 convolution mainly…",
+      "options": [
+        "Detects edges",
+        "Mixes and reduces channels",
+        "Downsamples space",
+        "Adds padding"
+      ],
+      "answer": 1,
+      "explain": "Cross-channel weighted sum."
+    },
+    {
+      "type": "mcq",
+      "q": "A small medical dataset, similar to ImageNet. Best first step?",
+      "options": [
+        "Train from scratch",
+        "Freeze conv layers and train the classifier",
+        "Fine-tune with a high learning rate",
+        "Use a plain MLP"
+      ],
+      "answer": 1,
+      "explain": "Feature extraction."
+    },
+    {
+      "type": "mcq",
+      "q": "Why did a 56-layer plain net train worse than an 18-layer one?",
+      "options": [
+        "Overfitting",
+        "Optimisation difficulty (degradation)",
+        "Too little data",
+        "Bad activation"
+      ],
+      "answer": 1,
+      "explain": "Training error itself was higher."
+    },
+    {
+      "type": "mcq",
+      "q": "Which is NOT a key principle of CNNs?",
+      "options": [
+        "Parameter sharing",
+        "Local connectivity",
+        "Equivariance",
+        "Fully connected first layer"
+      ],
+      "answer": 3,
+      "explain": "The first layers are local, not fully connected."
+    },
+    {
+      "type": "numeric",
+      "q": "FC layer from 1,568 features to 10 classes: parameters?",
+      "answer": 15690,
+      "tolerance": 0.5,
+      "explain": "1,568 × 10 + 10."
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Convolution",
+      "formula": "(I ⋆ K)(i, j) = Σₘ Σₙ I(i + m, j + n)K(m, n) + b"
+    },
+    {
+      "name": "Output size",
+      "formula": "⌊(n + 2p − k)/s⌋ + 1",
+      "note": "same padding (s = 1): p = (k − 1)/2"
+    },
+    {
+      "name": "Conv parameters",
+      "formula": "(K·K·Cᵢₙ + 1)·Cₒᵤₜ;  pooling: 0"
+    },
+    {
+      "name": "Dense parameters",
+      "formula": "n_in·n_out + n_out"
+    },
+    {
+      "name": "Dilation",
+      "formula": "k_eff = k + (k − 1)(r − 1)"
+    },
+    {
+      "name": "Receptive field",
+      "formula": "RF_l = RF_{l−1} + (K_l − 1)·Π_{i<l} S_i"
+    },
+    {
+      "name": "Residual block",
+      "formula": "y = F(x) + x;  ∂L/∂x = ∂L/∂y (1 + ∂F/∂x)"
+    },
+    {
+      "name": "Bottleneck",
+      "formula": "1×1 reduce → 3×3 → 1×1 expand (≈ 8× fewer weights)"
+    },
+    {
+      "name": "Softmax",
+      "formula": "e^{zᵢ}/Σe^{zⱼ}"
+    }
+  ]
+}

@@ -13,13 +13,25 @@ An interactive, classroom-themed study site for my courses. Each chapter has:
 
 Your progress (stars, seen boards, known cards, best quiz score) is saved in your browser's `localStorage`.
 
-It is a plain static site: HTML, CSS and JavaScript with no build step and no dependencies. Content lives in `.js` files that hold plain JSON wrapped in `ClassroomContent( ... );`, so the site works when `index.html` is opened straight from disk, with no server.
+It is a plain static site: HTML, CSS and JavaScript with no build step and no dependencies. Content lives in JSON files.
 
 ---
 
 ## Run it locally
 
 Just open `index.html` in a browser. No server needed.
+
+All lesson JSON is packed into `content/content-bundle.js`, which the page loads with a normal
+`<script>` tag (browsers block `fetch()` for pages opened from `file://`, but allow scripts).
+**After adding or editing anything in `content/`, rebuild the bundle:**
+
+```bash
+cd classroom
+python3 build-content.py
+```
+
+On a real web host (GitHub Pages) the page fetches the live `.json` files first and only falls
+back to the bundle, so a stale bundle never hides new content online.
 
 ---
 
@@ -31,11 +43,12 @@ css/style.css              the whole classroom theme
 js/core/util.js            helpers (escaping, number formatting, storage)
 js/core/widgets.js         the lab/widget registry
 js/core/chalkplot.js       tiny chalk-style canvas plotter
+js/core/statmath.js        normal, t and chi-square pdf/cdf/inverse (for the stats labs)
 js/widgets/*.js            one file per interactive lab
 js/app.js                  router + every view (corridor, room, chapter tabs)
-content/catalog.js         semesters → courses → chapters (the table of contents)
-content/<sem>/<course>/*.js     one file per chapter
-content/_templates/chapter-template.js     copy this to start a new chapter
+content/catalog.json       semesters → courses → chapters (the table of contents)
+content/<sem>/<course>/*.json   one file per chapter
+content/_templates/chapter-template.json   copy this to start a new chapter
 ```
 
 ---
@@ -44,13 +57,13 @@ content/_templates/chapter-template.js     copy this to start a new chapter
 
 ### A new chapter
 
-1. Copy `content/_templates/chapter-template.js` to e.g. `content/sem1/aiml-zg511/ch04-classification.js` and fill it in. Keep the `ClassroomContent(` ... `);` wrapper; everything inside is ordinary JSON. Leave out any section you don't need (for example no `labs`) and its tab disappears.
-2. In `content/catalog.js`, point the chapter at the file and remove `"comingSoon"`:
+1. Copy `content/_templates/chapter-template.json` to e.g. `content/sem1/aiml-zg511/ch04-classification.json` and fill it in. Leave out any section you don't need (for example no `labs`) and its tab disappears.
+2. In `content/catalog.json`, point the chapter at the file and remove `"comingSoon"`:
 
 ```json
 { "id": "ch04", "number": 4, "title": "Linear Neural Networks for Classification",
   "blurb": "One neuron that answers \"which one\".",
-  "file": "content/sem1/aiml-zg511/ch04-classification.js" }
+  "file": "content/sem1/aiml-zg511/ch04-classification.json" }
 ```
 
 ### A new course
@@ -65,6 +78,17 @@ Add an object to a semester's `courses` array:
 ```
 
 `color` is the colour of the classroom door. Keep `id`s URL-safe (lowercase, dashes).
+
+### Past papers / other groups on the board
+
+Any chapter entry can carry `"group"` (e.g. `"Exam hall"`) and a `"label"` (e.g. `"Mid-sem · EC-2R"`) instead of a chapter number. Entries with the same group are pinned together on their own board, and `course.groupIntros` can hold a one-line note per group:
+
+```json
+{ "id": "p-ec2r-2026", "group": "Exam hall", "label": "Mid-sem · EC-2R",
+  "title": "Mid-Semester, Mar 2026", "file": "content/sem1/aiml-zg511/paper-ec2r-2026.json" }
+```
+
+A paper file is an ordinary chapter file that usually has only `lesson` (one "at a glance" board) and `worked` (one problem per question).
 
 ### A new semester
 
@@ -99,6 +123,15 @@ Quiz questions: `mcq` (`options`, `answer` = index of the right option) or `nume
 | `lr-bowl` | `c`, `wstar`, `w0`, `eta`, `steps` |
 | `metrics-calc` | `y`, `yhat` (comma-separated) |
 | `feature-scaling` | `columns`: `[{ "name", "values" }]` |
+| `perceptron` | `gate` (AND, OR, NAND, NOR, XOR, NOT), `eta`, `w` ("w0, w1, w2") |
+| `softmax-calc` | `z`, `y` (sigmoid panel); `logits`, `cls` (softmax panel, 1-based class) |
+| `mlp-calc` | `x`, `y`, `W1`, `b1`, `W2`, `b2` (rows separated by `;`), `hidden` (relu/sigmoid/tanh), `output` (sigmoid/softmax/identity), `lr` |
+| `conv-calc` | `input`, `kernel` (rows by new line or `;`), `stride`, `padding`, `bias`, `pool` |
+| `rnn-step` | `Whx`, `Whh`, `b`, `xs` (one input per `;`), optional `Who` |
+| `attention-calc` | `Q`, `K`, `V` (rows by `;`), `scale` (true/false), `mask` (causal, true/false) |
+| `optimizer-race` | `a`, `b` (bowl L = a·w1² + b·w2²), `w` ("4, 2"), `eta`, `beta`, `gamma`, `beta2`, `steps`, `opt` (gd/momentum/adagrad/rmsprop/adam) |
+| `htest-calc` | `kind` (`mean`, `prop`, `mean2`, `prop2`, `paired`), `tail` (`right`, `left`, `two`), `alpha`, plus the inputs for that kind (`xbar, mu0, s, n, dist` · `x, n, p0` · `x1, s1, n1, x2, s2, n2, dist` · `x1, n1, x2, n2, pooled` · `pairs`) |
+| `chisq-calc` | `mode` (`independence` or `gof`), `alpha`; `table` (rows by `;`) or `observed`, `expected` / `probs`, `params` |
 
 ### A new lab
 

@@ -1,0 +1,250 @@
+{
+  "id": "p-ms-reg-2023",
+  "title": "EC-2 Regular · Mid-Semester · 2023-24",
+  "subtitle": "AIMLCZG511 cluster · I semester 2023-24 · closed book · 30 marks",
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "An older paper, useful for derivations and computational graphs.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Marks",
+            "Revise in"
+          ],
+          "rows": [
+            [
+              "1",
+              "Perceptron weights for NOR",
+              "5",
+              "Ch 2"
+            ],
+            [
+              "2",
+              "MLP for a Boolean expression; depth and width",
+              "5",
+              "Ch 2, Ch 5"
+            ],
+            [
+              "3",
+              "XOR of 6 inputs: layers and perceptrons",
+              "5",
+              "Ch 5"
+            ],
+            [
+              "4",
+              "Derive ∂BCE/∂z",
+              "5",
+              "Ch 4, Ch 5"
+            ],
+            [
+              "5",
+              "Computational graph of ReLU(ax + by + c)",
+              "5",
+              "Ch 5"
+            ],
+            [
+              "6",
+              "Learning-rate bounds on an error surface",
+              "5",
+              "Ch 3, Ch 10"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "How to use this paper",
+          "text": "Open **Worked problems** and try each question on paper before revealing the steps. Where the official answer key has a mistake, the solution says so and shows the correct working."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · Perceptron for y = NOR(x₁, x₂)",
+      "tags": [
+        "Ch 2"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Truth table: (0,0) → 1, (1,0) → 0, (0,1) → 0, (1,1) → 0. Find weights and threshold."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Answer key's way",
+          "text": "Recode 0 → −1 (bipolar). Conditions: w₀ − w₁ − w₂ > 0, w₀ + w₁ − w₂ < 0, w₀ − w₁ + w₂ < 0, w₀ + w₁ + w₂ < 0. Adding pairs gives w₀ < 0, w₁ < 0, w₂ < 0 → **w₀ = w₁ = w₂ = −1**."
+        },
+        {
+          "label": "0/1 version",
+          "text": "With f(z) = 1 if z ≥ 0: w₀ ≥ 0, w₀ + w₁ < 0, w₀ + w₂ < 0 → e.g. **w₀ = 0.5, w₁ = w₂ = −1** (threshold −0.5 on Σwᵢxᵢ)."
+        },
+        {
+          "label": "Check",
+          "text": "(0,0): 0.5 → 1; (1,0): −0.5 → 0; (1,1): −1.5 → 0 ✓"
+        }
+      ],
+      "answer": "NOR: e.g. (bias, w₁, w₂) = (0.5, −1, −1) for 0/1 inputs."
+    },
+    {
+      "title": "Q2 · MLP for a Boolean function",
+      "tags": [
+        "Ch 2",
+        "Ch 5"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Rows with Y = 1: ABCD = 1010, 1110, 1001, 1011, 1000. Build an MLP and give its depth and width."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Expression",
+          "text": "Y = AB̄CD̄ + ABCD̄ + AB̄C̄D + AB̄CD + AB̄C̄D̄ (sum of products)"
+        },
+        {
+          "label": "Layer 1",
+          "text": "One perceptron per product term (an AND of literals, with negative weights for complemented inputs)."
+        },
+        {
+          "label": "Layer 2",
+          "text": "One OR perceptron over the 5 hidden units."
+        },
+        {
+          "label": "Size",
+          "text": "Depth = **2**, width = **5**."
+        },
+        {
+          "label": "Note",
+          "text": "It simplifies to Y = A·(B̄ + CD̄), so a smaller network also works; the key expects the canonical one."
+        }
+      ],
+      "answer": "Depth 2, width 5."
+    },
+    {
+      "title": "Q3 · XOR of 6 inputs",
+      "tags": [
+        "Ch 5"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Find the layers and perceptrons for an MLP computing XOR of 6 inputs, and the count if only one hidden layer is allowed."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Building block",
+          "text": "A 2-input XOR needs 3 perceptrons (two hidden + one output)."
+        },
+        {
+          "label": "Tree",
+          "text": "Combine pairwise: 6 − 1 = 5 XORs → 3 × 5 = **15 perceptrons**."
+        },
+        {
+          "label": "Depth",
+          "text": "A balanced tree has ⌈log₂ 6⌉ = 3 XOR levels × 2 layers = **6 layers**."
+        },
+        {
+          "label": "One hidden layer",
+          "text": "Sum-of-products form: one unit per odd-parity pattern, 2^{n−1} = **32** hidden units (+1 output)."
+        }
+      ],
+      "answer": "15 perceptrons in 6 layers; 32 hidden units if shallow (the key's figures). It shows why depth is efficient."
+    },
+    {
+      "title": "Q4 · Derive ∂L/∂z for BCE with sigmoid",
+      "tags": [
+        "Ch 4",
+        "derivation"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A = σ(Z), L = −[Y log A + (1 − Y) log(1 − A)]."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Chain",
+          "text": "∂L/∂Z = ∂L/∂A · ∂A/∂Z"
+        },
+        {
+          "label": "∂L/∂A",
+          "text": "−Y/A + (1 − Y)/(1 − A)"
+        },
+        {
+          "label": "∂A/∂Z",
+          "text": "A(1 − A)"
+        },
+        {
+          "label": "Multiply",
+          "text": "[−Y(1 − A) + (1 − Y)A] = A − Y"
+        }
+      ],
+      "answer": "∂L/∂Z = A − Y."
+    },
+    {
+      "title": "Q5 · Computational graph of ReLU(ax + by + c)",
+      "tags": [
+        "Ch 5",
+        "graphs"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "a = 3, b = 2, c = −5, x = 2, y = 3."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Forward",
+          "text": "p = ax = 6; q = by = 6; r = p + q = 12; s = r + c = 7; f = ReLU(7) = **7**"
+        },
+        {
+          "label": "Local derivatives",
+          "text": "∂f/∂s = 1 (s > 0); ∂s/∂r = ∂s/∂c = 1; ∂r/∂p = ∂r/∂q = 1; ∂p/∂a = x; ∂q/∂b = y"
+        },
+        {
+          "label": "Backward",
+          "text": "∂f/∂c = **1**; ∂f/∂a = x = **2**; ∂f/∂b = y = **3**"
+        }
+      ],
+      "answer": "f = 7; ∂f/∂a = 2, ∂f/∂b = 3, ∂f/∂c = 1. (If s ≤ 0, every gradient would be 0.)"
+    },
+    {
+      "title": "Q6 · Learning-rate bounds on E(p, q, r) = 3p³ + 3q² + 4r + 5",
+      "tags": [
+        "Ch 3",
+        "Ch 10",
+        "key check"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Find the optimal learning rate, the largest that converges, and the smallest that diverges."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Rule",
+          "text": "On a quadratic direction with curvature c: η_opt = 1/c (one step), converge if η < 2/c, diverge if η > 2/c. Take the tightest (largest c) over the directions."
+        },
+        {
+          "label": "Answer key",
+          "text": "Uses ∂E/∂p = 9p, ∂E/∂q = 6q, ∂E/∂r = 4 → η = 1/9, 1/6, 1/4 → η_opt = **1/9**, largest converging **2/9**, divergence for η > **2/9 ≈ 0.22**."
+        },
+        {
+          "label": "Check",
+          "text": "As printed, ∂E/∂p = 9p² (cubic term) and r is linear (no curvature, no minimum), so the question is only consistent if the p-term was meant as quadratic (e.g. 4.5p²). Write the key's method and state that assumption."
+        }
+      ],
+      "answer": "Key: η_opt = 1/9, η_max = 2/9 ≈ 0.22. Note the inconsistency in the printed surface."
+    }
+  ]
+}

@@ -1,0 +1,907 @@
+{
+  "id": "ch07",
+  "title": "Recurrent Neural Networks",
+  "subtitle": "Contact session 7 · T1 Chapters 9–10 · sequence models, RNNs, BPTT, vanishing gradients, bidirectional and deep RNNs, GRU and LSTM",
+  "lesson": [
+    {
+      "title": "Why sequence models?",
+      "lead": "In sequences **order matters** and context can come from far back.",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "Examples: language (\"The cat sat on the ___\"), stock prices and weather, speech, video, DNA.",
+            "Feed-forward networks fail here: fixed input size, no memory, and no parameter sharing across positions."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Dependency",
+            "Example"
+          ],
+          "rows": [
+            [
+              "Short-term",
+              "\"The clouds are in the ___\" → sky"
+            ],
+            [
+              "Long-term",
+              "\"I grew up in France … I speak fluent ___\" → French (needs words far back)"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Key challenge",
+          "text": "The model must learn what to **remember** and what to **forget**, for sequences of any length."
+        }
+      ]
+    },
+    {
+      "title": "Autoregressive, Markov and latent models",
+      "lead": "Three ways to model P(x₁, …, x_T). The **latent** (hidden-state) idea becomes the RNN.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "P(x₁, …, x_T) = Πₜ P(xₜ | x₁, …, xₜ₋₁)",
+          "caption": "autoregressive: each value depends on all previous ones; the history keeps growing"
+        },
+        {
+          "type": "formula",
+          "text": "k-th order Markov:  P(xₜ | x₁…xₜ₋₁) ≈ P(xₜ | xₜ₋ₖ, …, xₜ₋₁)",
+          "caption": "fixed window: tractable, but forgets long-range context (bigram k = 1, trigram k = 2)"
+        },
+        {
+          "type": "formula",
+          "text": "Latent variable:  hₜ = f(xₜ, hₜ₋₁),   P(xₜ | x₁…xₜ₋₁) ≈ P(xₜ | hₜ)",
+          "caption": "a fixed-size summary of the whole history, updated each step"
+        },
+        {
+          "type": "p",
+          "text": "Temperature example: Tₜ₊₁ = 0.8·Tₜ + 4. After 21 °C it predicts 0.8·21 + 4 = **20.8 °C**, then 0.8·20.8 + 4 = **20.64 °C**. Errors accumulate over multi-step forecasts, and the model only sees yesterday. A hidden state can encode the whole trend (warming then cooling)."
+        }
+      ]
+    },
+    {
+      "title": "The vanilla RNN",
+      "lead": "Process one step at a time, carrying a **hidden state**, with the **same weights at every step**.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "hₜ = φ(W_hh hₜ₋₁ + W_hx xₜ + b_h)          oₜ = W_ho hₜ + b_o          P(xₜ₊₁) = softmax(oₜ)",
+          "caption": "φ is usually tanh; h₀ = 0 (or learned)"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Weight",
+            "Shape",
+            "Role"
+          ],
+          "rows": [
+            [
+              "W_hx",
+              "h × d",
+              "input → hidden"
+            ],
+            [
+              "W_hh",
+              "h × h",
+              "hidden → hidden (the recurrence)"
+            ],
+            [
+              "W_ho",
+              "V × h",
+              "hidden → output"
+            ],
+            [
+              "b_h, b_o",
+              "h, V",
+              "biases"
+            ]
+          ]
+        },
+        {
+          "type": "list",
+          "items": [
+            "Parameter sharing: a fixed number of parameters for any sequence length, and patterns learned at one position transfer to others.",
+            "Unrolling: draw one copy per time step; every copy shares the same W_hx, W_hh, W_ho."
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "parameters = hd + h² + h + Vh + V = h(d + h + V + 1) + V",
+          "caption": "d = 100, h = 256, V = 10,000 → 2,661,392"
+        },
+        {
+          "type": "widget",
+          "widget": "rnn-step",
+          "config": {
+            "Whx": "0.5 0.3; 0.2 0.4",
+            "Whh": "0.1 0.2; 0.3 0.1",
+            "b": "0, 0",
+            "xs": "1, 0; 0, 1; 1, 1"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Training: BPTT",
+      "lead": "**Backpropagation through time**: unroll the network, backprop as usual, and **sum** each shared weight's gradient over time.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "L = Σₜ ℓₜ,   ℓₜ = −log P(xₜ | x₁…xₜ₋₁)   (cross-entropy per step)",
+          "caption": "maximise likelihood = minimise negative log-likelihood; report the average per token"
+        },
+        {
+          "type": "formula",
+          "text": "∂L/∂hₜ = ∂ℓₜ/∂hₜ + (∂L/∂hₜ₊₁)(∂hₜ₊₁/∂hₜ),   ∂hₜ₊₁/∂hₜ = diag(1 − hₜ₊₁²) W_hh"
+        },
+        {
+          "type": "formula",
+          "text": "∂L/∂W_hh = Σₜ δₜ hₜ₋₁ᵀ,   ∂L/∂W_hx = Σₜ δₜ xₜᵀ,   ∂L/∂W_ho = Σₜ (∂ℓₜ/∂oₜ) hₜᵀ",
+          "caption": "δₜ = (∂L/∂hₜ) ⊙ (1 − hₜ²) for tanh"
+        },
+        {
+          "type": "p",
+          "text": "Output gradient with softmax + CE: ∂ℓₜ/∂oₜ = softmax(oₜ) − yₜ."
+        }
+      ]
+    },
+    {
+      "title": "Vanishing and exploding gradients",
+      "lead": "BPTT multiplies the same Jacobian again and again, so gradients shrink or blow up **exponentially** in sequence length.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "∂L/∂h₁ = ∂L/∂h_T · Πₜ diag(φ′(zₜ)) W_hh"
+        },
+        {
+          "type": "list",
+          "items": [
+            "If ‖W_hh‖ < 1 and |φ′| < 1 (tanh): **vanishes**. If ‖W_hh‖ > 1: **explodes**."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Steps back",
+            "(0.8 × 0.5)ᵏ"
+          ],
+          "rows": [
+            [
+              "5",
+              "0.4⁵ = 0.0102"
+            ],
+            [
+              "10",
+              "0.4¹⁰ ≈ 0.0001"
+            ],
+            [
+              "20",
+              "0.4²⁰ ≈ 10⁻⁸"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Effect: early steps get almost no learning signal, so long-range patterns (\"France … French\", yearly seasonality) aren't learned."
+        },
+        {
+          "type": "note",
+          "label": "Solutions",
+          "text": "Fixes: **LSTM / GRU** gates, careful initialisation, skip connections; **gradient clipping** for exploding gradients."
+        }
+      ]
+    },
+    {
+      "title": "Bidirectional and deep RNNs",
+      "lead": "Bidirectional RNNs read **both directions**; deep RNNs **stack** recurrent layers.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "h→ₜ = φ(W→ h→ₜ₋₁ + …),   h←ₜ = φ(W← h←ₜ₊₁ + …),   hₜ = [h→ₜ ; h←ₜ],   oₜ = W_ho hₜ + b_o"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Use bidirectional",
+            "Don't"
+          ],
+          "rows": [
+            [
+              "Whole sequence available: text classification, named-entity recognition (\"I met Paris in Paris\"), translation encoders",
+              "Real-time / streaming, language modelling, forecasting (the future can't be used)"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Bi-RNN parameters double the recurrent part, and the output layer sees 2h features. Example: d = 100, h = 128 each way, V = 10,000 → 29,312 + 29,312 + (10,000 × 256 + 10,000) = **2,628,624**."
+        },
+        {
+          "type": "h",
+          "text": "Deep (stacked) RNNs"
+        },
+        {
+          "type": "formula",
+          "text": "hₜ⁽ℓ⁾ = φ(W_hh⁽ℓ⁾ hₜ₋₁⁽ℓ⁾ + W_hx⁽ℓ⁾ hₜ⁽ℓ⁻¹⁾ + b⁽ℓ⁾),   hₜ⁽⁰⁾ = xₜ"
+        },
+        {
+          "type": "p",
+          "text": "Lower layers learn simple patterns (characters, phonemes, short trends); higher layers learn abstract ones. Gradients vanish through **both** time and depth, so use 2–4 layers with LSTM/GRU, residual connections and layer norm."
+        }
+      ]
+    },
+    {
+      "title": "GRU: gated recurrent unit",
+      "lead": "Two sigmoid **gates** decide what to reset and how much to update.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "rₜ = σ(W_r xₜ + U_r hₜ₋₁ + b_r)          zₜ = σ(W_z xₜ + U_z hₜ₋₁ + b_z)"
+        },
+        {
+          "type": "formula",
+          "text": "h̃ₜ = tanh(W_h xₜ + U_h (rₜ ⊙ hₜ₋₁) + b_h)          hₜ = zₜ ⊙ hₜ₋₁ + (1 − zₜ) ⊙ h̃ₜ"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Gate",
+            "≈ 0",
+            "≈ 1"
+          ],
+          "rows": [
+            [
+              "Reset r",
+              "Ignore the past when forming the candidate (new topic)",
+              "Use all the past"
+            ],
+            [
+              "Update z (this deck)",
+              "Take the new candidate h̃",
+              "Keep the old state hₜ₋₁"
+            ]
+          ]
+        },
+        {
+          "type": "trap",
+          "label": "Convention",
+          "text": "This deck's convention: hₜ = z ⊙ hₜ₋₁ + (1 − z) ⊙ h̃, so z = 1 means **keep the old state**. D2L uses the same convention; some sources swap it. Read the equation given in the question."
+        },
+        {
+          "type": "p",
+          "text": "Why it helps: ∂hₜ/∂hₜ₋₁ contains the term zₜ, a direct additive path with no weight matrix or activation derivative, like a residual connection."
+        },
+        {
+          "type": "formula",
+          "text": "GRU parameters = 3(hd + h² + h) + Vh + V",
+          "caption": "d = 100, h = 256 → 274,176 before the output layer"
+        }
+      ]
+    },
+    {
+      "title": "LSTM: long short-term memory",
+      "lead": "LSTM keeps a separate **cell state cₜ** (long-term memory) controlled by three gates.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "fₜ = σ(W_f xₜ + U_f hₜ₋₁ + b_f)    iₜ = σ(W_i xₜ + U_i hₜ₋₁ + b_i)    oₜ = σ(W_o xₜ + U_o hₜ₋₁ + b_o)"
+        },
+        {
+          "type": "formula",
+          "text": "c̃ₜ = tanh(W_c xₜ + U_c hₜ₋₁ + b_c)    cₜ = fₜ ⊙ cₜ₋₁ + iₜ ⊙ c̃ₜ    hₜ = oₜ ⊙ tanh(cₜ)"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Gate",
+            "Decides"
+          ],
+          "rows": [
+            [
+              "Forget f",
+              "What to erase from the cell state"
+            ],
+            [
+              "Input i",
+              "How much of the candidate c̃ to write"
+            ],
+            [
+              "Output o",
+              "What part of the cell to expose as hₜ"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "**Why it solves vanishing gradients:** ∂cₜ/∂cₜ₋₁ = fₜ. With the forget gate open (f ≈ 1), the gradient flows along the cell \"highway\" with no weight multiplication."
+        },
+        {
+          "type": "formula",
+          "text": "LSTM parameters = 4(hd + h² + h) + Vh + V",
+          "caption": "d = 100, h = 256 → 365,568 before the output layer"
+        },
+        {
+          "type": "table",
+          "head": [
+            "",
+            "GRU",
+            "LSTM"
+          ],
+          "rows": [
+            [
+              "Gates",
+              "2 (reset, update)",
+              "3 (forget, input, output)"
+            ],
+            [
+              "States",
+              "1 (h)",
+              "2 (c and h)"
+            ],
+            [
+              "Parameters",
+              "3(hd + h² + h): about 25% fewer",
+              "4(hd + h² + h)"
+            ],
+            [
+              "Speed / memory",
+              "Faster, lighter",
+              "Slower, heavier"
+            ],
+            [
+              "Best for",
+              "Smaller data, shorter sequences (50–100 steps)",
+              "Long sequences (100+), more data"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Time-series forecasting",
+      "lead": "RNNs learn temporal patterns, trends and seasonality straight from the data.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Setup",
+            "Meaning",
+            "Example"
+          ],
+          "rows": [
+            [
+              "Univariate input",
+              "One variable over time",
+              "Daily temperature"
+            ],
+            [
+              "Multivariate input",
+              "Several variables per step",
+              "[temp, humidity, pressure]"
+            ],
+            [
+              "Many-to-one",
+              "Predict the next step",
+              "Tomorrow's temperature"
+            ],
+            [
+              "Many-to-many",
+              "Predict several future steps",
+              "Next 7 days"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Deck example: 7 days of [temp, humidity, pressure] → LSTM (h = 64) → ŷ = W_o h₇ + b_o, **multivariate in, univariate out**, MSE loss. Evaluate with MSE, RMSE (same units as y) and MAE (robust to outliers)."
+        },
+        {
+          "type": "p",
+          "text": "Applications: finance, weather, energy demand, patient vital signs, IoT sensor anomaly detection."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "RNN forward pass over three steps",
+      "tags": [
+        "forward",
+        "tanh"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "W_hx = [[0.5, 0.3], [0.2, 0.4]], W_hh = [[0.1, 0.2], [0.3, 0.1]], b = 0, h₀ = 0, φ = tanh. Inputs x₁ = (1, 0), x₂ = (0, 1), x₃ = (1, 1)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "t = 1",
+          "text": "z₁ = W_hx x₁ = (0.5, 0.2) → h₁ = tanh = (0.462, 0.197)"
+        },
+        {
+          "label": "t = 2",
+          "text": "W_hh h₁ = (0.086, 0.158); W_hx x₂ = (0.3, 0.4) → z₂ = (0.386, 0.558) → h₂ = (0.368, 0.507)"
+        },
+        {
+          "label": "t = 3",
+          "text": "W_hh h₂ = (0.138, 0.161); W_hx x₃ = (0.8, 0.6) → z₃ = (0.938, 0.761) → h₃ = (0.734, 0.642)"
+        }
+      ],
+      "answer": "h₃ = (0.734, 0.642). The same two matrices were used at every step. Check it in the Lab bench."
+    },
+    {
+      "title": "Parameter counts: RNN vs GRU vs LSTM",
+      "tags": [
+        "parameters"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "d = 100 input features, h = 256 hidden units, V = 10,000 outputs. Count the parameters of each."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Core block",
+          "text": "hd + h² + h = 25,600 + 65,536 + 256 = 91,392"
+        },
+        {
+          "label": "Output layer",
+          "text": "Vh + V = 2,560,000 + 10,000 = 2,570,000"
+        },
+        {
+          "label": "RNN",
+          "text": "91,392 + 2,570,000 = **2,661,392**"
+        },
+        {
+          "label": "GRU",
+          "text": "3 × 91,392 = 274,176 (+ output = 2,844,176)"
+        },
+        {
+          "label": "LSTM",
+          "text": "4 × 91,392 = 365,568 (+ output = 2,935,568)"
+        }
+      ],
+      "answer": "RNN 2,661,392 · GRU core 274,176 · LSTM core 365,568. The output layer dominates when V is large."
+    },
+    {
+      "title": "Bidirectional RNN parameters",
+      "tags": [
+        "parameters",
+        "bidirectional"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "d = 100, h_f = h_b = 128, V = 10,000."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Forward RNN",
+          "text": "128·100 + 128² + 128 = 29,312"
+        },
+        {
+          "label": "Backward RNN",
+          "text": "29,312"
+        },
+        {
+          "label": "Output",
+          "text": "10,000 × (128 + 128) + 10,000 = 2,570,000"
+        }
+      ],
+      "answer": "2,628,624 parameters."
+    },
+    {
+      "title": "How fast gradients vanish",
+      "tags": [
+        "vanishing gradient"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "λ_max(W_hh) = 0.8 and |tanh′| ≈ 0.5 at each step. What fraction of the gradient survives 5, 10 and 20 steps back?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Per step",
+          "text": "0.8 × 0.5 = 0.4"
+        },
+        {
+          "label": "5",
+          "text": "0.4⁵ = 0.0102"
+        },
+        {
+          "label": "10",
+          "text": "0.4¹⁰ ≈ 1.0 × 10⁻⁴"
+        },
+        {
+          "label": "20",
+          "text": "0.4²⁰ ≈ 1.1 × 10⁻⁸"
+        }
+      ],
+      "answer": "About 1%, 0.01% and 10⁻⁸: long-range dependencies can't be learned by a vanilla RNN."
+    },
+    {
+      "title": "One GRU step (scalar)",
+      "tags": [
+        "GRU"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Scalar GRU, x = 1, hₜ₋₁ = 0.5, biases 0. r = σ(0.5x + 0.5h), z = σ(1.0x − 1.0h), h̃ = tanh(0.8x + 0.6(r·h)), hₜ = z·hₜ₋₁ + (1 − z)·h̃."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Reset",
+          "text": "r = σ(0.75) = 0.679"
+        },
+        {
+          "label": "Update",
+          "text": "z = σ(0.5) = 0.622"
+        },
+        {
+          "label": "Gated past",
+          "text": "r·h = 0.340"
+        },
+        {
+          "label": "Candidate",
+          "text": "h̃ = tanh(0.8 + 0.204) = tanh(1.004) = 0.763"
+        },
+        {
+          "label": "New h",
+          "text": "0.622·0.5 + 0.378·0.763 = 0.599"
+        }
+      ],
+      "answer": "hₜ = 0.599: about 62% old state and 38% new candidate."
+    },
+    {
+      "title": "One LSTM step (scalar)",
+      "tags": [
+        "LSTM"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x = 1, hₜ₋₁ = 0.5, cₜ₋₁ = 0.8, biases 0. f = σ(0.6x + 0.4h), i = σ(0.5x − 0.5h), o = σ(0.4x + 0.2h), c̃ = tanh(1.0x + 0.5h)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Gates",
+          "text": "f = σ(0.8) = 0.690, i = σ(0.25) = 0.562, o = σ(0.5) = 0.622"
+        },
+        {
+          "label": "Candidate",
+          "text": "c̃ = tanh(1.25) = 0.848"
+        },
+        {
+          "label": "Cell",
+          "text": "c = 0.690·0.8 + 0.562·0.848 = 0.552 + 0.477 = 1.029"
+        },
+        {
+          "label": "Hidden",
+          "text": "h = 0.622·tanh(1.029) = 0.622·0.774 = 0.481"
+        }
+      ],
+      "answer": "cₜ = 1.029, hₜ = 0.481. The cell can grow past 1; h is squashed by tanh and gated by o."
+    },
+    {
+      "title": "Autoregressive temperature forecast",
+      "tags": [
+        "time series"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Observed 20, 22, 25, 24, 21 °C. Model Tₜ₊₁ = 0.8Tₜ + 4. Predict days 6 and 7."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Day 6",
+          "text": "0.8 × 21 + 4 = 20.8 °C"
+        },
+        {
+          "label": "Day 7",
+          "text": "Uses the prediction: 0.8 × 20.8 + 4 = 20.64 °C"
+        }
+      ],
+      "answer": "20.8 °C, then 20.64 °C. First-order models only see yesterday and their errors accumulate. A hidden state captures the trend."
+    }
+  ],
+  "labs": [
+    {
+      "title": "RNN step-through and parameter counter",
+      "intro": "Enter W_hx, W_hh and a sequence. Every hidden state is computed with tanh, and the counter compares RNN, GRU, LSTM and bidirectional sizes.",
+      "tryThis": [
+        "Scale W_hh up (e.g. 2 0; 0 2) and watch the states saturate near ±1.",
+        "Add an output matrix W_ho to see oₜ.",
+        "In the counter set V = 10,000 to reproduce the deck's 2,661,392."
+      ],
+      "widget": "rnn-step",
+      "config": {
+        "Whx": "0.5 0.3; 0.2 0.4",
+        "Whh": "0.1 0.2; 0.3 0.1",
+        "b": "0, 0",
+        "xs": "1, 0; 0, 1; 1, 1"
+      }
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Why",
+      "front": "Why can't feed-forward nets handle sequences?",
+      "back": "Fixed input size, no memory, no parameter sharing across positions."
+    },
+    {
+      "tag": "Models",
+      "front": "Markov assumption",
+      "back": "Only the last k steps matter: tractable but forgets long-range context."
+    },
+    {
+      "tag": "Models",
+      "front": "Latent variable model",
+      "back": "hₜ = f(xₜ, hₜ₋₁): a fixed-size summary of the whole history."
+    },
+    {
+      "tag": "RNN",
+      "front": "RNN hidden update",
+      "back": "hₜ = tanh(W_hh hₜ₋₁ + W_hx xₜ + b_h)"
+    },
+    {
+      "tag": "RNN",
+      "front": "Why share parameters across time?",
+      "back": "Fixed parameter count for any length; patterns transfer between positions."
+    },
+    {
+      "tag": "RNN",
+      "front": "RNN parameter count",
+      "back": "hd + h² + h + Vh + V"
+    },
+    {
+      "tag": "BPTT",
+      "front": "What is BPTT?",
+      "back": "Unroll in time, backprop, and sum the shared weights' gradients over all steps."
+    },
+    {
+      "tag": "BPTT",
+      "front": "Jacobian between hidden states (tanh)",
+      "back": "∂hₜ₊₁/∂hₜ = diag(1 − hₜ₊₁²)W_hh"
+    },
+    {
+      "tag": "Gradients",
+      "front": "Why do RNN gradients vanish?",
+      "back": "Repeated products of W_hh and φ′ < 1 shrink exponentially."
+    },
+    {
+      "tag": "Gradients",
+      "front": "Fix for exploding gradients",
+      "back": "Gradient clipping."
+    },
+    {
+      "tag": "BiRNN",
+      "front": "When NOT to use a bidirectional RNN",
+      "back": "Real-time/streaming, language modelling, forecasting."
+    },
+    {
+      "tag": "Deep RNN",
+      "front": "Typical depth of stacked RNNs",
+      "back": "2–4 layers."
+    },
+    {
+      "tag": "GRU",
+      "front": "GRU gates",
+      "back": "Reset r (how much past goes into the candidate) and update z (keep old vs take new)."
+    },
+    {
+      "tag": "GRU",
+      "front": "GRU final state (deck)",
+      "back": "hₜ = z ⊙ hₜ₋₁ + (1 − z) ⊙ h̃ₜ"
+    },
+    {
+      "tag": "LSTM",
+      "front": "LSTM gates",
+      "back": "Forget f, input i, output o."
+    },
+    {
+      "tag": "LSTM",
+      "front": "Cell update",
+      "back": "cₜ = f ⊙ cₜ₋₁ + i ⊙ c̃ₜ;  hₜ = o ⊙ tanh(cₜ)"
+    },
+    {
+      "tag": "LSTM",
+      "front": "Why LSTM fixes vanishing gradients",
+      "back": "∂cₜ/∂cₜ₋₁ = fₜ: an additive highway with no weight multiplication."
+    },
+    {
+      "tag": "Compare",
+      "front": "GRU vs LSTM parameters",
+      "back": "3(hd + h² + h) vs 4(hd + h² + h)."
+    },
+    {
+      "tag": "Compare",
+      "front": "When to choose GRU",
+      "back": "Smaller data, shorter sequences, faster training."
+    },
+    {
+      "tag": "Time series",
+      "front": "Many-to-one vs many-to-many",
+      "back": "Predict one next value vs several future values."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "numeric",
+      "q": "RNN with d = 2, h = 3, no output layer. Parameters (W_hx, W_hh, b_h)?",
+      "answer": 18,
+      "tolerance": 0.01,
+      "explain": "3·2 + 3² + 3 = 18."
+    },
+    {
+      "type": "numeric",
+      "q": "Same RNN plus an output layer with V = 2. Total parameters?",
+      "answer": 26,
+      "tolerance": 0.01,
+      "explain": "18 + 2·3 + 2 = 26."
+    },
+    {
+      "type": "numeric",
+      "q": "LSTM with d = 10, h = 20 (no output layer). Parameters?",
+      "answer": 2480,
+      "tolerance": 0.5,
+      "explain": "4(200 + 400 + 20) = 2,480."
+    },
+    {
+      "type": "numeric",
+      "q": "GRU with d = 10, h = 20 (no output layer). Parameters?",
+      "answer": 1860,
+      "tolerance": 0.5,
+      "explain": "3 × 620 = 1,860."
+    },
+    {
+      "type": "numeric",
+      "q": "h₁ = tanh(0.5) = ?",
+      "answer": 0.462,
+      "tolerance": 0.002,
+      "explain": "tanh 0.5 = 0.4621."
+    },
+    {
+      "type": "numeric",
+      "q": "Per-step gradient factor 0.4. Fraction left after 5 steps?",
+      "answer": 0.01024,
+      "tolerance": 0.0002,
+      "explain": "0.4⁵."
+    },
+    {
+      "type": "numeric",
+      "q": "AR model Tₜ₊₁ = 0.8Tₜ + 4 with Tₜ = 25. Prediction?",
+      "answer": 24,
+      "tolerance": 0.01,
+      "explain": "20 + 4."
+    },
+    {
+      "type": "mcq",
+      "q": "BPTT computes the gradient of a shared weight as…",
+      "options": [
+        "The gradient at the last step only",
+        "The sum over all time steps",
+        "The average of the first and last step",
+        "Zero"
+      ],
+      "answer": 1,
+      "explain": "Shared parameters accumulate gradients from every step."
+    },
+    {
+      "type": "mcq",
+      "q": "Which RNN variant has a separate cell state?",
+      "options": [
+        "Vanilla RNN",
+        "GRU",
+        "LSTM",
+        "Bidirectional RNN"
+      ],
+      "answer": 2,
+      "explain": "LSTM keeps cₜ alongside hₜ."
+    },
+    {
+      "type": "mcq",
+      "q": "In the deck's GRU, z ≈ 1 means…",
+      "options": [
+        "Take the new candidate",
+        "Keep the old hidden state",
+        "Reset the memory",
+        "Output zero"
+      ],
+      "answer": 1,
+      "explain": "hₜ = z·hₜ₋₁ + (1 − z)·h̃."
+    },
+    {
+      "type": "mcq",
+      "q": "A real-time speech recogniser that must output as audio arrives should NOT use…",
+      "options": [
+        "LSTM",
+        "GRU",
+        "Bidirectional RNN",
+        "Stacked RNN"
+      ],
+      "answer": 2,
+      "explain": "It needs future inputs."
+    },
+    {
+      "type": "mcq",
+      "q": "The main fix for exploding gradients in RNNs is…",
+      "options": [
+        "Dropout",
+        "Gradient clipping",
+        "Max pooling",
+        "Softmax"
+      ],
+      "answer": 1,
+      "explain": "Rescale gradients above a threshold."
+    },
+    {
+      "type": "mcq",
+      "q": "The LSTM forget gate f ≈ 1 means…",
+      "options": [
+        "Erase the memory",
+        "Keep the cell memory",
+        "Output everything",
+        "Ignore the input"
+      ],
+      "answer": 1,
+      "explain": "cₜ = f·cₜ₋₁ + …"
+    },
+    {
+      "type": "numeric",
+      "q": "LSTM: f = 0.5, c_{t−1} = 2, i = 0.5, c̃ = 0.4. cₜ = ?",
+      "answer": 1.2,
+      "tolerance": 0.001,
+      "explain": "0.5·2 + 0.5·0.4 = 1.2."
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Autoregressive",
+      "formula": "P(x₁…x_T) = Π P(xₜ | x₁…xₜ₋₁)"
+    },
+    {
+      "name": "RNN",
+      "formula": "hₜ = tanh(W_hh hₜ₋₁ + W_hx xₜ + b_h);  oₜ = W_ho hₜ + b_o"
+    },
+    {
+      "name": "RNN parameters",
+      "formula": "hd + h² + h + Vh + V"
+    },
+    {
+      "name": "BPTT",
+      "formula": "∂L/∂W = Σₜ (…);  ∂hₜ₊₁/∂hₜ = diag(1 − h²ₜ₊₁)W_hh"
+    },
+    {
+      "name": "GRU",
+      "formula": "r = σ(·), z = σ(·), h̃ = tanh(W_h x + U_h(r ⊙ h₋₁)), h = z ⊙ h₋₁ + (1 − z) ⊙ h̃"
+    },
+    {
+      "name": "LSTM",
+      "formula": "f, i, o = σ(·); c̃ = tanh(·); c = f ⊙ c₋₁ + i ⊙ c̃; h = o ⊙ tanh(c)"
+    },
+    {
+      "name": "Gated parameters",
+      "formula": "GRU 3(hd + h² + h) · LSTM 4(hd + h² + h)"
+    },
+    {
+      "name": "Bidirectional",
+      "formula": "hₜ = [h→ₜ; h←ₜ]; recurrent parameters doubled; output sees 2h"
+    }
+  ]
+}

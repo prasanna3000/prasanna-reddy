@@ -3,14 +3,14 @@
      #/                                   corridor: all semesters and courses
      #/<sem>/<course>                     a classroom: the course's syllabus board
      #/<sem>/<course>/<chapter>/<tab>[/n] a lesson: lesson | worked | lab | cards | quiz | sheet
-   All content comes from content/catalog.js and the chapter content files it points to. */
+   All content comes from content/catalog.json and the chapter JSON files it points to. */
 (function () {
   'use strict';
   const { esc, md, fmt, store, shuffle } = CU;
   const app = document.getElementById('app');
   const crumbs = document.getElementById('crumbs');
 
-  const CATALOG_URL = 'content/catalog.js';
+  const CATALOG_URL = 'content/catalog.json';
   const PKEY = 'classroom.progress.v1';
   const TABS = [
     { id: 'lesson', label: 'Chalkboard', icon: '✎', has: (c) => c.lesson?.length },
@@ -48,23 +48,23 @@
   };
 
   /* ---------- data ---------- */
-  /* Content files are scripts that call ClassroomContent({...}). Loading them with a <script> tag
-     (instead of fetch) means the site works when opened straight from disk, with no server. */
-  const contentStore = {};
-  window.ClassroomContent = (data) => {
-    const key = document.currentScript && document.currentScript.dataset.key;
-    if (key) contentStore[key] = data;
-  };
-  function getJSON(url) {
-    if (contentStore[url]) return Promise.resolve(contentStore[url]);
-    return new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = url;
-      s.dataset.key = url;
-      s.onload = () => (contentStore[url] ? resolve(contentStore[url]) : reject(new Error(`${url} did not call ClassroomContent(...)`)));
-      s.onerror = () => { s.remove(); reject(new Error(`Could not load ${url}`)); };
-      document.head.appendChild(s);
-    });
+  /* Opened straight from disk (file://), browsers block fetch(), so read the pre-built
+     content/content-bundle.js instead (made by build-content.py). On a real web host,
+     fetch the live .json first and only fall back to the bundle. */
+  async function getJSON(url) {
+    const bundled = window.CLASSROOM_CONTENT && window.CLASSROOM_CONTENT[url];
+    if (location.protocol === 'file:') {
+      if (bundled) return bundled;
+      throw new Error(`${url} is not in content/content-bundle.js. Run: python3 build-content.py`);
+    }
+    try {
+      const res = await fetch(url, { cache: 'no-cache' });
+      if (!res.ok) throw new Error(`${url} → HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      if (bundled) return bundled;
+      throw err;
+    }
   }
   async function loadCatalog() {
     if (!catalog) {
@@ -119,10 +119,12 @@
 
   /* ---------- views ---------- */
   function viewError(err) {
+    const local = location.protocol === 'file:';
     app.innerHTML = `<section class="board big-board"><div class="board-inner">
       <h2 class="chalk-title">Oops: the board is blank</h2>
       <p>${esc(err.message || err)}</p>
-      <p>Check that the file path in <code>content/catalog.js</code> is right and the file is valid.</p>
+      ${local ? `<p>This page reads its lessons from <code>content/content-bundle.js</code>. If you just added or edited content, rebuild the bundle in the classroom folder:</p>
+      <div class="formula">python3 build-content.py</div><p>Then reload this page.</p>` : '<p>Check that the file path in <code>content/catalog.json</code> is right and the JSON is valid.</p>'}
       <p><a class="btn btn-chalk" href="#/">Back to the corridor</a></p></div></section>`;
   }
 
@@ -163,6 +165,14 @@
 
   function viewCourse(sem, course) {
     setCrumbs([{ label: 'Corridor', href: '#/' }, { label: course.title }]); setTitle(course.title);
+    /* chapters can set "group" (e.g. "Exam hall"); groups appear in order of first use */
+    const groups = [];
+    course.chapters.forEach((ch, i) => {
+      const name = ch.group || 'Syllabus board';
+      let g = groups.find((x) => x.name === name);
+      if (!g) { g = { name, intro: (course.groupIntros || {})[name], items: [] }; groups.push(g); }
+      g.items.push({ ch, i });
+    });
     app.innerHTML = `
       <section class="room-head">
         <div class="room-plate" style="--door:${esc(course.color || '#b5523b')}">${esc(course.room || course.code || '')}</div>
@@ -170,15 +180,17 @@
         <p class="room-sub">${esc([course.code, course.teacher && `Teacher: ${course.teacher}`, sem.title].filter(Boolean).join(' · '))}</p></div>
       </section>
       ${course.description ? `<p class="room-desc">${md(course.description)}</p>` : ''}
-      <section class="corkboard">
-        <h2 class="cork-title">Syllabus board</h2>
+      ${groups.map((g) => `
+      <section class="corkboard ${g.name === 'Syllabus board' ? '' : 'exam-hall'}">
+        <h2 class="cork-title">${esc(g.name)}</h2>
+        ${g.intro ? `<p class="cork-intro">${md(g.intro)}</p>` : ''}
         <div class="pinned">
-          ${course.chapters.map((ch, i) => {
+          ${g.items.map(({ ch, i }) => {
             const ready = ch.file && !ch.comingSoon;
             const key = `${sem.id}/${course.id}/${ch.id}`;
             const tilt = ((i * 37) % 5) - 2;
             const inner = `<span class="pin red"></span>
-              <span class="card-num">Chapter ${esc(ch.number ?? i + 1)}</span>
+              <span class="card-num">${esc(ch.label || `Chapter ${ch.number ?? i + 1}`)}</span>
               <span class="card-title">${esc(ch.title)}</span>
               ${ch.blurb ? `<span class="card-blurb">${esc(ch.blurb)}</span>` : ''}
               ${ready ? `<span class="card-foot">${stars(P.score(key, chapterCache[ch.file]))}<span class="go">Enter →</span></span>` : '<span class="stamp">Coming soon</span>'}`;
@@ -187,7 +199,7 @@
               : `<div class="index-card soon" style="--tilt:${tilt}deg">${inner}</div>`;
           }).join('')}
         </div>
-      </section>`;
+      </section>`).join('')}`;
     course.chapters.forEach((ch) => {
       if (ch.file && !ch.comingSoon && !chapterCache[ch.file]) loadChapter(ch).then(() => {
         const parts = location.hash.replace(/^#\/?/, '').split('/');
@@ -202,13 +214,13 @@
     const base = `#/${sem.id}/${course.id}/${meta.id}`;
     const tabs = TABS.filter((t) => t.has(ch));
     if (!tabs.find((t) => t.id === tab)) tab = tabs[0]?.id;
-    setCrumbs([{ label: 'Corridor', href: '#/' }, { label: course.title, href: `#/${sem.id}/${course.id}` }, { label: `Ch ${meta.number ?? ''} · ${ch.title || meta.title}` }]);
+    setCrumbs([{ label: 'Corridor', href: '#/' }, { label: course.title, href: `#/${sem.id}/${course.id}` }, { label: meta.label ? meta.title : `Ch ${meta.number ?? ''} · ${ch.title || meta.title}` }]);
     setTitle(ch.title || meta.title);
 
     app.innerHTML = `
       <section class="lesson-head">
         <div>
-          <p class="eyebrow">${esc(course.code || course.title)} · Chapter ${esc(meta.number ?? '')}</p>
+          <p class="eyebrow">${esc(course.code || course.title)} · ${esc(meta.label || `Chapter ${meta.number ?? ''}`)}</p>
           <h1 class="room-title">${esc(ch.title || meta.title)}</h1>
           ${ch.subtitle ? `<p class="room-sub">${md(ch.subtitle)}</p>` : ''}
         </div>

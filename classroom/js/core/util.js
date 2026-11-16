@@ -23,6 +23,7 @@
   function fmt(v, dp = 4) {
     if (v === null || v === undefined || Number.isNaN(v)) return '—';
     if (!Number.isFinite(v)) return v > 0 ? '∞' : '−∞';
+    if (Math.abs(v) < 1e-12) v = 0; // hide floating-point dust like -2.2e-16
     const a = Math.abs(v);
     if (a !== 0 && (a >= 1e7 || a < 1e-4)) return v.toExponential(2).replace('-', '−');
     let s = v.toFixed(dp);
@@ -37,6 +38,22 @@
     if (!parts.length) return [];
     const out = parts.map(Number);
     return out.every(Number.isFinite) ? out : null;
+  }
+
+  /* "1 2; 3 4" or "1, 2\n3, 4" -> [[1,2],[3,4]]; returns {error} on bad input */
+  function parseMatrix(str, name = 'Matrix') {
+    const rows = String(str ?? '').trim().split(/[;\n]+/).map((r) => r.trim()).filter(Boolean);
+    if (!rows.length) return { error: `${name} is empty.` };
+    const m = rows.map(parseNums);
+    if (m.some((r) => r === null)) return { error: `${name}: every entry must be a number.` };
+    if (m.some((r) => r.length !== m[0].length)) return { error: `${name}: every row needs the same number of values.` };
+    return { m };
+  }
+
+  const sigmoid = (z) => 1 / (1 + Math.exp(-z));
+  function softmax(z) {
+    const mx = Math.max(...z); const e = z.map((v) => Math.exp(v - mx)); const s = e.reduce((a, b) => a + b, 0);
+    return e.map((v) => v / s);
   }
 
   const store = {
@@ -67,5 +84,5 @@
     return `<span class="mat"><table>${body}</table></span>`;
   }
 
-  window.CU = { esc, md, fmt, parseNums, store, shuffle, matrix };
+  window.CU = { esc, md, fmt, parseNums, parseMatrix, sigmoid, softmax, store, shuffle, matrix };
 })();

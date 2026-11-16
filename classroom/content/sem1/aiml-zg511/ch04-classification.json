@@ -1,0 +1,1046 @@
+{
+  "id": "ch04",
+  "title": "Linear Neural Networks for Classification",
+  "subtitle": "Contact session 4 · T1 Chapter 4 · sigmoid + BCE with SGD, softmax + cross-entropy with mini-batch SGD, and metrics",
+  "lesson": [
+    {
+      "title": "What classification is",
+      "lead": "Classification predicts a **discrete class label**; regression predicts a continuous number.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "f : Rᵈ → {1, 2, …, K}"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Type",
+            "Classes",
+            "Examples"
+          ],
+          "rows": [
+            [
+              "Binary",
+              "y ∈ {0, 1} (or {−1, +1})",
+              "Spam, disease present, fraud"
+            ],
+            [
+              "Multi-class",
+              "y ∈ {1, …, K}, K > 2, exactly one",
+              "Digits 0–9, animal type"
+            ],
+            [
+              "Multi-label",
+              "Several labels at once",
+              "Movie genres, document tags"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Why not linear regression?"
+        },
+        {
+          "type": "p",
+          "text": "Linear regression outputs any real number, but we need a probability in [0, 1]. A line can predict values below 0 or above 1. **Fix:** squash the output with a function that maps (−∞, ∞) to (0, 1)."
+        }
+      ]
+    },
+    {
+      "title": "Logistic regression = one sigmoid neuron",
+      "lead": "Compute z = wᵀx, then **ŷ = σ(z) = P(y = 1 | x)**.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "z = wᵀx = w₀ + w₁x₁ + … + w_d x_d          ŷ = σ(z) = 1 / (1 + e⁻ᶻ)",
+          "caption": "z is called the logit (pre-activation)"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Property of σ",
+            "Value"
+          ],
+          "rows": [
+            [
+              "Range",
+              "(0, 1): a probability"
+            ],
+            [
+              "σ(0)",
+              "0.5"
+            ],
+            [
+              "Derivative",
+              "σ′(z) = σ(z)(1 − σ(z)), max 0.25 at z = 0"
+            ],
+            [
+              "Symmetry",
+              "σ(−z) = 1 − σ(z)"
+            ],
+            [
+              "z → +∞ / −∞",
+              "σ → 1 / 0"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Decision rule"
+        },
+        {
+          "type": "formula",
+          "text": "predict 1 if ŷ ≥ 0.5  ⇔  wᵀx ≥ 0;   predict 0 otherwise",
+          "caption": "the decision boundary wᵀx = 0 is a hyperplane"
+        },
+        {
+          "type": "p",
+          "text": "Four components: **data** (x, y ∈ {0,1}), **model** (sigmoid neuron), **objective** (binary cross-entropy), **learning** (stochastic gradient descent)."
+        },
+        {
+          "type": "widget",
+          "widget": "softmax-calc",
+          "config": {
+            "z": 0.5,
+            "y": 1,
+            "logits": "2, 1, 0.1",
+            "cls": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "Binary cross-entropy",
+      "lead": "Squared error is the wrong loss for probabilities. Use **binary cross-entropy (BCE)**.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "ℓ = −[ y log ŷ + (1 − y) log(1 − ŷ) ]          J(w) = (1/N) Σ ℓ⁽ⁱ⁾"
+        },
+        {
+          "type": "list",
+          "items": [
+            "If y = 1: ℓ = −log ŷ, which is small when ŷ → 1.",
+            "If y = 0: ℓ = −log(1 − ŷ), which is small when ŷ → 0.",
+            "Confident wrong answers are punished hard: y = 1, ŷ = 0.1 → ℓ = 2.303; ŷ = 0.9 → 0.105."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Why cross-entropy?"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Comes from maximum likelihood (Bernoulli).",
+            "Heavily penalises confident mistakes.",
+            "Convex for logistic regression: one global minimum.",
+            "Pairs with the sigmoid to give a very simple gradient."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Stochastic gradient descent",
+      "lead": "SGD updates the weights using **one random example** at a time.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "∇ℓ = (ŷ⁽ⁱ⁾ − y⁽ⁱ⁾) x⁽ⁱ⁾          w ← w − η (ŷ − y) x",
+          "caption": "the same form as the regression gradient: error × input"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Initialise w = 0 (or small random values).",
+            "For each epoch, shuffle the data.",
+            "For each example: ŷ = σ(wᵀx), gradient (ŷ − y)x, update w ← w − η∇ℓ.",
+            "Optionally monitor the total loss J(w)."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "",
+            "Batch GD (M3)",
+            "SGD (M4)"
+          ],
+          "rows": [
+            [
+              "Examples per update",
+              "All N",
+              "1"
+            ],
+            [
+              "Path",
+              "Smooth",
+              "Noisy"
+            ],
+            [
+              "Speed per update",
+              "Slow",
+              "Fast"
+            ],
+            [
+              "Memory",
+              "High",
+              "Low"
+            ],
+            [
+              "Extras",
+              "Deterministic",
+              "Online learning; noise can escape sharp minima"
+            ]
+          ]
+        },
+        {
+          "type": "trap",
+          "label": "Watch out",
+          "text": "SGD is more sensitive to η and oscillates near the minimum. The common compromise is **mini-batch** SGD."
+        }
+      ]
+    },
+    {
+      "title": "Worked SGD steps (slides)",
+      "lead": "Hours studied x = 1, 2, 3, 4; pass y = 0, 0, 1, 1; η = 0.5; w⁽⁰⁾ = (0, 0).",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "Pick example 1, x = (1, 1), y = 0: z = 0, ŷ = 0.5, error = 0.5, ∇ = 0.5·(1, 1) = (0.5, 0.5), so **w = (−0.25, −0.25)**.",
+            "Pick example 3, x = (1, 3), y = 1: z = −0.25 − 0.75 = −1.0, ŷ = σ(−1) = 0.269, error = −0.731, ∇ = (−0.731, −2.193), so **w = (0.116, 0.847)**.",
+            "Check: predictions σ(0.116 + 0.847x) = 0.724, 0.859, 0.934, 0.971."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The class-1 examples (x = 3, 4) moved toward 1. The class-0 examples are still above 0.5, so more steps and epochs are needed."
+        },
+        {
+          "type": "note",
+          "label": "Exam tip",
+          "text": "Mini-batch and SGD numericals are likely in the paper: **two steps** with the given η, each step showing z, ŷ, error, gradient and new w."
+        }
+      ]
+    },
+    {
+      "title": "Binary metrics",
+      "lead": "Use the **confusion matrix** and pick the metric whose mistakes cost the most.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "",
+            "Predicted 1",
+            "Predicted 0"
+          ],
+          "rows": [
+            [
+              "Actual 1",
+              "TP",
+              "FN (Type II)"
+            ],
+            [
+              "Actual 0",
+              "FP (Type I)",
+              "TN"
+            ]
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "Accuracy = (TP + TN)/(TP + TN + FP + FN)    Precision = TP/(TP + FP)    Recall = TP/(TP + FN)    F1 = 2PR/(P + R)"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Metric",
+            "Use when"
+          ],
+          "rows": [
+            [
+              "Accuracy",
+              "Classes are balanced (misleading if 95% are negative)"
+            ],
+            [
+              "Precision",
+              "False positives are costly (marking real mail as spam)"
+            ],
+            [
+              "Recall",
+              "False negatives are costly (missing a sick patient)"
+            ],
+            [
+              "F1",
+              "You need balance; imbalanced data"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Example: TP = 3, TN = 3, FP = 1, FN = 1 → accuracy = 6/8 = 0.75, precision = 3/4 = 0.75, recall = 3/4 = 0.75, F1 = 0.75."
+        },
+        {
+          "type": "p",
+          "text": "Split: train 90–99%, validation 10–15% (tune hyperparameters), test 1–10% (final evaluation)."
+        }
+      ]
+    },
+    {
+      "title": "Multi-class: softmax",
+      "lead": "K output neurons give K logits; **softmax** turns them into probabilities that sum to 1.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "z = Wᵀx  (W is (d+1) × K, one column per class)        ŷₖ = e^{zₖ} / Σⱼ e^{zⱼ}"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Total parameters: (d + 1) × K.",
+            "Each row of Z = XW holds the logits of one example.",
+            "Labels are **one-hot**: class 2 of 4 → [0, 1, 0, 0]. This treats classes equally and matches the softmax output."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Softmax property",
+            ""
+          ],
+          "rows": [
+            [
+              "Outputs in (0, 1), sum to 1",
+              "A probability distribution"
+            ],
+            [
+              "Preserves order",
+              "zᵢ > zⱼ ⇒ ŷᵢ > ŷⱼ"
+            ],
+            [
+              "Translation invariant",
+              "softmax(z + c) = softmax(z)"
+            ],
+            [
+              "K = 2",
+              "Same as the sigmoid"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Example: z = (2.0, 1.0, 0.1) → e^z = (7.389, 2.718, 1.105), sum 11.212 → ŷ = (0.659, 0.242, 0.099). Predicted class 1."
+        },
+        {
+          "type": "trap",
+          "label": "Implementation tip",
+          "text": "Numerical stability: compute softmax(z − max z). It gives the same answer and prevents overflow (the log-sum-exp trick)."
+        }
+      ]
+    },
+    {
+      "title": "Categorical cross-entropy",
+      "lead": "The loss depends only on the probability given to the **true** class.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "ℓ = −Σₖ yₖ log ŷₖ = −log ŷ_true          J(W) = −(1/N) Σᵢ Σₖ yₖ⁽ⁱ⁾ log ŷₖ⁽ⁱ⁾"
+        },
+        {
+          "type": "table",
+          "head": [
+            "ŷ for the true class",
+            "Loss −log ŷ"
+          ],
+          "rows": [
+            [
+              "0.9",
+              "0.105"
+            ],
+            [
+              "0.5",
+              "0.693"
+            ],
+            [
+              "0.2",
+              "1.609"
+            ],
+            [
+              "0.05",
+              "2.996"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "With K = 2 it is exactly binary cross-entropy (y₂ = y, y₁ = 1 − y)."
+        },
+        {
+          "type": "formula",
+          "text": "∂ℓ/∂z = ŷ − y          ∇_W J_B = (1/B) X_Bᵀ (Ŷ_B − Y_B)"
+        },
+        {
+          "type": "trap",
+          "label": "Convention clash",
+          "text": "One slide writes ∇ = X_Bᵀ(Ŷ − Y) without 1/B, but the algorithm slide divides by B. Follow the question; if it says nothing, use the average (1/B)."
+        }
+      ]
+    },
+    {
+      "title": "Mini-batch SGD",
+      "lead": "Use **B examples per update**: faster than batch GD, steadier than SGD.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "iterations per epoch = ⌈N / B⌉          W ← W − (η/B) X_Bᵀ(Ŷ_B − Y_B)"
+        },
+        {
+          "type": "p",
+          "text": "Example: N = 60,000, B = 128 → ⌈468.75⌉ = 469 iterations per epoch; 10 epochs → 4,690 updates."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Batch size",
+            "Pros",
+            "Cons"
+          ],
+          "rows": [
+            [
+              "Small (32–64)",
+              "More updates, better generalisation, escapes sharp minima",
+              "Noisy, poor GPU use"
+            ],
+            [
+              "Medium (128–256)",
+              "Balanced, standard choice",
+              "May need tuning"
+            ],
+            [
+              "Large (512–1024)",
+              "Stable gradients, fast epochs",
+              "Slower convergence, more memory, may generalise worse"
+            ]
+          ]
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Initialise W ~ N(0, 0.01).",
+            "Each epoch: shuffle, split into mini-batches.",
+            "Forward: Z = X_B W, Ŷ = softmax(Z).",
+            "Gradient: (1/B) X_Bᵀ(Ŷ − Y).",
+            "Update: W ← W − η∇."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Inference"
+        },
+        {
+          "type": "p",
+          "text": "Compute z = Wᵀx, ŷ = softmax(z), predict argmax. Example from the deck: z = (1.2, 2.5, 0.8) → ŷ = (0.187, 0.687, 0.126) → class 2 with 68.7% confidence."
+        }
+      ]
+    },
+    {
+      "title": "Multi-class metrics",
+      "lead": "A K × K confusion matrix: rows are actual classes, columns are predicted; the diagonal is correct.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Deck example: 150 examples, diagonal 45, 38, 44 → accuracy = 127/150 = 0.847."
+        },
+        {
+          "type": "formula",
+          "text": "Precisionₖ = TPₖ/(TPₖ + FPₖ)   Recallₖ = TPₖ/(TPₖ + FNₖ)   (one class vs the rest)"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Average",
+            "How",
+            "When"
+          ],
+          "rows": [
+            [
+              "Macro",
+              "Plain mean over classes",
+              "All classes equally important"
+            ],
+            [
+              "Weighted",
+              "Weight each class by Nₖ/N",
+              "Class imbalance"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "**Top-K accuracy:** correct if the true class is among the K highest probabilities (ImageNet reports top-1 and top-5)."
+        }
+      ]
+    },
+    {
+      "title": "Summary and debugging",
+      "lead": "Match the activation and loss to the task, scale features, and check probabilities sum to 1.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Task",
+            "Output activation",
+            "Loss",
+            "Optimiser in the deck"
+          ],
+          "rows": [
+            [
+              "Regression",
+              "Identity",
+              "MSE",
+              "Batch GD"
+            ],
+            [
+              "Binary",
+              "Sigmoid",
+              "BCE",
+              "SGD"
+            ],
+            [
+              "Multi-class",
+              "Softmax (K units)",
+              "Categorical CE",
+              "Mini-batch SGD"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Symptom",
+            "Fix"
+          ],
+          "rows": [
+            [
+              "Loss NaN / Inf",
+              "Lower η, avoid log(0), scale features, stable softmax"
+            ],
+            [
+              "Always predicts one class",
+              "Check softmax/loss, one-hot labels; η may be too small"
+            ],
+            [
+              "Loss oscillates",
+              "Mini-batches, learning-rate decay"
+            ],
+            [
+              "Softmax outputs don't sum to 1",
+              "Implementation bug: use the stable softmax"
+            ],
+            [
+              "High train, low test accuracy",
+              "Overfitting: regularise, more data, simpler model"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Tips",
+          "text": "Sanity check: a tiny dataset should reach 100% training accuracy. Initialise weights small (N(0, 0.01)) to avoid sigmoid saturation; shuffle every epoch."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Two SGD steps for logistic regression",
+      "tags": [
+        "slides",
+        "SGD"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x = 1, 2, 3, 4 (hours), y = 0, 0, 1, 1; η = 0.5; w⁽⁰⁾ = (0, 0). Process example 1, then example 3."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Step 1 forward",
+          "text": "x = (1, 1): z = 0, ŷ = σ(0) = 0.5"
+        },
+        {
+          "label": "Step 1 gradient",
+          "text": "(ŷ − y)x = 0.5·(1, 1) = (0.5, 0.5)"
+        },
+        {
+          "label": "Step 1 update",
+          "text": "w = (0, 0) − 0.5·(0.5, 0.5) = **(−0.25, −0.25)**"
+        },
+        {
+          "label": "Step 2 forward",
+          "text": "x = (1, 3): z = −0.25 − 0.75 = −1, ŷ = 1/(1 + e) = 0.269"
+        },
+        {
+          "label": "Step 2 gradient",
+          "text": "(0.269 − 1)(1, 3) = (−0.731, −2.193)"
+        },
+        {
+          "label": "Step 2 update",
+          "text": "w = (−0.25, −0.25) − 0.5·(−0.731, −2.193) = **(0.116, 0.847)**"
+        }
+      ],
+      "answer": "w = (0.116, 0.847); predictions now 0.724, 0.859, 0.934, 0.971."
+    },
+    {
+      "title": "Confusion matrix metrics",
+      "tags": [
+        "metrics"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A spam filter on 100 emails: TP = 30, FN = 10, FP = 5, TN = 55. Find accuracy, precision, recall and F1."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Accuracy",
+          "text": "(30 + 55)/100 = **0.85**"
+        },
+        {
+          "label": "Precision",
+          "text": "30/(30 + 5) = **0.857**"
+        },
+        {
+          "label": "Recall",
+          "text": "30/(30 + 10) = **0.75**"
+        },
+        {
+          "label": "F1",
+          "text": "2(0.857)(0.75)/(0.857 + 0.75) = **0.8**"
+        }
+      ],
+      "answer": "Accuracy 0.85, precision 0.857, recall 0.75, F1 0.80."
+    },
+    {
+      "title": "Softmax, loss and gradient",
+      "tags": [
+        "softmax",
+        "cross-entropy"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Logits z = (2.0, 1.0, 0.1), true class 1. Compute ŷ, the cross-entropy and ∂ℓ/∂z."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Exponentials",
+          "text": "e² = 7.389, e¹ = 2.718, e^0.1 = 1.105; sum = 11.212"
+        },
+        {
+          "label": "Softmax",
+          "text": "ŷ = (0.659, 0.242, 0.099)"
+        },
+        {
+          "label": "Loss",
+          "text": "−log 0.659 = **0.417**"
+        },
+        {
+          "label": "Gradient",
+          "text": "ŷ − y = (0.659 − 1, 0.242, 0.099) = **(−0.341, 0.242, 0.099)**"
+        }
+      ],
+      "answer": "ŷ = (0.659, 0.242, 0.099); loss 0.417; gradient (−0.341, 0.242, 0.099). The gradient components sum to 0."
+    },
+    {
+      "title": "One mini-batch step from zero weights",
+      "tags": [
+        "mini-batch",
+        "matrix form"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "K = 3, d = 2, B = 2, η = 0.1, W⁽⁰⁾ = 0 (3 × 3). Mini-batch rows (with bias) x = (1, 1, 2) of class 1 and x = (1, 2, 1) of class 2. Do one update."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Logits",
+          "text": "Z = X_B W = 0, so softmax gives ŷ = (⅓, ⅓, ⅓) for both rows."
+        },
+        {
+          "label": "Ŷ − Y",
+          "text": "row 1: (−0.667, 0.333, 0.333); row 2: (0.333, −0.667, 0.333)"
+        },
+        {
+          "label": "Gradient",
+          "text": "(1/2) X_Bᵀ(Ŷ − Y) = [[−0.167, −0.167, 0.333], [0, −0.5, 0.5], [−0.5, 0, 0.5]]"
+        },
+        {
+          "label": "Update",
+          "text": "W⁽¹⁾ = −0.1 × gradient = [[0.017, 0.017, −0.033], [0, 0.05, −0.05], [0.05, 0, −0.05]]"
+        },
+        {
+          "label": "Check",
+          "text": "New probabilities for the true classes rise from 0.333 to 0.371 each; mean CE falls from 1.099 to 0.990."
+        }
+      ],
+      "answer": "W⁽¹⁾ as above; the loss drops from ln 3 = 1.099 to 0.990."
+    },
+    {
+      "title": "Mini-batch arithmetic",
+      "tags": [
+        "iterations"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "N = 60,000 training images, B = 128, 10 epochs. How many updates? A 784-input, 10-class softmax regression has how many parameters?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Per epoch",
+          "text": "⌈60,000/128⌉ = ⌈468.75⌉ = **469**"
+        },
+        {
+          "label": "Total",
+          "text": "469 × 10 = **4,690** updates"
+        },
+        {
+          "label": "Parameters",
+          "text": "(784 + 1) × 10 = **7,850**"
+        }
+      ],
+      "answer": "469 per epoch, 4,690 total; 7,850 parameters."
+    }
+  ],
+  "labs": [
+    {
+      "title": "Sigmoid and softmax calculator",
+      "intro": "Type a logit for the sigmoid neuron, or a vector of logits for softmax, and see the probability, the loss and the gradient.",
+      "tryThis": [
+        "z = 0 → ŷ = 0.5, and σ′ is at its max of 0.25.",
+        "Make the true class's logit very negative: watch the cross-entropy explode.",
+        "Add 100 to every logit: softmax doesn't change."
+      ],
+      "widget": "softmax-calc",
+      "config": {
+        "z": -1,
+        "y": 1,
+        "logits": "2, 1, 0.1",
+        "cls": 1
+      }
+    },
+    {
+      "title": "Gradient descent on a bowl (recap)",
+      "intro": "SGD is gradient descent with a noisy gradient. The learning-rate rules from Module 3 still apply.",
+      "widget": "lr-bowl",
+      "config": {
+        "c": 4,
+        "wstar": 2,
+        "w0": -2,
+        "eta": 0.15,
+        "steps": 8
+      }
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Definition",
+      "front": "Classification vs regression",
+      "back": "Discrete class label vs continuous value."
+    },
+    {
+      "tag": "Types",
+      "front": "Binary vs multi-class vs multi-label",
+      "back": "2 classes · one of K > 2 · several labels at once."
+    },
+    {
+      "tag": "Why",
+      "front": "Why not linear regression for classification?",
+      "back": "Its output is unbounded; probabilities must lie in [0, 1]."
+    },
+    {
+      "tag": "Formula",
+      "front": "Sigmoid and its derivative",
+      "back": "σ(z) = 1/(1 + e⁻ᶻ); σ′ = σ(1 − σ), max 0.25 at z = 0."
+    },
+    {
+      "tag": "Rule",
+      "front": "Decision rule for logistic regression",
+      "back": "Predict 1 if ŷ ≥ 0.5 ⇔ wᵀx ≥ 0."
+    },
+    {
+      "tag": "Loss",
+      "front": "Binary cross-entropy",
+      "back": "−[y log ŷ + (1 − y) log(1 − ŷ)]"
+    },
+    {
+      "tag": "Gradient",
+      "front": "Gradient of BCE + sigmoid for one example",
+      "back": "(ŷ − y)x, the same shape as linear regression."
+    },
+    {
+      "tag": "SGD",
+      "front": "What does SGD do differently?",
+      "back": "Updates with one random example at a time: fast and noisy."
+    },
+    {
+      "tag": "Metrics",
+      "front": "Precision and recall",
+      "back": "Precision = TP/(TP + FP); recall = TP/(TP + FN)."
+    },
+    {
+      "tag": "Metrics",
+      "front": "When is accuracy misleading?",
+      "back": "With imbalanced classes (e.g. 95% negative)."
+    },
+    {
+      "tag": "Metrics",
+      "front": "Precision or recall for disease screening?",
+      "back": "Recall: false negatives (missed patients) are costly."
+    },
+    {
+      "tag": "Metrics",
+      "front": "F1 score",
+      "back": "2PR/(P + R), the harmonic mean."
+    },
+    {
+      "tag": "Softmax",
+      "front": "Softmax formula",
+      "back": "ŷₖ = e^{zₖ}/Σⱼe^{zⱼ}; outputs sum to 1."
+    },
+    {
+      "tag": "Softmax",
+      "front": "Softmax properties",
+      "back": "(0, 1), sums to 1, order-preserving, translation invariant, equals sigmoid for K = 2."
+    },
+    {
+      "tag": "Loss",
+      "front": "Categorical cross-entropy",
+      "back": "−Σyₖ log ŷₖ = −log ŷ_true."
+    },
+    {
+      "tag": "Gradient",
+      "front": "Softmax + CE gradient w.r.t. logits",
+      "back": "ŷ − y"
+    },
+    {
+      "tag": "Shapes",
+      "front": "Weight matrix for K classes, d features",
+      "back": "(d + 1) × K; one column per class."
+    },
+    {
+      "tag": "Encoding",
+      "front": "Why one-hot labels?",
+      "back": "No fake ordering; matches the softmax output; simple loss."
+    },
+    {
+      "tag": "Mini-batch",
+      "front": "Iterations per epoch",
+      "back": "⌈N/B⌉"
+    },
+    {
+      "tag": "Stability",
+      "front": "Stable softmax",
+      "back": "Subtract max(z) before exponentiating."
+    },
+    {
+      "tag": "Metrics",
+      "front": "Macro vs weighted average",
+      "back": "Plain mean over classes vs weighted by class frequency."
+    },
+    {
+      "tag": "Metrics",
+      "front": "Top-K accuracy",
+      "back": "Correct if the true class is in the K highest probabilities."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "numeric",
+      "q": "σ(0) = ?",
+      "answer": 0.5,
+      "tolerance": 0.001,
+      "explain": "1/(1 + e⁰) = 0.5."
+    },
+    {
+      "type": "numeric",
+      "q": "Maximum value of σ′(z)?",
+      "answer": 0.25,
+      "tolerance": 0.001,
+      "explain": "At z = 0: 0.5 × 0.5."
+    },
+    {
+      "type": "numeric",
+      "q": "y = 1, ŷ = 0.9. Binary cross-entropy?",
+      "answer": 0.1054,
+      "tolerance": 0.002,
+      "explain": "−ln 0.9 = 0.105."
+    },
+    {
+      "type": "mcq",
+      "q": "The decision boundary of logistic regression is…",
+      "options": [
+        "σ(z) = 1",
+        "wᵀx = 0",
+        "wᵀx = 0.5",
+        "A circle"
+      ],
+      "answer": 1,
+      "explain": "σ(z) = 0.5 exactly when z = 0."
+    },
+    {
+      "type": "numeric",
+      "q": "SGD: w = (0, 0), x = (1, 1), y = 0, η = 0.5. New w₁?",
+      "answer": -0.25,
+      "tolerance": 0.001,
+      "explain": "ŷ = 0.5; w₁ = 0 − 0.5 × 0.5 × 1 = −0.25."
+    },
+    {
+      "type": "numeric",
+      "q": "TP = 30, FP = 5. Precision?",
+      "answer": 0.857,
+      "tolerance": 0.002,
+      "explain": "30/35."
+    },
+    {
+      "type": "numeric",
+      "q": "TP = 30, FN = 10. Recall?",
+      "answer": 0.75,
+      "tolerance": 0.001,
+      "explain": "30/40."
+    },
+    {
+      "type": "mcq",
+      "q": "Missing a cancer case is the worst mistake. Maximise…",
+      "options": [
+        "Precision",
+        "Recall",
+        "Accuracy",
+        "Specificity only"
+      ],
+      "answer": 1,
+      "explain": "Recall counts how many actual positives you catch."
+    },
+    {
+      "type": "numeric",
+      "q": "Softmax of z = (2, 1, 0.1): probability of class 1?",
+      "answer": 0.659,
+      "tolerance": 0.003,
+      "explain": "7.389/11.212."
+    },
+    {
+      "type": "numeric",
+      "q": "True class gets ŷ = 0.242. Cross-entropy?",
+      "answer": 1.419,
+      "tolerance": 0.005,
+      "explain": "−ln 0.242 = 1.419."
+    },
+    {
+      "type": "mcq",
+      "q": "softmax(z + 5) compared with softmax(z) is…",
+      "options": [
+        "5 times larger",
+        "The same",
+        "Shifted by 5",
+        "Undefined"
+      ],
+      "answer": 1,
+      "explain": "Softmax is translation invariant."
+    },
+    {
+      "type": "numeric",
+      "q": "N = 60,000, B = 128. Iterations per epoch?",
+      "answer": 469,
+      "tolerance": 0.01,
+      "explain": "⌈468.75⌉ = 469."
+    },
+    {
+      "type": "numeric",
+      "q": "Softmax regression with d = 4 features and K = 3 classes. Number of parameters?",
+      "answer": 15,
+      "tolerance": 0.01,
+      "explain": "(4 + 1) × 3 = 15."
+    },
+    {
+      "type": "mcq",
+      "q": "For softmax + cross-entropy, ∂ℓ/∂z equals…",
+      "options": [
+        "y − ŷ",
+        "ŷ − y",
+        "ŷ(1 − ŷ)",
+        "−1/ŷ"
+      ],
+      "answer": 1,
+      "explain": "The famous simple gradient."
+    },
+    {
+      "type": "mcq",
+      "q": "Which uses exactly one example per update?",
+      "options": [
+        "Batch GD",
+        "Mini-batch SGD",
+        "SGD",
+        "Newton's method"
+      ],
+      "answer": 2,
+      "explain": "Stochastic GD."
+    },
+    {
+      "type": "numeric",
+      "q": "3-class confusion matrix with diagonal 45, 38, 44 out of 150. Accuracy?",
+      "answer": 0.847,
+      "tolerance": 0.002,
+      "explain": "127/150."
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Sigmoid neuron",
+      "formula": "ŷ = σ(wᵀx) = 1/(1 + e^{−wᵀx}),  σ′ = σ(1 − σ)"
+    },
+    {
+      "name": "Decision rule",
+      "formula": "ŷ ≥ 0.5 ⇔ wᵀx ≥ 0"
+    },
+    {
+      "name": "Binary cross-entropy",
+      "formula": "−[y log ŷ + (1 − y) log(1 − ŷ)]"
+    },
+    {
+      "name": "SGD step",
+      "formula": "w ← w − η(ŷ − y)x"
+    },
+    {
+      "name": "Softmax",
+      "formula": "ŷₖ = e^{zₖ} / Σⱼ e^{zⱼ}",
+      "note": "stable: subtract max z"
+    },
+    {
+      "name": "Categorical CE",
+      "formula": "−Σₖ yₖ log ŷₖ"
+    },
+    {
+      "name": "Softmax + CE gradient",
+      "formula": "∂ℓ/∂z = ŷ − y;   ∇_W = (1/B) X_Bᵀ(Ŷ − Y)"
+    },
+    {
+      "name": "Metrics",
+      "formula": "Acc = (TP+TN)/all · P = TP/(TP+FP) · R = TP/(TP+FN) · F1 = 2PR/(P+R)"
+    },
+    {
+      "name": "Mini-batch",
+      "formula": "iterations/epoch = ⌈N/B⌉"
+    },
+    {
+      "name": "Parameters",
+      "formula": "(d + 1) × K"
+    }
+  ]
+}

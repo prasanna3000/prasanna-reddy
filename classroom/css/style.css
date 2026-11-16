@@ -218,6 +218,8 @@ mark { background: var(--chalk-yellow); padding: 0 3px; border-radius: 3px; }
   background-image: radial-gradient(rgba(90,55,20,.35) 1px, transparent 1.4px), radial-gradient(rgba(255,240,210,.25) 1px, transparent 1.6px);
   background-size: 9px 9px, 13px 13px; background-position: 0 0, 4px 6px;
 }
+.exam-hall { margin-top: 30px; background-color: #8a9aa6; border-color: #4f5b63; }
+.cork-intro { background: var(--paper); display: inline-block; padding: 6px 12px; margin: -6px 0 16px 12px; max-width: 640px; box-shadow: 0 3px 6px rgba(0,0,0,.2); font-size: .92rem; }
 .cork-title { font-family: var(--font-script); font-size: 2rem; margin: 0 0 16px; color: #3b2410; background: var(--paper); display: inline-block; padding: 0 16px; transform: rotate(-1deg); box-shadow: 0 3px 6px rgba(0,0,0,.2); }
 .pinned { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 24px; }
 .index-card {
@@ -288,6 +290,7 @@ a.index-card:hover { transform: rotate(0deg) scale(1.03); }
 .notebook h3 { font-family: var(--font-chalk); font-weight: 400; font-size: 1.55rem; margin: 2px 0 6px; line-height: 1.2; }
 .nb-problem p { margin: 6px 0; }
 .nb-steps { list-style: none; padding: 0; margin: 10px 0 0; }
+.nb-step[hidden], .nb-answer[hidden], .feedback[hidden], .grade[hidden] { display: none !important; }
 .nb-step { display: grid; grid-template-columns: 150px 1fr; gap: 12px; padding: 8px 0; border-top: 1px dashed #d8cfb8; }
 .step-label { font-family: var(--font-script); font-weight: 700; font-size: 1.25rem; color: #2d5fb8; line-height: 1.2; }
 .nb-answer { margin-top: 12px; padding: 10px 14px; background: #e8f4e2; border: 2px solid var(--good); border-radius: 8px; }
@@ -302,9 +305,10 @@ a.index-card:hover { transform: rotate(0deg) scale(1.03); }
 .lab-controls { padding: 16px 18px; }
 .paper { background: var(--paper); border-radius: 8px; box-shadow: var(--shadow); color: var(--ink); }
 .field { display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: .9rem; margin-bottom: 10px; flex: 1; min-width: 180px; }
-.field input, .field textarea { font: 1rem var(--font-mono); padding: 8px 10px; border: 2px solid #c9bea3; border-radius: 6px; background: #fffef9; color: var(--ink); }
+.field input, .field textarea, .field select { font: 1rem var(--font-mono); padding: 8px 10px; border: 2px solid #c9bea3; border-radius: 6px; background: #fffef9; color: var(--ink); }
+.field input[type="checkbox"] { width: auto; padding: 0; margin-right: 6px; accent-color: var(--board); }
 .field input[type="range"] { padding: 0; accent-color: var(--board); }
-.field input:focus, .field textarea:focus { outline: 3px solid var(--chalk-blue); border-color: var(--ink); }
+.field input:focus, .field textarea:focus, .field select:focus { outline: 3px solid var(--chalk-blue); border-color: var(--ink); }
 .field-row { display: flex; gap: 14px; flex-wrap: wrap; }
 .lab-msg { font-weight: 700; margin: 8px 0 0; min-height: 1.2em; }
 .lab-msg.good { color: var(--good); }

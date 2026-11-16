@@ -1,0 +1,1020 @@
+{
+  "id": "ch05",
+  "title": "Deep Feedforward Networks (MLP)",
+  "subtitle": "Contact session 5 · T1 Chapter 5 · non-linearity, forward pass, backpropagation, depth vs width and design rules",
+  "lesson": [
+    {
+      "title": "Why go deep: XOR",
+      "lead": "A single neuron draws one straight line, so it **cannot** solve XOR. Stack layers with **non-linear** activations.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "XOR's 1s lie on one diagonal and its 0s on the other: not linearly separable (Module 2)."
+        },
+        {
+          "type": "p",
+          "text": "**MLP fix:** 2 inputs → 2 hidden units → 1 output. Each hidden unit learns one line; the output combines them. In the hidden space, the points become separable."
+        },
+        {
+          "type": "formula",
+          "text": "h₁ = ReLU(x₁ + x₂),  h₂ = ReLU(x₁ + x₂ − 1),  ŷ = h₁ − 2h₂",
+          "caption": "inputs (0,0), (0,1), (1,0), (1,1) → h = (0,0), (1,0), (1,0), (2,1) → ŷ = 0, 1, 1, 0 ✓"
+        },
+        {
+          "type": "h",
+          "text": "Why non-linearity?"
+        },
+        {
+          "type": "formula",
+          "text": "f(ax₁ + bx₂) ≠ a f(x₁) + b f(x₂)",
+          "caption": "the definition of a non-linear function"
+        },
+        {
+          "type": "trap",
+          "label": "Key exam point",
+          "text": "Without non-linear activations, stacked linear layers collapse into **one** linear layer: W₂(W₁x) = (W₂W₁)x. Depth adds nothing."
+        }
+      ]
+    },
+    {
+      "title": "Activation functions",
+      "lead": "ReLU is the default for hidden layers; sigmoid and softmax belong at the output.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Function",
+            "Formula",
+            "Range",
+            "Derivative",
+            "Notes"
+          ],
+          "rows": [
+            [
+              "Sigmoid",
+              "1/(1 + e⁻ᶻ)",
+              "(0, 1)",
+              "σ(1 − σ), max 0.25",
+              "Not zero-centred; vanishing gradients; use for binary output"
+            ],
+            [
+              "Tanh",
+              "(eᶻ − e⁻ᶻ)/(eᶻ + e⁻ᶻ)",
+              "(−1, 1)",
+              "1 − tanh², max 1",
+              "Zero-centred; still saturates"
+            ],
+            [
+              "ReLU",
+              "max(0, z)",
+              "[0, ∞)",
+              "1 if z > 0, else 0",
+              "Fast, no vanishing for z > 0, sparse; can \"die\""
+            ],
+            [
+              "Leaky ReLU",
+              "max(αz, z)",
+              "(−∞, ∞)",
+              "1 or α",
+              "Fixes dying ReLU"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Values at z = (2, −1.5, 0.8, −0.3): sigmoid (0.881, 0.182, 0.690, 0.426), σ′ (0.105, 0.149, 0.214, 0.245); tanh (0.964, −0.905, 0.664, −0.291), tanh′ (0.071, 0.181, 0.559, 0.915); ReLU (2, 0, 0.8, 0), ReLU′ (1, 0, 1, 0)."
+        },
+        {
+          "type": "note",
+          "label": "Caveat",
+          "text": "**Dying ReLU:** if a neuron's z is always ≤ 0, its output and gradient are 0 forever. Use Leaky ReLU, PReLU or ELU."
+        }
+      ]
+    },
+    {
+      "title": "Architecture and notation",
+      "lead": "L layers; layer ℓ has n_ℓ units, weights W⁽ℓ⁾ and biases b⁽ℓ⁾.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "h⁽⁰⁾ = x,   z⁽ℓ⁾ = h⁽ℓ⁻¹⁾W⁽ℓ⁾ + b⁽ℓ⁾,   h⁽ℓ⁾ = σ⁽ℓ⁾(z⁽ℓ⁾),   ŷ = h⁽ᴸ⁾",
+          "caption": "main deck: W⁽ℓ⁾ is n_{ℓ−1} × n_ℓ, rows = examples (H = XW)"
+        },
+        {
+          "type": "formula",
+          "text": "Parameters = Σℓ n_ℓ (n_{ℓ−1} + 1)"
+        },
+        {
+          "type": "p",
+          "text": "Example: 784 → 256 → 128 → 10 has 200,960 + 32,896 + 1,290 = **235,146** parameters."
+        },
+        {
+          "type": "trap",
+          "label": "Convention clash",
+          "text": "The **numerical** deck writes z = W·a + b, with each **row** of W belonging to one neuron (W⁽¹⁾ is 3 × 2 for 2 inputs and 3 hidden units). The main deck writes hW with W as inputs × units. The maths is the same transposed: read the shapes in the question."
+        },
+        {
+          "type": "h",
+          "text": "Output layer by task"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Task",
+            "Output units",
+            "Activation",
+            "Loss"
+          ],
+          "rows": [
+            [
+              "Regression",
+              "K (output dimension)",
+              "Identity",
+              "MSE"
+            ],
+            [
+              "Binary",
+              "1",
+              "Sigmoid",
+              "BCE"
+            ],
+            [
+              "Multi-class",
+              "C",
+              "Softmax",
+              "Categorical CE"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Forward pass (numerical)",
+      "lead": "Compute z, apply the activation, and repeat layer by layer.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Network 2 → 3 (ReLU) → 2 (sigmoid). x = (1, 0.5). W⁽¹⁾ rows: (0.5, 0.2), (−0.3, 0.8), (0.1, −0.4); b⁽¹⁾ = (0.1, −0.2, 0.3). W⁽²⁾ rows: (0.4, −0.1, 0.6), (0.2, 0.7, −0.3); b⁽²⁾ = (0.2, −0.1)."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "z⁽¹⁾ = W⁽¹⁾x + b⁽¹⁾ = (0.6, 0.1, −0.1) + (0.1, −0.2, 0.3) = **(0.7, −0.1, 0.2)**",
+            "a⁽¹⁾ = ReLU(z⁽¹⁾) = **(0.7, 0, 0.2)**: neuron 2 is dead (z < 0)",
+            "z⁽²⁾ = W⁽²⁾a⁽¹⁾ + b⁽²⁾ = (0.28 + 0.12 + 0.2, 0.14 − 0.06 − 0.1) = **(0.6, −0.02)**",
+            "ŷ = σ(z⁽²⁾) = **(0.646, 0.495)**"
+          ]
+        },
+        {
+          "type": "widget",
+          "widget": "mlp-calc",
+          "config": {
+            "x": "1, 0.5",
+            "W1": "0.5 0.2; -0.3 0.8; 0.1 -0.4",
+            "b1": "0.1, -0.2, 0.3",
+            "W2": "0.4 -0.1 0.6; 0.2 0.7 -0.3",
+            "b2": "0.2, -0.1",
+            "y": "1, 0",
+            "hidden": "relu",
+            "output": "sigmoid",
+            "lr": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "title": "Backpropagation",
+      "lead": "Backprop applies the **chain rule backwards**, reusing each layer's error signal δ.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "δ⁽ᴸ⁾ = ŷ − y   (MSE + identity, BCE + sigmoid, CE + softmax: all the same!)"
+        },
+        {
+          "type": "formula",
+          "text": "δ⁽ℓ⁾ = (W⁽ℓ⁺¹⁾ᵀ δ⁽ℓ⁺¹⁾) ⊙ σ′(z⁽ℓ⁾)          ∂L/∂W⁽ℓ⁾ = δ⁽ℓ⁾ a⁽ℓ⁻¹⁾ᵀ     ∂L/∂b⁽ℓ⁾ = δ⁽ℓ⁾",
+          "caption": "row-neuron convention; mini-batch form divides by B"
+        },
+        {
+          "type": "formula",
+          "text": "W ← W − η ∂L/∂W,     b ← b − η ∂L/∂b"
+        },
+        {
+          "type": "h",
+          "text": "Why it's efficient"
+        },
+        {
+          "type": "p",
+          "text": "A naive approach needs one forward pass **per parameter**. Backprop needs one forward and one backward pass in total, about 2× the cost of a forward pass. That's dynamic programming with the chain rule."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Activation",
+            "Derivative used in backprop"
+          ],
+          "rows": [
+            [
+              "Sigmoid",
+              "σ(z)(1 − σ(z))"
+            ],
+            [
+              "Tanh",
+              "1 − tanh²(z)"
+            ],
+            [
+              "ReLU",
+              "1 if z > 0, else 0"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Backprop numbers (same network)",
+      "lead": "Target y = (1, 0), BCE loss, α = 0.1.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "Loss: L = −½[log 0.646 + log(1 − 0.495)] = −½(−0.437 − 0.683) = **0.560**",
+            "δ⁽²⁾ = ŷ − y = **(−0.354, 0.495)**",
+            "∂L/∂W⁽²⁾ = δ⁽²⁾a⁽¹⁾ᵀ = [[−0.248, 0, −0.071], [0.347, 0, 0.099]]; ∂L/∂b⁽²⁾ = δ⁽²⁾",
+            "W⁽²⁾ᵀδ⁽²⁾ = (−0.043, 0.382, −0.361); ReLU′(z⁽¹⁾) = (1, 0, 1) → δ⁽¹⁾ = **(−0.043, 0, −0.361)**",
+            "∂L/∂W⁽¹⁾ = δ⁽¹⁾xᵀ = [[−0.043, −0.022], [0, 0], [−0.361, −0.181]]",
+            "Updates: W⁽²⁾ → [[0.425, −0.1, 0.607], [0.165, 0.7, −0.31]], b⁽²⁾ → (0.235, −0.15); W⁽¹⁾ → [[0.504, 0.202], [−0.3, 0.8], [0.136, −0.382]], b⁽¹⁾ → (0.104, −0.2, 0.336)"
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Notice",
+          "text": "The dead neuron's weights (row 2 of W⁽¹⁾ and column 2 of W⁽²⁾) **don't change**: its gradient is 0."
+        }
+      ]
+    },
+    {
+      "title": "Losses and their derivatives",
+      "lead": "Know each loss's derivative with respect to ŷ.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Loss",
+            "ℓ",
+            "∂ℓ/∂ŷ",
+            "Use"
+          ],
+          "rows": [
+            [
+              "MSE",
+              "½(ŷ − y)²",
+              "ŷ − y",
+              "Regression"
+            ],
+            [
+              "MAE",
+              "|ŷ − y|",
+              "sign(ŷ − y)",
+              "Regression with outliers"
+            ],
+            [
+              "BCE",
+              "−[y log ŷ + (1 − y) log(1 − ŷ)]",
+              "(ŷ − y)/(ŷ(1 − ŷ))",
+              "Binary"
+            ],
+            [
+              "Cross-entropy",
+              "−Σ yc log ŷc",
+              "−yⱼ/ŷⱼ",
+              "Multi-class"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Examples: MSE with y = 3, ŷ = 5 → ℓ = 2, slope +2; y = 8, ŷ = 5 → ℓ = 4.5, slope −3. BCE with y = 1: ŷ = 0.9 → ℓ = 0.105, slope −1.11; ŷ = 0.1 → ℓ = 2.303, slope −10."
+        },
+        {
+          "type": "p",
+          "text": "Softmax + CE: z = (2, 1, 0.1, −1), true class 2 → ŷ = (0.638, 0.235, 0.095, 0.032), ℓ = −ln 0.235 = **1.45**, ∂ℓ/∂z = ŷ − y = (0.638, −0.765, 0.095, 0.032)."
+        },
+        {
+          "type": "note",
+          "label": "Derivations",
+          "text": "Sigmoid derivative derivation: σ′ = e⁻ᶻ/(1 + e⁻ᶻ)² = σ(1 − σ). Tanh: tanh′ = 1 − tanh² (max 1, which is 4× the sigmoid's 0.25)."
+        }
+      ]
+    },
+    {
+      "title": "Vanishing and exploding gradients",
+      "lead": "Gradients are products across layers, so they can shrink or blow up **exponentially** with depth.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "|δ⁽ℓ⁻¹⁾| = |δ⁽ℓ⁾| · ‖W⁽ℓ⁾‖ · |g′|"
+        },
+        {
+          "type": "p",
+          "text": "Example: 4 sigmoid layers, ‖W‖ = 0.8, g′ = 0.25 (its maximum). Each step multiplies by 0.2: δ⁽⁴⁾ = 1 → δ⁽³⁾ = 0.2 → δ⁽²⁾ = 0.04 → δ⁽¹⁾ = **0.008** (0.8% of the original)."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Problem",
+            "Fix"
+          ],
+          "rows": [
+            [
+              "Vanishing gradients",
+              "ReLU, He/Xavier initialisation, batch normalisation"
+            ],
+            [
+              "Exploding gradients",
+              "Gradient clipping, proper initialisation, smaller η"
+            ],
+            [
+              "Degradation (deeper trains worse)",
+              "Residual / skip connections"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Initialisation",
+            "Use with"
+          ],
+          "rows": [
+            [
+              "All zeros",
+              "✗ never: every neuron stays identical"
+            ],
+            [
+              "Xavier / Glorot",
+              "Sigmoid / tanh"
+            ],
+            [
+              "He",
+              "ReLU"
+            ],
+            [
+              "Biases",
+              "Zero is fine"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Depth vs width",
+      "lead": "Depth learns **hierarchical** features; width adds parallel features in one layer.",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "Deep: low-level (edges) → mid-level (shapes, parts) → high-level (objects). More expressive per parameter, generalises better.",
+            "Wide: more parallel features and higher capacity per layer, with a risk of overfitting."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Key theorem",
+          "text": "**Universal approximation theorem** (Cybenko; Hornik, 1989): one hidden layer with enough neurons can approximate any continuous function on a compact set. But it may need exponentially many units. Deep networks do it with far fewer parameters."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Pattern",
+            "Shape"
+          ],
+          "rows": [
+            [
+              "Funnel",
+              "n₁ > n₂ > … (compression)"
+            ],
+            [
+              "Constant",
+              "n₁ = n₂ = …"
+            ],
+            [
+              "Hourglass",
+              "Wide → narrow → wide"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Start with 2–3 hidden layers of 10–100 units. Use ReLU in hidden layers and a task-specific output."
+        }
+      ]
+    },
+    {
+      "title": "Sizing a network (design rules)",
+      "lead": "The numerical deck uses two rough rules to keep a network from overfitting.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "L ≤ log₂(M / (d × c)) + 1          parameters ≤ M / 5",
+          "caption": "M = training samples, d = features, c = classes"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "d = 20, M = 800, c = 3: L ≤ log₂(800/60) + 1 = log₂(13.33) + 1 ≈ 4.7 → L ≤ 4.",
+            "Start small (M < 1000): try [20, 40, 3] → 20·40 + 40 + 40·3 + 3 = 963 > 160 ✗.",
+            "[20, 20, 3] → 483 ✗. [20, 10, 3] → 243 ✗. [20, 6, 3] → 120 + 6 + 18 + 3 = **147 ≤ 160** ✓."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Final recommendation: **[20, 6, 3]** with regularisation. For d = 1000, M = 50,000, c = 5: L ≤ log₂(10) + 1 ≈ 4.3 → [1000, 512, 256, 128, 5] ≈ 675K parameters with batch norm and dropout."
+        },
+        {
+          "type": "h",
+          "text": "Diagnosing training"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Symptom",
+            "Fix"
+          ],
+          "rows": [
+            [
+              "Loss NaN / Inf",
+              "Lower η, check gradients, normalise inputs"
+            ],
+            [
+              "Loss flat",
+              "Raise η, check gradient code"
+            ],
+            [
+              "Loss oscillates",
+              "Lower η, use a schedule"
+            ],
+            [
+              "Train ↓, validation ↑",
+              "Overfitting: regularise, dropout, more data"
+            ],
+            [
+              "Both high",
+              "Underfitting: wider/deeper, train longer"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Forward pass, 2 → 3 → 2",
+      "tags": [
+        "numerical deck",
+        "forward"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x = (1, 0.5); W⁽¹⁾ = [[0.5, 0.2], [−0.3, 0.8], [0.1, −0.4]], b⁽¹⁾ = (0.1, −0.2, 0.3), ReLU; W⁽²⁾ = [[0.4, −0.1, 0.6], [0.2, 0.7, −0.3]], b⁽²⁾ = (0.2, −0.1), sigmoid. Find ŷ."
+        }
+      ],
+      "steps": [
+        {
+          "label": "z⁽¹⁾",
+          "text": "(0.5 + 0.1 + 0.1, −0.3 + 0.4 − 0.2, 0.1 − 0.2 + 0.3) = (0.7, −0.1, 0.2)"
+        },
+        {
+          "label": "a⁽¹⁾",
+          "text": "ReLU → (0.7, 0, 0.2)"
+        },
+        {
+          "label": "z⁽²⁾",
+          "text": "(0.28 + 0 + 0.12 + 0.2, 0.14 + 0 − 0.06 − 0.1) = (0.6, −0.02)"
+        },
+        {
+          "label": "ŷ",
+          "text": "σ(0.6) = 0.646, σ(−0.02) = 0.495"
+        }
+      ],
+      "answer": "ŷ = (0.646, 0.495)."
+    },
+    {
+      "title": "Backward pass and update",
+      "tags": [
+        "numerical deck",
+        "backprop"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Same network, target y = (1, 0), BCE averaged over the 2 outputs, α = 0.1. Find L, all gradients and the new parameters."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Loss",
+          "text": "−½(ln 0.646 + ln 0.505) = 0.560"
+        },
+        {
+          "label": "δ⁽²⁾",
+          "text": "ŷ − y = (−0.354, 0.495)"
+        },
+        {
+          "label": "∂W⁽²⁾",
+          "text": "δ⁽²⁾ a⁽¹⁾ᵀ = [[−0.248, 0, −0.071], [0.347, 0, 0.099]]"
+        },
+        {
+          "label": "Back to hidden",
+          "text": "W⁽²⁾ᵀδ⁽²⁾ = (−0.142 + 0.099, 0.035 + 0.347, −0.212 − 0.149) = (−0.043, 0.382, −0.361)"
+        },
+        {
+          "label": "δ⁽¹⁾",
+          "text": "× ReLU′ (1, 0, 1) = (−0.043, 0, −0.361)"
+        },
+        {
+          "label": "∂W⁽¹⁾",
+          "text": "δ⁽¹⁾xᵀ = [[−0.043, −0.022], [0, 0], [−0.361, −0.181]]"
+        },
+        {
+          "label": "Update",
+          "text": "W⁽²⁾ = [[0.425, −0.1, 0.607], [0.165, 0.7, −0.31]], b⁽²⁾ = (0.235, −0.15), W⁽¹⁾ = [[0.504, 0.202], [−0.3, 0.8], [0.136, −0.382]], b⁽¹⁾ = (0.104, −0.2, 0.336)"
+        }
+      ],
+      "answer": "L = 0.560; the dead hidden neuron receives no update. Check every number in the Lab bench."
+    },
+    {
+      "title": "Gradient flow through 4 sigmoid layers",
+      "tags": [
+        "vanishing gradient"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "‖W⁽ˡ⁾‖ = 0.8 and g′ = 0.25 at every layer; |δ⁽⁴⁾| = 1. Find |δ⁽³⁾|, |δ⁽²⁾|, |δ⁽¹⁾|."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Factor",
+          "text": "0.8 × 0.25 = 0.2 per layer"
+        },
+        {
+          "label": "δ⁽³⁾",
+          "text": "0.2"
+        },
+        {
+          "label": "δ⁽²⁾",
+          "text": "0.04"
+        },
+        {
+          "label": "δ⁽¹⁾",
+          "text": "0.008"
+        }
+      ],
+      "answer": "0.2, 0.04, 0.008: the first layer gets 0.8% of the signal (the vanishing gradient problem). With ReLU (g′ = 1) the factor would be 0.8."
+    },
+    {
+      "title": "Activations and derivatives at a vector",
+      "tags": [
+        "activations"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "z = (2.0, −1.5, 0.8, −0.3). Compute sigmoid, tanh and ReLU, and their derivatives."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Sigmoid",
+          "text": "(0.881, 0.182, 0.690, 0.426); σ′ = (0.105, 0.149, 0.214, 0.245)"
+        },
+        {
+          "label": "Tanh",
+          "text": "(0.964, −0.905, 0.664, −0.291); 1 − tanh² = (0.071, 0.181, 0.559, 0.915)"
+        },
+        {
+          "label": "ReLU",
+          "text": "(2, 0, 0.8, 0); derivative (1, 0, 1, 0)"
+        }
+      ],
+      "answer": "Note how small σ′ is everywhere (≤ 0.25), while tanh′ reaches 0.915 near 0."
+    },
+    {
+      "title": "Softmax, cross-entropy and gradient",
+      "tags": [
+        "softmax"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "z = (2.0, 1.0, 0.1, −1.0), true class 2 (one-hot y = (0, 1, 0, 0))."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Stable shift",
+          "text": "z − 2 = (0, −1, −1.9, −3) → e = (1, 0.368, 0.150, 0.050), sum 1.568"
+        },
+        {
+          "label": "Softmax",
+          "text": "(0.638, 0.235, 0.095, 0.032)"
+        },
+        {
+          "label": "Loss",
+          "text": "−ln 0.235 = 1.45"
+        },
+        {
+          "label": "Gradient",
+          "text": "ŷ − y = (0.638, −0.765, 0.095, 0.032)"
+        }
+      ],
+      "answer": "Loss ≈ 1.45; gradient (0.638, −0.765, 0.095, 0.032)."
+    },
+    {
+      "title": "Size a network for a small tabular dataset",
+      "tags": [
+        "design rules"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "d = 20 features, M = 800 samples, c = 3 classes. Use L ≤ log₂(M/(dc)) + 1 and parameters ≤ M/5."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Depth bound",
+          "text": "log₂(800/60) + 1 = 3.74 + 1 = 4.7 → L ≤ 4"
+        },
+        {
+          "label": "Budget",
+          "text": "800/5 = 160 parameters"
+        },
+        {
+          "label": "Try",
+          "text": "[20, 40, 3] = 963 ✗; [20, 20, 3] = 483 ✗; [20, 10, 3] = 243 ✗"
+        },
+        {
+          "label": "Fits",
+          "text": "[20, 6, 3] = 120 + 6 + 18 + 3 = 147 ✓"
+        }
+      ],
+      "answer": "[20, 6, 3] with regularisation."
+    },
+    {
+      "title": "Count parameters",
+      "tags": [
+        "parameters"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Count parameters for 784 → 256 → 128 → 10."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Layer 1",
+          "text": "784 × 256 + 256 = 200,960"
+        },
+        {
+          "label": "Layer 2",
+          "text": "256 × 128 + 128 = 32,896"
+        },
+        {
+          "label": "Layer 3",
+          "text": "128 × 10 + 10 = 1,290"
+        }
+      ],
+      "answer": "235,146 parameters."
+    }
+  ],
+  "labs": [
+    {
+      "title": "MLP forward + backprop calculator",
+      "intro": "The deck's 2 → 3 → 2 network is preloaded. Change any weight, the activations or the loss, and every quantity is recomputed.",
+      "tryThis": [
+        "Switch the hidden activation to sigmoid: the dead neuron comes back to life.",
+        "Switch the output to softmax + cross-entropy: δ⁽²⁾ is still ŷ − y.",
+        "Change b⁽¹⁾ for neuron 2 to +0.3 and watch its gradient appear."
+      ],
+      "widget": "mlp-calc",
+      "config": {
+        "x": "1, 0.5",
+        "W1": "0.5 0.2; -0.3 0.8; 0.1 -0.4",
+        "b1": "0.1, -0.2, 0.3",
+        "W2": "0.4 -0.1 0.6; 0.2 0.7 -0.3",
+        "b2": "0.2, -0.1",
+        "y": "1, 0",
+        "hidden": "relu",
+        "output": "sigmoid",
+        "lr": 0.1
+      }
+    },
+    {
+      "title": "Activation and softmax calculator",
+      "intro": "Check sigmoid, BCE, softmax and cross-entropy values quickly.",
+      "widget": "softmax-calc",
+      "config": {
+        "z": 0.6,
+        "y": 1,
+        "logits": "2, 1, 0.1, -1",
+        "cls": 2
+      }
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "XOR",
+      "front": "Why does a single neuron fail on XOR?",
+      "back": "Its decision boundary is one straight line; XOR needs two."
+    },
+    {
+      "tag": "Concept",
+      "front": "What happens without non-linear activations?",
+      "back": "Stacked linear layers collapse into one linear layer."
+    },
+    {
+      "tag": "Activations",
+      "front": "ReLU and its derivative",
+      "back": "max(0, z); 1 for z > 0, else 0."
+    },
+    {
+      "tag": "Activations",
+      "front": "Tanh range and derivative",
+      "back": "(−1, 1); 1 − tanh², max 1. Zero-centred."
+    },
+    {
+      "tag": "Activations",
+      "front": "Why ReLU in hidden layers?",
+      "back": "Cheap, no vanishing for z > 0, sparse activations."
+    },
+    {
+      "tag": "Activations",
+      "front": "Dying ReLU and the fix",
+      "back": "z ≤ 0 always → zero output and gradient. Use Leaky ReLU / PReLU / ELU."
+    },
+    {
+      "tag": "Formula",
+      "front": "Layer computation",
+      "back": "z⁽ℓ⁾ = W⁽ℓ⁾a⁽ℓ⁻¹⁾ + b⁽ℓ⁾, a⁽ℓ⁾ = σ(z⁽ℓ⁾)."
+    },
+    {
+      "tag": "Formula",
+      "front": "Parameters in a layer",
+      "back": "n_ℓ(n_{ℓ−1} + 1)"
+    },
+    {
+      "tag": "Backprop",
+      "front": "Output error for MSE+identity, BCE+sigmoid, CE+softmax",
+      "back": "δ⁽ᴸ⁾ = ŷ − y for all three."
+    },
+    {
+      "tag": "Backprop",
+      "front": "Hidden-layer error",
+      "back": "δ⁽ℓ⁾ = (W⁽ℓ⁺¹⁾ᵀδ⁽ℓ⁺¹⁾) ⊙ σ′(z⁽ℓ⁾)"
+    },
+    {
+      "tag": "Backprop",
+      "front": "Weight gradient",
+      "back": "δ⁽ℓ⁾a⁽ℓ⁻¹⁾ᵀ (bias gradient = δ⁽ℓ⁾)"
+    },
+    {
+      "tag": "Backprop",
+      "front": "Why is backprop efficient?",
+      "back": "One forward + one backward pass instead of one pass per parameter."
+    },
+    {
+      "tag": "Losses",
+      "front": "Derivative of MAE",
+      "back": "sign(ŷ − y): a constant ±1."
+    },
+    {
+      "tag": "Losses",
+      "front": "Derivative of BCE w.r.t. ŷ",
+      "back": "(ŷ − y)/(ŷ(1 − ŷ))"
+    },
+    {
+      "tag": "Gradients",
+      "front": "Vanishing gradient cause",
+      "back": "Repeated multiplication by small σ′ (≤ 0.25) and weights < 1."
+    },
+    {
+      "tag": "Gradients",
+      "front": "Exploding gradient fix",
+      "back": "Gradient clipping, better initialisation, smaller η."
+    },
+    {
+      "tag": "Init",
+      "front": "Xavier vs He initialisation",
+      "back": "Xavier for sigmoid/tanh; He for ReLU. Never all zeros."
+    },
+    {
+      "tag": "Theory",
+      "front": "Universal approximation theorem",
+      "back": "One hidden layer can approximate any continuous function, but may need exponentially many units."
+    },
+    {
+      "tag": "Design",
+      "front": "Depth vs width",
+      "back": "Depth gives hierarchical features and efficiency; width gives parallel capacity but risks overfitting."
+    },
+    {
+      "tag": "Design",
+      "front": "Two sizing rules from the deck",
+      "back": "L ≤ log₂(M/(d·c)) + 1; parameters ≤ M/5."
+    },
+    {
+      "tag": "Debug",
+      "front": "Train loss ↓, validation loss ↑",
+      "back": "Overfitting: regularise, dropout, more data, early stopping."
+    },
+    {
+      "tag": "Output",
+      "front": "Output layer for multi-class",
+      "back": "C units, softmax, categorical cross-entropy."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "mcq",
+      "q": "Two linear layers with no activation between them are equivalent to…",
+      "options": [
+        "A deeper non-linear network",
+        "A single linear layer",
+        "A sigmoid layer",
+        "Nothing"
+      ],
+      "answer": 1,
+      "explain": "W₂(W₁x) = (W₂W₁)x."
+    },
+    {
+      "type": "numeric",
+      "q": "ReLU(−0.1) = ?",
+      "answer": 0,
+      "tolerance": 0.001,
+      "explain": "max(0, −0.1) = 0."
+    },
+    {
+      "type": "numeric",
+      "q": "tanh′(0) = ?",
+      "answer": 1,
+      "tolerance": 0.001,
+      "explain": "1 − 0² = 1."
+    },
+    {
+      "type": "numeric",
+      "q": "Forward pass: z⁽²⁾ = 0.6 with a sigmoid output. ŷ = ?",
+      "answer": 0.646,
+      "tolerance": 0.003,
+      "explain": "1/(1 + e^−0.6)."
+    },
+    {
+      "type": "numeric",
+      "q": "ŷ = 0.646, y = 1. Output error δ = ŷ − y?",
+      "answer": -0.354,
+      "tolerance": 0.002,
+      "explain": "0.646 − 1."
+    },
+    {
+      "type": "numeric",
+      "q": "δ = −0.354 and the hidden activation a = 0.7. ∂L/∂w for that weight?",
+      "answer": -0.248,
+      "tolerance": 0.002,
+      "explain": "δ × a = −0.2478."
+    },
+    {
+      "type": "numeric",
+      "q": "Weight 0.4 with gradient −0.248, α = 0.1. New weight?",
+      "answer": 0.425,
+      "tolerance": 0.002,
+      "explain": "0.4 + 0.0248."
+    },
+    {
+      "type": "numeric",
+      "q": "Gradient factor per layer is 0.2. After 3 layers back, what fraction is left?",
+      "answer": 0.008,
+      "tolerance": 0.0005,
+      "explain": "0.2³ = 0.008."
+    },
+    {
+      "type": "numeric",
+      "q": "Parameters of a 4 → 5 → 3 network?",
+      "answer": 43,
+      "tolerance": 0.01,
+      "explain": "4·5 + 5 + 5·3 + 3 = 43."
+    },
+    {
+      "type": "mcq",
+      "q": "Which initialisation suits ReLU networks?",
+      "options": [
+        "All zeros",
+        "Xavier",
+        "He",
+        "All ones"
+      ],
+      "answer": 2,
+      "explain": "He initialisation."
+    },
+    {
+      "type": "mcq",
+      "q": "A neuron with z = −0.1 under ReLU during backprop gets gradient…",
+      "options": [
+        "−0.1",
+        "0",
+        "1",
+        "0.25"
+      ],
+      "answer": 1,
+      "explain": "ReLU′(z ≤ 0) = 0, so it is dead."
+    },
+    {
+      "type": "mcq",
+      "q": "Derivative of MAE w.r.t. ŷ when ŷ > y is…",
+      "options": [
+        "ŷ − y",
+        "+1",
+        "−1",
+        "0"
+      ],
+      "answer": 1,
+      "explain": "sign(ŷ − y) = +1."
+    },
+    {
+      "type": "numeric",
+      "q": "Design rule: d = 20, M = 800, c = 3. log₂(M/(dc)) + 1 ≈ ? (one decimal)",
+      "answer": 4.7,
+      "tolerance": 0.06,
+      "explain": "log₂(13.33) = 3.74; + 1 = 4.74."
+    },
+    {
+      "type": "mcq",
+      "q": "Which statement about the universal approximation theorem is right?",
+      "options": [
+        "Deep networks are never needed",
+        "One hidden layer can approximate any continuous function, but may need exponentially many units",
+        "It only applies to ReLU",
+        "It proves gradient descent finds the global minimum"
+      ],
+      "answer": 1,
+      "explain": "Existence, not efficiency or learnability."
+    },
+    {
+      "type": "mcq",
+      "q": "Training loss keeps falling while validation loss rises. This is…",
+      "options": [
+        "Underfitting",
+        "Overfitting",
+        "Vanishing gradients",
+        "A learning rate that is too small"
+      ],
+      "answer": 1,
+      "explain": "The classic overfitting signature."
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Layer",
+      "formula": "z⁽ℓ⁾ = W⁽ℓ⁾a⁽ℓ⁻¹⁾ + b⁽ℓ⁾ (row-neuron form),  a⁽ℓ⁾ = σ(z⁽ℓ⁾)",
+      "note": "main deck: Z = HW + b with W as inputs × units"
+    },
+    {
+      "name": "Parameters",
+      "formula": "Σ n_ℓ(n_{ℓ−1} + 1)"
+    },
+    {
+      "name": "Output error",
+      "formula": "δ⁽ᴸ⁾ = ŷ − y (MSE+identity, BCE+sigmoid, CE+softmax)"
+    },
+    {
+      "name": "Backprop",
+      "formula": "δ⁽ℓ⁾ = (W⁽ℓ⁺¹⁾ᵀδ⁽ℓ⁺¹⁾) ⊙ σ′(z⁽ℓ⁾);  ∂W = δ a⁽ℓ⁻¹⁾ᵀ;  ∂b = δ"
+    },
+    {
+      "name": "Update",
+      "formula": "W ← W − η∂W,  b ← b − η∂b"
+    },
+    {
+      "name": "Activations",
+      "formula": "σ′ = σ(1 − σ) ≤ 0.25 · tanh′ = 1 − tanh² ≤ 1 · ReLU′ ∈ {0, 1}"
+    },
+    {
+      "name": "Loss derivatives",
+      "formula": "MSE: ŷ − y · MAE: sign(ŷ − y) · BCE: (ŷ − y)/(ŷ(1 − ŷ)) · CE: −y/ŷ"
+    },
+    {
+      "name": "Gradient flow",
+      "formula": "|δ⁽ℓ⁻¹⁾| = |δ⁽ℓ⁾| · ‖W‖ · |g′|"
+    },
+    {
+      "name": "Sizing rules",
+      "formula": "L ≤ log₂(M/(d·c)) + 1;  params ≤ M/5"
+    },
+    {
+      "name": "Initialisation",
+      "formula": "Xavier (sigmoid/tanh) · He (ReLU) · biases 0 · never all-zero weights"
+    }
+  ]
+}
