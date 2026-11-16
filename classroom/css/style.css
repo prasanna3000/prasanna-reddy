@@ -478,3 +478,9 @@ canvas, img, svg, video { max-width: 100%; }
   .flashcard { height: 380px; }
   .door { min-height: 220px; }
 }
+
+/* iPhone (Safari iOS) horizontal-scroll guards */
+html, body { overflow-x: clip; }
+main, .site-header, .site-footer { max-width: 100vw; overflow-x: clip; }
+.flashcard { overflow: clip; }              /* 3-D flip can project past the edge mid-turn */
+input, select, textarea { font-size: max(16px, 1em); }  /* stop iOS zooming in on focus */

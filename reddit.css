@@ -367,3 +367,10 @@ a.thumb:hover { text-decoration: none; filter: brightness(1.1); }
 .c-write, .f-write { background: var(--f-write); color: #fff; }
 .t-write { background: linear-gradient(135deg, #ff6719, #ffb38a); font-size: 34px; }
 .link-desc em { color: var(--muted); }
+
+/* iPhone (Safari iOS) horizontal-scroll guards */
+html, body { overflow-x: clip; }            /* iOS ignores overflow-x:hidden on body alone; clip keeps sticky working */
+.layout, .topbar { max-width: 100vw; overflow-x: clip; }
+.search input { font-size: 16px; }          /* under 16px, iOS zooms in on focus and the page then pans sideways */
+.media { clip-path: inset(0 round 8px); }   /* Safari can let the blurred backdrop escape overflow:hidden + radius */
+.media::before { inset: -24px; }
