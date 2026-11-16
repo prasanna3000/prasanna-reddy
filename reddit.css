@@ -374,3 +374,18 @@ html, body { overflow-x: clip; }            /* iOS ignores overflow-x:hidden on 
 .search input { font-size: 16px; }          /* under 16px, iOS zooms in on focus and the page then pans sideways */
 .media { clip-path: inset(0 round 8px); }   /* Safari can let the blurred backdrop escape overflow:hidden + radius */
 .media::before { inset: -24px; }
+
+/* Mid widths (e.g. Pixel Fold unfolded ~673px) and phones (Pixel ~412px) */
+@media (max-width: 900px) { .search-sub { display: none; } }
+@media (max-width: 760px) { .brand-word { display: none; } }
+@media (max-width: 640px) {
+  .banner-tabs { gap: 0; margin: 4px -4px 0; scrollbar-width: none; }
+  .banner-tabs::-webkit-scrollbar { display: none; }
+  .banner-tabs a { padding: 8px 7px 9px; font-size: 13px; }
+  .tab-classroom svg { width: 14px; height: 14px; }
+  .tab-classroom { gap: 4px; }
+}
+@media (max-width: 380px) {
+  .banner-tabs a { padding: 8px 5px 9px; }
+  .tab-classroom svg { display: none; }
+}
