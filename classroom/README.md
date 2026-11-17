@@ -97,7 +97,7 @@ Add an object to `semesters`:
 
 ### Test-type tabs (`families`)
 
-A chapter can carry an optional `families` array. Each entry (`id`, `label`, `icon`, `title`, `lead`, `blocks`, `problems`) becomes its own tab after the Chalkboard. `blocks` are ordinary content blocks (the intuition, formulas, steps). `problems` is a list of worked-problem title prefixes; matching problems are shown under the tab with the usual reveal-a-step behaviour. Optional `treeBranch` is the start of a node label in the chapter's `tree` block (e.g. `"t-test"`); that branch is drawn at the top of the tab. The whole tree (the first `tree` block on any chalkboard) is also drawn at the top of the Worked problems tab.
+A chapter can carry an optional `families` array. Each entry (`id`, `label`, `icon`, `title`, `lead`, `blocks`, `problems`) becomes its own tab after the Chalkboard. `blocks` are ordinary content blocks (the intuition, formulas, steps). `problems` is a list of worked-problem title prefixes; matching problems are shown under the tab with the usual reveal-a-step behaviour. Optional `treeBranch` is the start of a node label in the chapter's `tree` block (e.g. `"t-test"`); that branch is drawn at the top of the tab. The whole tree (the first `tree` block on any chalkboard) is drawn at the top of the Worked problems tab. When a chapter has families, a problem matched by a family is shown only in that family's tab; the Worked problems tab shows the tree, a button per family, and any problems no family claims.
 
 ### Content blocks (lesson boards and worked-problem statements)
 

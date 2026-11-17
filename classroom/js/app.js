@@ -310,11 +310,21 @@
       <div class="board-inner">${renderBlocks([block], widgets)}</div></details>`;
   }
 
+  /* Worked-problem indexes a test-type tab (family) shows. */
+  const familyProblems = (ch, f) => ch.worked.map((w, i) => (f.problems || []).some((t) => w.title.startsWith(t)) ? i : -1).filter((i) => i >= 0);
+
   function tabWorked(ctx) {
-    const t = chapterTree(ctx.ch);
+    const { ch, base } = ctx;
+    const t = chapterTree(ch);
     const widgets = [];
-    ctx.body.innerHTML = `${t ? treeMap(t.board.title || 'Which test do I use?', t.tree, widgets) : ''}<div class="worked-list"></div>`;
-    renderWorked(ctx, ctx.body.querySelector('.worked-list'), null);
+    /* Problems that live in a test-type tab are shown there only, not repeated here. */
+    const fams = ch.families || [];
+    const inFamily = new Set(fams.flatMap((f) => familyProblems(ch, f)));
+    const rest = ch.worked.map((_, i) => i).filter((i) => !inFamily.has(i));
+    const picker = fams.length ? `<p class="tab-intro">The problems are grouped by test. Pick one:</p>
+      <div class="btn-row family-links">${fams.map((f) => `<a class="btn btn-chalk" href="${base}/f-${f.id}">${esc(f.icon || '◆')} ${esc(f.label)} (${familyProblems(ch, f).length})</a>`).join('')}</div>` : '';
+    ctx.body.innerHTML = `${t ? treeMap(t.board.title || 'Which test do I use?', t.tree, widgets) : ''}${picker}${rest.length ? '<div class="worked-list"></div>' : ''}`;
+    if (rest.length) renderWorked(ctx, ctx.body.querySelector('.worked-list'), fams.length ? rest : null);
   }
 
   function renderWorked(ctx, body, only) {
@@ -363,7 +373,7 @@
   function tabFamily(ctx, f) {
     const { ch, body } = ctx;
     const widgets = [];
-    const idx = ch.worked.map((w, i) => (f.problems || []).some((t) => w.title.startsWith(t)) ? i : -1).filter((i) => i >= 0);
+    const idx = familyProblems(ch, f);
     const t = f.treeBranch && chapterTree(ch);
     const branch = t && findNode(t.tree.root, f.treeBranch);
     body.innerHTML = `

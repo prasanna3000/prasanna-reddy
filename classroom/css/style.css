@@ -525,3 +525,5 @@ input, select, textarea { font-size: max(16px, 1em); }  /* stop iOS zooming in o
 .tree-map:not([open]) > summary::after { content: ' ▸'; }
 .tree-map > .board-inner { padding-top: 6px; }
 @media (max-width: 600px) { .tree-map > summary { padding: 14px 14px 0; } }
+.family-links { flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.family-links .btn { text-decoration: none; }
