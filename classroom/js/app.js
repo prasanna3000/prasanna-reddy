@@ -105,6 +105,10 @@
         case 'note': return `<aside class="sticky ${b.color || ''}"><div class="sticky-label">${esc(b.label || 'Note')}</div>${md(b.text)}</aside>`;
         case 'trap': return `<aside class="trap"><div class="trap-label">${esc(b.label || 'Exam trap')}</div>${md(b.text)}</aside>`;
         case 'table': return `<div class="table-wrap"><table class="chalk-table"><thead><tr>${b.head.map((h) => `<th>${md(h)}</th>`).join('')}</tr></thead><tbody>${b.rows.map((r) => `<tr>${r.map((c) => `<td>${md(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+        case 'tree': {
+          const node = (n) => `<li class="tn${n.kind ? ' ' + n.kind : ''}"><div class="tn-box"><span class="tn-label">${md(n.label)}</span>${n.count != null ? `<span class="tn-count">×${n.count}</span>` : ''}${n.note ? `<span class="tn-note">${md(n.note)}</span>` : ''}</div>${n.children && n.children.length ? `<ul>${n.children.map(node).join('')}</ul>` : ''}</li>`;
+          return `<div class="tree-wrap"><ul class="tree">${node(b.root)}</ul>${b.caption ? `<div class="formula-cap">${md(b.caption)}</div>` : ''}</div>`;
+        }
         case 'widget': { widgets.push(b); return `<div class="widget-slot" data-wi="${widgets.length - 1}"></div>`; }
         default: return b.text ? `<p>${md(b.text)}</p>` : '';
       }
@@ -124,7 +128,7 @@
       <h2 class="chalk-title">Oops: the board is blank</h2>
       <p>${esc(err.message || err)}</p>
       ${local ? `<p>This page reads its lessons from <code>content/content-bundle.js</code>. If you just added or edited content, rebuild the bundle in the classroom folder:</p>
-      <div class="formula">python3 build-content.py</div><p>Then reload this page.</p>` :'<p>Check that the file path in <code>content/catalog.json</code> is right and the JSON is valid.</p>'}
+      <div class="formula">python3 build-content.py</div><p>Then reload this page.</p>` : '<p>Check that the file path in <code>content/catalog.json</code> is right and the JSON is valid.</p>'}
       <p><a class="btn btn-chalk" href="#/">Back to the corridor</a></p></div></section>`;
   }
 
@@ -213,6 +217,8 @@
     const key = `${sem.id}/${course.id}/${meta.id}`;
     const base = `#/${sem.id}/${course.id}/${meta.id}`;
     const tabs = TABS.filter((t) => t.has(ch));
+    const fam = (ch.families || []).map((f) => ({ id: 'f-' + f.id, label: f.label, icon: f.icon || '◆' }));
+    if (fam.length) tabs.splice(Math.max(1, tabs.findIndex((t) => t.id === 'lesson') + 1), 0, ...fam);
     if (!tabs.find((t) => t.id === tab)) tab = tabs[0]?.id;
     setCrumbs([{ label: 'Corridor', href: '#/' }, { label: course.title, href: `#/${sem.id}/${course.id}` }, { label: meta.label ? meta.title : `Ch ${meta.number ?? ''} · ${ch.title || meta.title}` }]);
     setTitle(ch.title || meta.title);
@@ -235,6 +241,7 @@
       <section id="tab-body" class="tab-body"></section>`;
     const body = document.getElementById('tab-body');
     const ctx = { ch, key, base, body, sub };
+    if (tab.startsWith('f-')) return tabFamily(ctx, ch.families.find((f) => 'f-' + f.id === tab));
     ({ lesson: tabLesson, worked: tabWorked, lab: tabLab, cards: tabCards, quiz: tabQuiz, sheet: tabSheet })[tab](ctx);
   }
 
@@ -285,13 +292,39 @@
   }
 
   /* --- Worked problems: reveal one step at a time --- */
+  /* The chapter's "which test do I use?" tree: the first `tree` block on any chalkboard. */
+  function chapterTree(ch) {
+    for (const b of ch.lesson || []) {
+      const t = (b.blocks || []).find((x) => x.type === 'tree');
+      if (t) return { board: b, tree: t };
+    }
+    return null;
+  }
+  function findNode(n, prefix) {
+    if (n.label.startsWith(prefix)) return n;
+    for (const c of n.children || []) { const hit = findNode(c, prefix); if (hit) return hit; }
+    return null;
+  }
+  function treeMap(title, block, widgets) {
+    return `<details class="board big-board tree-map" open><summary class="chalk-title">${md(title)}</summary>
+      <div class="board-inner">${renderBlocks([block], widgets)}</div></details>`;
+  }
+
   function tabWorked(ctx) {
-    const { ch, key, body } = ctx;
+    const t = chapterTree(ctx.ch);
+    const widgets = [];
+    ctx.body.innerHTML = `${t ? treeMap(t.board.title || 'Which test do I use?', t.tree, widgets) : ''}<div class="worked-list"></div>`;
+    renderWorked(ctx, ctx.body.querySelector('.worked-list'), null);
+  }
+
+  function renderWorked(ctx, body, only) {
+    const { ch, key } = ctx;
     const done = P.of(key).worked;
     const widgets = [];
+    const idx = only || ch.worked.map((_, i) => i);
     body.innerHTML = `<p class="tab-intro">Try each step on paper first, then reveal it. A problem counts as done once every step is revealed.</p>
       <div class="notebooks">
-      ${ch.worked.map((w, i) => `
+      ${idx.map((i) => [ch.worked[i], i]).map(([w, i]) => `
         <article class="notebook" data-i="${i}">
           <header><span class="nb-num">Problem ${i + 1}</span>${done.includes(i) ? '<span class="tick">✓ done</span>' : ''}
             ${(w.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</header>
@@ -324,6 +357,27 @@
         nb.querySelector('header').insertAdjacentHTML('beforeend', '<span class="tick">✓ done</span>');
       }
     });
+  }
+
+  /* --- Family tab: intuition + steps + the problems of one test type --- */
+  function tabFamily(ctx, f) {
+    const { ch, body } = ctx;
+    const widgets = [];
+    const idx = ch.worked.map((w, i) => (f.problems || []).some((t) => w.title.startsWith(t)) ? i : -1).filter((i) => i >= 0);
+    const t = f.treeBranch && chapterTree(ch);
+    const branch = t && findNode(t.tree.root, f.treeBranch);
+    body.innerHTML = `
+      ${branch ? treeMap(`Where ${esc(f.label)} sit in the tree`, { type: 'tree', root: { ...branch, kind: 'root' }, caption: t.tree.caption }, widgets) : ''}
+      <article class="board big-board">
+        <div class="board-inner">
+          <h2 class="chalk-title">${md(f.title)}</h2>
+          ${f.lead ? `<p class="chalk-sub">${md(f.lead)}</p>` : ''}
+          <div class="board-content">${renderBlocks(f.blocks, widgets)}</div>
+        </div>
+      </article>
+      ${idx.length ? `<h3 class="tab-subhead">Practice problems for this test (${idx.length})</h3><div class="family-worked"></div>` : ''}`;
+    mountWidgets(body, widgets);
+    if (idx.length) renderWorked(ctx, body.querySelector('.family-worked'), idx);
   }
 
   /* --- Lab bench --- */
@@ -400,11 +454,15 @@
   /* --- Pop quiz --- */
   function tabQuiz(ctx) {
     const { ch, key, body } = ctx;
-    let qs = ch.quiz.map((q, i) => ({ ...q, _i: i, _opts: q.options ? q.options.map((o, j) => ({ o, j })) : null }));
+    const allQs = ch.quiz.map((q, i) => ({ ...q, _i: i, set: q.set || 'Chapter mix', _opts: q.options ? q.options.map((o, j) => ({ o, j })) : null }));
+    const sets = [...new Set(allQs.map((q) => q.set))];
+    let current = 'All';
+    let qs = allQs;
     function render(shuffled) {
       if (shuffled) qs = shuffle(qs).map((q) => ({ ...q, _opts: q._opts ? shuffle(q._opts) : null }));
-      const best = P.of(key).quizBest;
+      const best = current === 'All' ? P.of(key).quizBest : (P.of(key).quizSetBest || {})[current];
       body.innerHTML = `
+        ${sets.length > 1 ? `<div class="btn-row quiz-sets">${['All', ...sets].map((n) => `<button class="btn small-btn${n === current ? ' btn-chalk' : ''}" type="button" data-set="${esc(n)}">${esc(n)} (${n === 'All' ? allQs.length : allQs.filter((q) => q.set === n).length})</button>`).join('')}</div>` : ''}
         <form class="exam-paper" novalidate>
           <header class="exam-head"><div><b>Pop quiz</b>: ${esc(ch.title)}</div><div>Name: ____________ &nbsp; Marks: ___ / ${qs.length}</div></header>
           ${best ? `<p class="small muted">Your best so far: ${best.score} / ${best.total}</p>` : ''}
@@ -447,14 +505,22 @@
         fb.innerHTML = `<b>${ok ? '✓ Correct.' : given === '' ? '✗ Left blank.' : '✗ Not quite.'}</b> ${q.type === 'numeric' ? `Answer: <b>${fmt(q.answer)}</b>${q.unit ? ' ' + esc(q.unit) : ''}. ` : ''}${md(q.explain || '')}`;
       });
       const total = qs.length;
-      const prev = P.of(key).quizBest;
-      if (!prev || score > prev.score) { P.of(key).quizBest = { score, total, at: Date.now() }; P.save(); refreshReportCard(ctx); }
+      if (current === 'All') {
+        const prev = P.of(key).quizBest;
+        if (!prev || score > prev.score) { P.of(key).quizBest = { score, total, at: Date.now() }; P.save(); refreshReportCard(ctx); }
+      } else {
+        const sb = (P.of(key).quizSetBest ||= {});
+        if (!sb[current] || score > sb[current].score) { sb[current] = { score, total, at: Date.now() }; P.save(); }
+      }
       const g = form.querySelector('.grade'); g.hidden = false;
       const pct = score / total;
       g.innerHTML = `<div class="grade-circle">${score}/${total}</div><p>${pct === 1 ? 'Full marks! Gold star.' : pct >= 0.7 ? 'Good work. Read the red feedback and try a new paper.' : 'Back to the chalkboard for the red ones, then try again.'}</p>`;
       g.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
-    body.addEventListener('click', (ev) => { if (ev.target.closest('[data-act="shuffle"]')) { render(true); window.scrollTo({ top: body.offsetTop - 20, behavior: 'smooth' }); } });
+    body.addEventListener('click', (ev) => {
+      const sb = ev.target.closest('[data-set]');
+      if (sb) { current = sb.dataset.set; qs = current === 'All' ? allQs : allQs.filter((q) => q.set === current); render(false); return; }
+      if (ev.target.closest('[data-act="shuffle"]')) { render(true); window.scrollTo({ top: body.offsetTop - 20, behavior: 'smooth' }); } });
     render(false);
   }
 

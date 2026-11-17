@@ -19,12 +19,15 @@ It is a plain static site: HTML, CSS and JavaScript with no build step and no de
 
 ## Run it locally
 
-Browsers block `fetch()` for pages opened from `file://`, so serve the folder:
+No server needed: just open `index.html` in a browser (double-click it).
+
+Lessons are written as `.json` in `content/`. Browsers won't let a page opened from disk read those
+files directly, so they are bundled into `content/content-bundle.js`, a plain script the page loads.
+After adding or editing anything in `content/`, rebuild the bundle:
 
 ```bash
 cd classroom
-python3 -m http.server 8000
-# open http://localhost:8000
+python3 build-content.py
 ```
 
 ---
@@ -92,6 +95,10 @@ Add an object to `semesters`:
 { "id": "sem2", "title": "Semester 2", "subtitle": "M.Tech AIML · 2027", "courses": [] }
 ```
 
+### Test-type tabs (`families`)
+
+A chapter can carry an optional `families` array. Each entry (`id`, `label`, `icon`, `title`, `lead`, `blocks`, `problems`) becomes its own tab after the Chalkboard. `blocks` are ordinary content blocks (the intuition, formulas, steps). `problems` is a list of worked-problem title prefixes; matching problems are shown under the tab with the usual reveal-a-step behaviour. Optional `treeBranch` is the start of a node label in the chapter's `tree` block (e.g. `"t-test"`); that branch is drawn at the top of the tab. The whole tree (the first `tree` block on any chalkboard) is also drawn at the top of the Worked problems tab.
+
 ### Content blocks (lesson boards and worked-problem statements)
 
 | `type` | Fields |
@@ -103,11 +110,12 @@ Add an object to `semesters`:
 | `note` | `text`, optional `label`, optional `color`: `pink` or `blue` (sticky note) |
 | `trap` | `text`, optional `label` (exam-trap box) |
 | `table` | `head` (array), `rows` (array of arrays) |
+| `tree` | `root` (node: `label`, optional `count`, `note`, `kind` = `root`/`group`/`leaf`, `children`), optional `caption`: indented tree diagram |
 | `widget` | `widget` (name), `config` (object): embeds a lab inside a board |
 
 Inline text supports `**bold**`, `` `code` ``, `==highlight==` and `[link](https://…)`. Write maths in Unicode (ŷ, wᵀx, Σ, η, ∇, ², ₁). A single `*` is left alone, so `w*` is safe.
 
-Quiz questions: `mcq` (`options`, `answer` = index of the right option) or `numeric` (`answer`, `tolerance`, optional `unit`). Both take `explain`.
+Quiz questions: `mcq` (`options`, `answer` = index of the right option) or `numeric` (`answer`, `tolerance`, optional `unit`). Both take `explain`. Add an optional `set` (for example `"set": "Terminology"`) to a question to group it: when a chapter has more than one set, the quiz tab shows a picker for each set and "All".
 
 ### Labs available
 

@@ -379,7 +379,7 @@ html, body { overflow-x: clip; }            /* iOS ignores overflow-x:hidden on 
 @media (max-width: 900px) { .search-sub { display: none; } }
 @media (max-width: 760px) { .brand-word { display: none; } }
 @media (max-width: 640px) {
-  .banner-tabs { gap: 0; margin: 4px -4px 0; scrollbar-width: none; }
+  .banner-tabs { gap: 0; padding: 0 8px; scrollbar-width: none; }
   .banner-tabs::-webkit-scrollbar { display: none; }
   .banner-tabs a { padding: 8px 7px 9px; font-size: 13px; }
   .tab-classroom svg { width: 14px; height: 14px; }
