@@ -174,7 +174,7 @@ const spy = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (!entry.isIntersecting) return;
     const id = entry.target.id;
-    navLinks.forEach((l) => l.classList.toggle('is-active', l.getAttribute('href') === '#' + id || (id === 'post-intro' && l.getAttribute('href') === '#top') || (id === 'post-beyond' && l.getAttribute('href') === '#post-gym') || (id === 'post-moon' && l.getAttribute('href') === '#post-gym')));
+    navLinks.forEach((l) => l.classList.toggle('is-active', l.getAttribute('href') === '#' + id || (id === 'post-intro' && l.getAttribute('href') === '#top') || (id === 'post-beyond' && l.getAttribute('href') === '#post-gym')));
   });
 }, { rootMargin: '-45% 0px -50% 0px' });
 posts.forEach((p) => spy.observe(p));
