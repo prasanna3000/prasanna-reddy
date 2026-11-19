@@ -1,0 +1,2179 @@
+{
+ "id": "ch10",
+ "title": "Maximum Likelihood & ANOVA",
+ "subtitle": "Contact session 10 · slides CS-10 · MLE, F-test, one-way and two-way ANOVA",
+ "lesson": [
+  {
+   "title": "Why this matters in AI and ML",
+   "lead": "MLE trains models. ANOVA and the F-test tell you whether a difference is real or just noise.",
+   "blocks": [
+    {
+     "type": "h",
+     "text": "Maximum likelihood = how models learn"
+    },
+    {
+     "type": "p",
+     "text": "When you train a classifier with cross-entropy loss, you are doing maximum likelihood: you pick the weights that make the training data most likely. Logistic regression, naive Bayes and the Gaussian fits inside a GMM all work this way. Today you meet the idea in its smallest form: one unknown number (a probability, a mean) and some data."
+    },
+    {
+     "type": "h",
+     "text": "ANOVA and the F-test = is the difference real?"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Comparing models:** three models each scored on five test folds. Are their average scores really different, or is it fold-to-fold noise? That is one-way ANOVA.",
+      "**Comparing models and datasets together:** models are the treatments and datasets are the blocks. That is two-way ANOVA.",
+      "**Comparing spreads:** is model A's error more variable than model B's? That is the F-test for two variances."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Big picture",
+     "text": "The slides use MLE and ANOVA on small hand-sized data. The thinking is identical to the ML version: assume a distribution, estimate a number, then ask whether a difference is bigger than noise."
+    }
+   ]
+  },
+  {
+   "title": "MLE: the idea (slides 3–12)",
+   "lead": "Flip the question: instead of asking how likely the data is for a known θ, find the θ that makes the data most likely.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "Probability asks: *given θ, how likely is this data?* Maximum likelihood estimation (MLE) asks the reverse: *given this data, which θ makes it most likely?* The function being maximised is the **likelihood** L(θ), the joint probability of the sample read as a function of θ."
+    },
+    {
+     "type": "formula",
+     "text": "L(θ) = f(x₁|θ) · f(x₂|θ) · … · f(xₙ|θ) = ∏ f(xᵢ|θ)",
+     "caption": "Independent observations, so the probabilities multiply."
+    },
+    {
+     "type": "h",
+     "text": "The helmet example from class (slides 7–12)"
+    },
+    {
+     "type": "p",
+     "text": "Ten helmets are tested. The 1st, 3rd and 10th are flawed (X = 1), the other seven are fine (X = 0). Each X has pmf p^x (1 − p)^(1−x), so the joint probability is:"
+    },
+    {
+     "type": "formula",
+     "text": "f(x₁,…,x₁₀; p) = p³ (1 − p)⁷"
+    },
+    {
+     "type": "table",
+     "head": [
+      "p",
+      "Likelihood",
+      "Which is bigger?"
+     ],
+     "rows": [
+      [
+       "0.25",
+       "(0.25)³(0.75)⁷ = 0.002086",
+       "← higher"
+      ],
+      [
+       "0.50",
+       "(0.50)³(0.50)⁷ = 0.000977",
+       "lower"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "The graph of L(p) peaks just above 0.3. Calculus finds the exact peak. Take the natural log first, because a sum is easier to differentiate than a product:"
+    },
+    {
+     "type": "formula",
+     "text": "ln L = 3 ln p + 7 ln(1 − p)   →   d/dp: 3/p − 7/(1 − p) = 0   →   p̂ = 3/10 = 0.3"
+    },
+    {
+     "type": "note",
+     "label": "Teacher says",
+     "text": "If you are only told *3 of 10* were flawed, you get the same estimate p̂ = 3/10. The order does not matter (slide 12)."
+    }
+   ]
+  },
+  {
+   "title": "The MLE recipe and the three results",
+   "lead": "Five steps every time. You only need to remember the three answers.",
+   "blocks": [
+    {
+     "type": "h",
+     "text": "The 5-step recipe (slides 13–15)"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Write the likelihood: **L(θ) = ∏ f(xᵢ | θ)**.",
+      "Take the log: **ℓ(θ) = ln L(θ)**. Products become sums.",
+      "Differentiate with respect to θ.",
+      "Set the derivative **equal to 0**.",
+      "Solve for θ. The solution is **θ̂**, the maximum likelihood estimate."
+     ]
+    },
+    {
+     "type": "h",
+     "text": "The three results you need (slides 16–20)"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Distribution",
+      "Likelihood ingredient",
+      "MLE"
+     ],
+     "rows": [
+      [
+       "Bernoulli / Binomial (slide 16)",
+       "p^k (1 − p)^(n−k)",
+       "**θ̂ = k / n**  (successes ÷ trials)"
+      ],
+      [
+       "Poisson (slides 17–18)",
+       "L = e^(−nμ) μ^(nX̄), ℓ = −nμ + nX̄ ln μ",
+       "**μ̂ = X̄**  (the sample mean)"
+      ],
+      [
+       "Normal (slides 19–20)",
+       "product of normal densities",
+       "**μ̂ = X̄**  and  **σ̂² = Σ(Xᵢ − X̄)² / n**"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "Symbols: n = sample size, k = number of successes, X̄ = sample mean, Xᵢ = each observation."
+    },
+    {
+     "type": "trap",
+     "label": "Exam trap",
+     "text": "The Normal MLE of the variance divides by **n**, not n − 1. The professor pointed out that the unbiased estimate uses 1/(n − 1). The MLE is the biased one. Use n when the question says MLE."
+    },
+    {
+     "type": "note",
+     "label": "Teacher says",
+     "text": "You do not need to memorise ln f for the Normal. Know the recipe and the three results. The slides omit the Normal derivation."
+    }
+   ]
+  },
+  {
+   "title": "Using the MLE: how it is asked",
+   "lead": "Estimate first, then plug the estimate into a probability. This is the invariance property.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "The MLE of a *function* of the parameter is that function of the MLE. So after you find μ̂ or θ̂, write \"by invariance, replace the parameter by its MLE\" and use the usual probability formula. (This idea is in the textbook; write it as a one-line reason in the exam.)"
+    },
+    {
+     "type": "table",
+     "head": [
+      "They ask",
+      "Use",
+      "Source"
+     ],
+     "rows": [
+      [
+       "Find the MLE only",
+       "μ̂ = X̄, or θ̂ = k/n",
+       "Slides"
+      ],
+      [
+       "P(exactly k), Poisson",
+       "e^(−μ̂) μ̂ᵏ / k!",
+       "Past paper 2024"
+      ],
+      [
+       "P(0 or 1), \"at most\"",
+       "add the individual terms",
+       "Slide 49"
+      ],
+      [
+       "P(at least k)",
+       "1 − (the terms below k)",
+       "Textbook style"
+      ],
+      [
+       "Different time window",
+       "scale μ̂ first (2 calls → 2μ̂), then use the formula",
+       "Textbook style"
+      ],
+      [
+       "Binomial: next k all succeed",
+       "θ̂ᵏ",
+       "Textbook style"
+      ],
+      [
+       "Binomial: exactly k out of n",
+       "C(n,k) θ̂ᵏ (1 − θ̂)ⁿ⁻ᵏ",
+       "CS 1–7 formula"
+      ]
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Why the shortcut works",
+     "text": "θ̂ᵏ is just the full binomial formula with n = k: C(k,k) = 1 and (1 − θ̂)⁰ = 1."
+    },
+    {
+     "type": "trap",
+     "label": "Common mistake",
+     "text": "e^(−2.6) is a **positive** number (= 1/e^2.6 = 0.0743). The minus sign belongs to the exponent only, so (1 + μ) e^(−μ) is never negative. A probability is always between 0 and 1."
+    },
+    {
+     "type": "trap",
+     "label": "Common mistake",
+     "text": "Poisson window: if μ̂ is per call and they ask about the next 2 calls, use μ = 2 × μ̂. Do not reuse μ̂ as it is."
+    },
+    {
+     "type": "h",
+     "text": "How it appeared in the 2024 end-sem (4 marks)"
+    },
+    {
+     "type": "p",
+     "text": "\"Accidents per day follow a Poisson distribution. Over five days the counts were 4, 2, 5, 3 and 6. (i) Find the MLE of the average accidents per day. (ii) Using it, estimate the probability of no accidents on a day.\" The answer is μ̂ = 4 and P(0) = e⁻⁴ = 0.0183."
+    }
+   ]
+  },
+  {
+   "title": "F-test for two variances (slides 21–23)",
+   "lead": "One ratio of two sample variances. Not the same thing as ANOVA, although both use the F table.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "Use this when the question asks whether one process is **more variable** than another, or whether two variances are equal. There are two samples and one ratio."
+    },
+    {
+     "type": "formula",
+     "text": "F = s₁² / s₂²   with the larger variance on top,   df = (n₁ − 1, n₂ − 1)"
+    },
+    {
+     "type": "h",
+     "text": "Standard steps"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "State H₀: σ₁² = σ₂² and H₁ (σ₁² > σ₂², or ≠).",
+      "Write α.",
+      "Compute F = larger s² ÷ smaller s². If the question gives the **standard deviation**, square it first. If it gives the **variance**, do not square again.",
+      "df = (n₁ − 1, n₂ − 1): numerator sample first.",
+      "Look up F in the table at α (see the F-table board).",
+      "If F > the table value, reject H₀. Otherwise do not reject."
+     ]
+    },
+    {
+     "type": "trap",
+     "label": "Exam trap",
+     "text": "**Direction check.** For H₁: σ₁² > σ₂², the sample variance of group 1 must really be the larger one. If it is smaller, F is below 1 on the wrong side, so do not reject before computing anything."
+    },
+    {
+     "type": "trap",
+     "label": "Exam trap",
+     "text": "Two-tailed F-test uses **α/2** on the upper tail. The exam F-table prints only α = 0.05, so a 0.025 table is not available. Expect one-tailed questions."
+    },
+    {
+     "type": "note",
+     "label": "Why",
+     "text": "The larger variance goes on top so F is always at least 1. That is why we only look at the upper tail."
+    }
+   ]
+  },
+  {
+   "title": "One-way ANOVA: the idea and the formulas (slides 24–29)",
+   "lead": "Compare three or more means by comparing two kinds of variance.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "With k groups you could run many two-sample tests, but errors pile up. ANOVA tests **all the means at once**: H₀: μ₁ = μ₂ = … = μₖ against H₁: not all equal."
+    },
+    {
+     "type": "h",
+     "text": "The idea"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Between-group variation (SSTR):** how far the group means sit from the overall mean.",
+      "**Within-group variation (SSE):** how spread out the values are inside each group. This is the noise.",
+      "If the between-group part is large compared with the noise, the means really differ."
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Formulas in the slide notation"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Quantity",
+      "Formula (slides 26–29)",
+      "df"
+     ],
+     "rows": [
+      [
+       "SSTR",
+       "r · Σ(x̄ⱼ − x̄)²",
+       "k − 1"
+      ],
+      [
+       "SSE",
+       "ΣΣ(xᵢⱼ − x̄ⱼ)²",
+       "n − k"
+      ],
+      [
+       "SST",
+       "SSTR + SSE = ΣΣ(xᵢⱼ − x̄)²",
+       "n − 1"
+      ],
+      [
+       "MSTR",
+       "SSTR / (k − 1)",
+       ""
+      ],
+      [
+       "MSE",
+       "SSE / (n − k)",
+       ""
+      ],
+      [
+       "F",
+       "MSTR / MSE",
+       "(k − 1, n − k)"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "Symbols: k = number of groups, nⱼ = size of group j, n = total observations, x̄ⱼ = mean of group j, x̄ = overall mean, r = group size (when equal)."
+    },
+    {
+     "type": "p",
+     "text": "The F test is **right-tailed**: reject H₀ if F is bigger than the table value."
+    },
+    {
+     "type": "note",
+     "label": "Assumptions",
+     "text": "Slide 25 lists three assumptions: each population is normal, the variances are equal, and the samples are independent."
+    },
+    {
+     "type": "note",
+     "label": "Wording",
+     "text": "The slides say \"accept H₀\" when F is not big enough. You can write \"do not reject\". If your answer sheet follows the slides, \"accept\" is fine.",
+     "color": "blue"
+    }
+   ]
+  },
+  {
+   "title": "One-way ANOVA: the shortcut (CF) method step by step",
+   "lead": "Method-2 in your slides. Same answer as Method-1, with far less arithmetic.",
+   "blocks": [
+    {
+     "type": "h",
+     "text": "Symbols"
+    },
+    {
+     "type": "p",
+     "text": "k = number of groups, nⱼ = size of group j, n = total, Cⱼ = total of group j, G = grand total."
+    },
+    {
+     "type": "h",
+     "text": "The steps (slides 33–34 and 53)"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "**H₀ and H₁.** H₀: all means equal. State α.",
+      "**Group totals Cⱼ and grand total G.**",
+      "**CF = G² / n.** The \"nothing is different\" baseline.",
+      "**SST = ΣΣx² − CF.** Square every single value, add, subtract CF.",
+      "**SSTR = Σ(Cⱼ² / nⱼ) − CF.** Square each group *total*, divide by that group's size.",
+      "**SSE = SST − SSTR.**",
+      "**df and MS:** MSTR = SSTR/(k − 1), MSE = SSE/(n − k).",
+      "**F = MSTR / MSE.**",
+      "**Table value** at (k − 1, n − k). If F > table, reject H₀.",
+      "**Conclusion in a sentence.**"
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Slide 30 example, both methods"
+    },
+    {
+     "type": "table",
+     "head": [
+      "",
+      "Method-1 (long)",
+      "Method-2 (CF)"
+     ],
+     "rows": [
+      [
+       "SSTR",
+       "5[(10−10)² + (8−10)² + (12−10)²] = 40",
+       "(50² + 40² + 60²)/5 − 1500 = 40"
+      ],
+      [
+       "SSE",
+       "sum of 15 squared deviations = 60",
+       "100 − 40 = 60"
+      ],
+      [
+       "SST",
+       "40 + 60 = 100",
+       "1600 − 1500 = 100"
+      ],
+      [
+       "F",
+       "20 / 5 = 4.0 against F(2, 12) = 3.89, so reject H₀",
+       "same"
+      ]
+     ]
+    },
+    {
+     "type": "trap",
+     "label": "Exam trap",
+     "text": "Step 4 squares **individual values**. Step 5 squares **group totals**. Mixing the two is the most common slip."
+    }
+   ]
+  },
+  {
+   "title": "How to read the F-table",
+   "lead": "Two numbers pick the cell: DF1 across the top, DF2 down the side.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "The exam paper prints the F table for **α = 0.05** only (the slides show the same page, PDF page 516). Each cell is the table value F(DF1, DF2)."
+    },
+    {
+     "type": "table",
+     "head": [
+      "",
+      "Meaning",
+      "Goes"
+     ],
+     "rows": [
+      [
+       "DF1",
+       "df of the thing on **top** of F (numerator)",
+       "across the top row"
+      ],
+      [
+       "DF2",
+       "df of the thing on the **bottom** of F (always MSE)",
+       "down the left column"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "What DF1 and DF2 are in each test"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Test",
+      "F",
+      "DF1",
+      "DF2"
+     ],
+     "rows": [
+      [
+       "F-test, two variances",
+       "s₁² / s₂²",
+       "n₁ − 1",
+       "n₂ − 1"
+      ],
+      [
+       "One-way ANOVA",
+       "MSTR / MSE",
+       "k − 1",
+       "n − k"
+      ],
+      [
+       "Two-way, treatments",
+       "MSTR / MSE",
+       "k − 1",
+       "(k − 1)(m − 1)"
+      ],
+      [
+       "Two-way, blocks",
+       "MSBL / MSE",
+       "m − 1",
+       "(k − 1)(m − 1)"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "Examples: (2, 6) = 5.14, (3, 6) = 4.76, (2, 12) = 3.89, (9, 13) = 2.71, (7, 10) = 3.14."
+    },
+    {
+     "type": "trap",
+     "label": "Exam trap",
+     "text": "The table rows jump 30 → 40 → 60 → 120 → ∞. If your DF2 is not printed (say 36), use the **nearest row** that is printed, here 40. Never invent a cell."
+    },
+    {
+     "type": "note",
+     "label": "Careful",
+     "text": "One table per α. The slides compare with the 5% value unless told otherwise. One slide example (iron intake, slide 35) uses the 1% value by mistake. See the slide-quirks board."
+    }
+   ]
+  },
+  {
+   "title": "Two-way ANOVA: steps, formulas and both dfs (slides 37–48)",
+   "lead": "Two factors at once: the Treatment you compare and the Block you control for.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "The grouping factor is the **Treatment** (columns). The control factor is the **Block** (rows). Adding the block takes variation out of the error, so the test is more sensitive (slide 37)."
+    },
+    {
+     "type": "h",
+     "text": "Symbols (slide 40)"
+    },
+    {
+     "type": "p",
+     "text": "k = number of treatments (columns), m = number of blocks (rows), n = k · m, G = grand total."
+    },
+    {
+     "type": "h",
+     "text": "Formulas"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Quantity",
+      "Formula",
+      "df"
+     ],
+     "rows": [
+      [
+       "CF",
+       "G² / n",
+       ""
+      ],
+      [
+       "SST",
+       "ΣΣx² − CF",
+       "n − 1"
+      ],
+      [
+       "SSTR (columns)",
+       "Σ(column total)² / **m** − CF",
+       "k − 1"
+      ],
+      [
+       "SSBL (rows)",
+       "Σ(row total)² / **k** − CF",
+       "m − 1"
+      ],
+      [
+       "SSE",
+       "SST − SSTR − SSBL",
+       "(k − 1)(m − 1)"
+      ],
+      [
+       "MSTR, MSBL, MSE",
+       "each SS ÷ its own df",
+       ""
+      ],
+      [
+       "F for treatments",
+       "MSTR / MSE",
+       "DF1 = k − 1, DF2 = (k − 1)(m − 1)"
+      ],
+      [
+       "F for blocks",
+       "MSBL / MSE",
+       "DF1 = m − 1, DF2 = (k − 1)(m − 1)"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Standard steps"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "**Two pairs of hypotheses** (slide 38): H₀₁ for treatments, H₀₂ for blocks. Write α.",
+      "**Table with row totals, column totals and G.**",
+      "**CF = G²/n.**",
+      "**SST = ΣΣx² − CF.**",
+      "**SSTR** from the column totals, divisor m.",
+      "**SSBL** from the row totals, divisor k.",
+      "**SSE = SST − SSTR − SSBL.**",
+      "**df and mean squares** for treatments, blocks and error.",
+      "**Two F values**, both over the same MSE.",
+      "**Two table values** (DF1 differs, DF2 is the same). Compare each separately.",
+      "**Conclusion for each factor** in plain English."
+     ]
+    },
+    {
+     "type": "h",
+     "text": "One-way versus two-way"
+    },
+    {
+     "type": "table",
+     "head": [
+      "",
+      "One-way",
+      "Two-way"
+     ],
+     "rows": [
+      [
+       "Factors",
+       "1 (groups)",
+       "2 (treatments and blocks)"
+      ],
+      [
+       "Hypotheses",
+       "1 pair",
+       "2 pairs"
+      ],
+      [
+       "SSE",
+       "SST − SSTR",
+       "SST − SSTR − SSBL"
+      ],
+      [
+       "df of SSE",
+       "n − k",
+       "(k − 1)(m − 1)"
+      ],
+      [
+       "F tests",
+       "1: DF1 = k − 1, DF2 = n − k",
+       "2: (k − 1, (k − 1)(m − 1)) and (m − 1, (k − 1)(m − 1))"
+      ]
+     ]
+    },
+    {
+     "type": "trap",
+     "label": "Exam trap",
+     "text": "Swapping k and m. Column totals are divided by m (the number of values in a column). Row totals are divided by k. Check: SSTR + SSBL + SSE = SST, and the three df add up to n − 1."
+    },
+    {
+     "type": "trap",
+     "label": "Exam trap",
+     "text": "Using one table value for both F tests. DF1 is different for the two factors, so look up two values."
+    }
+   ]
+  },
+  {
+   "title": "Common mistakes in CS 10",
+   "lead": "Collected from our practice, the slides and the past papers.",
+   "blocks": [
+    {
+     "type": "table",
+     "head": [
+      "Mistake",
+      "Fix"
+     ],
+     "rows": [
+      [
+       "Squared the variances again (F = 5.76 instead of 2.4) when the question gave variances",
+       "Square only if the question gives the standard deviation"
+      ],
+      [
+       "Larger variance not on top, or H₁ direction not checked",
+       "Larger on top. If the sample variance is on the wrong side of H₁, do not reject"
+      ],
+      [
+       "Treated e^(−2.6) as negative (−3.6 e^(−2.6))",
+       "e^(−x) is always positive. Probabilities are between 0 and 1"
+      ],
+      [
+       "Used μ̂ for a longer time window",
+       "Scale first: 2 calls means 2μ̂"
+      ],
+      [
+       "Used n − 1 for the Normal MLE of the variance",
+       "MLE divides by n. n − 1 is the unbiased version"
+      ],
+      [
+       "Used θ̂² when the question asks for exactly k out of n",
+       "θ̂ᵏ only when all of the next k succeed. Otherwise C(n,k) θ̂ᵏ (1 − θ̂)ⁿ⁻ᵏ"
+      ],
+      [
+       "Squared each value in the SSTR step",
+       "SSTR squares group **totals** and divides by group size"
+      ],
+      [
+       "Swapped k and m in two-way SSTR and SSBL",
+       "Columns ÷ m, rows ÷ k"
+      ],
+      [
+       "One table value for both two-way F tests",
+       "Two lookups: DF1 = k − 1 and DF1 = m − 1, same DF2"
+      ],
+      [
+       "Used the 1% table when the question says 5%",
+       "Check α before you look up the table"
+      ],
+      [
+       "F table row missing",
+       "Use the nearest printed row"
+      ],
+      [
+       "Wrote \"F < table, so H₁ is false\"",
+       "Say \"do not reject H₀; there is not enough evidence\""
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Slide quirks and typos to know about",
+   "lead": "Small slips in the slides. Your working should be right even where the slide is off.",
+   "blocks": [
+    {
+     "type": "table",
+     "head": [
+      "Slide",
+      "What it shows",
+      "What is right"
+     ],
+     "rows": [
+      [
+       "30–32 (one-way, 3 groups)",
+       "Correct",
+       "F = 4.0 > 3.89, reject H₀"
+      ],
+      [
+       "34–35 (iron intake, 4 groups)",
+       "F = 4.455, compared with 4.38",
+       "F = 349.52/3 ÷ 922.95/36 = 4.544. 4.38 is not the 5% value of F(3, 36); the 5% value is about 2.87 (the exam table row 40 gives 2.84). Either way reject H₀"
+      ],
+      [
+       "53 (glue example)",
+       "Σx² = 2219.5",
+       "Σx² = 2219. F ≈ 3.08 and 3.885 is the right 5% value. Do not reject H₀"
+      ],
+      [
+       "50 (tin-coating weights)",
+       "The data table is an image",
+       "Needs the image to solve"
+      ],
+      [
+       "51 (iron intake, two-way)",
+       "Says \"four groups\" and then \"ten groups\"",
+       "The table has 10 groups and 3 trimesters, a two-way problem"
+      ],
+      [
+       "45–48 (teaching method, study time)",
+       "Works with the **cell averages** of each 3 scores, as a 3 × 2 table",
+       "Follow this method if the question has the same layout"
+      ],
+      [
+       "Wording",
+       "\"Accept H₀\"",
+       "Same as \"do not reject H₀\""
+      ]
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Teacher says",
+     "text": "The professor said the F-table will be given in the exam. Know how to read it. You do not need to memorise any values."
+    }
+   ]
+  },
+  {
+   "title": "How CS 10 comes in the exam",
+   "lead": "From the past papers we could read.",
+   "blocks": [
+    {
+     "type": "table",
+     "head": [
+      "Paper",
+      "What came",
+      "Marks"
+     ],
+     "rows": [
+      [
+       "2024 end-sem regular",
+       "F-test for two variances (shafts) plus MLE Poisson (accidents)",
+       "4 + 4"
+      ],
+      [
+       "May 2026 EC3",
+       "ANOVA",
+       "6"
+      ],
+      [
+       "March 2026 makeup",
+       "ANOVA",
+       "5"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "Some papers are image-only, so this list may be incomplete. The questions are mostly numerical, with a small theory part: write H₀ and H₁, say which test, and give the conclusion."
+    },
+    {
+     "type": "h",
+     "text": "Which test?"
+    },
+    {
+     "type": "table",
+     "head": [
+      "The question compares…",
+      "Use"
+     ],
+     "rows": [
+      [
+       "Two variances, or \"more variable\"",
+       "F-test, F = s₁²/s₂²"
+      ],
+      [
+       "Three or more means, one factor",
+       "One-way ANOVA"
+      ],
+      [
+       "Three or more means with a second factor (rows)",
+       "Two-way ANOVA"
+      ],
+      [
+       "An unknown parameter from data, then a probability",
+       "MLE then plug in"
+      ],
+      [
+       "Counts in categories",
+       "Chi-square (chapter 9)"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Last-minute checklist"
+    },
+    {
+     "type": "list",
+     "items": [
+      "MLE: μ̂ = X̄, θ̂ = k/n, σ̂² divides by n. Then plug in.",
+      "F-test: larger on top, df = (n₁ − 1, n₂ − 1), check direction.",
+      "One-way: CF, SST, SSTR, SSE, F = MSTR/MSE, df (k − 1, n − k).",
+      "Two-way: add SSBL, df (k − 1)(m − 1), two F values, two lookups.",
+      "Always write the conclusion in words."
+     ]
+    }
+   ]
+  }
+ ],
+ "worked": [
+  {
+   "title": "MLE · Hard drives (slide 49)",
+   "tags": [
+    "Class",
+    "MLE",
+    "Poisson"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "The number of defective hard drives produced daily follows a Poisson distribution. The counts for ten days are 7, 3, 1, 2, 4, 1, 2, 3, 1, 2. Find the maximum likelihood estimate of the probability of 0 or 1 defectives on one day."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Model",
+     "text": "X ~ Poisson(μ), with P(X = x) = e^(−μ) μ^x / x!"
+    },
+    {
+     "label": "Estimator",
+     "text": "The MLE of the Poisson mean is μ̂ = X̄ (slides 17–18)."
+    },
+    {
+     "label": "Data",
+     "text": "Σx = 7+3+1+2+4+1+2+3+1+2 = 26 and n = 10."
+    },
+    {
+     "label": "Estimate",
+     "text": "μ̂ = 26/10 = **2.6**."
+    },
+    {
+     "label": "Plug in",
+     "text": "By invariance, P(0 or 1) = P(0) + P(1) = e^(−2.6) + 2.6 e^(−2.6) = 3.6 e^(−2.6)."
+    },
+    {
+     "label": "Number",
+     "text": "e^(−2.6) = 0.0743, so 3.6 × 0.0743 = **0.267**."
+    },
+    {
+     "label": "Sentence",
+     "text": "The estimated probability of at most one defective on a day is about 0.267."
+    }
+   ],
+   "answer": "μ̂ = 2.6 and P(0 or 1) ≈ 0.267"
+  },
+  {
+   "title": "MLE · Accidents (2024 end-sem)",
+   "tags": [
+    "Past paper",
+    "MLE",
+    "Poisson"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Car accidents per day follow a Poisson distribution. On five days the counts were 4, 2, 5, 3 and 6. (i) Find the MLE of the average number of accidents per day. (ii) Using it, estimate the probability of no accidents on a day. [4 marks]"
+    }
+   ],
+   "steps": [
+    {
+     "label": "(i) Estimator",
+     "text": "X ~ Poisson(μ), and μ̂ = X̄."
+    },
+    {
+     "label": "(i) Calculate",
+     "text": "μ̂ = (4+2+5+3+6)/5 = 20/5 = **4**."
+    },
+    {
+     "label": "(ii) Formula",
+     "text": "P(X = 0) = e^(−μ) μ⁰ / 0! = e^(−μ)."
+    },
+    {
+     "label": "(ii) Plug in",
+     "text": "Replace μ by μ̂ = 4: P(0) = e^(−4) = **0.0183**."
+    }
+   ],
+   "answer": "μ̂ = 4 and P(0) = e⁻⁴ ≈ 0.0183"
+  },
+  {
+   "title": "MLE · Helmets (slides 7–12)",
+   "tags": [
+    "Class",
+    "MLE",
+    "Bernoulli"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Ten helmets are tested. The 1st, 3rd and 10th are flawed. Find the MLE of p, the probability that a helmet is flawed."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Model",
+     "text": "Each Xᵢ is Bernoulli(p): Xᵢ = 1 if flawed, 0 if not. Three are 1, seven are 0."
+    },
+    {
+     "label": "Likelihood",
+     "text": "L(p) = p³ (1 − p)⁷."
+    },
+    {
+     "label": "Log",
+     "text": "ln L = 3 ln p + 7 ln(1 − p)."
+    },
+    {
+     "label": "Differentiate and set to 0",
+     "text": "3/p − 7/(1 − p) = 0, so 3(1 − p) = 7p and 3 = 10p."
+    },
+    {
+     "label": "Solve",
+     "text": "p̂ = **3/10 = 0.3**. It is the sample proportion, k/n."
+    }
+   ],
+   "answer": "p̂ = 0.3"
+  },
+  {
+   "title": "MLE · Server disconnects (practice, my numbers)",
+   "tags": [
+    "Practice",
+    "MLE",
+    "Poisson"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A server's disconnects per day over 5 days were 3, 5, 4, 6, 2. Estimate the probability of at least 3 disconnects on a day."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Estimator",
+     "text": "Poisson, so μ̂ = X̄ = 20/5 = **4**."
+    },
+    {
+     "label": "Complement",
+     "text": "P(X ≥ 3) = 1 − [P(0) + P(1) + P(2)]."
+    },
+    {
+     "label": "Terms",
+     "text": "P(0) = e⁻⁴, P(1) = 4e⁻⁴, P(2) = 8e⁻⁴. The sum is 13e⁻⁴."
+    },
+    {
+     "label": "Number",
+     "text": "13 × 0.0183 = 0.2381, so P(X ≥ 3) = 1 − 0.2381 = **0.762**."
+    }
+   ],
+   "answer": "μ̂ = 4 and P(X ≥ 3) ≈ 0.762"
+  },
+  {
+   "title": "MLE · Dropped calls (practice, my numbers)",
+   "tags": [
+    "Practice",
+    "MLE",
+    "Poisson"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Dropped connections in 4 calls were 3, 0, 2, 1. Find the probability that the next two calls have no drops at all."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Estimator",
+     "text": "μ̂ per call = 6/4 = **1.5**."
+    },
+    {
+     "label": "Window",
+     "text": "Two calls, so the mean for two calls is 2 × 1.5 = **3**."
+    },
+    {
+     "label": "Plug in",
+     "text": "P(0 drops in 2 calls) = e⁻³ = **0.0498**."
+    }
+   ],
+   "answer": "μ̂ = 1.5 per call and P ≈ 0.0498"
+  },
+  {
+   "title": "MLE · Transceivers (practice, my numbers)",
+   "tags": [
+    "Practice",
+    "MLE",
+    "Binomial"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "In a test, 48 of 60 transceivers pass. Estimate the probability that the next two both pass."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Model",
+     "text": "Binomial, with k = 48 and n = 60."
+    },
+    {
+     "label": "Estimator",
+     "text": "θ̂ = k/n = 48/60 = **0.8**."
+    },
+    {
+     "label": "Next two both pass",
+     "text": "θ̂² = 0.8² = **0.64**."
+    }
+   ],
+   "answer": "θ̂ = 0.8 and P = 0.64"
+  },
+  {
+   "title": "MLE · Insulators (practice, my numbers)",
+   "tags": [
+    "Practice",
+    "MLE",
+    "Binomial"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "In a test, 98 of 100 insulators survive. Estimate the probability that three insulators in a row survive."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Estimator",
+     "text": "θ̂ = 98/100 = **0.98**."
+    },
+    {
+     "label": "Three in a row",
+     "text": "θ̂³ = 0.98³ = **0.9412**."
+    }
+   ],
+   "answer": "θ̂ = 0.98 and P ≈ 0.9412"
+  },
+  {
+   "title": "MLE · Chips: next two, and exactly six",
+   "tags": [
+    "Practice",
+    "MLE",
+    "Binomial"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "In a batch of 40 chips, 6 are defective. (a) Find the MLE of the defect probability. (b) Probability that the next two chips are both defective. (c) Probability that exactly 6 of the next 10 are defective."
+    }
+   ],
+   "steps": [
+    {
+     "label": "(a)",
+     "text": "θ̂ = 6/40 = **0.15**."
+    },
+    {
+     "label": "(b)",
+     "text": "Both of the next two: θ̂² = 0.15² = **0.0225**."
+    },
+    {
+     "label": "(c) Formula",
+     "text": "Exactly k of n: C(n,k) θ̂ᵏ (1 − θ̂)ⁿ⁻ᵏ with n = 10, k = 6."
+    },
+    {
+     "label": "(c) Numbers",
+     "text": "C(10,6) = 210, 0.15⁶ = 0.0000114, 0.85⁴ = 0.522."
+    },
+    {
+     "label": "(c) Result",
+     "text": "210 × 0.0000114 × 0.522 ≈ **0.00125**."
+    },
+    {
+     "label": "Note",
+     "text": "(b) is the full formula with n = k = 2. The C(n,k) factor counts the ways the 6 defectives can sit among 10 chips."
+    }
+   ],
+   "answer": "0.15, 0.0225, ≈ 0.00125"
+  },
+  {
+   "title": "MLE · Normal: data 2, 5, 8, 9 (practice)",
+   "tags": [
+    "Practice",
+    "MLE",
+    "Normal"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A sample from a Normal distribution is 2, 5, 8, 9. Find the MLE of μ and σ²."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Mean",
+     "text": "μ̂ = X̄ = (2+5+8+9)/4 = 24/4 = **6**."
+    },
+    {
+     "label": "Deviations",
+     "text": "Xᵢ − 6 = −4, −1, 2, 3. Squares: 16, 1, 4, 9."
+    },
+    {
+     "label": "Sum of squares",
+     "text": "16 + 1 + 4 + 9 = 30."
+    },
+    {
+     "label": "Divide by n",
+     "text": "σ̂² = 30/4 = **7.5** (the MLE divides by n)."
+    },
+    {
+     "label": "Compare",
+     "text": "The unbiased sample variance would be 30/3 = 10. The MLE is the 7.5."
+    }
+   ],
+   "answer": "μ̂ = 6 and σ̂² = 7.5"
+  },
+  {
+   "title": "F-test · Shaft diameters (2024 end-sem)",
+   "tags": [
+    "Past paper",
+    "F-test"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Method A: 10 shafts, s = 0.032 mm. Method B: 14 shafts, s = 0.028 mm. At 5%, is there evidence that Method A has greater variability than Method B? [4 marks]"
+    }
+   ],
+   "steps": [
+    {
+     "label": "Hypotheses",
+     "text": "H₀: σ_A² = σ_B². H₁: σ_A² > σ_B² (right-tailed). α = 0.05."
+    },
+    {
+     "label": "Statistic",
+     "text": "s is given, so square it: F = (0.032)² / (0.028)² = 0.001024 / 0.000784 = **1.306**."
+    },
+    {
+     "label": "Direction",
+     "text": "A's variance is the larger one, so it goes on top and the direction is right."
+    },
+    {
+     "label": "df",
+     "text": "(n_A − 1, n_B − 1) = (9, 13)."
+    },
+    {
+     "label": "Table",
+     "text": "F(0.05; 9, 13) = **2.71**."
+    },
+    {
+     "label": "Decision",
+     "text": "1.306 < 2.71, so do not reject H₀."
+    },
+    {
+     "label": "Sentence",
+     "text": "At 5% there is not enough evidence that Method A is more variable than Method B."
+    }
+   ],
+   "answer": "F = 1.306 < 2.71: do not reject H₀"
+  },
+  {
+   "title": "F-test · Direction check",
+   "tags": [
+    "Practice",
+    "F-test"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Sample 1: n₁ = 9, s₁² = 4. Sample 2: n₂ = 13, s₂² = 9. At 5%, test H₁: σ₁² > σ₂²."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Direction check",
+     "text": "H₁ says σ₁² is the bigger one, but the sample variance of group 1 (4) is smaller than group 2 (9)."
+    },
+    {
+     "label": "Conclusion",
+     "text": "The data point the other way, so there is no evidence for H₁. **Do not reject H₀** without any further calculation."
+    },
+    {
+     "label": "If it were two-tailed",
+     "text": "F = 9/4 = 2.25 with df (12, 8), compared with the upper α/2 value."
+    }
+   ],
+   "answer": "Do not reject H₀"
+  },
+  {
+   "title": "One-way ANOVA · Three groups (slide 30)",
+   "tags": [
+    "Class",
+    "ANOVA",
+    "One-way"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Test at 5% whether the means of three samples from normal populations with equal variances differ. G1: 8, 10, 7, 14, 11. G2: 7, 5, 10, 9, 9. G3: 12, 9, 13, 12, 14."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Hypotheses",
+     "text": "H₀: μ₁ = μ₂ = μ₃. H₁: not all equal. α = 0.05. k = 3, n = 15."
+    },
+    {
+     "label": "Totals",
+     "text": "C₁ = 50, C₂ = 40, C₃ = 60, so G = 150."
+    },
+    {
+     "label": "CF",
+     "text": "G²/n = 22500/15 = **1500**."
+    },
+    {
+     "label": "SST",
+     "text": "ΣΣx² = 530 + 336 + 734 = 1600, so SST = 1600 − 1500 = **100**."
+    },
+    {
+     "label": "SSTR",
+     "text": "(50² + 40² + 60²)/5 − 1500 = 1540 − 1500 = **40**."
+    },
+    {
+     "label": "SSE",
+     "text": "100 − 40 = **60**."
+    },
+    {
+     "label": "Mean squares",
+     "text": "MSTR = 40/2 = 20, MSE = 60/12 = 5."
+    },
+    {
+     "label": "F",
+     "text": "20/5 = **4.0**."
+    },
+    {
+     "label": "Table",
+     "text": "F(0.05; 2, 12) = 3.89."
+    },
+    {
+     "label": "Decision",
+     "text": "4.0 > 3.89, so **reject H₀**: at least one group mean differs."
+    }
+   ],
+   "answer": "F = 4.0 > 3.89: reject H₀"
+  },
+  {
+   "title": "One-way ANOVA · Iron intake (slides 34–35)",
+   "tags": [
+    "Class",
+    "ANOVA",
+    "One-way"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Test at 5% whether the mean iron intake differs among four groups of patients (n = 40). The slide gives SSTR = 349.52 and SSE = 922.95."
+    }
+   ],
+   "steps": [
+    {
+     "label": "df",
+     "text": "k = 4, n = 40, so df = (k − 1, n − k) = (3, 36)."
+    },
+    {
+     "label": "Mean squares",
+     "text": "MSTR = 349.52/3 = 116.51. MSE = 922.95/36 = 25.64."
+    },
+    {
+     "label": "F",
+     "text": "116.51/25.64 = **4.544** (the slide prints 4.455)."
+    },
+    {
+     "label": "Table",
+     "text": "F(0.05; 3, 36) is not printed. The nearest row, 40, gives **2.84** (the exact value is about 2.87). The slide compares with 4.38, which is the 1% value."
+    },
+    {
+     "label": "Decision",
+     "text": "4.544 > 2.84, so **reject H₀**. The slide reaches the same decision."
+    }
+   ],
+   "answer": "F = 4.54 > 2.84: reject H₀"
+  },
+  {
+   "title": "One-way ANOVA · Glue drying (slides 52–54)",
+   "tags": [
+    "Class",
+    "ANOVA",
+    "One-way"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Three drying formulas are tested. A: 13, 10, 8, 11, 8. B: 13, 11, 14, 14. C: 17, 14, 13, 10, 11, 12. Test at 5% whether the mean curing time differs."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Hypotheses",
+     "text": "H₀: μ_A = μ_B = μ_C. k = 3, n = 15, α = 0.05. Unequal group sizes are fine."
+    },
+    {
+     "label": "Totals",
+     "text": "C_A = 50, C_B = 52, C_C = 77, so G = 179."
+    },
+    {
+     "label": "CF",
+     "text": "179²/15 = **2136.07**."
+    },
+    {
+     "label": "SST",
+     "text": "ΣΣx² = 518 + 682 + 1019 = 2219, so SST = 2219 − 2136.07 = **82.93**."
+    },
+    {
+     "label": "SSTR",
+     "text": "50²/5 + 52²/4 + 77²/6 − CF = 500 + 676 + 988.17 − 2136.07 = **28.1**."
+    },
+    {
+     "label": "SSE",
+     "text": "82.93 − 28.1 = **54.83**."
+    },
+    {
+     "label": "Mean squares",
+     "text": "MSTR = 28.1/2 = 14.05. MSE = 54.83/12 = 4.57."
+    },
+    {
+     "label": "F",
+     "text": "14.05/4.57 = **3.08**."
+    },
+    {
+     "label": "Table",
+     "text": "F(0.05; 2, 12) = 3.885."
+    },
+    {
+     "label": "Decision",
+     "text": "3.08 < 3.885, so **do not reject H₀**. There is no significant difference in curing time. The slide gives p = 0.084."
+    }
+   ],
+   "answer": "F ≈ 3.08 < 3.885: do not reject H₀"
+  },
+  {
+   "title": "Two-way ANOVA · Fertilizers and plots (slides 42–44)",
+   "tags": [
+    "Class",
+    "ANOVA",
+    "Two-way"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Three fertilizers are used on four plots. Yields: Nitrogen 6, 4, 8, 6 · Potash 7, 6, 6, 9 · Phosphate 8, 5, 10, 9 (plots A, B, C, D). At 5%, does the yield differ by fertilizer or by plot?"
+    }
+   ],
+   "steps": [
+    {
+     "label": "Hypotheses",
+     "text": "H₀₁: plots do not differ. H₀₂: fertilizers do not differ. Plots are the treatments (columns), k = 4. Fertilizers are the blocks (rows), m = 3. n = 12."
+    },
+    {
+     "label": "Totals",
+     "text": "Rows: 24, 28, 32. Columns: 21, 15, 24, 24. G = 84."
+    },
+    {
+     "label": "CF",
+     "text": "84²/12 = **588**."
+    },
+    {
+     "label": "SST",
+     "text": "624 − 588 = **36**."
+    },
+    {
+     "label": "SSTR (plots)",
+     "text": "(21² + 15² + 24² + 24²)/3 − 588 = 606 − 588 = **18**."
+    },
+    {
+     "label": "SSBL (fertilizers)",
+     "text": "(24² + 28² + 32²)/4 − 588 = 596 − 588 = **8**."
+    },
+    {
+     "label": "SSE",
+     "text": "36 − 18 − 8 = **10**."
+    },
+    {
+     "label": "df and MS",
+     "text": "Plots: df 3, MSTR = 6. Fertilizers: df 2, MSBL = 4. Error: df (3)(2) = 6, MSE = 1.67."
+    },
+    {
+     "label": "F values",
+     "text": "Plots: 6/1.67 = **3.6**. Fertilizers: 4/1.67 = **2.4**."
+    },
+    {
+     "label": "Table values",
+     "text": "Plots: (DF1, DF2) = (3, 6) → **4.76**. Fertilizers: (2, 6) → **5.14**."
+    },
+    {
+     "label": "Decisions",
+     "text": "3.6 < 4.76 and 2.4 < 5.14, so do not reject either H₀."
+    },
+    {
+     "label": "Sentence",
+     "text": "At 5%, the yield does not differ significantly by plot or by fertilizer."
+    }
+   ],
+   "answer": "Plots F = 3.6 < 4.76 and fertilizers F = 2.4 < 5.14: neither is significant"
+  },
+  {
+   "title": "Two-way ANOVA · Teaching method and study time (slides 45–48)",
+   "tags": [
+    "Class",
+    "ANOVA",
+    "Two-way"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Test scores are recorded for three teaching methods and two study-time levels, with 3 scores per cell. At 5%, test the effect of teaching method and of study time. (The slide first averages the 3 scores in each cell.)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "Set-up",
+     "text": "Cell averages: Traditional 65, 71 · Online 57.67, 67.33 · Hybrid 64, 72.33 (less than 2 h, more than 2 h). Treatments (teaching method, columns) k = 3. Blocks (study time, rows) m = 2. n = 6."
+    },
+    {
+     "label": "Totals",
+     "text": "Columns: 136, 125, 136.33. Rows: 186.67, 210.66. G = 397.33."
+    },
+    {
+     "label": "CF",
+     "text": "397.33²/6 = **26311.85**."
+    },
+    {
+     "label": "SST",
+     "text": "26452.79 − 26311.85 = **140.94**."
+    },
+    {
+     "label": "SSTR",
+     "text": "(136² + 125² + 136.33²)/2 − CF = **41.58**."
+    },
+    {
+     "label": "SSBL",
+     "text": "(186.67² + 210.66²)/3 − CF = **95.92**."
+    },
+    {
+     "label": "SSE",
+     "text": "140.94 − 41.58 − 95.92 = **3.44**."
+    },
+    {
+     "label": "df and MS",
+     "text": "Methods: df 2, MSTR = 20.79. Study time: df 1, MSBL = 95.92. Error: df (2)(1) = 2, MSE = 1.72."
+    },
+    {
+     "label": "F values",
+     "text": "Methods: 20.79/1.72 = **12.08**. Study time: 95.92/1.72 = **55.77**."
+    },
+    {
+     "label": "Table values",
+     "text": "Methods: (2, 2) → **19.00**. Study time: (1, 2) → **18.51**."
+    },
+    {
+     "label": "Decisions",
+     "text": "Methods: 12.08 < 19.00, do not reject. Study time: 55.77 > 18.51, **reject**."
+    },
+    {
+     "label": "Sentence",
+     "text": "Study time has a significant effect on the score. The teaching method does not, at 5%."
+    }
+   ],
+   "answer": "Methods F = 12.08 < 19.00 (not significant). Study time F = 55.77 > 18.51 (significant)."
+  }
+ ],
+ "labs": [],
+ "flashcards": [
+  {
+   "tag": "Definition",
+   "front": "What is MLE?",
+   "back": "Maximum likelihood estimation: choose the parameter value that makes the observed data most likely."
+  },
+  {
+   "tag": "Definition",
+   "front": "What is the likelihood L(θ)?",
+   "back": "The product of the densities or pmfs of the observations, read as a function of θ: L(θ) = ∏ f(xᵢ | θ)."
+  },
+  {
+   "tag": "Steps",
+   "front": "The 5 steps of MLE?",
+   "back": "Write L, take ln, differentiate, set to 0, solve for θ̂."
+  },
+  {
+   "tag": "Formula",
+   "front": "MLE for Binomial or Bernoulli?",
+   "back": "θ̂ = k / n, the sample proportion."
+  },
+  {
+   "tag": "Formula",
+   "front": "MLE for Poisson?",
+   "back": "μ̂ = X̄, the sample mean."
+  },
+  {
+   "tag": "Formula",
+   "front": "MLE for Normal?",
+   "back": "μ̂ = X̄ and σ̂² = Σ(Xᵢ − X̄)²/n."
+  },
+  {
+   "tag": "Trap",
+   "front": "Normal MLE variance: divide by n or n − 1?",
+   "back": "By n. The unbiased estimate uses n − 1; the MLE does not."
+  },
+  {
+   "tag": "Idea",
+   "front": "What is the invariance property?",
+   "back": "The MLE of a function of θ is that function of θ̂. So plug μ̂ or θ̂ into the probability formula."
+  },
+  {
+   "tag": "Trap",
+   "front": "Poisson μ̂ is per call. The question asks about 2 calls. What now?",
+   "back": "Scale: use 2μ̂."
+  },
+  {
+   "tag": "Trap",
+   "front": "Is e^(−2.6) negative?",
+   "back": "No. It is 0.0743. A probability is never negative."
+  },
+  {
+   "tag": "Formula",
+   "front": "Binomial: probability that exactly k of n succeed?",
+   "back": "C(n,k) θ̂ᵏ (1 − θ̂)ⁿ⁻ᵏ. When all n succeed, this is θ̂ⁿ."
+  },
+  {
+   "tag": "Formula",
+   "front": "F-test statistic for two variances?",
+   "back": "F = s₁²/s₂² with the larger variance on top, df = (n₁ − 1, n₂ − 1)."
+  },
+  {
+   "tag": "Trap",
+   "front": "The question gives s². Do you square it?",
+   "back": "No. Square only when the question gives standard deviations."
+  },
+  {
+   "tag": "Idea",
+   "front": "What does one-way ANOVA test?",
+   "back": "H₀: all group means are equal, against H₁: at least one differs."
+  },
+  {
+   "tag": "Formula",
+   "front": "One-way ANOVA df?",
+   "back": "Treatments k − 1, error n − k, total n − 1. F table at (k − 1, n − k)."
+  },
+  {
+   "tag": "Formula",
+   "front": "CF method for one-way?",
+   "back": "CF = G²/n, SST = ΣΣx² − CF, SSTR = ΣCⱼ²/nⱼ − CF, SSE = SST − SSTR."
+  },
+  {
+   "tag": "Assumptions",
+   "front": "ANOVA assumptions (slide 25)?",
+   "back": "Normal populations, equal variances, independent samples."
+  },
+  {
+   "tag": "Formula",
+   "front": "Two-way SSTR and SSBL?",
+   "back": "SSTR = Σ(column total)²/m − CF. SSBL = Σ(row total)²/k − CF."
+  },
+  {
+   "tag": "Formula",
+   "front": "Two-way df and SSE?",
+   "back": "SSE = SST − SSTR − SSBL. df: k − 1, m − 1, (k − 1)(m − 1)."
+  },
+  {
+   "tag": "Table",
+   "front": "How do you read the F table?",
+   "back": "DF1 (the numerator df) across the top, DF2 (the denominator df) down the side. The exam prints α = 0.05 only."
+  },
+  {
+   "tag": "Table",
+   "front": "Two-way: what are the two (DF1, DF2) pairs?",
+   "back": "Treatments (k − 1, (k − 1)(m − 1)). Blocks (m − 1, (k − 1)(m − 1))."
+  },
+  {
+   "tag": "Trap",
+   "front": "The F table has no row for DF2 = 36. What now?",
+   "back": "Use the nearest printed row (40)."
+  },
+  {
+   "tag": "Idea",
+   "front": "Why do we add blocks in two-way ANOVA?",
+   "back": "The block removes variation from the error, so the test for the treatment is more sensitive."
+  }
+ ],
+ "quiz": [
+  {
+   "type": "mcq",
+   "q": "The MLE of the mean of a Poisson distribution is…",
+   "options": [
+    "The sample median",
+    "The sample mean X̄",
+    "The sample variance",
+    "n / ΣX"
+   ],
+   "answer": 1,
+   "explain": "For Poisson the MLE is μ̂ = X̄ (slides 17–18).",
+   "set": "MLE"
+  },
+  {
+   "type": "mcq",
+   "q": "The MLE of a Normal variance divides by…",
+   "options": [
+    "n",
+    "n − 1",
+    "n + 1",
+    "n − 2"
+   ],
+   "answer": 0,
+   "explain": "σ̂² = Σ(Xᵢ − X̄)²/n. The n − 1 version is the unbiased estimator.",
+   "set": "MLE"
+  },
+  {
+   "type": "mcq",
+   "q": "In 40 trials there are 6 successes. The MLE of θ is…",
+   "options": [
+    "6",
+    "0.15",
+    "0.85",
+    "0.4"
+   ],
+   "answer": 1,
+   "explain": "θ̂ = k/n = 6/40 = 0.15.",
+   "set": "MLE"
+  },
+  {
+   "type": "mcq",
+   "q": "Why do we take the log of the likelihood?",
+   "options": [
+    "The likelihood is always negative",
+    "A sum is easier to differentiate than a product",
+    "To make θ positive",
+    "To change the maximum"
+   ],
+   "answer": 1,
+   "explain": "The log turns the product into a sum and has the same maximiser.",
+   "set": "MLE"
+  },
+  {
+   "type": "mcq",
+   "q": "Which is the correct formula for the next 2 trials both succeeding?",
+   "options": [
+    "2θ̂",
+    "θ̂²",
+    "θ̂/2",
+    "(1 − θ̂)²"
+   ],
+   "answer": 1,
+   "explain": "Independent trials multiply: θ̂ × θ̂.",
+   "set": "MLE"
+  },
+  {
+   "type": "mcq",
+   "q": "μ̂ = 1.5 per call. The probability of no drops in the next 2 calls is…",
+   "options": [
+    "e^(−1.5)",
+    "e^(−3)",
+    "1.5e^(−3)",
+    "2e^(−1.5)"
+   ],
+   "answer": 1,
+   "explain": "Scale to 2 calls: μ = 3, P(0) = e⁻³.",
+   "set": "MLE"
+  },
+  {
+   "type": "mcq",
+   "q": "Is −3.6 e^(−2.6) a valid probability?",
+   "options": [
+    "Yes",
+    "No, a probability can't be negative",
+    "Only if μ > 2",
+    "Only for the Poisson"
+   ],
+   "answer": 1,
+   "explain": "e^(−x) is positive, and so is (1 + μ) e^(−μ).",
+   "set": "MLE"
+  },
+  {
+   "type": "numeric",
+   "q": "Poisson counts 3, 5, 4, 6, 2. Find μ̂.",
+   "answer": 4,
+   "tolerance": 0.01,
+   "explain": "μ̂ = 20/5 = 4.",
+   "set": "MLE"
+  },
+  {
+   "type": "numeric",
+   "q": "With μ̂ = 4, find P(X = 0) = e⁻⁴.",
+   "answer": 0.0183,
+   "tolerance": 0.0005,
+   "explain": "e⁻⁴ = 0.0183.",
+   "set": "MLE"
+  },
+  {
+   "type": "numeric",
+   "q": "9 of 25 pass. Find θ̂.",
+   "answer": 0.36,
+   "tolerance": 0.005,
+   "explain": "9/25 = 0.36.",
+   "set": "MLE"
+  },
+  {
+   "type": "numeric",
+   "q": "Normal data 2, 5, 8, 9. Find the MLE σ̂².",
+   "answer": 7.5,
+   "tolerance": 0.05,
+   "explain": "Sum of squared deviations 30, divided by n = 4, gives 7.5.",
+   "set": "MLE"
+  },
+  {
+   "type": "mcq",
+   "q": "In the F-test for two variances, the larger variance goes…",
+   "options": [
+    "In the denominator",
+    "In the numerator",
+    "Either way",
+    "On the left"
+   ],
+   "answer": 1,
+   "explain": "The larger variance goes on top, so F ≥ 1.",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "mcq",
+   "q": "df for the F-test with n₁ = 10 and n₂ = 14 is…",
+   "options": [
+    "(10, 14)",
+    "(9, 13)",
+    "(13, 9)",
+    "(24, 2)"
+   ],
+   "answer": 1,
+   "explain": "(n₁ − 1, n₂ − 1) = (9, 13).",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "numeric",
+   "q": "s₁ = 0.032 (n = 10) and s₂ = 0.028 (n = 14). Find F = s₁²/s₂².",
+   "answer": 1.31,
+   "tolerance": 0.02,
+   "explain": "0.001024/0.000784 = 1.306.",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "mcq",
+   "q": "One-way ANOVA with k = 4 groups and n = 40. The F table uses…",
+   "options": [
+    "(4, 40)",
+    "(3, 36)",
+    "(3, 39)",
+    "(36, 3)"
+   ],
+   "answer": 1,
+   "explain": "(k − 1, n − k) = (3, 36).",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "numeric",
+   "q": "G = 150 and n = 15. What is the correction factor CF?",
+   "answer": 1500,
+   "tolerance": 0.5,
+   "explain": "150²/15 = 1500.",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "mcq",
+   "q": "In SSTR = Σ(Cⱼ²/nⱼ) − CF, Cⱼ is…",
+   "options": [
+    "Each observation",
+    "The total of group j",
+    "The mean of group j",
+    "The grand total"
+   ],
+   "answer": 1,
+   "explain": "Square the group total and divide by the group size.",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "mcq",
+   "q": "SSE in one-way ANOVA equals…",
+   "options": [
+    "SST + SSTR",
+    "SST − SSTR",
+    "SSTR − SST",
+    "SST / SSTR"
+   ],
+   "answer": 1,
+   "explain": "SST = SSTR + SSE, so SSE = SST − SSTR.",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "mcq",
+   "q": "In two-way ANOVA, SSE equals…",
+   "options": [
+    "SST − SSTR",
+    "SST − SSTR − SSBL",
+    "SSTR + SSBL",
+    "SST − SSBL"
+   ],
+   "answer": 1,
+   "explain": "Both the treatment and the block effects are taken out.",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "numeric",
+   "q": "Two-way ANOVA with k = 4 columns, m = 3 rows. Error df?",
+   "answer": 6,
+   "tolerance": 0.01,
+   "explain": "(k − 1)(m − 1) = 3 × 2 = 6.",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "mcq",
+   "q": "Two-way ANOVA with k = 4 and m = 3. The F table value for blocks uses (DF1, DF2) =",
+   "options": [
+    "(3, 6)",
+    "(2, 6)",
+    "(2, 3)",
+    "(6, 2)"
+   ],
+   "answer": 1,
+   "explain": "Blocks: (m − 1, (k − 1)(m − 1)) = (2, 6).",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "mcq",
+   "q": "Two-way ANOVA with k = 4 and m = 3. The F table value for treatments uses (DF1, DF2) =",
+   "options": [
+    "(3, 6)",
+    "(2, 6)",
+    "(4, 3)",
+    "(3, 2)"
+   ],
+   "answer": 0,
+   "explain": "Treatments: (k − 1, (k − 1)(m − 1)) = (3, 6).",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "numeric",
+   "q": "Two-way: SST = 36, SSTR = 18, SSBL = 8. Find SSE.",
+   "answer": 10,
+   "tolerance": 0.01,
+   "explain": "36 − 18 − 8 = 10.",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "numeric",
+   "q": "Two-way: SSE = 10 with df 6. Find MSE.",
+   "answer": 1.67,
+   "tolerance": 0.01,
+   "explain": "10/6 = 1.667.",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "mcq",
+   "q": "In two-way SSTR for columns, the divisor is…",
+   "options": [
+    "k",
+    "m",
+    "n",
+    "k + m"
+   ],
+   "answer": 1,
+   "explain": "Each column contains m values, so divide column totals by m.",
+   "set": "F-test & ANOVA"
+  },
+  {
+   "type": "mcq",
+   "q": "F = 4.0 and the table value is 3.89 (right-tailed). The decision is…",
+   "options": [
+    "Do not reject H₀",
+    "Reject H₀",
+    "Accept H₁ is false",
+    "Cannot decide"
+   ],
+   "answer": 1,
+   "explain": "F calculated is greater than the table value, so reject H₀.",
+   "set": "F-test & ANOVA"
+  }
+ ],
+ "formulas": [
+  {
+   "name": "Likelihood",
+   "formula": "L(θ) = ∏ f(xᵢ | θ),   ℓ(θ) = ln L(θ)",
+   "note": "Differentiate ℓ, set to 0."
+  },
+  {
+   "name": "MLE Binomial / Bernoulli",
+   "formula": "θ̂ = k / n",
+   "note": "Successes ÷ trials."
+  },
+  {
+   "name": "MLE Poisson",
+   "formula": "μ̂ = X̄",
+   "note": "Then P(X = x) = e^(−μ̂) μ̂ˣ / x!"
+  },
+  {
+   "name": "MLE Normal",
+   "formula": "μ̂ = X̄,   σ̂² = Σ(Xᵢ − X̄)² / n",
+   "note": "Divide by n, not n − 1."
+  },
+  {
+   "name": "Invariance",
+   "formula": "MLE of g(θ) = g(θ̂)",
+   "note": "Plug the MLE into the probability."
+  },
+  {
+   "name": "Binomial probabilities",
+   "formula": "exactly k of n: C(n,k) θ̂ᵏ (1 − θ̂)ⁿ⁻ᵏ    |    next k all succeed: θ̂ᵏ",
+   "note": ""
+  },
+  {
+   "name": "F-test, two variances",
+   "formula": "F = s₁² / s₂²,  df = (n₁ − 1, n₂ − 1)",
+   "note": "Larger variance on top. Square s only if given as a standard deviation."
+  },
+  {
+   "name": "One-way ANOVA",
+   "formula": "CF = G²/n;  SST = ΣΣx² − CF;  SSTR = ΣCⱼ²/nⱼ − CF;  SSE = SST − SSTR",
+   "note": ""
+  },
+  {
+   "name": "One-way F",
+   "formula": "MSTR = SSTR/(k − 1),  MSE = SSE/(n − k),  F = MSTR/MSE",
+   "note": "Table at (k − 1, n − k), right-tailed."
+  },
+  {
+   "name": "Two-way SS",
+   "formula": "SSTR = Σ(col total)²/m − CF;  SSBL = Σ(row total)²/k − CF;  SSE = SST − SSTR − SSBL",
+   "note": "k = columns, m = rows."
+  },
+  {
+   "name": "Two-way df",
+   "formula": "treatments k − 1;  blocks m − 1;  error (k − 1)(m − 1);  total n − 1",
+   "note": ""
+  },
+  {
+   "name": "Two-way F and table",
+   "formula": "F_tr = MSTR/MSE at (k − 1, (k − 1)(m − 1));  F_bl = MSBL/MSE at (m − 1, (k − 1)(m − 1))",
+   "note": "Two separate lookups."
+  },
+  {
+   "name": "Reading the F table",
+   "formula": "DF1 across, DF2 down, α = 0.05",
+   "note": "Nearest printed row if DF2 is missing."
+  },
+  {
+   "name": "Decision",
+   "formula": "F > table ⇒ reject H₀",
+   "note": "Right-tailed."
+  }
+ ],
+ "families": [
+  {
+   "id": "mle",
+   "label": "MLE",
+   "icon": "θ̂",
+   "title": "MLE: which θ makes the data most likely?",
+   "lead": "One recipe. Three results to remember. Then plug the estimate into a probability.",
+   "problems": [
+    "MLE ·"
+   ],
+   "blocks": [
+    {
+     "type": "h",
+     "text": "The intuition"
+    },
+    {
+     "type": "p",
+     "text": "You have data and a distribution with one unknown number. Try different values of the number. The value that gives the data the highest probability is the MLE."
+    },
+    {
+     "type": "h",
+     "text": "The results"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Distribution",
+      "MLE"
+     ],
+     "rows": [
+      [
+       "Binomial / Bernoulli",
+       "θ̂ = k/n"
+      ],
+      [
+       "Poisson",
+       "μ̂ = X̄"
+      ],
+      [
+       "Normal",
+       "μ̂ = X̄, σ̂² = Σ(Xᵢ − X̄)²/n"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Standard steps"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Name the distribution from the question.",
+      "Write the MLE formula.",
+      "Calculate it from the data.",
+      "Plug it into the probability they ask for.",
+      "State the answer in a sentence."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ftest",
+   "label": "F-test",
+   "icon": "F",
+   "title": "F-test: are two variances different?",
+   "lead": "A single ratio of sample variances, with the larger on top.",
+   "problems": [
+    "F-test ·"
+   ],
+   "blocks": [
+    {
+     "type": "h",
+     "text": "The intuition"
+    },
+    {
+     "type": "p",
+     "text": "If two processes are equally steady, their sample variances should be close, so the ratio is near 1. A ratio far above 1 says the top one is more variable."
+    },
+    {
+     "type": "formula",
+     "text": "F = s₁² / s₂²,  df = (n₁ − 1, n₂ − 1)"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "H₀: σ₁² = σ₂² and H₁.",
+      "Square s if standard deviations are given.",
+      "Larger variance on top.",
+      "df and table value.",
+      "F > table means reject H₀."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "oneway",
+   "label": "One-way ANOVA",
+   "icon": "A1",
+   "title": "One-way ANOVA: do three or more means differ?",
+   "lead": "Compare the variation between the groups with the variation inside them.",
+   "problems": [
+    "One-way ANOVA ·"
+   ],
+   "blocks": [
+    {
+     "type": "h",
+     "text": "The intuition"
+    },
+    {
+     "type": "p",
+     "text": "Imagine three classes taking the same test. If the class averages are far apart compared with how spread out each class is, the classes really differ. ANOVA measures exactly that ratio."
+    },
+    {
+     "type": "formula",
+     "text": "CF = G²/n → SST = ΣΣx² − CF → SSTR = ΣCⱼ²/nⱼ − CF → SSE = SST − SSTR → F = MSTR/MSE",
+     "caption": "df = (k − 1, n − k)"
+    }
+   ]
+  },
+  {
+   "id": "twoway",
+   "label": "Two-way ANOVA",
+   "icon": "A2",
+   "title": "Two-way ANOVA: two factors at once",
+   "lead": "A treatment you compare and a block you control for.",
+   "problems": [
+    "Two-way ANOVA ·"
+   ],
+   "blocks": [
+    {
+     "type": "h",
+     "text": "The intuition"
+    },
+    {
+     "type": "p",
+     "text": "Test scores may depend on both the teaching method and the study time. Two-way ANOVA separates the effect of each, and the leftover is the error."
+    },
+    {
+     "type": "formula",
+     "text": "SSE = SST − SSTR − SSBL",
+     "caption": "Two F values, both over the same MSE. Treatments: (k − 1, (k − 1)(m − 1)). Blocks: (m − 1, (k − 1)(m − 1))."
+    },
+    {
+     "type": "table",
+     "head": [
+      "",
+      "DF1",
+      "DF2"
+     ],
+     "rows": [
+      [
+       "Treatments",
+       "k − 1",
+       "(k − 1)(m − 1)"
+      ],
+      [
+       "Blocks",
+       "m − 1",
+       "(k − 1)(m − 1)"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

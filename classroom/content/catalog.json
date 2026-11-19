@@ -203,8 +203,8 @@
               "id": "ch10",
               "number": 10,
               "title": "Maximum Likelihood & ANOVA",
-              "blurb": "MLE, and comparing three or more means.",
-              "comingSoon": true
+              "blurb": "MLE for Bernoulli, Binomial, Poisson and Normal, F-test for two variances, one-way and two-way ANOVA.",
+              "file": "content/sem1/aiml-zc418/ch10-mle-anova.json"
             },
             {
               "id": "ch11",
