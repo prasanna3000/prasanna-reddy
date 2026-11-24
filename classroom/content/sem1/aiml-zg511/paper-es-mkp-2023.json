@@ -51,7 +51,7 @@
         {
           "type": "note",
           "label": "How to use this paper",
-          "text": "Open **Worked problems** and try each question on paper before revealing the steps. Where the official answer key has a mistake, the solution says so and shows the correct working."
+          "text": "Open **Worked problems** and try each question on paper before revealing the steps."
         }
       ]
     }
@@ -110,7 +110,7 @@
           "text": "W^Q 1024×256, W^K 1024×512, W^V 1024×512"
         },
         {
-          "label": "Key's stacked form",
+          "label": "Stacked over 6 heads",
           "text": "(6 × 1024) × 256, (6 × 1024) × 512, (6 × 1024) × 512"
         },
         {
@@ -127,8 +127,7 @@
     {
       "title": "Q3 · NiN block parameters",
       "tags": [
-        "Ch 6",
-        "key check"
+        "Ch 6"
       ],
       "problem": [
         {
@@ -139,7 +138,7 @@
       "steps": [
         {
           "label": "Assumption",
-          "text": "As in the key, every conv reads the 1-channel input directly (parallel branches)."
+          "text": "Every conv reads the 1-channel input directly (parallel branches)."
         },
         {
           "label": "1×1",
@@ -162,8 +161,8 @@
           "text": "GAP has 0 parameters. If the branches are concatenated (32 + 128 + 48 = 208 channels) and fed to one sigmoid unit: + 209 → **2,801**."
         },
         {
-          "label": "Key check",
-          "text": "The key's final figure (47,230) doesn't follow from its own block count; show your assumption and arithmetic."
+          "label": "Check",
+          "text": "Make sure your final total follows from your own block count; show your assumption and arithmetic."
         }
       ],
       "answer": "2,592 per block; ≈ 2,801 in total under the stated assumption."

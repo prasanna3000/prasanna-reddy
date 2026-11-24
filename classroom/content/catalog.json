@@ -1,9 +1,9 @@
 {
   "school": {
     "name": "The Classroom",
-    "tagline": "learn it, then teach it",
+    "tagline": "learn it, practise it, score it",
     "welcome": "Welcome to class!",
-    "intro": "Pick a course to start. Every chapter has a chalkboard lesson, worked problems you reveal step by step, a lab bench to play with, flashcards, a pop quiz and a printable cheat sheet. Your stars are saved in this browser."
+    "intro": "Pick a course to start. Every chapter has a lesson, worked problems you reveal step by step, a lab bench to play with, flashcards, a pop quiz and a printable cheat sheet. Your stars are saved in this browser."
   },
   "semesters": [
     {
@@ -17,8 +17,8 @@
           "code": "AIML ZG511",
           "title": "Deep Neural Networks",
           "room": "Room 511",
-          "color": "#b5523b",
-          "description": "Main text: Zhang, Lipton, Li & Smola, **Dive into Deep Learning** (2023). EC-2 mid-sem (closed book, done) and EC-3 comprehensive (open book, **5 Dec 2026**, all topics).",
+          "color": "#4318FF",
+          "description": "- **Textbook:** Zhang, Lipton, Li & Smola, *Dive into Deep Learning* (2023)\n- **Mid-sem:** EC-2, closed book (done)\n- **Exam:** EC-3 comprehensive, **5 Dec 2026**\n- **Format:** open book · all topics",
           "chapters": [
             {
               "id": "ch01",
@@ -132,7 +132,7 @@
             }
           ],
           "groupIntros": {
-            "Exam hall": "Past papers, solved step by step. Each solution flags where the official answer key has a mistake. Your next exam: **EC-3 comprehensive, 5 Dec 2026** (open book)."
+            "Exam hall": "Past papers, solved step by step. Your next exam: **EC-3 comprehensive, 5 Dec 2026** (open book)."
           }
         },
         {
@@ -140,9 +140,9 @@
           "code": "AIML ZC418",
           "title": "Introduction to Statistical Methods",
           "room": "Room 418",
-          "color": "#2f7d6d",
+          "color": "#7551FF",
           "teacher": "Prof. Srinath R Naidu",
-          "description": "Texts: T1 Kaptein et al., **Statistics for Data Scientists**; T2 Devore, **Probability and Statistics for Engineering and the Sciences**; T3 Brockwell & Davis, **Introduction to Time Series and Forecasting**. EC-3 comprehensive: open book, 40%. Roughly 10–15% of it comes from CS 1–7, the rest from CS 9 onwards. There is no CS 8 in the slide deck.",
+          "description": "- **Textbooks:** T1 Kaptein et al., *Statistics for Data Scientists*; T2 Devore, *Probability and Statistics for Engineering and the Sciences*; T3 Brockwell & Davis, *Introduction to Time Series and Forecasting*\n- **Exam:** EC-3 comprehensive\n- **Format:** open book · 40% of the course\n- **Pre-mid syllabus:** CS 1–7, roughly 10–15% of end-sem marks; the rest comes from CS 9 onwards",
           "chapters": [
             {
               "id": "ch01",
@@ -642,126 +642,320 @@
           "code": "AIML ZG565",
           "title": "Machine Learning",
           "room": "Room 565",
-          "color": "#4a6fa5",
+          "color": "#3965FF",
           "teacher": "Prof. Amit Sharma",
-          "description": "Texts: T1 Mitchell, **Machine Learning**; R1 Bishop, **Pattern Recognition and Machine Learning**; R2 Hastie et al. EC-3 comprehensive: open book, 40%, 2 hours (**6 Dec 2026**, afternoon). Chapters are numbered by contact session (CS). Built so far: **CS 12–13 Ensemble Learning** (page numbers refer to your watermarked slides).",
+          "description": "- **Textbook:** T1 Mitchell, *Machine Learning*\n- **Reference books:** R1 Bishop, *Pattern Recognition and Machine Learning*; R2 Hastie et al.\n- **Pre-mid syllabus:** everything up to information gain in decision trees (about 15% of end-sem marks)",
           "weightage": {
             "title": "Where the marks are: ML end-sem",
-            "intro": "Two things below: the official pattern printed on the sample question paper, and the real marks in the two end-sem papers I could read in full (Mar 2026 regular and makeup, 80 marks). Each paper is 40 marks, 2 hours, open book.",
+            "intro": "Marks per chapter counted from all four end-sem papers (2021 regular and makeup, Mar 2026 regular and makeup: 160 marks), plus the official pattern on the sample question paper.",
             "tables": [
               {
-                "title": "Official pattern (ML Comprehensive Sample QP)",
+                "title": "Marks per chapter in the four end-sems",
                 "head": [
-                  "Topic",
-                  "Marks"
-                ],
-                "leftCols": 1,
-                "rows": [
-                  [
-                    "Instance-based learning (CS 7)",
-                    "4–8"
-                  ],
-                  [
-                    "SVM (CS 9)",
-                    "4–8"
-                  ],
-                  [
-                    "Bayesian learning (CS 10–11)",
-                    "4–8"
-                  ],
-                  [
-                    "Ensemble learning (CS 12–13)",
-                    "4–8"
-                  ],
-                  [
-                    "Unsupervised learning (CS 14)",
-                    "4–8"
-                  ],
-                  [
-                    "Model evaluation and comparison (CS 15)",
-                    "4–8"
-                  ],
-                  [
-                    "Pre-midterm topics (CS 1–6)",
-                    "5–10"
-                  ]
-                ],
-                "note": "Six post-mid topics each get 4 to 8 marks, so none can be skipped."
-              },
-              {
-                "title": "Marks per topic in the last two end-sems",
-                "head": [
-                  "CS",
-                  "Topic",
-                  "Mar 2026 regular",
-                  "Mar 2026 makeup",
-                  "Total /80"
+                  "Rank",
+                  "Chapter",
+                  "2021 reg",
+                  "2021 mkp",
+                  "Mar 2026 reg",
+                  "Mar 2026 mkp",
+                  "Total /160",
+                  "Share",
+                  "Papers"
                 ],
                 "leftCols": 2,
                 "rows": [
                   [
-                    "12–13",
-                    "Ensembles (AdaBoost, bagging/RF, gradient boosting, voting)",
+                    "1",
+                    "CS 9 · SVM",
+                    "10",
+                    "10",
                     "8",
-                    "9",
-                    "**17**"
+                    "8",
+                    "**36**",
+                    "22.5%",
+                    "4 of 4"
                   ],
                   [
+                    "2",
+                    "CS 14 · K-means, GMM/EM",
+                    "14",
+                    "5",
+                    "6",
+                    "6",
+                    "**31**",
+                    "19.4%",
+                    "4 of 4"
+                  ],
+                  [
+                    "3",
+                    "CS 12–13 · Ensembles",
+                    "3",
+                    "3",
+                    "8",
                     "9",
-                    "SVM",
+                    "**23**",
+                    "14.4%",
+                    "4 of 4"
+                  ],
+                  [
+                    "4",
+                    "CS 10–11 · Bayesian learning",
                     "8",
-                    "8",
-                    "**16**"
+                    "3",
+                    "6",
+                    "5",
+                    "**22**",
+                    "13.8%",
+                    "4 of 4"
+                  ],
+                  [
+                    "5",
+                    "CS 7 · kNN, LWR",
+                    "·",
+                    "5",
+                    "6",
+                    "6",
+                    "**17**",
+                    "10.6%",
+                    "3 of 4"
+                  ],
+                  [
+                    "6",
+                    "CS 3 · Linear regression, Ridge/Lasso",
+                    "·",
+                    "7",
+                    "3",
+                    "4",
+                    "**14**",
+                    "8.8%",
+                    "3 of 4"
                   ],
                   [
                     "7",
-                    "kNN, locally weighted regression",
-                    "6",
-                    "6",
-                    "**12**"
-                  ],
-                  [
-                    "14",
-                    "K-means, GMM",
-                    "6",
-                    "6",
-                    "**12**"
-                  ],
-                  [
-                    "11",
-                    "Naive Bayes",
-                    "6",
-                    "5",
-                    "**11**"
-                  ],
-                  [
-                    "3",
-                    "Ridge, Lasso",
-                    "3",
-                    "4",
-                    "**7**"
-                  ],
-                  [
-                    "4–6",
-                    "Logistic regression and decision-tree concepts",
-                    "3",
+                    "CS 6 · Decision trees",
+                    "·",
+                    "7",
+                    "·",
                     "2",
-                    "**5**"
+                    "**9**",
+                    "5.6%",
+                    "2 of 4"
                   ],
                   [
-                    "15",
-                    "Model evaluation",
-                    "0",
-                    "0",
-                    "0"
+                    "8",
+                    "CS 4–5 · Logistic regression",
+                    "·",
+                    "·",
+                    "3",
+                    "·",
+                    "**3**",
+                    "1.9%",
+                    "1 of 4"
+                  ],
+                  [
+                    "9",
+                    "CS 15 · Model evaluation",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "**0**",
+                    "0%",
+                    "0 of 4"
+                  ],
+                  [
+                    "·",
+                    "ANN (2021 only, not in the current syllabus)",
+                    "5",
+                    "·",
+                    "·",
+                    "·",
+                    "5",
+                    "3.1%",
+                    "1 of 4"
                   ]
                 ],
-                "note": "Model evaluation did not appear in these two papers, but the sample QP lists it, so keep a short pass on it."
+                "note": "The top five chapters are 129 of 160 marks (81%), and 68 of 80 (85%) in the two Mar 2026 papers. Model evaluation never appeared, but Sourabh sir's Practice Paper 01 gives it 4 marks and the sample QP lists 4–8."
+              },
+              {
+                "title": "Official pattern (ML Comprehensive Sample QP)",
+                "head": [
+                  "Topic",
+                  "Marks",
+                  "My top 5"
+                ],
+                "leftCols": 1,
+                "rows": [
+                  [
+                    "==🎯 **SVM (CS 9)**==",
+                    "==4–8==",
+                    "==#1=="
+                  ],
+                  [
+                    "==🎯 **Unsupervised learning (CS 14)**==",
+                    "==4–8==",
+                    "==#2=="
+                  ],
+                  [
+                    "==🎯 **Ensemble learning (CS 12–13)**==",
+                    "==4–8==",
+                    "==#3=="
+                  ],
+                  [
+                    "==🎯 **Bayesian learning (CS 10–11)**==",
+                    "==4–8==",
+                    "==#4=="
+                  ],
+                  [
+                    "==🎯 **Instance-based learning (CS 7)**==",
+                    "==4–8==",
+                    "==#5=="
+                  ],
+                  [
+                    "Model evaluation and comparison (CS 15)",
+                    "4–8",
+                    "·"
+                  ],
+                  [
+                    "Pre-midterm topics (CS 1–6)",
+                    "5–10",
+                    "·"
+                  ]
+                ],
+                "note": "Highlighted 🎯 = the five chapters picked for your target, in order of past-paper marks. Together the sample QP gives them 20–40 marks. The other two rows (model evaluation, pre-mid topics) are still worth a short pass."
               }
             ],
-            "footnote": "Judgement calls: Mar 2026 regular Q7 (3 marks, linear vs logistic regression vs tree) is counted under CS 4–6. Marks come from the papers' own mark schemes. Only these two end-sem papers were available in full, so treat the totals as a guide, not a forecast."
+            "footnote": "Judgement calls: Mar 2026 regular Q1 (Lasso vs ensemble) is counted under CS 3, Q7 (linear vs logistic vs tree) under CS 4–5; 2021 regular Q5 (XOR + ANN) is listed separately.",
+            "open": true
           },
           "chapters": [
+            {
+              "id": "ch09",
+              "number": 9,
+              "label": "CS 9",
+              "title": "Support Vector Machines",
+              "blurb": "Linear and non-linear SVM, kernels, support vectors. Before: dot product, ‖w‖, distance from a point to a line; Lagrange/KKT (MFML L14–15).",
+              "weight": {
+                "marks": 36,
+                "outOf": 160,
+                "papers": "4 of 4",
+                "pattern": "4–8"
+              },
+              "file": "content/sem1/aiml-zg565/ch09-svm.json"
+            },
+            {
+              "id": "ch14",
+              "number": 14,
+              "label": "CS 14",
+              "title": "Unsupervised Learning",
+              "blurb": "K-means, Gaussian mixture models, EM. Before: Gaussian density and MLE (CS 10–11). Do K-means, then GMM.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 31,
+                "outOf": 160,
+                "papers": "4 of 4",
+                "pattern": "4–8"
+              }
+            },
+            {
+              "id": "ch12",
+              "number": 12,
+              "label": "CS 12–13",
+              "title": "Ensemble Learning",
+              "blurb": "Voting, bagging, Random Forest, AdaBoost, gradient boosting, XGBoost, stacking. Before: decision stumps (CS 6, idea only); residuals and squared loss (CS 3) for gradient boosting.",
+              "file": "content/sem1/aiml-zg565/ch12-ensembles.json",
+              "weight": {
+                "marks": 23,
+                "outOf": 160,
+                "papers": "4 of 4",
+                "pattern": "4–8"
+              }
+            },
+            {
+              "id": "ch10",
+              "number": 10,
+              "label": "CS 10–11",
+              "title": "Bayesian Learning",
+              "blurb": "MLE, MAP, Bayes optimal classifier, Naive Bayes. Before: Bayes' theorem, Gaussian density.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 22,
+                "outOf": 160,
+                "papers": "4 of 4",
+                "pattern": "4–8"
+              }
+            },
+            {
+              "id": "ch07",
+              "number": 7,
+              "label": "CS 7",
+              "title": "Instance-based Learning",
+              "blurb": "kNN, locally weighted regression, radial basis functions. Before: min–max normalisation; linear regression and one GD step (CS 3) for LWR.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 17,
+                "outOf": 160,
+                "papers": "3 of 4",
+                "pattern": "4–8"
+              }
+            },
+            {
+              "id": "ch03",
+              "number": 3,
+              "label": "CS 3",
+              "title": "Linear Models for Regression",
+              "blurb": "Direct solution, gradient descent, basis functions, bias-variance, Ridge and Lasso.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 14,
+                "outOf": 160,
+                "papers": "3 of 4",
+                "pattern": "5–10 for CS 1–6 together"
+              }
+            },
+            {
+              "id": "ch06",
+              "number": 6,
+              "label": "CS 6",
+              "title": "Decision Trees",
+              "blurb": "Entropy, information gain, overfitting, continuous and missing values.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 9,
+                "outOf": 160,
+                "papers": "2 of 4",
+                "pattern": "5–10 for CS 1–6 together"
+              }
+            },
+            {
+              "id": "ch04",
+              "number": 4,
+              "label": "CS 4–5",
+              "title": "Linear Classification and Logistic Regression",
+              "blurb": "Discriminant functions, logistic regression, log loss, multi-class.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 3,
+                "outOf": 160,
+                "papers": "1 of 4",
+                "pattern": "5–10 for CS 1–6 together"
+              }
+            },
+            {
+              "id": "ch15",
+              "number": 15,
+              "label": "CS 15",
+              "title": "Model Evaluation",
+              "blurb": "Comparing models, confusion matrix, bias and fairness. Not in past papers, but cheap marks: do a short pass.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 0,
+                "outOf": 160,
+                "papers": "0 of 4",
+                "pattern": "4–8",
+                "note": "4 marks in Sourabh sir's Practice Paper 01"
+              }
+            },
             {
               "id": "ch01",
               "number": 1,
@@ -785,134 +979,302 @@
               }
             },
             {
-              "id": "ch03",
-              "number": 3,
-              "label": "CS 3",
-              "title": "Linear Models for Regression",
-              "blurb": "Direct solution, gradient descent, basis functions, bias-variance, Ridge and Lasso.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 7,
-                "outOf": 80,
-                "papers": "2 of 2",
-                "pattern": "5–10 for CS 1–6 together"
-              }
+              "id": "p-es-reg-2026",
+              "group": "Exam hall",
+              "label": "End-sem · Mar 2026 regular",
+              "title": "Comprehensive, Mar 2026 (Regular)",
+              "blurb": "Lasso vs ensemble, Gower kNN, AdaBoost, multinomial NB, SVM margin, K-means vs GMM, linear/logistic/tree.",
+              "file": "content/sem1/aiml-zg565/paper-es-reg-2026.json"
             },
             {
-              "id": "ch04",
-              "number": 4,
-              "label": "CS 4–5",
-              "title": "Linear Classification and Logistic Regression",
-              "blurb": "Discriminant functions, logistic regression, log loss, multi-class.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 5,
-                "outOf": 80,
-                "papers": "2 of 2",
-                "pattern": "5–10 for CS 1–6 together",
-                "note": "shared with CS 6"
-              }
+              "id": "p-es-mkp-2026",
+              "group": "Exam hall",
+              "label": "End-sem · Mar 2026 makeup",
+              "title": "Comprehensive, Mar 2026 (Makeup)",
+              "blurb": "Ridge λ, Gaussian NB, kNN + LWR, bagging/RF/voting, GMM EM step, gradient boosting, SVM, tree overfitting.",
+              "file": "content/sem1/aiml-zg565/paper-es-mkp-2026.json"
             },
             {
-              "id": "ch06",
-              "number": 6,
-              "label": "CS 6",
-              "title": "Decision Trees",
-              "blurb": "Entropy, information gain, overfitting, continuous and missing values.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 5,
-                "outOf": 80,
-                "papers": "2 of 2",
-                "pattern": "5–10 for CS 1–6 together",
-                "note": "shared with CS 4–5"
-              }
+              "id": "p-es-reg-2021",
+              "group": "Exam hall",
+              "label": "End-sem · 2021 regular",
+              "title": "End-Semester 2021-22 (Regular)",
+              "blurb": "Bayes optimal, kernel trick, EM with one Gaussian, coin MLE, XOR, SVM what-ifs, AdaBoost, K-means starts.",
+              "file": "content/sem1/aiml-zg565/paper-es-reg-2021.json"
             },
             {
-              "id": "ch07",
-              "number": 7,
-              "label": "CS 7",
-              "title": "Instance-based Learning",
-              "blurb": "kNN, locally weighted regression, radial basis functions.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 12,
-                "outOf": 80,
-                "papers": "2 of 2",
-                "pattern": "4–8"
-              }
+              "id": "p-es-mkp-2021",
+              "group": "Exam hall",
+              "label": "End-sem · 2021 makeup",
+              "title": "End-Semester 2021-22 (Makeup)",
+              "blurb": "kNN k=3/5/7, kernel trick, regression through origin, information gain, die MLE, SVM, AdaBoost, K-means outlier.",
+              "file": "content/sem1/aiml-zg565/paper-es-mkp-2021.json"
             },
+            {
+              "id": "p-pp01",
+              "group": "Try it on your own",
+              "label": "Sourabh sir",
+              "title": "Practice Paper 01",
+              "blurb": "Sit it under exam conditions first. Least squares and ridge, kNN + LWR, SVM kernels, MLE, gradient boosting, K-means starts, confusion matrices.",
+              "file": "content/sem1/aiml-zg565/paper-pp01.json"
+            }
+          ],
+          "groupIntros": {
+            "Exam hall": "All four previous end-sem papers, solved step by step. Start with the two Mar 2026 papers: they match the current style.",
+            "Syllabus board": "Sorted by end-sem marks across all four past papers, highest first. Each card says what to study before it.",
+            "Try it on your own": "Sourabh sir's full practice paper. Attempt it under exam conditions before opening the solutions."
+          },
+          "target": {
+            "score": 30,
+            "outOf": 40,
+            "text": "Master the **top five chapters**. In the two Mar 2026 papers they carried **68 of 80 marks (about 34 per paper)**, so solving them reliably is enough for 30.",
+            "points": [
+              "**SVM** (CS 9): 36/160",
+              "**K-means, GMM/EM** (CS 14): 31/160",
+              "**Ensembles** (CS 12–13): 23/160",
+              "**Bayesian learning** (CS 10–11): 22/160",
+              "**kNN, LWR** (CS 7): 17/160"
+            ]
+          },
+          "exam": "📝 EC-3 comprehensive · **6 Dec 2026, afternoon** · open book · 2 hours · 40 marks · 40% of the course"
+        },
+        {
+          "id": "aiml-zc416",
+          "code": "AIML ZC416",
+          "title": "Mathematical Foundations for Machine Learning",
+          "room": "Room 416",
+          "color": "#E3478B",
+          "teacher": "Prof. Saurabh",
+          "description": "- **Textbook:** T1 Deisenroth, Faisal & Ong, *Mathematics for Machine Learning*\n- **Exam:** EC-3 comprehensive, **6 Dec 2026 (morning)**\n- **Format:** open book · 150 minutes · 40% of the course\n- **Pre-mid syllabus:** lectures 1–8, which took 35–45% of the marks in the Feb and Mar 2026 end-sem papers",
+          "chapters": [
             {
               "id": "ch09",
               "number": 9,
-              "label": "CS 9",
-              "title": "Support Vector Machines",
-              "blurb": "Linear and non-linear SVM, kernels, support vectors.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 16,
-                "outOf": 80,
-                "papers": "2 of 2",
-                "pattern": "4–8"
-              }
+              "label": "L9",
+              "title": "Gradient Descent",
+              "blurb": "Loss, the GD rule, step size, decay, line search, SGD. Practice and past-paper problems.",
+              "file": "content/sem1/aiml-zc416/ch09-gradient-descent.json"
             },
             {
               "id": "ch10",
               "number": 10,
-              "label": "CS 10–11",
-              "title": "Bayesian Learning",
-              "blurb": "MLE, MAP, Bayes optimal classifier, Naive Bayes.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 11,
-                "outOf": 80,
-                "papers": "2 of 2",
-                "pattern": "4–8"
-              }
+              "label": "L10",
+              "title": "Optimisation I",
+              "blurb": "Initialisation, scaling, SGD in machine learning.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch11",
+              "number": 11,
+              "label": "L11",
+              "title": "Optimisation II",
+              "blurb": "Momentum, AdaGrad, RMSProp, Adam; convex sets, LP and the Lagrangian.",
+              "comingSoon": true
             },
             {
               "id": "ch12",
               "number": 12,
-              "label": "CS 12–13",
-              "title": "Ensemble Learning",
-              "blurb": "Voting, bagging, Random Forest, AdaBoost, gradient boosting, XGBoost, stacking.",
-              "file": "content/sem1/aiml-zg565/ch12-ensembles.json",
-              "weight": {
-                "marks": 17,
-                "outOf": 80,
-                "papers": "2 of 2",
-                "pattern": "4–8"
-              }
+              "label": "L12",
+              "title": "PCA I",
+              "blurb": "Maximum variance and projection views.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch13",
+              "number": 13,
+              "label": "L13",
+              "title": "PCA II",
+              "blurb": "Eigenvectors, low-rank approximation, steps in practice.",
+              "comingSoon": true
             },
             {
               "id": "ch14",
               "number": 14,
-              "label": "CS 14",
-              "title": "Unsupervised Learning",
-              "blurb": "K-means, Gaussian mixture models, EM.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 12,
-                "outOf": 80,
-                "papers": "2 of 2",
-                "pattern": "4–8"
-              }
+              "label": "L14",
+              "title": "Constrained Optimisation, KKT and Linear Classifiers",
+              "blurb": "Primal and dual, KKT, kernels, the SVM setup.",
+              "comingSoon": true
             },
             {
               "id": "ch15",
               "number": 15,
-              "label": "CS 15",
-              "title": "Model Evaluation",
-              "blurb": "Comparing models, confusion matrix, bias and fairness.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 0,
-                "outOf": 80,
-                "papers": "0 of 2",
-                "pattern": "4–8"
-              }
+              "label": "L15",
+              "title": "SVM",
+              "blurb": "Hard and soft margin, the dual, kernels.",
+              "comingSoon": true
             }
-          ]
+          ],
+          "weightage": {
+            "title": "Where the marks are: MFML end-sem",
+            "intro": "Counted question by question from the two newest end-sem papers (Feb 2026 regular and Mar 2026 makeup, 40 marks each). Pre-mid = lectures 1–8 (linear algebra, decompositions, vector calculus); post-mid = lectures 9–15 (gradient descent, optimisation, PCA, KKT, SVM). The comprehensive is open book, 150 minutes, 40% of the course.",
+            "tables": [
+              {
+                "title": "Pre-mid vs post-mid in the 2026 end-sems",
+                "head": [
+                  "Paper",
+                  "Pre-mid marks",
+                  "Post-mid marks",
+                  "Split (pre / post)"
+                ],
+                "leftCols": 1,
+                "rows": [
+                  [
+                    "Feb 2026 regular",
+                    "18",
+                    "22",
+                    "45% / 55%"
+                  ],
+                  [
+                    "Mar 2026 makeup",
+                    "14",
+                    "26",
+                    "35% / 65%"
+                  ],
+                  [
+                    "**Total /80**",
+                    "**32**",
+                    "**48**",
+                    "**40% / 60%**"
+                  ]
+                ],
+                "note": "Sourabh sir's estimate was 25–30% pre-mid. The real papers give 35–45%: about two full questions on eigenvalues, rank/basis and positive-definite inner products. Do not skip lectures 1–8."
+              },
+              {
+                "title": "Every question in the 2026 end-sems",
+                "head": [
+                  "Paper",
+                  "Q",
+                  "Topic",
+                  "Pre/post",
+                  "Marks"
+                ],
+                "leftCols": 3,
+                "rows": [
+                  [
+                    "Feb 2026",
+                    "Q1",
+                    "Eigenvalues, diagonalisation, singular values",
+                    "Pre",
+                    "8"
+                  ],
+                  [
+                    "Feb 2026",
+                    "Q2",
+                    "Independence, basis, rank, determinant",
+                    "Pre",
+                    "8"
+                  ],
+                  [
+                    "Feb 2026",
+                    "Q3a",
+                    "Inner-product matrix (symmetric, positive definite)",
+                    "Pre",
+                    "2"
+                  ],
+                  [
+                    "Feb 2026",
+                    "Q3b–d",
+                    "Constrained problem, Lagrangian, dual, KKT",
+                    "Post",
+                    "6"
+                  ],
+                  [
+                    "Feb 2026",
+                    "Q4",
+                    "Hessian convexity, GD with decay",
+                    "Post",
+                    "8"
+                  ],
+                  [
+                    "Feb 2026",
+                    "Q5",
+                    "Hard-margin SVM, separating lines, margin",
+                    "Post",
+                    "8"
+                  ],
+                  [
+                    "Mar 2026",
+                    "Q1",
+                    "Eigenspace, linear independence",
+                    "Pre",
+                    "7"
+                  ],
+                  [
+                    "Mar 2026",
+                    "Q2",
+                    "Positive definite, inner product, Gram–Schmidt",
+                    "Pre",
+                    "7"
+                  ],
+                  [
+                    "Mar 2026",
+                    "Q3",
+                    "Line search (binary search), exact optimum",
+                    "Post",
+                    "7"
+                  ],
+                  [
+                    "Mar 2026",
+                    "Q4",
+                    "GD with momentum",
+                    "Post",
+                    "4"
+                  ],
+                  [
+                    "Mar 2026",
+                    "Q5",
+                    "PCA: covariance, eigenvectors, projection",
+                    "Post",
+                    "7"
+                  ],
+                  [
+                    "Mar 2026",
+                    "Q6",
+                    "Soft-margin SVM, hinge loss",
+                    "Post",
+                    "8"
+                  ]
+                ]
+              },
+              {
+                "title": "Gradient descent marks in the end-sem papers",
+                "head": [
+                  "Paper",
+                  "Question",
+                  "Marks",
+                  "What it tests"
+                ],
+                "leftCols": 2,
+                "rows": [
+                  [
+                    "Feb 2026",
+                    "Q4",
+                    "8",
+                    "Hessian convexity, gradient, inverse-decay GD (2 iterations)"
+                  ],
+                  [
+                    "Mar 2026 makeup",
+                    "Q3",
+                    "7",
+                    "Line search by binary search, then exact optimum"
+                  ],
+                  [
+                    "Mar 2026 makeup",
+                    "Q4",
+                    "4",
+                    "GD with momentum (2 iterations)"
+                  ],
+                  [
+                    "2024 regular",
+                    "Q4",
+                    "7",
+                    "GD with momentum versus plain GD"
+                  ]
+                ],
+                "note": "Gradient descent appears in every recent paper."
+              }
+            ]
+          }
         }
       ]
     }

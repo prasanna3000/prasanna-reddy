@@ -5,7 +5,6 @@
   "lesson": [
     {
       "title": "Paper at a glance",
-      "lead": "Watch out: this answer key has arithmetic slips in Q1, Q2 and Q5. The corrections are shown.",
       "blocks": [
         {
           "type": "table",
@@ -57,7 +56,7 @@
         {
           "type": "note",
           "label": "How to use this paper",
-          "text": "Open **Worked problems** and try each question on paper before revealing the steps. Where the official answer key has a mistake, the solution says so and shows the correct working."
+          "text": "Open **Worked problems** and try each question on paper before revealing the steps."
         }
       ]
     }
@@ -66,8 +65,7 @@
     {
       "title": "Q1 · Perceptron, one epoch",
       "tags": [
-        "Ch 2",
-        "key check"
+        "Ch 2"
       ],
       "problem": [
         {
@@ -91,10 +89,6 @@
         {
           "label": "Row 4",
           "text": "z = −2.0 → −1 ≠ +1 → b += 1.2 → **b = −0.8**, w = (1.5, 0.7)"
-        },
-        {
-          "label": "Key check",
-          "text": "The official key writes b = −2 + 1.2 = **0.8** (a sign slip; it should be −0.8) and carries it forward. The row decisions happen to match, but the final bias should be −0.8."
         }
       ],
       "answer": "After one epoch: b = −0.8, w₁ = 1.5, w₂ = 0.7."
@@ -103,8 +97,7 @@
       "title": "Q2 · Derivative of softmax + categorical cross-entropy",
       "tags": [
         "Ch 4",
-        "derivation",
-        "key check"
+        "derivation"
       ],
       "problem": [
         {
@@ -126,8 +119,8 @@
           "text": "Σᵢ yᵢ = 1 → **∂L/∂zₖ = ŷₖ − yₖ**"
         },
         {
-          "label": "Key check",
-          "text": "The key stops at −yₖ(1 − ŷₖ), which keeps only the i = k term. That's correct for the true class (ŷₖ − 1) but misses the cross terms for the other classes (it gives 0 instead of ŷₖ). The full result is ŷ − y."
+          "label": "Common slip",
+          "text": "Stopping at −yₖ(1 − ŷₖ) keeps only the i = k term. That is right for the true class (ŷₖ − 1) but misses the cross terms for the other classes (it gives 0 instead of ŷₖ). The full result is ŷ − y."
         }
       ],
       "answer": "∂L/∂z = ŷ − y."
@@ -177,7 +170,7 @@
       "steps": [
         {
           "label": "Gradient",
-          "text": "dt/dp = 2(2p + 3)·2 = 8p + 12 (the key writes 2(2p + 3)², then uses the right value)"
+          "text": "dt/dp = 2(2p + 3)·2 = 8p + 12"
         },
         {
           "label": "Iterations",
@@ -193,8 +186,7 @@
     {
       "title": "Q5 · Sigmoid computational graph at z = 3",
       "tags": [
-        "Ch 5",
-        "key check"
+        "Ch 5"
       ],
       "problem": [
         {
@@ -214,10 +206,6 @@
         {
           "label": "Verify",
           "text": "σ′(3) = σ(1 − σ) = 0.9526 × 0.0474 = 0.0452 ✓"
-        },
-        {
-          "label": "Key check",
-          "text": "The key uses −1/0.953² = −1.101 for ∂f/∂r (it squared f instead of r) and ends with 0.0548. The correct value is 0.0452."
         }
       ],
       "answer": "f = 0.953, df/dz = 0.045."
@@ -248,7 +236,7 @@
         },
         {
           "label": "Caution",
-          "text": "The Hessian there is [[4, −6], [−6, 8]] with determinant −4 < 0, so it is a **saddle point**, and the cubic term makes E unbounded below. The key expects (1.5, 0.5, any) with E = 0; mention the saddle for full marks."
+          "text": "The Hessian there is [[4, −6], [−6, 8]] with determinant −4 < 0, so it is a **saddle point**, and the cubic term makes E unbounded below. The expected answer is (1.5, 0.5, any) with E = 0; mention the saddle for full marks."
         }
       ],
       "answer": "(1.5, 0.5, any w₃), E = 0 (a stationary point; strictly a saddle)."

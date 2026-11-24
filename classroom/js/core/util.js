@@ -18,6 +18,8 @@
     t = t.replace(/(^|[\s(])\*(?=\S)([^*\n]*?\S)\*(?=[\s.,;:!?)]|$)/g, '$1<em>$2</em>');
     t = t.replace(/==([^=]+)==/g, '<mark>$1</mark>');
     t = t.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    /* in-site links ([Q5](#/sem1/course/paper/worked/5)) open in the same tab */
+    t = t.replace(/\[([^\]]+)\]\((#\/[^)\s]+)\)/g, '<a class="in-link" href="$2">$1</a>');
     t = mathMarkup(t);
     /* a block of lines that start and end with | becomes a table (first row = heading, a line of only --- is ignored) */
     t = t.replace(/(?:^|\n)((?:\|[^\n]*\|[ ]*(?:\n|$))+)/g, (m, blk) => {

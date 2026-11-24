@@ -1,0 +1,2370 @@
+{
+  "id": "ch09",
+  "title": "Support Vector Machines",
+  "subtitle": "Contact session 9 · Prof. Amit Sharma · margin, support vectors, primal and dual, soft margin and C, kernels",
+  "lesson": [
+    {
+      "title": "Prerequisites: only three things",
+      "lead": "SVM uses three ideas from earlier topics. If you can already do the quick check at the bottom, skip straight to the next part.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "**Vectors: dot product wᵀx, length ‖w‖, distance from a point to a line.** Where: MFML Lecture 3 (inner products, norms). Used in: every SVM numerical (wᵀx + b, margin = 2/‖w‖).",
+            "**Linear classifier: the line wᵀx + b = 0, and which side is + or −.** Where: ML CS 4–5 slides, first few pages. Used in: SVM is a linear classifier that picks the widest gap.",
+            "**Lagrange multipliers (primal, dual, KKT).** Where: MFML Lecture 14 and `Lagrange-KKT-Duality-Practice-Set.pdf`. Used in: only the dual method (w = Σαᵢyᵢxᵢ, αᵢ > 0 ⇒ support vector). The geometry method doesn't need it."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Quick check (2 minutes)"
+        },
+        {
+          "type": "list",
+          "items": [
+            "w = (3, 4), x = (4, 2): find wᵀx and ‖w‖. → *Answer:* 20 and 5.",
+            "Distance from (4, 2) to the line 3x₁ + 4x₂ − 10 = 0. → *Answer:* |12 + 8 − 10| / 5 = 2.",
+            "Which side of that line is (1, 1) on? → *Answer:* 3 + 4 − 10 = −3 < 0, the − side.",
+            "Minimise x² + y² subject to x + y = 2 using a Lagrange multiplier. → *Answer:* x = y = 1, λ = 2."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Stuck on one?",
+          "text": "Revise only that item from the source listed above, then come back. Don't spend more than an hour here."
+        }
+      ]
+    },
+    {
+      "title": "What SVM is, in simple terms",
+      "lead": "A classifier that separates two groups with the widest possible empty road between them.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "**What it is for:** classification: deciding which of two groups a point belongs to (fraud or genuine, pass or fail, +1 or −1)."
+        },
+        {
+          "type": "p",
+          "text": "**What it does:** many straight lines can separate two groups. SVM picks the one that leaves the **widest gap (margin)** to the nearest points of both groups, like drawing the road between two villages as wide as possible. A wide road means new points are less likely to land on the wrong side (slides p. 6–12)."
+        },
+        {
+          "type": "h",
+          "text": "Three ideas carry the whole chapter"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Only the points closest to the road matter.** They are the **support vectors**; every other point could move or vanish without changing the line.",
+            "**If the groups overlap a little**, let a few points onto the road but charge a penalty for each: the **soft margin**, with **C** as the price per violation.",
+            "**If no straight line works**, lift the data into a space where one does: the **kernel trick**."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Idea",
+            "Name in the slides",
+            "Handout topic"
+          ],
+          "rows": [
+            [
+              "Widest road, no point on it",
+              "Hard-margin / maximum-margin SVM",
+              "Linearly separable data"
+            ],
+            [
+              "Allow a few points on the road",
+              "Soft-margin SVM (slack ξ, C)",
+              "Non-linearly separable data"
+            ],
+            [
+              "Lift the data, use K(x, z)",
+              "Non-linear SVM, kernels",
+              "Kernel trick (Mercer)"
+            ],
+            [
+              "Text, images, tables",
+              "SVM in practice",
+              "Applications to structured and unstructured data"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Previous-year questions: where 22.5% comes from",
+      "lead": "Every SVM question in the four ML end-sem papers, with its marks. Click a question to open its full solution in the Exam hall.",
+      "blocks": [
+        {
+          "type": "h",
+          "text": "Every SVM question"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Paper",
+            "Q",
+            "Marks",
+            "What was asked",
+            "Solution"
+          ],
+          "rows": [
+            [
+              "2021 regular",
+              "Q2",
+              "5",
+              "Kernel trick on 1-D data (x mod 2), plot before and after",
+              "[Open Q2 →](#/sem1/aiml-zg565/p-es-reg-2021/worked/2)"
+            ],
+            [
+              "2021 regular",
+              "Q6",
+              "5",
+              "Support vectors, hyperplane, remove (2, 3) / add (5, 4)",
+              "[Open Q6 →](#/sem1/aiml-zg565/p-es-reg-2021/worked/6)"
+            ],
+            [
+              "2021 makeup",
+              "Q2",
+              "5",
+              "Kernel trick on 1-D data (x mod 2)",
+              "[Open Q2 →](#/sem1/aiml-zg565/p-es-mkp-2021/worked/2)"
+            ],
+            [
+              "2021 makeup",
+              "Q6",
+              "5",
+              "Support vectors, remove (2, 3) / add (−2, −3)",
+              "[Open Q6 →](#/sem1/aiml-zg565/p-es-mkp-2021/worked/6)"
+            ],
+            [
+              "Mar 2026 regular",
+              "Q5",
+              "8",
+              "C and degree (overfitting), f(x), geometric margin, soft vs hard",
+              "[Open Q5 →](#/sem1/aiml-zg565/p-es-reg-2026/worked/5)"
+            ],
+            [
+              "Mar 2026 makeup",
+              "Q7",
+              "8",
+              "Hyperplane from two SVs, canonical w and b, αᵢ > 0, margin, kernel cost",
+              "[Open Q7 →](#/sem1/aiml-zg565/p-es-mkp-2026/worked/7)"
+            ],
+            [
+              "**Total**",
+              "**6 questions**",
+              "**36**",
+              "",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "How the percentage is worked out"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Paper",
+            "SVM marks",
+            "Paper total",
+            "Share of that paper"
+          ],
+          "rows": [
+            [
+              "2021 regular",
+              "10",
+              "40",
+              "25%"
+            ],
+            [
+              "2021 makeup",
+              "10",
+              "40",
+              "25%"
+            ],
+            [
+              "Mar 2026 regular",
+              "8",
+              "40",
+              "20%"
+            ],
+            [
+              "Mar 2026 makeup",
+              "8",
+              "40",
+              "20%"
+            ],
+            [
+              "**All four**",
+              "**36**",
+              "**160**",
+              "**22.5%**"
+            ]
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "weightage = SVM marks ÷ total marks = 36 ÷ 160 = 22.5%",
+          "caption": "frequency: asked in 4 of 4 papers, so it ranks #1 of the ML chapters"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Only questions that are wholly about SVM are counted. 2021 regular Q5 (XOR separability + a neural network) is left out: its network part is not in your syllabus.",
+            "Every paper is 40 marks, so the four papers make 160.",
+            "In the two newest papers SVM is exactly **8 marks each**: expect one 8-mark SVM question on 6 Dec."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Also practise (MFML papers)",
+          "text": "SVM also appears in MFML: Feb 2026 Q5 (8 marks) and Mar 2026 Q6 (8 marks). They are not counted above because they are MFML marks, but they are solved here: [Problem 1](#/sem1/aiml-zg565/ch09/f-geometry/1) and [Problem 13](#/sem1/aiml-zg565/ch09/f-soft/13)."
+        },
+        {
+          "type": "note",
+          "label": "The four kinds of question",
+          "text": "**Geometry** (find w, b, margin), **dual** (α's), **kernel trick**, and **soft margin / C**. The four tabs above (Geometry, Dual, Kernels, Soft margin) collect the practice for each."
+        }
+      ]
+    },
+    {
+      "title": "Syllabus map: the four handout topics",
+      "lead": "The course handout (CS 9) lists exactly four topics. Here is what each one means, where it is in this chapter, and how many marks it has carried.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Handout topic",
+            "What it means",
+            "Boards in this chapter",
+            "Past ML marks (of 36)"
+          ],
+          "rows": [
+            [
+              "**Linearly separable data**",
+              "A straight line can separate the classes. Hard-margin SVM: hyperplane, margin 2/‖w‖, support vectors, primal, dual (α's), what-if questions",
+              "Hyperplane and margin · Primal · Method 1 · Method 2 · Augmented method · What-if",
+              "**21.5** (2021 Q6 ×2, Mar 2026 makeup Q7(a)–(d), Mar 2026 regular Q5(b)(c))"
+            ],
+            [
+              "**Non-linearly separable data**",
+              "No straight line works without errors. Either allow some errors (soft margin: slack ξ, C, hinge loss) or map the data to a space where a line works",
+              "Soft margin · Kernels",
+              "**4** (Mar 2026 regular Q5(a)(d): C, degree, overfitting, soft vs hard)"
+            ],
+            [
+              "**Kernel Trick (Mercer)**",
+              "Replace dot products with K(x, z) = φ(x)ᵀφ(z) to work in the mapped space without computing φ; **Mercer's condition** says which K are valid kernels",
+              "Kernels",
+              "**10.5** (2021 Q2 ×2: x mod 2; Mar 2026 makeup Q7(e))"
+            ],
+            [
+              "**Applications to structured and unstructured data**",
+              "Where SVMs are used: tables of numeric features (structured) vs text, images, sequences (unstructured)",
+              "Applications",
+              "0 so far (theory; Mar 2026 makeup Q7 sets its question in this context)"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "References in the handout",
+          "text": "R2: Tan, Steinbach and Kumar, *Introduction to Data Mining*, Ch. 4 (SVM section). R3: C. J. C. Burges, *A Tutorial on Support Vector Machines for Pattern Recognition* (1998)."
+        },
+        {
+          "type": "h",
+          "text": "Every numerical type, with its variations"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Type",
+            "What you are asked",
+            "Variations",
+            "Where"
+          ],
+          "rows": [
+            [
+              "Classify a point",
+              "f(x) = wᵀx + b and its sign",
+              "Check that a given line separates all points",
+              "Mar 2026 reg Q5(b); MFML Feb 2026 Q5(b)(c)"
+            ],
+            [
+              "Margin",
+              "2/‖w‖",
+              "Compare two lines; half-margin 1/‖w‖",
+              "MFML Feb 2026 Q5(d); Mar 2026 reg Q5(c)"
+            ],
+            [
+              "Write the primal",
+              "½‖w‖² and one constraint per point",
+              "Soft-margin version with ξᵢ and C",
+              "MFML Feb 2026 Q5(a); MFML Mar 2026 Q6(a)"
+            ],
+            [
+              "Hyperplane by geometry",
+              "Support vectors → w, b → margin",
+              "One SV per class; two + and one −; you find the SVs yourself",
+              "2021 Q6 ×2; Mar 2026 mkp Q7; Sourabh P16, P17"
+            ],
+            [
+              "Dual / α's",
+              "w = Σαᵢyᵢxᵢ, b = yₛ − wᵀxₛ",
+              "α's given → w, b; w, b given → α's; slides' augmented method",
+              "Sourabh P18, P19; slides p. 22–37"
+            ],
+            [
+              "What-if",
+              "Does the hyperplane change?",
+              "Remove an SV; add a point (y·f ≥ 1?); move a point",
+              "2021 Q6 ×2; Sourabh P17, P19"
+            ],
+            [
+              "Soft margin",
+              "y·f, ξ = max(0, 1 − y·f), objective",
+              "Compare two hyperplanes at two C values; find the tie C",
+              "MFML Mar 2026 Q6; Sourabh P23"
+            ],
+            [
+              "Kernel trick, 1-D",
+              "Pick φ, threshold in the new space",
+              "x mod 2; x²; (x − c)², then map back",
+              "2021 Q2 ×2; Sourabh P21, P22"
+            ],
+            [
+              "Kernel values",
+              "Polynomial / RBF values, Gram matrix",
+              "Explicit φ; feature-space distance; valid kernel?",
+              "Sourabh P20; Practice Paper Q3; slides p. 59–61"
+            ],
+            [
+              "Theory",
+              "C, degree, overfitting, soft vs hard, kernel cost",
+              "Multi-class count C(C − 1)/2",
+              "Mar 2026 reg Q5(a)(d); Mar 2026 mkp Q7(e)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Study plan: what to read, practise and watch",
+      "lead": "This is the SVM material itself, in the order to use it.",
+      "blocks": [
+        {
+          "type": "h",
+          "text": "1. Read and practise, in this order"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**This lesson**, part by part. It follows ML `Session PPTs/Lecture 10.pdf` (68 pages). The page numbers here (p. 6, p. 22 …) refer to that file.",
+            "**Sourabh sir's SVM companion:** `Support_Vector_Machines_Companion.pdf` (MFML → Prof. Saurabh → practice_problems). Exam-style explanations.",
+            "**MFML Lecture 15 (SVM):** `Lecture_15.pdf` (MFML → Prof. Saurabh → Lecture_Slides). The same SVM from the maths side; also 8 marks in both 2026 MFML papers.",
+            "**Practice:** Sourabh sir's 50 Solved Problems **P16–P23**, then the **Worked problems** tab here, then the SVM questions in the four past papers (Exam hall)."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "2. Checklist: everything the papers have asked"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Hyperplane, margin = 2/‖w‖, and why we maximise it",
+            "Support vectors by geometry (closest opposite-class points)",
+            "w and b from the support vectors using yᵢ(wᵀxᵢ + b) = 1, **then check the sign**",
+            "Hard-margin primal: min ½‖w‖² subject to one constraint per point, written out",
+            "Dual and Lagrange multipliers: w = Σαᵢyᵢxᵢ, Σαᵢyᵢ = 0, αᵢ > 0 only for support vectors",
+            "What-if questions: remove or add a point; does the hyperplane change?",
+            "Soft margin: slack ξ, the role of C (large C → overfit), hinge loss max(0, 1 − y·f(x))",
+            "Kernel trick: 1-D maps such as x mod 2 or x², polynomial and RBF kernel values, valid kernels",
+            "Theory: overfitting with C and degree, soft vs hard margin, cost of kernels"
+          ]
+        },
+        {
+          "type": "h",
+          "text": "3. Videos (optional)"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**StatQuest: \"Support Vector Machines Part 1 (of 3): Main Ideas!\"**, then **Part 2: The Polynomial Kernel** and **Part 3: The Radial (RBF) Kernel**. Short and visual; start here.",
+            "**MIT OpenCourseWare 6.034, \"16. Learning: Support Vector Machines\"** (Patrick Winston). Derives the margin and the Lagrange multipliers step by step, very close to the exam.",
+            "**Stanford CS229 (Andrew Ng), the SVM / kernels lecture.** Deeper; only if you have spare time."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "How long",
+          "text": "About 30 minutes of StatQuest, then the slides. Keep videos under an hour in total: the marks come from doing the numericals in **Worked problems**."
+        }
+      ]
+    },
+    {
+      "title": "Slide formula sheet: find these on your printout",
+      "lead": "Every formula you need, with the slide title and page in Lecture 10 where it is printed. In the exam, write the formula, cite the slide, then substitute.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "What",
+            "Formula",
+            "Slide (title, page)"
+          ],
+          "rows": [
+            [
+              "Line ↔ hyperplane",
+              "ax + cy + b = 0 ⇔ w·x + b = 0, w = [a, c]",
+              "*Line with 2 features: R2* (p. 14)"
+            ],
+            [
+              "Margin lines and width",
+              "w·x⁺ + b = +1, w·x⁻ + b = −1, w·(x⁺ − x⁻) = 2, **M = 2/‖w‖**",
+              "*Linear SVM Mathematically* (p. 16)"
+            ],
+            [
+              "Constraints and primal",
+              "positive: w·xᵢ + b ≥ 1; negative: w·xᵢ + b ≤ −1; **min ½wᵀw s.t. yᵢ(w·xᵢ + b) ≥ 1**",
+              "*Solving the Optimization Problem* (p. 17–18)"
+            ],
+            [
+              "Lagrangian and its derivatives",
+              "L = ½‖w‖² − Σαᵢ[yᵢ(wᵀxᵢ + b) − 1]; ∂L/∂w = 0 ⇒ **w = Σαᵢyᵢxᵢ**; ∂L/∂b = 0 ⇒ **Σαᵢyᵢ = 0**",
+              "*Solving the Optimization Problem* (p. 19)"
+            ],
+            [
+              "Bias and classification",
+              "**b = yᵢ − w·xᵢ** (any support vector); f(x) = sign(w·x + b) = sign(Σαᵢyᵢ xᵢ·x + b)",
+              "*Solving the Optimization Problem* (p. 21)"
+            ],
+            [
+              "Support vectors",
+              "non-zero αᵢ ⇒ support vector; f(x) = Σαᵢyᵢxᵢᵀx + b",
+              "*Linear SVMs: Overview* (p. 47)"
+            ],
+            [
+              "Augmented method",
+              "add 1 as bias input; α₁S̃1·S̃i + α₂S̃2·S̃i + α₃S̃3·S̃i = label; last entry of w̃ is b",
+              "*Numerical Example*, Steps 1–8 (p. 22–32); *Solving for α* (p. 34–35)"
+            ],
+            [
+              "Soft-margin primal",
+              "**min ½‖w‖² + CΣξᵢ s.t. yᵢwᵀxᵢ ≥ 1 − ξᵢ, ξᵢ ≥ 0**",
+              "*Soft Margin* (p. 41) and *Hard Margin vs Soft Margin* (p. 42)"
+            ],
+            [
+              "Role of C",
+              "large C: slacks cost more, misclassification not OK (narrow margin); low C: misclassification OK, large margin; C controls overfitting",
+              "*Slack Variable* (p. 40) and *Effect of Margin size v/s misclassification cost* (p. 43–46)"
+            ],
+            [
+              "Feature map",
+              "map x to a higher dimension (e.g. x → (x, x²)) where the data is separable",
+              "*Non-linear SVMs* (p. 49)"
+            ],
+            [
+              "Kernel",
+              "**K(xᵢ, xⱼ) = φ(xᵢ)ᵀφ(xⱼ)**",
+              "*The \"Kernel Trick\"* (p. 50)"
+            ],
+            [
+              "2nd-degree map",
+              "φ(x, y) = (x², √2xy, y²) for K = (aᵀb)²",
+              "*Kernel Trick* (p. 59)"
+            ],
+            [
+              "Kernel functions",
+              "linear xᵢᵀxⱼ; polynomial (1 + xᵢᵀxⱼ)ᵖ; Gaussian exp(−‖xᵢ − xⱼ‖²/(2σ²)); sigmoid tanh(β₀xᵢᵀxⱼ + β₁)",
+              "*Examples of Kernel Functions* (p. 60)"
+            ],
+            [
+              "Polynomial kernel forms",
+              "homogeneous (xᵀy)^q; inhomogeneous (c + xᵀy)^q",
+              "*Examples of Polynomial Kernel* (p. 61)"
+            ],
+            [
+              "Dual with a kernel",
+              "L(α) = Σαᵢ − ½ΣΣαᵢαⱼyᵢyⱼK(xᵢ, xⱼ); f(x) = Σαᵢyᵢ K(xᵢ, x) + b",
+              "*Kernel Trick* (p. 63)"
+            ],
+            [
+              "Multi-class",
+              "one-vs-rest: C classifiers; one-vs-one: C(C − 1)/2",
+              "*Multi-Class Problem* (p. 64–65)"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Not printed on the slides: derive in one line"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Result",
+            "One-line derivation from slide formulas"
+          ],
+          "rows": [
+            [
+              "w from one + and one − support vector",
+              "w points along x⁺ − x⁻ (the boundary is their perpendicular bisector), so w = k(x⁺ − x⁻); put it in **w·(x⁺ − x⁻) = 2** (p. 16): k‖x⁺ − x⁻‖² = 2 ⇒ **w = 2(x⁺ − x⁻)/‖x⁺ − x⁻‖²**. Then b from p. 21."
+            ],
+            [
+              "Hinge loss",
+              "From the soft-margin constraint (p. 41): ξᵢ ≥ 1 − yᵢf(xᵢ) and ξᵢ ≥ 0, and the objective makes ξᵢ as small as allowed ⇒ **ξᵢ = max(0, 1 − yᵢf(xᵢ))**."
+            ],
+            [
+              "Distance of a point to the boundary",
+              "p. 16 puts the margin lines (f = ±1) at 1/‖w‖ either side, i.e. distance = **|w·x + b| / ‖w‖**."
+            ],
+            [
+              "RBF with γ (papers use this)",
+              "exp(−γ‖x − z‖²) is the slide's Gaussian (p. 60) with **γ = 1/(2σ²)**; γ = 0.5 ⇔ σ² = 1."
+            ],
+            [
+              "Distance in feature space",
+              "expand with K = φᵀφ (p. 50): ‖φ(u) − φ(v)‖² = **K(u, u) + K(v, v) − 2K(u, v)**."
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Mercer's condition",
+          "text": "Not on the slides; it comes from the course handout (see the Kernels board). Write it from memory: a valid kernel gives a symmetric, positive semi-definite Gram matrix."
+        },
+        {
+          "type": "note",
+          "label": "Finding the slide",
+          "text": "Slide titles are the same on your 4-per-page printout. The page numbers here are positions in Lecture 10, so look for the title."
+        }
+      ]
+    },
+    {
+      "title": "Hyperplane, margin and support vectors (p. 6–15)",
+      "lead": "Three words you must be able to define and draw.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "f(x) = wᵀx + b,   predict sign(f(x))",
+          "caption": "w is perpendicular to the line; b shifts it"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Hyperplane**: the set wᵀx + b = 0. In 2-D it is a line, w₁x₁ + w₂x₂ + b = 0.",
+            "**Margin lines**: wᵀx + b = +1 and wᵀx + b = −1. No training point may sit between them (hard margin).",
+            "**Margin width** = distance between the two margin lines = **2/‖w‖**.",
+            "**Support vectors**: the training points lying exactly on the margin lines. They alone fix the hyperplane; remove one and the hyperplane moves (p. 13)."
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "distance from point x₀ to the line = |wᵀx₀ + b| / ‖w‖",
+          "caption": "so a point with f = ±1 is 1/‖w‖ from the boundary"
+        },
+        {
+          "type": "formula",
+          "text": "maximise 2/‖w‖  ⇔  minimise ½‖w‖²"
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "Margin **width** is 2/‖w‖. The distance from the boundary to one margin line is 1/‖w‖. If the question just says \"margin\", write 2/‖w‖ and state that 1/‖w‖ is the half-margin."
+        },
+        {
+          "type": "note",
+          "label": "Canonical form",
+          "text": "Any multiple k·(w, b) gives the same line. SVM fixes the scale by demanding **yᵢ(wᵀxᵢ + b) = 1 exactly on the support vectors**. That is why the exam says \"canonical w and b\"."
+        }
+      ]
+    },
+    {
+      "title": "The primal problem (p. 16–18)",
+      "lead": "Write it out with the actual numbers: that alone is often 1–2 marks.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "min over w, b:  ½‖w‖²   subject to   yᵢ(wᵀxᵢ + b) ≥ 1  for every i"
+        },
+        {
+          "type": "p",
+          "text": "A quadratic objective with linear inequality constraints: a convex problem with one global optimum."
+        },
+        {
+          "type": "h",
+          "text": "Writing the constraints for given points"
+        },
+        {
+          "type": "p",
+          "text": "For a + point (x₁, x₂): w₁x₁ + w₂x₂ + b ≥ 1. For a − point: −(w₁x₁ + w₂x₂ + b) ≥ 1."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Point",
+            "Class",
+            "Constraint"
+          ],
+          "rows": [
+            [
+              "(2, 2)",
+              "+1",
+              "2w₁ + 2w₂ + b ≥ 1"
+            ],
+            [
+              "(4, 4)",
+              "+1",
+              "4w₁ + 4w₂ + b ≥ 1"
+            ],
+            [
+              "(2, 0)",
+              "−1",
+              "−(2w₁ + b) ≥ 1"
+            ],
+            [
+              "(4, 0)",
+              "−1",
+              "−(4w₁ + b) ≥ 1"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Example from",
+          "text": "MFML Feb 2026 Q5(a): the objective is ½(w₁² + w₂²) with these four constraints."
+        }
+      ]
+    },
+    {
+      "title": "Method 1: geometry (the fastest way)",
+      "lead": "Use it whenever one support vector per class is given or obvious. Five steps.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "**Pick the support vectors**: the closest pair of opposite-class points (or the ones the question names). Slide: *Support Vectors* (p. 13).",
+            "**Direction**: w points along x⁺ − x⁻, because the boundary is the perpendicular bisector of the pair.",
+            "**Scale with p. 16**: *Linear SVM Mathematically* gives w·(x⁺ − x⁻) = 2, so w = 2(x⁺ − x⁻)/‖x⁺ − x⁻‖².",
+            "**Bias with p. 21**: b = yᵢ − w·xᵢ for a support vector (use x⁺ with y = +1).",
+            "**Check every point** with p. 17: yᵢ(w·xᵢ + b) ≥ 1. If one fails, it is also a support vector: use the dual (p. 19–21) or the augmented method (p. 22–32)."
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "w·(x⁺ − x⁻) = 2  ⇒  w = 2(x⁺ − x⁻)/‖x⁺ − x⁻‖²,   b = yᵢ − w·xᵢ,   M = 2/‖w‖",
+          "caption": "p. 16 and p. 21 of the slides"
+        },
+        {
+          "type": "h",
+          "text": "Two + support vectors and one −"
+        },
+        {
+          "type": "p",
+          "text": "Both + support vectors lie on wᵀx + b = +1, so w ⟂ (x₊₁ − x₊₂). Write w = a·(direction), then solve two equations: f(x₊₁) = 1 and f(x₋) = −1."
+        },
+        {
+          "type": "trap",
+          "label": "Sign check",
+          "text": "Always plug a support vector back in. The right line with the wrong sign (w and b both negated) puts every point in the wrong class, and loses the marks for w and b."
+        }
+      ]
+    },
+    {
+      "title": "Method 2: the dual and Lagrange multipliers (p. 19–21)",
+      "lead": "Every constraint gets a multiplier αᵢ ≥ 0. Setting the derivatives to zero gives the two facts the exam uses.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "L(w, b, α) = ½‖w‖² − Σ αᵢ [yᵢ(wᵀxᵢ + b) − 1]"
+        },
+        {
+          "type": "formula",
+          "text": "∂L/∂w = 0  ⇒  w = Σ αᵢyᵢxᵢ"
+        },
+        {
+          "type": "formula",
+          "text": "∂L/∂b = 0  ⇒  Σ αᵢyᵢ = 0"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**αᵢ > 0 ⇔ support vector.** Points with αᵢ = 0 drop out of w, so moving them (without crossing the margin) changes nothing.",
+            "**b from any support vector**: b = yₛ − wᵀxₛ (for a − support vector that is −1 − wᵀxₛ).",
+            "**KKT complementary slackness**: αᵢ[yᵢ(wᵀxᵢ + b) − 1] = 0, so either αᵢ = 0 or the point is exactly on the margin."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Recovering α's from a known w (Sourabh P19 type)"
+        },
+        {
+          "type": "p",
+          "text": "Write w = Σαᵢyᵢxᵢ component by component (two equations in 2-D) and add Σαᵢyᵢ = 0. Three equations, three unknowns. All α's must come out positive."
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "Dropping yᵢ in w = Σαᵢyᵢxᵢ is the most common mistake. A − support vector contributes **−αᵢxᵢ**."
+        }
+      ]
+    },
+    {
+      "title": "The slides' augmented-vector method (p. 22–37)",
+      "lead": "Your slides solve for w and b together by adding a 1 to every support vector. Same answer, different book-keeping.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "Pick the support vectors (p. 22): S1 = (1, 0) negative; S2 = (3, 1), S3 = (3, −1) positive.",
+            "Augment each with a 1 (p. 24): S̃1 = (1, 0, 1), S̃2 = (3, 1, 1), S̃3 = (3, −1, 1).",
+            "Write one equation per support vector, right-hand side = its label: α₁S̃1·S̃i + α₂S̃2·S̃i + α₃S̃3·S̃i = yᵢ.",
+            "Dot products: S̃1·S̃1 = 2, S̃1·S̃2 = 4, S̃1·S̃3 = 4, S̃2·S̃2 = 11, S̃2·S̃3 = 9, S̃3·S̃3 = 11.",
+            "Solve 2α₁ + 4α₂ + 4α₃ = −1, 4α₁ + 11α₂ + 9α₃ = 1, 4α₁ + 9α₂ + 11α₃ = 1 ⇒ **α₁ = −3.5, α₂ = α₃ = 0.75** (p. 29).",
+            "w̃ = Σαᵢ S̃i = −3.5(1, 0, 1) + 0.75(3, 1, 1) + 0.75(3, −1, 1) = **(1, 0, −2)**: the last entry is b.",
+            "So w = (1, 0), b = −2: the boundary is **x₁ = 2**, margin 2."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Why α₁ is negative here",
+          "text": "In this method the α's already include the label (they are αᵢyᵢ in the usual notation). In the standard dual all αᵢ ≥ 0, and you multiply by yᵢ yourself."
+        },
+        {
+          "type": "h",
+          "text": "Second slide example (p. 33–37)"
+        },
+        {
+          "type": "p",
+          "text": "Positive (−1, 3), (1, 3), (−1, 4), (1, 4); negative (0, 1), (−1, 0), (1, 0), (0, −1). Support vectors (−1, 3), (1, 3) and (0, 1). The same equations give α = −3.5, 0.75, 0.75 and w̃ = (0, 1, −2): w = (0, 1), b = −2, so the boundary is the horizontal line **x₂ = 2**."
+        }
+      ]
+    },
+    {
+      "title": "What-if questions: add, remove or move a point",
+      "lead": "Asked in both 2021 papers and in Sourabh P16, P17 and P19. Decide with y·f(x), not with \"which side\".",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Change",
+            "Rule",
+            "Hyperplane"
+          ],
+          "rows": [
+            [
+              "Remove a **non**-support vector",
+              "Its α = 0, so it never mattered",
+              "**Unchanged**"
+            ],
+            [
+              "Remove a **support vector**",
+              "Its α > 0 is gone",
+              "**Changes** (usually the margin widens); re-solve"
+            ],
+            [
+              "Add a point with **y·f(x) ≥ 1**",
+              "Already satisfies its constraint ⇒ α = 0",
+              "**Unchanged**"
+            ],
+            [
+              "Add a point with **y·f(x) < 1**",
+              "Violates the margin (or is misclassified)",
+              "**Changes**"
+            ]
+          ]
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "A new point can be on the correct side but **inside** the margin (0 < y·f < 1). It still changes the hyperplane. Sourabh P17(e): y·f = 0.6 < 1 ⇒ changes."
+        }
+      ]
+    },
+    {
+      "title": "Soft margin, slack and C (p. 38–46)",
+      "lead": "Real data overlaps. Let some points break the margin, but charge for it.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "min ½‖w‖² + C Σ ξᵢ   subject to   yᵢ(wᵀxᵢ + b) ≥ 1 − ξᵢ,  ξᵢ ≥ 0"
+        },
+        {
+          "type": "formula",
+          "text": "ξᵢ = max(0, 1 − yᵢ f(xᵢ))   (hinge loss)",
+          "caption": "the unconstrained form: min ½‖w‖² + C Σ max(0, 1 − yᵢf(xᵢ))"
+        },
+        {
+          "type": "table",
+          "head": [
+            "y·f(x)",
+            "ξ",
+            "Where the point is"
+          ],
+          "rows": [
+            [
+              "≥ 1",
+              "0",
+              "Correct side, outside the margin"
+            ],
+            [
+              "0 < y·f < 1",
+              "between 0 and 1",
+              "Correct side, inside the margin"
+            ],
+            [
+              "= 0",
+              "1",
+              "On the boundary"
+            ],
+            [
+              "< 0",
+              "> 1",
+              "**Misclassified**"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "The role of C"
+        },
+        {
+          "type": "table",
+          "head": [
+            "C",
+            "Behaviour",
+            "Risk"
+          ],
+          "rows": [
+            [
+              "Large (e.g. 100)",
+              "Violations are expensive: narrow margin, tries to classify every training point",
+              "**Overfitting** (high variance)"
+            ],
+            [
+              "Small (e.g. 0.1)",
+              "Violations are cheap: wide margin, tolerates errors",
+              "Underfitting if too small (high bias)"
+            ],
+            [
+              "C → ∞",
+              "Becomes the hard-margin SVM",
+              "No solution if the data overlaps"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Why soft margin in practice",
+          "text": "Hard margin needs perfectly separable data and is pulled around by one outlier. Soft margin keeps a wide, stable boundary when classes overlap (Mar 2026 regular Q5(d))."
+        }
+      ]
+    },
+    {
+      "title": "Kernels and the kernel trick (p. 48–63)",
+      "lead": "If no straight line works, map the data to a space where one does, without ever computing the map.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Map each x to φ(x) in a higher-dimensional space where the classes are linearly separable (p. 52). The dual only ever uses dot products xᵢᵀxⱼ, so replace them with **K(xᵢ, xⱼ) = φ(xᵢ)ᵀφ(xⱼ)**: that is the kernel trick (p. 50, 57–59)."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Kernel",
+            "Formula (p. 60–61)"
+          ],
+          "rows": [
+            [
+              "Linear",
+              "K(x, z) = xᵀz"
+            ],
+            [
+              "Polynomial, degree p",
+              "K(x, z) = (xᵀz + c)ᵖ   (c = 1 on the slides; c = 0 is homogeneous)"
+            ],
+            [
+              "RBF / Gaussian",
+              "K(x, z) = exp(−γ‖x − z‖²)   or   exp(−‖x − z‖²/(2σ²))"
+            ],
+            [
+              "Sigmoid",
+              "K(x, z) = tanh(κxᵀz + θ)  (not always a valid kernel)"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "1-D tricks the papers use"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Labels alternate on a line (+ at odd, − at even): φ(x) = **x mod 2** ⇒ separate with y = 0.5 (2021 Q2, both papers).",
+            "+ in the middle, − on both sides: φ(x) = **x²** or **(x − c)²**, then a 1-D threshold in the new space (Sourabh P21, P22).",
+            "Find the threshold in the **new** space: midpoint between the largest + value and the smallest − value."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Useful facts"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Feature-space distance without φ: ‖φ(u) − φ(v)‖² = K(u, u) + K(v, v) − 2K(u, v).",
+            "RBF value near 1 ⇒ points similar; near 0 ⇒ far apart.",
+            "A valid kernel must give a symmetric, positive semi-definite Gram matrix (Mercer). sin(xᵀz) is **not** valid.",
+            "Higher polynomial degree or larger γ ⇒ more flexible boundary ⇒ overfitting risk."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "The slides' worked kernel examples (p. 59–61)"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**2nd-degree map (p. 59):** for K(a, b) = (aᵀb)², φ(x, y) = (x², √2·xy, y²). Check: φ(a)ᵀφ(b) = a₁²b₁² + 2a₁a₂b₁b₂ + a₂²b₂² = (a₁b₁ + a₂b₂)². For the point (2, 3): φ = (4, 6√2, 9).",
+            "**Kernel values (p. 61)** for x = (1, 2), y = (2, 3), so xᵀy = 8: linear (q = 1) K = **8**; homogeneous q = 2: K = 8² = **64**; inhomogeneous with c = 1, q = 2: K = (1 + 8)² = **81**.",
+            "**Dual with a kernel (p. 63):** maximise Σαᵢ − ½ΣΣαᵢαⱼyᵢyⱼK(xᵢ, xⱼ) subject to αᵢ ≥ 0, Σαᵢyᵢ = 0; predict with f(x) = Σαᵢyᵢ K(xᵢ, x) + b. Only the kernel changes from the linear SVM."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Mercer's condition: which functions are valid kernels? (handout)"
+        },
+        {
+          "type": "p",
+          "text": "K is a valid kernel (it equals φ(x)ᵀφ(z) for some map φ) **if and only if** every Gram matrix it produces is **symmetric** and **positive semi-definite**: for any points x₁ … xₙ, the matrix Gᵢⱼ = K(xᵢ, xⱼ) has all eigenvalues ≥ 0 (equivalently cᵀGc ≥ 0 for every vector c)."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Symmetric**: K(x, z) = K(z, x).",
+            "**Positive semi-definite**: for two points, K(x, x) ≥ 0, K(z, z) ≥ 0 and K(x, x)K(z, z) − K(x, z)² ≥ 0 (the 2 × 2 determinant).",
+            "If any Gram matrix fails, K is **not** a Mercer kernel and the SVM optimisation may have no proper solution."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Kernel",
+            "Valid (Mercer)?"
+          ],
+          "rows": [
+            [
+              "xᵀz, (xᵀz + c)ᵖ with c ≥ 0, p a positive integer",
+              "Yes"
+            ],
+            [
+              "exp(−γ‖x − z‖²), γ > 0 (RBF)",
+              "Yes"
+            ],
+            [
+              "Sums, positive multiples and products of valid kernels",
+              "Yes"
+            ],
+            [
+              "tanh(κxᵀz + θ) (sigmoid)",
+              "Only for some κ, θ: not always"
+            ],
+            [
+              "sin(xᵀz)",
+              "**No**: e.g. x = z gives K(x, x) = sin(‖x‖²), which can be negative"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Why it matters",
+          "text": "Mercer guarantees the kernel really is a dot product in some feature space, so the SVM problem stays convex with one global optimum. That is the justification for using K without ever computing φ."
+        },
+        {
+          "type": "trap",
+          "label": "Theory point",
+          "text": "Kernel SVMs are expensive because they need the n × n kernel (Gram) matrix: time and memory grow with n²."
+        }
+      ]
+    },
+    {
+      "title": "Applications: structured and unstructured data (handout)",
+      "lead": "SVM only needs numbers (or a kernel between two items), so it works on tables and, after a suitable representation, on text and images.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "",
+            "Structured data",
+            "Unstructured data"
+          ],
+          "rows": [
+            [
+              "What it is",
+              "Rows and columns of numeric or categorical features",
+              "Text, images, audio, sequences: no fixed columns"
+            ],
+            [
+              "How SVM uses it",
+              "Scale the features (SVM is distance-based), one-hot encode categories, use a linear or RBF kernel",
+              "First turn each item into a vector (bag-of-words / TF-IDF, embeddings, image features) or use a kernel that compares items directly (string kernels)"
+            ],
+            [
+              "Typical kernel",
+              "Linear for many features; RBF for curved boundaries",
+              "Linear for text (very high-dimensional, usually separable); RBF / polynomial for images"
+            ],
+            [
+              "Examples",
+              "Loan default and credit risk, fraud detection, churn, medical diagnosis from test values",
+              "Spam and text categorisation (Joachims, slides p. 67), sentiment, handwritten digits, face detection, protein classification"
+            ]
+          ]
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Text** is the classic SVM success: thousands of word features, few examples, and the classes are usually linearly separable in that space.",
+            "**Mixed data** (e.g. transaction amounts plus remarks text, as in Mar 2026 makeup Q7): combine numeric features with text embeddings and use a kernel SVM; the cost is the n × n kernel matrix.",
+            "Always **scale** numeric features: a feature with a large range otherwise dominates wᵀx and the distances inside RBF."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "How it is asked",
+          "text": "So far only as context or a 1-mark theory line: \"why SVM suits text\", \"what changes for unstructured data\", \"why kernels get expensive\". One or two sentences each."
+        }
+      ]
+    },
+    {
+      "title": "Multi-class SVM, pros and cons (p. 64–66)",
+      "lead": "Short theory: one or two lines each.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Scheme",
+            "How",
+            "Classifiers for C classes"
+          ],
+          "rows": [
+            [
+              "One-vs-rest",
+              "Each class against all others; pick the class with the largest f(x)",
+              "C"
+            ],
+            [
+              "One-vs-one",
+              "Every pair of classes; majority vote",
+              "C(C − 1)/2"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Pros",
+            "Cons"
+          ],
+          "rows": [
+            [
+              "Maximum margin ⇒ good generalisation",
+              "Choosing the kernel and C (and γ) needs tuning"
+            ],
+            [
+              "Only support vectors matter ⇒ compact model",
+              "Slow on large n (kernel matrix is n × n)"
+            ],
+            [
+              "Kernels handle non-linear boundaries",
+              "No direct probabilities; less interpretable with kernels"
+            ],
+            [
+              "Convex problem: one global optimum",
+              "Sensitive to feature scaling"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Exam playbook for SVM",
+      "lead": "What to write, in order, for each kind of question.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Question says…",
+            "Write this"
+          ],
+          "rows": [
+            [
+              "\"Find the support vectors / hyperplane\"",
+              "Closest opposite pair → w ∥ x₊ − x₋ → w·(x⁺ − x⁻) = 2 (p. 16) → b = y − w·x (p. 21) → check all yᵢf ≥ 1 (p. 17) → margin 2/‖w‖ (p. 16)"
+            ],
+            [
+              "\"Given α's\"",
+              "Check Σαᵢyᵢ = 0 → w = Σαᵢyᵢxᵢ → b = yₛ − wᵀxₛ (agree for every SV) → margin"
+            ],
+            [
+              "\"Given w, b, find α's\"",
+              "Verify yₛf(xₛ) = 1 → components of w = Σαᵢyᵢxᵢ plus Σαᵢyᵢ = 0 → solve"
+            ],
+            [
+              "\"Is the point removed / added…\"",
+              "Support vector? / y·f ≥ 1? → say unchanged or changed, with the reason"
+            ],
+            [
+              "\"Formulate the primal\"",
+              "min ½‖w‖² + one constraint per point, with numbers (+ ξᵢ and C for soft margin)"
+            ],
+            [
+              "\"Not linearly separable, use the kernel trick\"",
+              "Name φ, tabulate φ(x), find the threshold in the new space, map back"
+            ],
+            [
+              "\"Which model overfits / what does C do\"",
+              "Large train–test gap ⇒ overfit; large C or high degree ⇒ complex boundary"
+            ]
+          ]
+        },
+        {
+          "type": "list",
+          "items": [
+            "Show f(x) for every point when you check: it earns method marks.",
+            "Keep fractions (8/7, 2/7) until the end.",
+            "State assumptions in one line (e.g. \"margin = 2/‖w‖\")."
+          ]
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "Three ways to lose easy marks: wrong sign of w and b; 1/‖w‖ instead of 2/‖w‖; forgetting yᵢ in w = Σαᵢyᵢxᵢ."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Geometry · MFML Feb 2026 Q5: two separating lines (8 marks)",
+      "tags": [
+        "Past paper",
+        "MFML",
+        "Geometry"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "+1: X1 (2, 2), X2 (4, 4). −1: X3 (2, 0), X4 (4, 0). (a) Write the hard-margin primal. (b) Show x₂ = 1 separates the data. (c) Show x₂ − x₁ = −1 separates the data. (d) Find the margin of each and say which is better."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Solving the Optimization Problem* (p. 17–18); *Linear SVM Mathematically* (p. 16); *Line with 2 features: R2* (p. 14)."
+        },
+        {
+          "label": "(a) Primal",
+          "text": "min ½(w₁² + w₂²) subject to 2w₁ + 2w₂ + b ≥ 1, 4w₁ + 4w₂ + b ≥ 1, −(2w₁ + b) ≥ 1, −(4w₁ + b) ≥ 1."
+        },
+        {
+          "label": "(b) x₂ = 1",
+          "text": "w = (0, 1), b = −1, f = x₂ − 1: X1 1, X2 3 (> 0); X3 −1, X4 −1 (< 0). It separates."
+        },
+        {
+          "label": "(c) x₂ − x₁ = −1",
+          "text": "w = (−1, 1), b = 1, f = x₂ − x₁ + 1: X1 1, X2 1; X3 −1, X4 −3. It separates."
+        },
+        {
+          "label": "(d) Margins",
+          "text": "Both are already canonical (closest points give f = ±1). x₂ = 1: ‖w‖ = 1 ⇒ margin **2**. x₂ − x₁ = −1: ‖w‖ = √2 ⇒ margin 2/√2 ≈ **1.414**."
+        },
+        {
+          "label": "(d) Better",
+          "text": "**x₂ = 1** has the wider margin, so SVM prefers it. (It is the true maximum: the gap between (2, 2) and (2, 0) is exactly 2.)"
+        }
+      ],
+      "answer": "Margins 2 and 1.414; x₂ = 1 is better."
+    },
+    {
+      "title": "Geometry · Mar 2026 makeup Q7: two support vectors (8 marks)",
+      "tags": [
+        "Past paper",
+        "Geometry"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "P1 (1, 4) +1, P2 (2, 3) +1, P3 (4, 1) −1, P4 (5, 2) −1. Only P2 and P3 are support vectors. (a) Hyperplane by geometry. (b) Canonical w, b and f(x). (c) Which αᵢ mark a support vector? (d) ‖w‖ and margin. (e) Why can kernel SVMs be expensive?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Linear SVM Mathematically* (p. 16); *Solving the Optimization Problem* (p. 21); *Solving the Optimization Problem* (p. 19); *Examples of Kernel Functions* (p. 60)."
+        },
+        {
+          "label": "(a)",
+          "text": "Perpendicular bisector of P2–P3: midpoint (3, 2); P2 − P3 = (−2, 2) ⇒ w ∥ (−1, 1). Boundary −x₁ + x₂ + 1 = 0, i.e. **x₂ = x₁ − 1**."
+        },
+        {
+          "label": "(b) Scale",
+          "text": "p. 16: w·(x⁺ − x⁻) = 2 with w along x⁺ − x⁻ = P2 − P3 = (−2, 2) ⇒ w = 2(−2, 2)/8 = **(−0.5, 0.5)**. p. 21: b = y − w·x for P2 (y = +1): b = 1 − (−1 + 1.5) = **0.5**."
+        },
+        {
+          "label": "(b) Check",
+          "text": "f(x) = −0.5x₁ + 0.5x₂ + 0.5: P2 +1, P3 −1, P1 +2, P4 −1. All yᵢf ≥ 1 ✓ (P4 sits exactly on the margin too)."
+        },
+        {
+          "label": "(c)",
+          "text": "Support vector ⇔ **αᵢ > 0**. w = Σαᵢyᵢxᵢ, so points with αᵢ = 0 contribute nothing: only P2 and P3 shape the classifier."
+        },
+        {
+          "label": "(d)",
+          "text": "‖w‖ = √0.5 = **0.707**; margin = 2/‖w‖ = **2.83** (= distance P2–P3). Wider margin ⇒ more robust to noise."
+        },
+        {
+          "label": "(e)",
+          "text": "The n × n kernel matrix: time and memory grow with n². (sin(xᵀz) is not a valid kernel.)"
+        }
+      ],
+      "answer": "x₂ = x₁ − 1; w = (−0.5, 0.5), b = 0.5; margin 2.83."
+    },
+    {
+      "title": "Geometry · 2021 regular Q6: three support vectors (5 marks)",
+      "tags": [
+        "Past paper",
+        "Geometry",
+        "What-if"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "+: (3, 2), (4, 3), (2, 3), (3, −1). −: (1, 0), (−1, −1), (0, 2), (−1, 2). (A) Support vectors and hyperplane. (B) Does it change if (a) (2, 3) is removed, (b) (5, 4) is added?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Linear SVM Mathematically* (p. 16); *Solving the Optimization Problem* (p. 17–18); *Solving the Optimization Problem* (p. 21); *Solving the Optimization Problem* (p. 19)."
+        },
+        {
+          "label": "Support vectors",
+          "text": "(2, 3) and (3, −1) (+), (1, 0) (−)."
+        },
+        {
+          "label": "Direction",
+          "text": "Both + SVs are on f = +1 ⇒ w ⟂ (2, 3) − (3, −1) = (−1, 4) ⇒ w = a(4, 1)."
+        },
+        {
+          "label": "Solve",
+          "text": "(2, 3): 11a + b = 1; (1, 0): 4a + b = −1 ⇒ a = 2/7, b = −15/7."
+        },
+        {
+          "label": "Hyperplane",
+          "text": "w = (8/7, 2/7), b = −15/7: **8x₁ + 2x₂ − 15 = 0**; margin = 14/√68 ≈ 1.70."
+        },
+        {
+          "label": "Check",
+          "text": "f = (8x₁ + 2x₂ − 15)/7: + points 13/7, 23/7, 1, 1; − points −1, −25/7, −11/7, −19/7 ✓. Dual check: α = 12/49, 22/49, 34/49, all > 0."
+        },
+        {
+          "label": "(B)(a)",
+          "text": "(2, 3) is a support vector ⇒ **changes**. New SVs (3, 2), (3, −1), (1, 0): w = (1, 0), b = −2 ⇒ **x₁ = 2**, margin 2."
+        },
+        {
+          "label": "(B)(b)",
+          "text": "f(5, 4) = 33/7 ⇒ y·f > 1 ⇒ **unchanged**."
+        }
+      ],
+      "answer": "8x₁ + 2x₂ − 15 = 0; removing (2, 3) gives x₁ = 2; adding (5, 4) changes nothing."
+    },
+    {
+      "title": "Geometry · Sourabh P16: one support vector per class",
+      "tags": [
+        "Sourabh P16",
+        "Geometry",
+        "What-if"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "+1: A1 (5, 4), A2 (8, 5), A3 (8, 2). −1: B1 (3, 2), B2 (1, 0), B3 (4, −1). (a) Support vectors. (b) Canonical w, b. (c) Margin. (d) Classify (7, 3) and (5, −1). (e) Add (5, 5) with y = +1: does the hyperplane change?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Linear SVM Mathematically* (p. 16); *Solving the Optimization Problem* (p. 21); *Solving the Optimization Problem* (p. 17–18)."
+        },
+        {
+          "label": "(a)",
+          "text": "Closest opposite pair: **A1 (5, 4)** and **B1 (3, 2)**, distance √8."
+        },
+        {
+          "label": "(b) w",
+          "text": "p. 16: w·(x⁺ − x⁻) = 2 with x⁺ − x⁻ = (2, 2), ‖·‖² = 8 ⇒ w = 2(2, 2)/8 = **(0.5, 0.5)**."
+        },
+        {
+          "label": "(b) b",
+          "text": "p. 21: b = y − w·x for A1 (y = +1): b = 1 − (2.5 + 2) = **−3.5**. f = 0.5x₁ + 0.5x₂ − 3.5."
+        },
+        {
+          "label": "Check",
+          "text": "y·f: A2 3, B2 3, A1 1, B3 2, A3 1.5, B1 1 ✓"
+        },
+        {
+          "label": "(c)",
+          "text": "‖w‖ = 0.707 ⇒ margin **2.83**."
+        },
+        {
+          "label": "(d)",
+          "text": "f(7, 3) = 1.5 ⇒ **+1**; f(5, −1) = −1.5 ⇒ **−1**."
+        },
+        {
+          "label": "(e)",
+          "text": "y·f(5, 5) = 1.5 ≥ 1 ⇒ α = 0 ⇒ **unchanged**."
+        }
+      ],
+      "answer": "w = (0.5, 0.5), b = −3.5, margin 2.83; (5, 5) changes nothing."
+    },
+    {
+      "title": "Geometry · Sourabh P17: a point inside the margin",
+      "tags": [
+        "Sourabh P17",
+        "Geometry",
+        "What-if"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "+1: A1 (3, 1), A2 (7, 6), A3 (8, 4). −1: B1 (1, 0), B2 (−1, −1), B3 (0, −1). Find the support vectors, canonical w and b, the margin; classify (0, 3) and (0, 0); does adding (0, 6) with y = +1 change the hyperplane?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Linear SVM Mathematically* (p. 16); *Solving the Optimization Problem* (p. 21); *Solving the Optimization Problem* (p. 17–18)."
+        },
+        {
+          "label": "SVs",
+          "text": "**A1 (3, 1)** and **B1 (1, 0)**, distance √5."
+        },
+        {
+          "label": "w, b",
+          "text": "p. 16: x⁺ − x⁻ = (2, 1), ‖·‖² = 5 ⇒ w = 2(2, 1)/5 = **(0.8, 0.4)**. p. 21: b = 1 − (0.8·3 + 0.4·1) = **−1.8**."
+        },
+        {
+          "label": "Check",
+          "text": "y·f: B1 1, A2 6.2, A1 1, A3 6.2, B3 2.2, B2 3 ✓. Margin 2/0.894 = **2.24**."
+        },
+        {
+          "label": "Classify",
+          "text": "f(0, 3) = −0.6 ⇒ −1; f(0, 0) = −1.8 ⇒ −1."
+        },
+        {
+          "label": "Add (0, 6), +1",
+          "text": "f = −1.8 + 2.4 = 0.6 ⇒ y·f = 0.6 < 1: inside the margin ⇒ the hyperplane **changes**."
+        }
+      ],
+      "answer": "w = (0.8, 0.4), b = −1.8, margin 2.24; (0, 6) changes it (y·f = 0.6 < 1)."
+    },
+    {
+      "title": "Dual · Slides p. 22–32: augmented-vector example",
+      "tags": [
+        "Slides",
+        "Dual"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Support vectors S1 = (1, 0) (−), S2 = (3, 1) (+), S3 = (3, −1) (+). Find the hyperplane with the slides' method."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Numerical Example*, Steps 1–8 (p. 22–32); *Solving for α* (p. 34–35)."
+        },
+        {
+          "label": "Augment",
+          "text": "S̃1 = (1, 0, 1), S̃2 = (3, 1, 1), S̃3 = (3, −1, 1)."
+        },
+        {
+          "label": "Dot products",
+          "text": "S̃1·S̃1 = 2, S̃1·S̃2 = 4, S̃1·S̃3 = 4, S̃2·S̃2 = 11, S̃2·S̃3 = 9, S̃3·S̃3 = 11."
+        },
+        {
+          "label": "Equations",
+          "text": "2α₁ + 4α₂ + 4α₃ = −1; 4α₁ + 11α₂ + 9α₃ = 1; 4α₁ + 9α₂ + 11α₃ = 1."
+        },
+        {
+          "label": "Solve",
+          "text": "Subtract the last two: 2α₂ − 2α₃ = 0 ⇒ α₂ = α₃. Then 2α₁ + 8α₂ = −1 and 4α₁ + 20α₂ = 1 ⇒ α₂ = 0.75, α₁ = −3.5."
+        },
+        {
+          "label": "w̃",
+          "text": "−3.5(1, 0, 1) + 0.75(3, 1, 1) + 0.75(3, −1, 1) = (1, 0, −2) ⇒ w = (1, 0), b = −2."
+        },
+        {
+          "label": "Hyperplane",
+          "text": "**x₁ = 2**, margin 2/1 = 2."
+        }
+      ],
+      "answer": "α = (−3.5, 0.75, 0.75); w = (1, 0), b = −2; x₁ = 2."
+    },
+    {
+      "title": "Dual · Sourabh P18: w and b from the α's",
+      "tags": [
+        "Sourabh P18",
+        "Dual"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Support vectors: S1 (0, 0) +1 α = 0.5; S2 (−2, 1) +1 α = 2; S3 (−2, 0) −1 α = 2.5. (a) Check Σαᵢyᵢ = 0. (b) w. (c) b from each SV. (d) Margin. (e) Classify (0.5, −0.5) and (4, 4); which is inside the margin?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Solving the Optimization Problem* (p. 19); *Solving the Optimization Problem* (p. 21); *Linear SVM Mathematically* (p. 16)."
+        },
+        {
+          "label": "(a)",
+          "text": "0.5 + 2 − 2.5 = 0 ✓"
+        },
+        {
+          "label": "(b)",
+          "text": "w = 0.5(0, 0) + 2(−2, 1) − 2.5(−2, 0) = (0, 0) + (−4, 2) + (5, 0) = **(1, 2)**."
+        },
+        {
+          "label": "(c)",
+          "text": "S1: b = 1 − 0 = 1. S2: b = 1 − (−2 + 2) = 1. S3: b = −1 − (−2) = 1. **b = 1** from all three."
+        },
+        {
+          "label": "(d)",
+          "text": "‖w‖ = √5 = 2.236 ⇒ margin **0.894**."
+        },
+        {
+          "label": "(e)",
+          "text": "f(0.5, −0.5) = 0.5 − 1 + 1 = 0.5 ⇒ +1, **inside the margin** (|f| < 1). f(4, 4) = 13 ⇒ +1."
+        }
+      ],
+      "answer": "w = (1, 2), b = 1, margin 0.894; (0.5, −0.5) is inside the margin."
+    },
+    {
+      "title": "Dual · Sourabh P19: α's from a known w",
+      "tags": [
+        "Sourabh P19",
+        "Dual",
+        "What-if"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "f(x) = x₁ + 2x₂ − 2. Support vectors S1 (1, 1) +1, S2 (5, −1) +1, S3 (3, −1) −1. (a) Check y·f = 1 for each. (b) Solve for α₁, α₂, α₃. (c) Margin. (d) T (4, 1.5), +1: y·f? If T moves to (2.5, −0.5), does the hyperplane change?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Solving the Optimization Problem* (p. 21); *Solving the Optimization Problem* (p. 19); *Linear SVM Mathematically* (p. 16)."
+        },
+        {
+          "label": "(a)",
+          "text": "S1: 1 + 2 − 2 = 1 ✓. S2: 5 − 2 − 2 = 1 ✓. S3: −(3 − 2 − 2) = 1 ✓."
+        },
+        {
+          "label": "(b) Equations",
+          "text": "x₁: α₁ + 5α₂ − 3α₃ = 1. x₂: α₁ − α₂ + α₃ = 2. Σαy: α₁ + α₂ − α₃ = 0."
+        },
+        {
+          "label": "(b) Solve",
+          "text": "Add the last two: 2α₁ = 2 ⇒ α₁ = 1. Then α₂ − α₃ = −1 and 5α₂ − 3α₃ = 0 ⇒ **α₂ = 1.5, α₃ = 2.5** (all > 0 ✓)."
+        },
+        {
+          "label": "(c)",
+          "text": "‖w‖ = √5 ⇒ margin **0.894**."
+        },
+        {
+          "label": "(d)",
+          "text": "y·f(4, 1.5) = 4 + 3 − 2 = 5 > 1 ⇒ α = 0. At (2.5, −0.5): f = 2.5 − 1 − 2 = −0.5 ⇒ y·f = −0.5 < 1 ⇒ the hyperplane **changes**."
+        }
+      ],
+      "answer": "α = (1, 1.5, 2.5); margin 0.894; moving T to (2.5, −0.5) changes the hyperplane."
+    },
+    {
+      "title": "Kernels · 2021 regular Q2: x mod 2 (5 marks)",
+      "tags": [
+        "Past paper",
+        "Kernels"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Positive x = 1, 3, 5; negative x = 0, 2, 4, 6 (all on the x-axis). Use the kernel trick to find a separating hyperplane; plot before and after."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Non-linear SVMs* (p. 49); *The \"Kernel Trick\"* (p. 50)."
+        },
+        {
+          "label": "Before",
+          "text": "− + − + − + −: no single threshold works, so not linearly separable."
+        },
+        {
+          "label": "Map",
+          "text": "φ(x) = x mod 2: positives → 1, negatives → 0. Plot (x, φ(x)): positives on height 1, negatives on height 0."
+        },
+        {
+          "label": "Hyperplane",
+          "text": "**y = 0.5**, midway between the two levels (maximum margin)."
+        },
+        {
+          "label": "Marks",
+          "text": "3 for the transformation, 2 for the hyperplane. The 2021 makeup Q2 (x = 7, 9, 11 vs 0, 8, 10, 12) is solved the same way."
+        }
+      ],
+      "answer": "φ(x) = x mod 2; hyperplane y = 0.5."
+    },
+    {
+      "title": "Kernels · Sourabh P21: z = x²",
+      "tags": [
+        "Sourabh P21",
+        "Kernels"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x: −3, −1, 2, 3, 4, 6 with y: −1, +1, +1, −1, −1, −1. Map z = x² and train a hard-margin SVM f(z) = wz + b. (a) z values. (b) Support vectors. (c) w, b, margin. (d) Rule in x; classify x = 1 and x = −5."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Non-linear SVMs* (p. 49); *Linear SVM Mathematically* (p. 16); *Solving the Optimization Problem* (p. 21)."
+        },
+        {
+          "label": "(a)",
+          "text": "z = 9, 1, 4, 9, 16, 36. +1 have z ≤ 4, −1 have z ≥ 9 ⇒ separable."
+        },
+        {
+          "label": "(b)",
+          "text": "z = 4 (x = 2, +1) and z = 9 (x = −3 and 3, −1)."
+        },
+        {
+          "label": "(c)",
+          "text": "4w + b = 1, 9w + b = −1 ⇒ **w = −0.4, b = 2.6**; boundary z = 6.5; margin 2/|w| = **5** (in z units)."
+        },
+        {
+          "label": "(d)",
+          "text": "+1 when z < 6.5 ⇔ **|x| < √6.5 ≈ 2.55**. x = 1: z = 1, f = 2.2 ⇒ +1. x = −5: z = 25, f = −7.4 ⇒ −1."
+        },
+        {
+          "label": "Watch",
+          "text": "The threshold is the midpoint in **z**, not in x; w is negative because + is on the small-z side."
+        }
+      ],
+      "answer": "w = −0.4, b = 2.6, margin 5; +1 iff |x| < 2.55."
+    },
+    {
+      "title": "Kernels · Sourabh P20: polynomial and RBF values",
+      "tags": [
+        "Sourabh P20",
+        "Kernels"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "u = (3, 3), v = (1, 0), z = (−1, 0). K(x, x′) = (xᵀx′ + 2)² and K_RBF = exp(−0.5‖x − x′‖²). (a) Polynomial Gram matrix. (c) ‖φ(u) − φ(v)‖². (d) RBF values; which pair is most similar?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Examples of Polynomial Kernel* (p. 61); *Examples of Kernel Functions* (p. 60); *The \"Kernel Trick\"* (p. 50)."
+        },
+        {
+          "label": "(a)",
+          "text": "K(u, u) = (18 + 2)² = 400; K(u, v) = (3 + 2)² = 25; K(u, z) = (−3 + 2)² = 1; K(v, v) = 9; K(v, z) = (−1 + 2)² = 1; K(z, z) = 9. Gram = [[400, 25, 1], [25, 9, 1], [1, 1, 9]]."
+        },
+        {
+          "label": "(c)",
+          "text": "K(u, u) + K(v, v) − 2K(u, v) = 400 + 9 − 50 = **359**."
+        },
+        {
+          "label": "(d)",
+          "text": "‖u − v‖² = 13 ⇒ e^(−6.5) = 0.0015; ‖u − z‖² = 25 ⇒ e^(−12.5) ≈ 3.7 × 10⁻⁶; ‖v − z‖² = 4 ⇒ e^(−2) = **0.135**. Most similar: **v and z**. (Slide p. 60 writes the Gaussian as exp(−‖x − z‖²/(2σ²)); γ = 0.5 is σ² = 1.)"
+        },
+        {
+          "label": "Watch",
+          "text": "Keep the +2 inside the square, and square the distance in the RBF kernel."
+        }
+      ],
+      "answer": "Gram [[400, 25, 1], [25, 9, 1], [1, 1, 9]]; 359; v and z most similar (0.135)."
+    },
+    {
+      "title": "Soft margin · Mar 2026 regular Q5: C, degree, margin (8 marks)",
+      "tags": [
+        "Past paper",
+        "Soft margin"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Model A: linear SVM, C = 0.1, 85% train / 84% test. Model B: polynomial kernel, C = 100, degree 6, 98% train / 72% test. (a) Which overfits; what do C and degree do; separability? (b) w = (0.5, −0.3), b = 0.2, x = (2, 1): f(x) and class. (c) Geometric margin. (d) Why soft margin?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Solving the Optimization Problem* (p. 21); *Linear SVM Mathematically* (p. 16); *Slack Variable* (p. 40) and *Effect of Margin size v/s misclassification cost* (p. 43–46); *Soft Margin* (p. 41) and *Hard Margin vs Soft Margin* (p. 42)."
+        },
+        {
+          "label": "(a)",
+          "text": "**Model B** overfits (98% → 72%). Large **C** punishes every violation, so the boundary bends round noise; **degree 6** makes the boundary very flexible. Model A's close scores ⇒ data roughly linearly separable with some overlap."
+        },
+        {
+          "label": "(b)",
+          "text": "f = 0.5·2 − 0.3·1 + 0.2 = **0.9 > 0** ⇒ default (positive class)."
+        },
+        {
+          "label": "(c)",
+          "text": "‖w‖ = √0.34 = 0.583 ⇒ 1/‖w‖ = **1.715** (boundary to margin line); full width 2/‖w‖ = 3.43. Larger margin ⇒ more confident, generalises better."
+        },
+        {
+          "label": "(d)",
+          "text": "Loan classes overlap; a hard margin may not exist. Soft margin allows a few violations (ξᵢ) for a wide, stable boundary."
+        }
+      ],
+      "answer": "B overfits; f(x) = 0.9 ⇒ default; margin 1/‖w‖ = 1.715 (width 3.43)."
+    },
+    {
+      "title": "Soft margin · MFML Mar 2026 Q6: hinge loss (8 marks)",
+      "tags": [
+        "Past paper",
+        "MFML",
+        "Soft margin"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "X1 (3, 3) +1, X2 (5, 5) +1, X3 (3, 0) −1, X4 (5, 0) −1. (a) Soft-margin primal. (b) Show it equals min ½‖w‖² + CΣmax(0, 1 − yᵢf(xᵢ)). (c) With w = (1, −1), b = 0: yᵢf(xᵢ), hinge losses, and the objective for C = 1."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Soft Margin* (p. 41) and *Hard Margin vs Soft Margin* (p. 42); *Solving the Optimization Problem* (p. 17–18)."
+        },
+        {
+          "label": "(a)",
+          "text": "min ½(w₁² + w₂²) + C(ξ₁ + ξ₂ + ξ₃ + ξ₄) s.t. 3w₁ + 3w₂ + b ≥ 1 − ξ₁, 5w₁ + 5w₂ + b ≥ 1 − ξ₂, −(3w₁ + b) ≥ 1 − ξ₃, −(5w₁ + b) ≥ 1 − ξ₄, ξᵢ ≥ 0."
+        },
+        {
+          "label": "(b)",
+          "text": "The constraint on p. 41 gives ξᵢ ≥ 1 − yᵢf(xᵢ), and ξᵢ ≥ 0. At the optimum ξᵢ is as small as allowed: ξᵢ = max(0, 1 − yᵢf(xᵢ)). Substitute into the objective ½‖w‖² + CΣξᵢ."
+        },
+        {
+          "label": "(c) y·f",
+          "text": "X1: 3 − 3 = 0; X2: 0; X3: −(3 − 0) = −3; X4: −5."
+        },
+        {
+          "label": "(c) Hinge",
+          "text": "max(0, 1 − y·f): 1, 1, 4, 6 ⇒ Σ = 12."
+        },
+        {
+          "label": "(c) Objective",
+          "text": "½(1 + 1) + 1 × 12 = **13**. (This w misclassifies both negatives: a poor choice.)"
+        }
+      ],
+      "answer": "Hinge losses 1, 1, 4, 6; objective 13."
+    },
+    {
+      "title": "Soft margin · Sourabh P23: comparing two scalings with C",
+      "tags": [
+        "Sourabh P23",
+        "Soft margin"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "H1: w = (1, 0), b = −4. H2: w = (0.5, 0), b = −2 (same line). Points: (4, 1) +, (4, 2) +, (3, 5) +, (1, 1) −, (3, 2) −, (5, 2) +. Objective ½‖w‖² + CΣξᵢ. (a) Slacks for H1. (b) Total slack for H2. (c) Which is preferred at C = 0.25 and C = 2.25? (d) C where they tie."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Slide formulas",
+          "text": "Use: *Soft Margin* (p. 41) and *Hard Margin vs Soft Margin* (p. 42); *Slack Variable* (p. 40) and *Effect of Margin size v/s misclassification cost* (p. 43–46); *Linear SVM Mathematically* (p. 16)."
+        },
+        {
+          "label": "(a) H1",
+          "text": "f = x₁ − 4: y·f = 0, 0, −1, 3, 1, 1 ⇒ ξ = 1, 1, 2, 0, 0, 0 ⇒ Σξ = **4**. (3, 5) is misclassified; (4, 1), (4, 2) sit on the boundary."
+        },
+        {
+          "label": "(b) H2",
+          "text": "f is half of H1's: ξ = 1, 1, 1.5, 0, 0.5, 0.5 ⇒ Σξ = **4.5**."
+        },
+        {
+          "label": "(c) Norm terms",
+          "text": "½‖w₁‖² = 0.5; ½‖w₂‖² = 0.125."
+        },
+        {
+          "label": "(c) C = 0.25",
+          "text": "J₁ = 0.5 + 1 = 1.5; J₂ = 0.125 + 1.125 = 1.25 ⇒ prefer **H2** (wider margin)."
+        },
+        {
+          "label": "(c) C = 2.25",
+          "text": "J₁ = 0.5 + 9 = 9.5; J₂ = 0.125 + 10.125 = 10.25 ⇒ prefer **H1** (fewer violations)."
+        },
+        {
+          "label": "(d)",
+          "text": "0.5 + 4C = 0.125 + 4.5C ⇒ **C = 0.75**."
+        }
+      ],
+      "answer": "Σξ = 4 and 4.5; C = 0.25 → H2, C = 2.25 → H1; tie at C = 0.75."
+    }
+  ],
+  "labs": [],
+  "flashcards": [
+    {
+      "tag": "Definition",
+      "front": "What is a support vector?",
+      "back": "A training point lying exactly on a margin line (yᵢf(xᵢ) = 1, αᵢ > 0). Removing it moves the hyperplane."
+    },
+    {
+      "tag": "Formula",
+      "front": "Margin width of a linear SVM",
+      "back": "2/‖w‖ (half-margin 1/‖w‖)."
+    },
+    {
+      "tag": "Formula",
+      "front": "Hard-margin primal",
+      "back": "min ½‖w‖² subject to yᵢ(wᵀxᵢ + b) ≥ 1 for all i."
+    },
+    {
+      "tag": "Formula",
+      "front": "w from the dual",
+      "back": "w = Σ αᵢyᵢxᵢ"
+    },
+    {
+      "tag": "Formula",
+      "front": "Dual constraint from ∂L/∂b = 0",
+      "back": "Σ αᵢyᵢ = 0"
+    },
+    {
+      "tag": "Formula",
+      "front": "b from a support vector",
+      "back": "b = yₛ − wᵀxₛ"
+    },
+    {
+      "tag": "Fact",
+      "front": "Which points have αᵢ > 0?",
+      "back": "Only the support vectors; every other point has αᵢ = 0."
+    },
+    {
+      "tag": "Method",
+      "front": "w and b from one + and one − support vector",
+      "back": "w = 2(x⁺ − x⁻)/‖x⁺ − x⁻‖² (from w·(x⁺ − x⁻) = 2, p. 16), then b = y − w·x for a support vector (p. 21)."
+    },
+    {
+      "tag": "Method",
+      "front": "Does adding a point change the hyperplane?",
+      "back": "Only if y·f(x) < 1 for the new point."
+    },
+    {
+      "tag": "Method",
+      "front": "Does removing a point change the hyperplane?",
+      "back": "Only if it is a support vector."
+    },
+    {
+      "tag": "Formula",
+      "front": "Soft-margin objective",
+      "back": "min ½‖w‖² + CΣξᵢ, with yᵢf(xᵢ) ≥ 1 − ξᵢ, ξᵢ ≥ 0."
+    },
+    {
+      "tag": "Formula",
+      "front": "Hinge loss",
+      "back": "ξᵢ = max(0, 1 − yᵢf(xᵢ))"
+    },
+    {
+      "tag": "Concept",
+      "front": "Large C means…",
+      "back": "Violations are expensive: narrow margin, fits training data closely, risk of overfitting."
+    },
+    {
+      "tag": "Concept",
+      "front": "Small C means…",
+      "back": "Wide margin, tolerates errors, risk of underfitting."
+    },
+    {
+      "tag": "Concept",
+      "front": "When is ξᵢ > 1?",
+      "back": "When the point is misclassified (y·f < 0)."
+    },
+    {
+      "tag": "Definition",
+      "front": "Kernel trick",
+      "back": "Replace every dot product xᵢᵀxⱼ with K(xᵢ, xⱼ) = φ(xᵢ)ᵀφ(xⱼ), so the SVM works in feature space without computing φ."
+    },
+    {
+      "tag": "Formula",
+      "front": "Polynomial kernel",
+      "back": "K(x, z) = (xᵀz + c)ᵖ"
+    },
+    {
+      "tag": "Formula",
+      "front": "RBF kernel",
+      "back": "K(x, z) = exp(−γ‖x − z‖²)"
+    },
+    {
+      "tag": "Formula",
+      "front": "Distance in feature space",
+      "back": "‖φ(u) − φ(v)‖² = K(u, u) + K(v, v) − 2K(u, v)"
+    },
+    {
+      "tag": "Fact",
+      "front": "Why are kernel SVMs expensive?",
+      "back": "They need the n × n kernel matrix: time and memory grow with n²."
+    },
+    {
+      "tag": "Fact",
+      "front": "What makes a kernel valid?",
+      "back": "Its Gram matrix is symmetric and positive semi-definite (Mercer's condition)."
+    },
+    {
+      "tag": "Method",
+      "front": "1-D data, labels alternate + − + −",
+      "back": "φ(x) = x mod 2, then threshold 0.5."
+    },
+    {
+      "tag": "Method",
+      "front": "1-D data, + in the middle, − outside",
+      "back": "φ(x) = x² or (x − c)², threshold midway in the new space."
+    },
+    {
+      "tag": "Concept",
+      "front": "One-vs-one vs one-vs-rest",
+      "back": "OvO: C(C − 1)/2 classifiers, majority vote. OvR: C classifiers, largest f wins."
+    },
+    {
+      "tag": "Trap",
+      "front": "Most common sign mistake",
+      "back": "Right line, but w and b both negated, so every class flips. Plug a support vector back in."
+    },
+    {
+      "tag": "Handout",
+      "front": "The four CS 9 topics in the course handout",
+      "back": "Linearly separable data; non-linearly separable data; kernel trick (Mercer); applications to structured and unstructured data."
+    },
+    {
+      "tag": "Definition",
+      "front": "Mercer's condition",
+      "back": "K is a valid kernel iff every Gram matrix Gᵢⱼ = K(xᵢ, xⱼ) is symmetric and positive semi-definite."
+    },
+    {
+      "tag": "Formula",
+      "front": "φ for K(a, b) = (aᵀb)² in 2-D",
+      "back": "φ(x, y) = (x², √2·xy, y²)"
+    },
+    {
+      "tag": "Concept",
+      "front": "Why does SVM work well on text?",
+      "back": "Very many word features, few examples, classes usually linearly separable in that space; a linear kernel is enough."
+    },
+    {
+      "tag": "Concept",
+      "front": "Structured vs unstructured data for SVM",
+      "back": "Structured: scaled numeric/one-hot features. Unstructured: convert to vectors (TF-IDF, embeddings, image features) or use a kernel that compares items directly."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "mcq",
+      "q": "Which training points determine the SVM hyperplane?",
+      "options": [
+        "All points",
+        "Only the support vectors",
+        "Only misclassified points",
+        "The class means"
+      ],
+      "answer": 1,
+      "explain": "Only points with αᵢ > 0 (the support vectors) appear in w = Σαᵢyᵢxᵢ.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "Maximising the margin is the same as…",
+      "options": [
+        "Maximising ‖w‖",
+        "Minimising ½‖w‖²",
+        "Minimising b",
+        "Maximising Σαᵢ"
+      ],
+      "answer": 1,
+      "explain": "Margin = 2/‖w‖, so a small ‖w‖ means a wide margin.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "A model with C = 100 and polynomial degree 6 has 98% train and 72% test accuracy. It is…",
+      "options": [
+        "Underfitting",
+        "Overfitting",
+        "Well fitted",
+        "Not converged"
+      ],
+      "answer": 1,
+      "explain": "Large C and high degree ⇒ very flexible boundary that fits noise.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "In the soft-margin SVM, increasing C…",
+      "options": [
+        "Widens the margin",
+        "Narrows the margin and penalises violations more",
+        "Has no effect on the margin",
+        "Removes the slack variables"
+      ],
+      "answer": 1,
+      "explain": "Violations cost C each, so a large C shrinks them at the expense of a narrower margin.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "A new labelled point has y·f(x) = 0.6. Adding it to the training set…",
+      "options": [
+        "Changes nothing",
+        "Changes the hyperplane",
+        "Only changes b",
+        "Makes the data inseparable"
+      ],
+      "answer": 1,
+      "explain": "y·f < 1 violates its margin constraint, so the solution must change.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "Which is NOT a valid kernel in general?",
+      "options": [
+        "(xᵀz + 1)²",
+        "exp(−‖x − z‖²)",
+        "xᵀz",
+        "sin(xᵀz)"
+      ],
+      "answer": 3,
+      "explain": "sin(xᵀz) does not always give a positive semi-definite Gram matrix.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "Why can kernel SVMs be slow on large datasets?",
+      "options": [
+        "They use gradient descent",
+        "They need the n × n kernel matrix",
+        "They have no closed form for b",
+        "They need many support vectors per class"
+      ],
+      "answer": 1,
+      "explain": "Computing and storing K grows with n².",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "Positive points at x = 1, 3, 5 and negative at x = 0, 2, 4, 6. A good feature map is…",
+      "options": [
+        "x²",
+        "x mod 2",
+        "|x|",
+        "eˣ"
+      ],
+      "answer": 1,
+      "explain": "Odds → 1, evens → 0; separate at 0.5.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "With 5 classes, one-vs-one SVM trains how many classifiers?",
+      "options": [
+        "5",
+        "10",
+        "20",
+        "25"
+      ],
+      "answer": 1,
+      "explain": "C(C − 1)/2 = 5 × 4 / 2 = 10.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "In w = Σαᵢyᵢxᵢ, a negative support vector with α = 2 at (1, 3) contributes…",
+      "options": [
+        "(2, 6)",
+        "(−2, −6)",
+        "(1, 3)",
+        "(0, 0)"
+      ],
+      "answer": 1,
+      "explain": "αy x = 2 × (−1) × (1, 3).",
+      "set": "Concepts"
+    },
+    {
+      "type": "numeric",
+      "q": "w = (3, 4). What is the margin width 2/‖w‖?",
+      "answer": 0.4,
+      "tolerance": 0.005,
+      "explain": "‖w‖ = 5, so 2/5 = 0.4.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "w = (0.5, −0.3), b = 0.2, x = (2, 1). Compute f(x).",
+      "answer": 0.9,
+      "tolerance": 0.005,
+      "explain": "1 − 0.3 + 0.2 = 0.9.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "Support vectors x₊ = (5, 4), x₋ = (3, 2). What is w₁ of the canonical w?",
+      "answer": 0.5,
+      "tolerance": 0.005,
+      "explain": "w = 2(2, 2)/8 = (0.5, 0.5).",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "Same support vectors (5, 4) and (3, 2). What is b?",
+      "answer": -3.5,
+      "tolerance": 0.005,
+      "explain": "Midpoint (4, 3): b = −(0.5·4 + 0.5·3) = −3.5.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "Support vectors x₊ = (2, 3) and x₋ = (4, 1). What is the margin width?",
+      "answer": 2.828,
+      "tolerance": 0.01,
+      "explain": "It equals ‖x₊ − x₋‖ = √8 ≈ 2.83.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "y = +1, f(x) = 0.3. What is the hinge loss ξ?",
+      "answer": 0.7,
+      "tolerance": 0.005,
+      "explain": "max(0, 1 − 0.3) = 0.7.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "y = −1, f(x) = 2. What is the hinge loss ξ?",
+      "answer": 3,
+      "tolerance": 0.005,
+      "explain": "max(0, 1 − (−1)(2)) = 3: misclassified.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "Polynomial kernel K(x, z) = (xᵀz + 2)², x = (3, 3), z = (1, 0). K = ?",
+      "answer": 25,
+      "tolerance": 0.01,
+      "explain": "xᵀz = 3, (3 + 2)² = 25.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "RBF kernel exp(−0.5‖x − z‖²), x = (1, 0), z = (−1, 0). K = ?",
+      "answer": 0.1353,
+      "tolerance": 0.002,
+      "explain": "‖x − z‖² = 4, e^(−2) ≈ 0.135.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "α's: 0.5 (+1), 2 (+1), and α₃ for a −1 support vector. Σαᵢyᵢ = 0 gives α₃ = ?",
+      "answer": 2.5,
+      "tolerance": 0.005,
+      "explain": "0.5 + 2 − α₃ = 0.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "Soft margin: ½‖w‖² = 0.5 and Σξ = 4. Objective at C = 2?",
+      "answer": 8.5,
+      "tolerance": 0.005,
+      "explain": "0.5 + 2 × 4 = 8.5.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "1-D: + at z = 4, − at z = 9 after z = x². Canonical w = ?",
+      "answer": -0.4,
+      "tolerance": 0.005,
+      "explain": "4w + b = 1, 9w + b = −1 ⇒ 5w = −2.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "x = (1, 2), y = (2, 3). Inhomogeneous polynomial kernel (1 + xᵀy)². K = ?",
+      "answer": 81,
+      "tolerance": 0.01,
+      "explain": "xᵀy = 8; (1 + 8)² = 81 (slides p. 61).",
+      "set": "Numericals"
+    },
+    {
+      "type": "mcq",
+      "q": "Mercer's condition requires every Gram matrix to be…",
+      "options": [
+        "Diagonal",
+        "Symmetric and positive semi-definite",
+        "Invertible",
+        "Orthogonal"
+      ],
+      "answer": 1,
+      "explain": "Symmetric with all eigenvalues ≥ 0.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "Which kernel is usually enough for text classification?",
+      "options": [
+        "Linear",
+        "Sigmoid",
+        "sin(xᵀz)",
+        "None: SVM cannot use text"
+      ],
+      "answer": 0,
+      "explain": "Text vectors are high-dimensional and usually linearly separable.",
+      "set": "Concepts"
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Line ↔ hyperplane",
+      "formula": "ax + cy + b = 0 ⇔ w·x + b = 0, w = [a, c]",
+      "note": "Slide: Line with 2 features: R2 (p. 14)"
+    },
+    {
+      "name": "Margin lines and width",
+      "formula": "w·x⁺ + b = +1, w·x⁻ + b = −1, w·(x⁺ − x⁻) = 2, M = 2/‖w‖",
+      "note": "Slide: Linear SVM Mathematically (p. 16)"
+    },
+    {
+      "name": "Constraints and primal",
+      "formula": "positive: w·xᵢ + b ≥ 1; negative: w·xᵢ + b ≤ −1; min ½wᵀw s.t. yᵢ(w·xᵢ + b) ≥ 1",
+      "note": "Slide: Solving the Optimization Problem (p. 17–18)"
+    },
+    {
+      "name": "Lagrangian and its derivatives",
+      "formula": "L = ½‖w‖² − Σαᵢ[yᵢ(wᵀxᵢ + b) − 1]; ∂L/∂w = 0 ⇒ w = Σαᵢyᵢxᵢ; ∂L/∂b = 0 ⇒ Σαᵢyᵢ = 0",
+      "note": "Slide: Solving the Optimization Problem (p. 19)"
+    },
+    {
+      "name": "Bias and classification",
+      "formula": "b = yᵢ − w·xᵢ (any support vector); f(x) = sign(w·x + b) = sign(Σαᵢyᵢ xᵢ·x + b)",
+      "note": "Slide: Solving the Optimization Problem (p. 21)"
+    },
+    {
+      "name": "Support vectors",
+      "formula": "non-zero αᵢ ⇒ support vector; f(x) = Σαᵢyᵢxᵢᵀx + b",
+      "note": "Slide: Linear SVMs: Overview (p. 47)"
+    },
+    {
+      "name": "Augmented method",
+      "formula": "add 1 as bias input; α₁S̃1·S̃i + α₂S̃2·S̃i + α₃S̃3·S̃i = label; last entry of w̃ is b",
+      "note": "Slide: Numerical Example, Steps 1–8 (p. 22–32); Solving for α (p. 34–35)"
+    },
+    {
+      "name": "Soft-margin primal",
+      "formula": "min ½‖w‖² + CΣξᵢ s.t. yᵢwᵀxᵢ ≥ 1 − ξᵢ, ξᵢ ≥ 0",
+      "note": "Slide: Soft Margin (p. 41) and Hard Margin vs Soft Margin (p. 42)"
+    },
+    {
+      "name": "Role of C",
+      "formula": "large C: slacks cost more, misclassification not OK (narrow margin); low C: misclassification OK, large margin; C controls overfitting",
+      "note": "Slide: Slack Variable (p. 40) and Effect of Margin size v/s misclassification cost (p. 43–46)"
+    },
+    {
+      "name": "Feature map",
+      "formula": "map x to a higher dimension (e.g. x → (x, x²)) where the data is separable",
+      "note": "Slide: Non-linear SVMs (p. 49)"
+    },
+    {
+      "name": "Kernel",
+      "formula": "K(xᵢ, xⱼ) = φ(xᵢ)ᵀφ(xⱼ)",
+      "note": "Slide: The \"Kernel Trick\" (p. 50)"
+    },
+    {
+      "name": "2nd-degree map",
+      "formula": "φ(x, y) = (x², √2xy, y²) for K = (aᵀb)²",
+      "note": "Slide: Kernel Trick (p. 59)"
+    },
+    {
+      "name": "Kernel functions",
+      "formula": "linear xᵢᵀxⱼ; polynomial (1 + xᵢᵀxⱼ)ᵖ; Gaussian exp(−‖xᵢ − xⱼ‖²/(2σ²)); sigmoid tanh(β₀xᵢᵀxⱼ + β₁)",
+      "note": "Slide: Examples of Kernel Functions (p. 60)"
+    },
+    {
+      "name": "Polynomial kernel forms",
+      "formula": "homogeneous (xᵀy)^q; inhomogeneous (c + xᵀy)^q",
+      "note": "Slide: Examples of Polynomial Kernel (p. 61)"
+    },
+    {
+      "name": "Dual with a kernel",
+      "formula": "L(α) = Σαᵢ − ½ΣΣαᵢαⱼyᵢyⱼK(xᵢ, xⱼ); f(x) = Σαᵢyᵢ K(xᵢ, x) + b",
+      "note": "Slide: Kernel Trick (p. 63)"
+    },
+    {
+      "name": "Multi-class",
+      "formula": "one-vs-rest: C classifiers; one-vs-one: C(C − 1)/2",
+      "note": "Slide: Multi-Class Problem (p. 64–65)"
+    },
+    {
+      "name": "w from one + and one − support vector",
+      "formula": "w = 2(x⁺ − x⁻)/‖x⁺ − x⁻‖²  (from w·(x⁺ − x⁻) = 2, p. 16)",
+      "note": "Not on the slides: derive from them"
+    },
+    {
+      "name": "Hinge loss",
+      "formula": "ξᵢ = max(0, 1 − yᵢ f(xᵢ))  (from the p. 41 constraint)",
+      "note": "Not on the slides: derive from them"
+    },
+    {
+      "name": "Distance of a point to the boundary",
+      "formula": "|w·x + b| / ‖w‖  (p. 16)",
+      "note": "Not on the slides: derive from them"
+    },
+    {
+      "name": "RBF with γ (papers use this)",
+      "formula": "exp(−γ‖x − z‖²), γ = 1/(2σ²)  (p. 60)",
+      "note": "Not on the slides: derive from them"
+    },
+    {
+      "name": "Distance in feature space",
+      "formula": "‖φ(u) − φ(v)‖² = K(u,u) + K(v,v) − 2K(u,v)  (p. 50)",
+      "note": "Not on the slides: derive from them"
+    }
+  ],
+  "families": [
+    {
+      "id": "geometry",
+      "label": "Geometry",
+      "icon": "⟂",
+      "title": "Geometry: w, b and margin from support vectors",
+      "lead": "The most common SVM question: every past paper has one.",
+      "problems": [
+        "Geometry ·"
+      ],
+      "blocks": [
+        {
+          "type": "h",
+          "text": "How to recognise it"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Points with labels; \"find the support vectors\", \"equation of the hyperplane\", \"canonical w and b\", \"margin\"."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Recipe"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Closest opposite pair = support vectors.",
+            "w = 2(x⁺ − x⁻)/‖x⁺ − x⁻‖² (from p. 16: w·(x⁺ − x⁻) = 2).",
+            "b = y − w·x for a support vector (p. 21).",
+            "Check yᵢf(xᵢ) ≥ 1 for every point.",
+            "Margin = 2/‖w‖."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dual",
+      "label": "Dual",
+      "icon": "α",
+      "title": "Dual: Lagrange multipliers",
+      "lead": "Given α's, find w and b; or given w and b, find the α's.",
+      "problems": [
+        "Dual ·"
+      ],
+      "blocks": [
+        {
+          "type": "h",
+          "text": "Recipe"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Σαᵢyᵢ = 0.",
+            "w = Σαᵢyᵢxᵢ (keep the sign of yᵢ).",
+            "b = yₛ − wᵀxₛ for any support vector.",
+            "αᵢ > 0 ⇔ support vector."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kernels",
+      "label": "Kernels",
+      "icon": "φ",
+      "title": "Kernels: make the data separable",
+      "lead": "1-D data that alternates or has + in the middle; kernel values.",
+      "problems": [
+        "Kernels ·"
+      ],
+      "blocks": [
+        {
+          "type": "h",
+          "text": "Recipe"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Pick φ (x mod 2, x², (x − c)²).",
+            "Tabulate φ(x) for every point.",
+            "Threshold midway between the closest + and − in the new space.",
+            "Map the rule back to x."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "soft",
+      "label": "Soft margin",
+      "icon": "ξ",
+      "title": "Soft margin, slack and C",
+      "lead": "Hinge loss, objective values, and what C does.",
+      "problems": [
+        "Soft margin ·"
+      ],
+      "blocks": [
+        {
+          "type": "h",
+          "text": "Recipe"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Compute f(x) and y·f for each point.",
+            "ξ = max(0, 1 − y·f).",
+            "Objective = ½‖w‖² + CΣξ.",
+            "Large C ⇒ narrow margin, overfit; small C ⇒ wide margin, more errors."
+          ]
+        }
+      ]
+    }
+  ]
+}

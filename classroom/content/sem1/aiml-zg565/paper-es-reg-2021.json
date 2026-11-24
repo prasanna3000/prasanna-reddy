@@ -1,0 +1,399 @@
+{
+  "id": "p-es-reg-2021",
+  "title": "EC-3 Regular · End-Semester · Sep 2022",
+  "subtitle": "DSECLZG565 (2021 batch) · open book · 40% · 2 hours · 25/09/2022 · 40 marks",
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "An older paper from a different batch, but every topic except the ANN part is still on your syllabus. It is all post-mid: Bayes, SVM, EM, MLE, boosting and K-means.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Marks",
+            "Revise in",
+            "Pre/post-mid"
+          ],
+          "rows": [
+            [
+              "1",
+              "Bayes optimal classifier",
+              "3",
+              "CS 10",
+              "Post"
+            ],
+            [
+              "2",
+              "Non-linear SVM with a 1-D kernel trick",
+              "5",
+              "CS 9",
+              "Post"
+            ],
+            [
+              "3",
+              "EM for a single Gaussian",
+              "7",
+              "CS 14",
+              "Post"
+            ],
+            [
+              "4",
+              "MLE of a coin, number of equal-likelihood datasets",
+              "5",
+              "CS 10",
+              "Post"
+            ],
+            [
+              "5",
+              "XOR separability, 1-D transforms, closed-form ANN",
+              "5",
+              "CS 9 (ANN not in your syllabus)",
+              "Post"
+            ],
+            [
+              "6",
+              "Linear SVM: support vectors, hyperplane, what-ifs",
+              "5",
+              "CS 9",
+              "Post"
+            ],
+            [
+              "7",
+              "AdaBoost with decision stumps",
+              "3",
+              "CS 12–13",
+              "Post"
+            ],
+            [
+              "8",
+              "K-means from two different starts",
+              "7",
+              "CS 14",
+              "Post"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Pre-mid vs post-mid weightage"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Pre-mid marks",
+            "Post-mid marks",
+            "Split (pre / post)"
+          ],
+          "rows": [
+            [
+              "0",
+              "40",
+              "**0% / 100%**"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Pre-mid vs post-mid",
+          "text": "Pre-mid = everything up to **information gain in decision trees**. Everything after that, including decision-tree overfitting, kNN and LWR, is post-mid. Across all four papers (160 marks) the split is **15% / 85%**."
+        },
+        {
+          "type": "note",
+          "label": "How to use this paper",
+          "text": "Open **Worked problems** and try each question on paper before revealing the steps."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · Bayes optimal classifier (3 marks)",
+      "tags": [
+        "CS 10"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Three hypotheses with P(h1|D) = 0.5, P(h2|D) = 0.3, P(h3|D) = 0.2. For a new candidate, h1 predicts **win**; h2 and h3 predict **lose**. What is the most probable classification?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Idea",
+          "text": "The Bayes optimal classifier weights each hypothesis's vote by its posterior: P(v|D) = Σ P(v|hᵢ)·P(hᵢ|D)."
+        },
+        {
+          "label": "P(win|D)",
+          "text": "1·0.5 + 0·0.3 + 0·0.2 = **0.5**"
+        },
+        {
+          "label": "P(lose|D)",
+          "text": "0·0.5 + 1·0.3 + 1·0.2 = **0.5**"
+        },
+        {
+          "label": "Conclusion",
+          "text": "Both are 0.5, so win and lose are **equally probable** (a tie). Note the MAP hypothesis h1 alone would have said *win*: this is the classic example where Bayes optimal and MAP disagree."
+        }
+      ],
+      "answer": "P(win) = P(lose) = 0.5: a tie."
+    },
+    {
+      "title": "Q2 · Kernel trick in 1-D (5 marks)",
+      "tags": [
+        "CS 9"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Positive points: x = 1, 3, 5. Negative points: x = 0, 2, 4, 6 (all on the x-axis). Use the kernel trick to find a separating hyperplane with a non-linear SVM. Plot before and after the transformation."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Before",
+          "text": "On the line the labels alternate − + − + − + −, so no single threshold separates them: **not linearly separable**."
+        },
+        {
+          "label": "Transform",
+          "text": "Use φ(x) = x mod 2 (odd → 1, even → 0). Positives map to 1, negatives map to 0. Plot each point as (x, φ(x)): positives sit at height 1, negatives at height 0."
+        },
+        {
+          "label": "Hyperplane",
+          "text": "In the new space the classes are separated by the horizontal line **y = 0.5**, halfway between the two levels (maximum margin)."
+        },
+        {
+          "label": "Marks",
+          "text": "3 marks for the transformation, 2 for the hyperplane. Any transform that sends odds and evens to different values (e.g. cos(πx)) also works."
+        }
+      ],
+      "answer": "φ(x) = x mod 2; hyperplane y = 0.5."
+    },
+    {
+      "title": "Q3 · EM with one Gaussian (7 marks)",
+      "tags": [
+        "CS 14",
+        "GMM / EM"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Data: −4, −3, −2, −1, 0, 1, 2, 3, 4. Fit a Gaussian mixture with exactly **one** Gaussian using EM. Initial mean 10, initial variance 1."
+        }
+      ],
+      "steps": [
+        {
+          "label": "E-step",
+          "text": "With one component π₁ = 1, so every responsibility γ(zₙ₁) = π₁N(xₙ)/π₁N(xₙ) = **1**, whatever the starting mean."
+        },
+        {
+          "label": "N₁",
+          "text": "N₁ = Σγ = 9, the number of points."
+        },
+        {
+          "label": "M-step mean",
+          "text": "μ = (1/N₁) Σ γ·xₙ = (−4−3−2−1+0+1+2+3+4)/9 = **0**"
+        },
+        {
+          "label": "M-step variance",
+          "text": "σ² = (1/N₁) Σ γ(xₙ − μ)² = (16+9+4+1+0+1+4+9+16)/9 = 60/9 = **6.67**"
+        },
+        {
+          "label": "Convergence",
+          "text": "The next E-step again gives all γ = 1, so the M-step returns the same μ and σ². EM has **converged after one iteration**: the answer is simply the sample mean and the (divide-by-N) variance."
+        }
+      ],
+      "answer": "μ = 0, σ² = 60/9 ≈ 6.67; converges in one iteration."
+    },
+    {
+      "title": "Q4 · MLE of a coin (5 marks)",
+      "tags": [
+        "CS 10",
+        "MLE"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "100 tosses of the same coin: 30 heads, 70 tails. p = P(head). How many 100-toss datasets have the same likelihood as this one? Find the MLE of p."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Likelihood",
+          "text": "P(D|p) = p³⁰(1−p)⁷⁰. It depends only on the counts, not the order."
+        },
+        {
+          "label": "Same likelihood",
+          "text": "Any sequence with exactly 30 heads has the same likelihood. Choose 30 of the 100 positions for the heads: **¹⁰⁰C₃₀ = 100! / (30!·70!)** datasets."
+        },
+        {
+          "label": "Log-likelihood",
+          "text": "log L = 30 log p + 70 log(1−p)"
+        },
+        {
+          "label": "Derivative",
+          "text": "d/dp: 30/p − 70/(1−p) = 0 ⇒ 30(1−p) = 70p ⇒ **p = 0.3**"
+        }
+      ],
+      "answer": "¹⁰⁰C₃₀ datasets; p̂ = 0.3."
+    },
+    {
+      "title": "Q5 · XOR data and a closed-form network (5 marks)",
+      "tags": [
+        "CS 9",
+        "ANN (not in current syllabus)"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Points: (−1,−1) +, (−1,1) −, (1,−1) −, (1,1) +. (a) Comment on separability. (b) Give a 1-D transformation that is linearly separable and one that is not. (c) A network has two hidden layers of two units each, all weights 1. The top unit of each layer uses sigmoid and the bottom one tanh; the output is ReLU of the sum of its two inputs. Write the output in closed form."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "This is **XOR**: the positives are on one diagonal and the negatives on the other. No straight line separates them, so the data is **not linearly separable**."
+        },
+        {
+          "label": "(b) separable",
+          "text": "z = x₁·x₂ gives +1 for both positives and −1 for both negatives. A threshold at z = 0 separates them."
+        },
+        {
+          "label": "(b) not separable",
+          "text": "z = x₁ + x₂ gives −2 and +2 for the positives but 0 and 0 for the negatives. The negatives sit between the positives, so one threshold cannot separate them."
+        },
+        {
+          "label": "(c) Layer 1",
+          "text": "Both units get s = x₁ + x₂: h₁ = σ(x₁+x₂), h₂ = tanh(x₁+x₂)."
+        },
+        {
+          "label": "(c) Layer 2",
+          "text": "Both units get h₁ + h₂: h₃ = σ(h₁ + h₂), h₄ = tanh(h₁ + h₂)."
+        },
+        {
+          "label": "(c) Output",
+          "text": "**y = max{0, σ(σ(x₁+x₂) + tanh(x₁+x₂)) + tanh(σ(x₁+x₂) + tanh(x₁+x₂))}**"
+        }
+      ],
+      "answer": "XOR, not linearly separable; x₁x₂ separates, x₁+x₂ does not; y = ReLU(σ(h₁+h₂) + tanh(h₁+h₂)) with h₁ = σ(x₁+x₂), h₂ = tanh(x₁+x₂)."
+    },
+    {
+      "title": "Q6 · Linear SVM by hand (5 marks)",
+      "tags": [
+        "CS 9"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Positive: (3,2), (4,3), (2,3), (3,−1). Negative: (1,0), (−1,−1), (0,2), (−1,2). (A) Find the support vectors and the hyperplane. (B) Does the hyperplane change if (a) (2,3) is removed, (b) (5,4) is added?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Pick the SVs",
+          "text": "The closest opposite-class points are **(2,3)** and **(3,−1)** (positive) and **(1,0)** (negative)."
+        },
+        {
+          "label": "Direction of w",
+          "text": "Both positive SVs lie on wᵀx + b = 1, so w ⟂ (2,3) − (3,−1) = (−1,4). Take w = a(4,1)."
+        },
+        {
+          "label": "Solve for a, b",
+          "text": "(2,3): 8a + 3a + b = 1 ⇒ 11a + b = 1. (1,0): 4a + b = −1. Subtract: 7a = 2 ⇒ a = 2/7, b = −15/7."
+        },
+        {
+          "label": "Hyperplane",
+          "text": "w = (8/7, 2/7), b = −15/7, i.e. **8x₁ + 2x₂ − 15 = 0** (equivalently 4x₁ + x₂ = 7.5). Margin = 2/‖w‖ = 14/√68 ≈ 1.70."
+        },
+        {
+          "label": "Check all points",
+          "text": "f = (8x₁ + 2x₂ − 15)/7: positives give 13/7, 23/7, 1, 1 (all ≥ 1); negatives give −1, −25/7, −11/7, −19/7 (all ≤ −1). Feasible."
+        },
+        {
+          "label": "Check optimality",
+          "text": "Solve α₁(2,3) + α₂(3,−1) − α₃(1,0) = w with α₁ + α₂ = α₃: α₁ = 12/49, α₂ = 22/49, α₃ = 34/49. All positive, so the KKT conditions hold and this is the maximum-margin solution."
+        },
+        {
+          "label": "(B)(a) remove (2,3)",
+          "text": "It was a support vector, so the hyperplane **changes**. With (3,2), (3,−1) and (1,0) as the new SVs: w = (1,0), b = −2, so the new boundary is **x₁ = 2**, margin 2 (α = 1/3, 1/6, 1/2, all positive)."
+        },
+        {
+          "label": "(B)(b) add (5,4)",
+          "text": "f(5,4) = (40 + 8 − 15)/7 = 33/7 > 1: it lies outside the margin on the correct side, so it is not a support vector and the hyperplane **does not change**."
+        }
+      ],
+      "answer": "SVs (2,3), (3,−1), (1,0); 8x₁ + 2x₂ − 15 = 0. Removing (2,3) gives x₁ = 2; adding (5,4) changes nothing."
+    },
+    {
+      "title": "Q7 · AdaBoost with stumps (3 marks)",
+      "tags": [
+        "CS 12–13"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Four + points at the corners of a square with one − point in the centre. Train AdaBoost with decision stumps, circle the points whose weights go up after each iteration, and run until training error is zero. (The paper gives only a picture. The working below assumes + at (0,0), (0,2), (2,0), (2,2) and − at (1,1).)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Round 1",
+          "text": "No single stump isolates the centre point. Best stump: predict + everywhere. Misclassified: the **centre −**. ε₁ = 1/5, α₁ = ½ ln 4 = 0.693. Circle the − point; its weight rises to 0.5 and each + falls to 0.125."
+        },
+        {
+          "label": "Round 2",
+          "text": "Stump x₁ < 1: + on the left, − on the right. Misclassified: **(2,0) and (2,2)**, ε₂ = 0.25, α₂ = ½ ln 3 = 0.549. Circle those two."
+        },
+        {
+          "label": "Round 3",
+          "text": "Stump x₁ < 1.5: − on the left, + on the right. Misclassified: **(0,0) and (0,2)**, ε₃ = 1/6, α₃ = ½ ln 5 = 0.805."
+        },
+        {
+          "label": "Final vote",
+          "text": "Centre: +0.693 − 0.549 − 0.805 < 0 ⇒ − ✓. Left corners: +0.693 + 0.549 − 0.805 > 0 ⇒ + ✓. Right corners: +0.693 − 0.549 + 0.805 > 0 ⇒ + ✓. **Zero training error after 3 iterations**."
+        }
+      ],
+      "answer": "3 iterations."
+    },
+    {
+      "title": "Q8 · K-means and initialisation (7 marks)",
+      "tags": [
+        "CS 14"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Points (x₁, x₂): (−1,2), (−1,1), (−1,−1), (−1,−2), (0,0), (4,2), (4,−2). The true clusters are the first five and the last two. Run K-means with k = 2 from (A) C1 = (−1,2), C2 = (0,0) and (B) C1 = (−0.5,0), C2 = (0,0). Comment on each result and on the drawback it shows."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(A) iteration 1",
+          "text": "Nearest centre: (−1,2), (−1,1) → C1; (−1,−1), (−1,−2), (0,0), (4,2), (4,−2) → C2. New centres: C1 = (−1, 1.5), C2 = (6/5, −3/5) = (1.2, −0.6)."
+        },
+        {
+          "label": "(A) iteration 2",
+          "text": "The assignments do not change, so it has **converged**: {(−1,2), (−1,1)} and the other five. This does **not** match the true clusters."
+        },
+        {
+          "label": "(B) iteration 1",
+          "text": "Distances to (−0.5,0) vs (0,0): the four x₁ = −1 points go to C1, while (0,0), (4,2), (4,−2) go to C2. New centres: C1 = (−1, 0), C2 = (8/3, 0) ≈ (2.67, 0)."
+        },
+        {
+          "label": "(B) iteration 2",
+          "text": "(0,0) is now 1 from C1 and 2.67 from C2, so it moves to C1. New centres: C1 = (−0.8, 0), C2 = (4, 0)."
+        },
+        {
+          "label": "(B) iteration 3",
+          "text": "No change, so it has converged: {the five left points} and {(4,2), (4,−2)}. This **matches** the true clusters."
+        },
+        {
+          "label": "Drawback",
+          "text": "K-means is **sensitive to the initial centres**: different starts converge to different (sometimes wrong) local optima."
+        }
+      ],
+      "answer": "(A) wrong clusters after 2 iterations; (B) correct clusters after 3; K-means depends on initialisation."
+    }
+  ]
+}

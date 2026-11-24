@@ -57,7 +57,7 @@
         {
           "type": "note",
           "label": "How to use this paper",
-          "text": "Open **Worked problems** and try each question on paper before revealing the steps. Where the official answer key has a mistake, the solution says so and shows the correct working."
+          "text": "Open **Worked problems** and try each question on paper before revealing the steps."
         }
       ]
     }
@@ -76,7 +76,7 @@
       ],
       "steps": [
         {
-          "label": "Answer key's way",
+          "label": "Bipolar method",
           "text": "Recode 0 → −1 (bipolar). Conditions: w₀ − w₁ − w₂ > 0, w₀ + w₁ − w₂ < 0, w₀ − w₁ + w₂ < 0, w₀ + w₁ + w₂ < 0. Adding pairs gives w₀ < 0, w₁ < 0, w₂ < 0 → **w₀ = w₁ = w₂ = −1**."
         },
         {
@@ -121,7 +121,7 @@
         },
         {
           "label": "Note",
-          "text": "It simplifies to Y = A·(B̄ + CD̄), so a smaller network also works; the key expects the canonical one."
+          "text": "It simplifies to Y = A·(B̄ + CD̄), so a smaller network also works; the canonical form is what is expected."
         }
       ],
       "answer": "Depth 2, width 5."
@@ -155,7 +155,7 @@
           "text": "Sum-of-products form: one unit per odd-parity pattern, 2^{n−1} = **32** hidden units (+1 output)."
         }
       ],
-      "answer": "15 perceptrons in 6 layers; 32 hidden units if shallow (the key's figures). It shows why depth is efficient."
+      "answer": "15 perceptrons in 6 layers; 32 hidden units if shallow. It shows why depth is efficient."
     },
     {
       "title": "Q4 · Derive ∂L/∂z for BCE with sigmoid",
@@ -221,8 +221,7 @@
       "title": "Q6 · Learning-rate bounds on E(p, q, r) = 3p³ + 3q² + 4r + 5",
       "tags": [
         "Ch 3",
-        "Ch 10",
-        "key check"
+        "Ch 10"
       ],
       "problem": [
         {
@@ -236,15 +235,15 @@
           "text": "On a quadratic direction with curvature c: η_opt = 1/c (one step), converge if η < 2/c, diverge if η > 2/c. Take the tightest (largest c) over the directions."
         },
         {
-          "label": "Answer key",
+          "label": "Method",
           "text": "Uses ∂E/∂p = 9p, ∂E/∂q = 6q, ∂E/∂r = 4 → η = 1/9, 1/6, 1/4 → η_opt = **1/9**, largest converging **2/9**, divergence for η > **2/9 ≈ 0.22**."
         },
         {
           "label": "Check",
-          "text": "As printed, ∂E/∂p = 9p² (cubic term) and r is linear (no curvature, no minimum), so the question is only consistent if the p-term was meant as quadratic (e.g. 4.5p²). Write the key's method and state that assumption."
+          "text": "As printed, ∂E/∂p = 9p² (cubic term) and r is linear (no curvature, no minimum), so the question is only consistent if the p-term was meant as quadratic (e.g. 4.5p²). Use the method above and state that assumption."
         }
       ],
-      "answer": "Key: η_opt = 1/9, η_max = 2/9 ≈ 0.22. Note the inconsistency in the printed surface."
+      "answer": "η_opt = 1/9, η_max = 2/9 ≈ 0.22. Note the inconsistency in the printed surface."
     }
   ]
 }

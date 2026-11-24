@@ -13,7 +13,7 @@
   const CATALOG_URL = 'content/catalog.json';
   const PKEY = 'classroom.progress.v1';
   const TABS = [
-    { id: 'lesson', label: 'Chalkboard', icon: '✎', has: (c) => c.lesson?.length },
+    { id: 'lesson', label: 'Lesson', icon: '✎', has: (c) => c.lesson?.length },
     { id: 'worked', label: 'Worked problems', icon: '✓', has: (c) => c.worked?.length },
     { id: 'lab', label: 'Lab bench', icon: '⚗', has: (c) => c.labs?.length },
     { id: 'cards', label: 'Flashcards', icon: '❏', has: (c) => c.flashcards?.length },
@@ -88,6 +88,7 @@
 
   /* ---------- rendering helpers ---------- */
   function setCrumbs(items) {
+    if (items.length < 2) { crumbs.innerHTML = ''; return; } /* the dashboard needs no trail */
     crumbs.innerHTML = items.map((it, i) => (i < items.length - 1 && it.href
       ? `<a href="${it.href}">${esc(it.label)}</a>` : `<span aria-current="page">${esc(it.label)}</span>`)).join('<span class="sep">›</span>');
   }
@@ -125,7 +126,7 @@
   function viewError(err) {
     const local = location.protocol === 'file:';
     app.innerHTML = `<section class="board big-board"><div class="board-inner">
-      <h2 class="chalk-title">Oops: the board is blank</h2>
+      <h2 class="chalk-title">Oops: nothing here</h2>
       <p>${esc(err.message || err)}</p>
       ${local ? `<p>This page reads its lessons from <code>content/content-bundle.js</code>. If you just added or edited content, rebuild the bundle in the classroom folder:</p>
       <div class="formula">python3 build-content.py</div><p>Then reload this page.</p>` : '<p>Check that the file path in <code>content/catalog.json</code> is right and the JSON is valid.</p>'}
@@ -133,7 +134,7 @@
   }
 
   /* helpers shared by the dashboard and course pages */
-  const courseColor = (c) => esc(c.color || '#b5523b');
+  const courseColor = (c) => esc(c.color || '#4318FF');
   function courseStats(sem, c) {
     const ready = c.chapters.filter((ch) => ch.file && !ch.comingSoon);
     const scores = ready.map((ch) => P.score(`${sem.id}/${c.id}/${ch.id}`, chapterCache[ch.file]));
@@ -181,6 +182,16 @@
     </span>`;
   }
 
+  /* optional course.target = { score, outOf, text, points: [..] }: the big "aim for" card on the course page */
+  function targetHTML(t) {
+    if (!t) return '';
+    return `<section class="target-card" aria-label="Target score">
+      <div class="tg-score"><span class="tg-label">🎯 My target</span><span class="tg-num">${esc(String(t.score))}<small>/${esc(String(t.outOf))}</small></span></div>
+      <div class="tg-body">${t.text ? `<p class="tg-text">${md(t.text)}</p>` : ''}
+        ${(t.points || []).length ? `<ul class="tg-points">${t.points.map((p) => `<li>${md(p)}</li>`).join('')}</ul>` : ''}</div>
+    </section>`;
+  }
+
   /* green blinking "Current" badge for the semester in progress (catalog: "current": true) */
   const liveBadge = () => '<span class="live-badge" title="Current semester"><span class="live-dot" aria-hidden="true"></span>Current</span>';
 
@@ -205,14 +216,14 @@
         <div class="dash-hero-text">
           <p class="eyebrow light">${esc(catalog.school?.name || 'The Classroom')}</p>
           <h1>${esc(catalog.school?.welcome || 'Welcome to class')}</h1>
-          <p>${esc(catalog.school?.intro || 'Pick a course. Every chapter has a chalkboard lesson, worked problems, a lab bench, flashcards, a pop quiz and a cheat sheet.')}</p>
+          <p>${esc(catalog.school?.intro || 'Pick a course. Every chapter has a lesson, worked problems, a lab bench, flashcards, a pop quiz and a cheat sheet.')}</p>
         </div>
         <div class="dash-hero-side">
           ${ring(overall, 'of all ready chapters done')}
           <span class="dash-hero-cap">overall progress</span>
         </div>
       </section>
-      ${last ? `<a class="continue-card" href="${esc(last.href)}" style="--door:${esc(last.color || '#2d4a3a')}">
+      ${last ? `<a class="continue-card" href="${esc(last.href)}" style="--door:${esc(last.color || '#4318FF')}">
         <span class="cc-icon" aria-hidden="true">▶</span>
         <span class="cc-text"><span class="cc-label">Continue where you left off</span>
           <span class="cc-title">${esc(last.title)}</span><span class="cc-sub">${esc(last.course)}${last.tab ? ` · ${esc(last.tab)}` : ''}</span></span>
@@ -254,7 +265,8 @@
       <tbody>${t.rows.map((r) => `<tr>${r.map((c, k) => `<td${k < (t.leftCols || 1) ? ' class="wt-left"' : ''}>${md(String(c))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
       ${t.note ? `<p class="wt-note">${md(t.note)}</p>` : ''}</div>`;
     /* collapsible and minimised by default; opening it is remembered per course */
-    const opened = (store.get('classroom.wtOpen', {}) || {})[courseId];
+    /* minimised unless the course sets weightage.open, or you opened/closed it before */
+    const opened = (store.get('classroom.wtOpen', {}) || {})[courseId] ?? !!w.open;
     return `<details class="weightage" data-course="${esc(courseId)}"${opened ? ' open' : ''}>
       <summary><h2 class="wt-title">${esc(w.title || 'Where the marks are')}</h2><span class="wt-toggle btn small-btn" aria-hidden="true"></span></summary>
       ${w.intro ? `<p class="wt-intro">${md(w.intro)}</p>` : ''}${w.tables.map(table).join('')}
@@ -266,7 +278,7 @@
     /* chapters can set "group" (e.g. "Exam hall"); groups appear in order of first use */
     const groups = [];
     course.chapters.forEach((ch, i) => {
-      const name = ch.group || 'Syllabus board';
+      const name = ch.group || 'Chapters';
       let g = groups.find((x) => x.name === name);
       if (!g) { g = { name, intro: (course.groupIntros || {})[name], items: [] }; groups.push(g); }
       g.items.push({ ch, i });
@@ -278,19 +290,21 @@
         <div class="cb-text">
           <p class="eyebrow light">${esc([course.code, course.room, sem.title].filter(Boolean).join(' · '))}</p>
           <h1 class="room-title">${esc(course.title)}</h1>
-          ${course.teacher ? `<p class="cb-teacher">Teacher: ${esc(course.teacher)}</p>` : ''}
+          ${course.teacher ? `<p class="cb-teacher">Faculty: ${esc(course.teacher)}</p>` : ''}
+          ${course.exam ? `<p class="cb-exam">${md(course.exam)}</p>` : ''}
         </div>
         <div class="cb-stats">
           ${ring(st.pct, 'of this course done')}
           <div class="cb-nums"><span><b>${st.ready}</b> / ${st.total} chapters ready</span><span><b>${st.done}</b> completed</span></div>
         </div>
       </section>
-      ${course.description ? `<div class="info-card">${md(course.description)}</div>` : ''}
+      ${targetHTML(course.target)}
       ${weightageHTML(course.weightage, course.id)}
+      ${course.description ? `<div class="info-card">${md(course.description)}</div>` : ''}
       ${groups.map((g) => `
       <section class="dash-section">
-        <div class="section-head"><h2 class="cork-title">${esc(g.name === 'Syllabus board' ? 'Chapters' : g.name)}</h2>
-          <span class="muted">${g.items.length} ${g.name === 'Syllabus board' ? 'chapters' : 'papers'}</span></div>
+        <div class="section-head"><h2 class="cork-title">${esc(g.name === 'Chapters' ? 'Chapters' : g.name)}</h2>
+          <span class="muted">${g.items.length} ${g.name === 'Chapters' ? (g.items.length === 1 ? 'chapter' : 'chapters') : (g.items.length === 1 ? 'paper' : 'papers')}</span></div>
         ${g.intro ? `<p class="section-intro">${md(g.intro)}</p>` : ''}
         <div class="chapter-grid">
           ${g.items.map(({ ch, i }) => {
@@ -378,14 +392,14 @@
         </details>
         <article class="board big-board">
           <div class="board-inner">
-            <div class="board-count">Board ${i + 1} / ${n}</div>
+            <div class="board-count">Part ${i + 1} / ${n}</div>
             <h2 class="chalk-title">${md(sec.title)}</h2>
             ${sec.lead ? `<p class="chalk-sub">${md(sec.lead)}</p>` : ''}
             <div class="board-content">${renderBlocks(sec.blocks, widgets)}</div>
           </div>
           <div class="board-ledge">
-            ${i > 0 ? `<a class="btn" href="${base}/lesson/${i - 1}">← Previous board</a>` : '<span></span>'}
-            ${i < n - 1 ? `<a class="btn btn-chalk" href="${base}/lesson/${i + 1}">Next board →</a>`
+            ${i > 0 ? `<a class="btn" href="${base}/lesson/${i - 1}">← Previous</a>` : '<span></span>'}
+            ${i < n - 1 ? `<a class="btn btn-chalk" href="${base}/lesson/${i + 1}">Next →</a>`
               : `<a class="btn btn-chalk" href="${base}/${ch.worked?.length ? 'worked' : ch.quiz?.length ? 'quiz' : 'lesson'}">Lesson done: practise →</a>`}
           </div>
         </article>
@@ -468,6 +482,13 @@
         </article>`).join('')}
       </div>`;
     mountWidgets(body, widgets);
+    /* a link like …/worked/5 or …/f-geometry/5 jumps to Problem 5 and highlights it */
+    const target = parseInt(ctx.sub, 10);
+    const hit = target > 0 && body.querySelector(`.notebook[data-i="${target - 1}"]`);
+    if (hit) {
+      hit.classList.add('nb-target');
+      setTimeout(() => hit.scrollIntoView({ behavior: 'instant', block: 'start' }), 150);
+    }
     body.addEventListener('click', (ev) => {
       const btn = ev.target.closest('[data-act]'); if (!btn) return;
       const nb = btn.closest('.notebook'); const i = +nb.dataset.i;
@@ -709,7 +730,7 @@
         ${sem.courses.map((c) => {
           const here = sem.id === semId && c.id === courseId;
           return `<details class="sn-course"${here || !courseId ? ' open' : ''}>
-            <summary title="Show or hide the chapters"><span class="sn-dot" style="--door:${esc(c.color || '#b5523b')}"></span>
+            <summary title="Show or hide the chapters"><span class="sn-dot" style="--door:${esc(c.color || '#4318FF')}"></span>
               <span class="sn-name${here ? ' here' : ''}">${esc(c.title)}</span><span class="sn-caret" aria-hidden="true">▾</span></summary>
             <ol><li><a href="#/${sem.id}/${c.id}" class="sn-overview${here && !chId ? ' on' : ''}"${here && !chId ? ' aria-current="page"' : ''}><span class="sn-num">⌂</span><span>Course overview</span></a></li>${c.chapters.map((ch) => {
               const ready = ch.file && !ch.comingSoon;

@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>The Classroom</title>
-  <meta name="description" content="An interactive classroom for my M.Tech courses: lessons on a chalkboard, worked problems, labs, flashcards and quizzes.">
+  <meta name="description" content="An interactive classroom for my M.Tech courses: worked problems, labs, flashcards and quizzes.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=cc83cba2">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=horizon1">
 </head>
 <body>
   <header class="site-header">
@@ -18,22 +18,24 @@
     </button>
     <a class="brand" href="#/">
       <span class="brand-bell" aria-hidden="true">
-        <svg viewBox="0 0 32 32" width="30" height="30"><path d="M16 4c-5 0-8 4-8 9v6l-3 4h22l-3-4v-6c0-5-3-9-8-9z" fill="#f3c74f" stroke="#2a3844" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="26" r="3" fill="#2a3844"/></svg>
+        <svg viewBox="0 0 32 32" width="26" height="26"><path d="M16 6 2 13l14 7 14-7-14-7z" fill="#fff"/><path d="M8 16.5v5.5c0 2.2 3.6 4 8 4s8-1.8 8-4v-5.5l-8 4-8-4z" fill="#fff" opacity=".85"/><path d="M27 14v7" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="27" cy="22.5" r="1.8" fill="#fff"/></svg>
       </span>
       <span class="brand-text">
         <span class="brand-name" id="school-name">The Classroom</span>
-        <span class="brand-tag" id="school-tag">learn it, then teach it</span>
+        <span class="brand-tag" id="school-tag">learn it, practise it, score it</span>
       </span>
     </a>
-    <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
   </header>
 
   <!-- left navigation: semesters, courses and chapters (filled by js/app.js) -->
   <aside class="side-nav" id="side-nav" aria-label="Courses and chapters"></aside>
   <div class="nav-scrim" id="nav-scrim" hidden></div>
 
+  <!-- breadcrumbs: inside the page, above the content (filled by js/app.js) -->
+  <nav class="crumbs page-crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
+
   <main id="app" tabindex="-1">
-    <div class="loading">Ringing the school bell…</div>
+    <div class="loading">Opening your notes…</div>
   </main>
 
   <!-- floating "on this page" button (menu filled by js/app.js) -->
@@ -61,7 +63,7 @@
   </footer>
 
   <!-- core -->
-  <script src="js/core/util.js?v=2aeb78c6"></script>
+  <script src="js/core/util.js?v=5b33939c"></script>
   <script src="js/core/widgets.js?v=7fcf6567"></script>
   <script src="js/core/chalkplot.js?v=9841ae1b"></script>
   <script src="js/core/statmath.js?v=ff0bdb74"></script>
@@ -81,8 +83,8 @@
   <script src="js/widgets/chisq-calc.js?v=17136973"></script>
   <script src="js/widgets/corr-calc.js?v=25c74ed3"></script>
   <!-- content: all lesson JSON bundled so the page works opened straight from disk (rebuild with: python3 build-content.py) -->
-  <script src="content/content-bundle.js?v=5d1734d0"></script>
+  <script src="content/content-bundle.js?v=6167c4ef"></script>
   <!-- app -->
-  <script src="js/app.js?v=516749c4"></script>
+  <script src="js/app.js?v=e53f17a4"></script>
 </body>
 </html>

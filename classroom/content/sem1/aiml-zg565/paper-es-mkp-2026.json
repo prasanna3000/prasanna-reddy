@@ -1,0 +1,417 @@
+{
+  "id": "p-es-mkp-2026",
+  "title": "EC-3 Makeup · Comprehensive · Mar 2026",
+  "subtitle": "AIMLCZG565 / DSECLZG565 · open book · 40% · 2 hours · 40 marks",
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "The newest makeup paper. Almost every question is a numerical you can finish in 10–15 minutes if you have practised the method. About 30% is pre-mid (Ridge, kNN/LWR, tree overfitting).",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Marks",
+            "Revise in",
+            "Pre/post-mid"
+          ],
+          "rows": [
+            [
+              "1",
+              "Ridge: effect of λ, no feature selection",
+              "4",
+              "CS 3",
+              "Pre"
+            ],
+            [
+              "2",
+              "Gaussian Naive Bayes (hours + gender)",
+              "5",
+              "CS 10–11",
+              "Post"
+            ],
+            [
+              "3",
+              "kNN regression and locally weighted regression (1 GD step)",
+              "6",
+              "CS 7",
+              "Post"
+            ],
+            [
+              "4",
+              "Bagging vs AdaBoost vs Random Forest; majority vote",
+              "6",
+              "CS 12–13",
+              "Post"
+            ],
+            [
+              "5",
+              "GMM E-step, log-likelihood, M-step; vs K-means",
+              "6",
+              "CS 14",
+              "Post"
+            ],
+            [
+              "6",
+              "Gradient boosting regression, one round",
+              "3",
+              "CS 12–13",
+              "Post"
+            ],
+            [
+              "7",
+              "Linear SVM from two support vectors",
+              "8",
+              "CS 9",
+              "Post"
+            ],
+            [
+              "8",
+              "Decision-tree overfitting and stopping rules",
+              "2",
+              "CS 6",
+              "Post"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Pre-mid vs post-mid weightage"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Pre-mid marks",
+            "Post-mid marks",
+            "Split (pre / post)"
+          ],
+          "rows": [
+            [
+              "4",
+              "36",
+              "**10% / 90%**"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Pre-mid vs post-mid",
+          "text": "Pre-mid = everything up to **information gain in decision trees**. Everything after that, including decision-tree overfitting, kNN and LWR, is post-mid. Across all four papers (160 marks) the split is **15% / 85%**."
+        },
+        {
+          "type": "note",
+          "label": "How to use this paper",
+          "text": "Open **Worked problems** and try each question on paper before revealing the steps."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · Ridge regression and λ (4 marks)",
+      "tags": [
+        "CS 3"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "120 correlated features, 8,000 samples, unstable validation error. Ridge with (1) λ = 0, (2) λ = 0.01, (3) λ = 10⁴. (a) Coefficients and bias–variance in each case. (b) Why are all coefficients still non-zero at λ = 10⁴?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "λ = 0",
+          "text": "Plain least squares. Coefficients can be **large and unstable** with correlated features. **Low bias, high variance**: overfitting risk."
+        },
+        {
+          "label": "λ = 0.01",
+          "text": "Mild shrinkage. Correlated features share weight more evenly. **Balanced** bias and variance: usually the best generalisation."
+        },
+        {
+          "label": "λ = 10⁴",
+          "text": "The penalty dominates, so all coefficients are squeezed close to 0. **High bias, low variance**: underfits, predictions nearly constant."
+        },
+        {
+          "label": "(b)",
+          "text": "Ridge uses the **L2 penalty** λΣβⱼ². Its gradient 2λβⱼ shrinks a coefficient in proportion to its size, so it gets ever smaller but never exactly zero. Exact zeros (feature selection) need the **L1 penalty** (Lasso)."
+        }
+      ],
+      "answer": "λ = 0 overfits; 0.01 balanced; 10⁴ underfits; L2 shrinks but never zeroes."
+    },
+    {
+      "title": "Q2 · Gaussian Naive Bayes (5 marks)",
+      "tags": [
+        "CS 10–11"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Hours / Gender / Result: 4.5 M Pass, 7 F Pass, 2 M Fail, 4 F Fail, 2.5 M Fail, 3 F Fail, 8.3 M Fail, 8 F Pass, 9 M Pass. Classify hours = 3.5, gender = Male."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Priors",
+          "text": "4 Pass, 5 Fail ⇒ P(Pass) = 4/9, P(Fail) = 5/9."
+        },
+        {
+          "label": "Pass hours",
+          "text": "4.5, 7, 8, 9: μ = 7.125, σ² = 2.797 (divide by n)."
+        },
+        {
+          "label": "Fail hours",
+          "text": "2, 4, 2.5, 3, 8.3: μ = 3.96, σ² = 5.146."
+        },
+        {
+          "label": "Gaussian likelihoods",
+          "text": "P(3.5|Pass) = N(3.5; 7.125, 2.797) = **0.0228**. P(3.5|Fail) = N(3.5; 3.96, 5.146) = **0.1723**."
+        },
+        {
+          "label": "Gender",
+          "text": "P(M|Pass) = 2/4 = 0.5; P(M|Fail) = 3/5 = 0.6."
+        },
+        {
+          "label": "Posteriors",
+          "text": "Pass: 4/9 × 0.0228 × 0.5 = **0.00506**. Fail: 5/9 × 0.1723 × 0.6 = **0.0574** ⇒ **Fail**."
+        },
+        {
+          "label": "Check",
+          "text": "With the sample variance (divide by n − 1) the scores are 0.0079 and 0.0516: still Fail. State your choice as an assumption."
+        }
+      ],
+      "answer": "Fail (0.0574 vs 0.0051)."
+    },
+    {
+      "title": "Q3 · kNN regression and locally weighted regression (6 marks)",
+      "tags": [
+        "CS 7"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Training (Size, Warranty, Price): P0 (4,6,6.0), P1 (6,12,7.5), P2 (7,24,12.0), P3 (8,6,8.0), P4 (10,12,9.0), P5 (12,24,11.0), P6 (5,24,10.5), P7 (9,18,10.0). Query Q = (7, 18). Min–max normalise, Euclidean distance. (a) 4-NN mean. (b) Kernel K(d) = exp(−d²/(2b²)), b = 2; start w = (1.5, 0.8, 0.4), α = 0.1; one GD step on the 4 neighbours; predict Q. (c) Why do they differ?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Normalise",
+          "text": "Size: (s − 4)/8. Warranty: (w − 6)/18. Q → (0.375, 0.667)."
+        },
+        {
+          "label": "Nearest 4",
+          "text": "P7 d = 0.250, P2 d = 0.333, P1 d = 0.356, P6 d = 0.417. Next is P4 at 0.502."
+        },
+        {
+          "label": "(a)",
+          "text": "(10 + 12 + 7.5 + 10.5)/4 = **10.0**"
+        },
+        {
+          "label": "(b) Kernel",
+          "text": "K = 0.9922, 0.9862, 0.9843, 0.9785. All close to 1 because b = 2 is wide compared with these distances."
+        },
+        {
+          "label": "(b) Errors",
+          "text": "ŷ = w₀ + w₁x₁ + w₂x₂ at the start: P7 2.267, P2 2.200, P1 1.833, P6 2.000. Errors e = y − ŷ: 7.733, 9.800, 5.667, 8.500."
+        },
+        {
+          "label": "(b) Sums",
+          "text": "ΣKe = 31.233, ΣKe·x₁ = 10.854, ΣKe·x₂ = 24.957"
+        },
+        {
+          "label": "(b) Update",
+          "text": "w ← w + α·Σ K·e·x: w₀ = 1.5 + 3.123 = **4.623**, w₁ = 0.8 + 1.085 = **1.885**, w₂ = 0.4 + 2.496 = **2.896**."
+        },
+        {
+          "label": "(b) Predict",
+          "text": "ŷ(Q) = 4.623 + 1.885·0.375 + 2.896·0.667 ≈ **7.26** (it was 2.07 before the step)."
+        },
+        {
+          "label": "(c)",
+          "text": "kNN takes a flat average of the neighbours. LWR fits a weighted local **linear** model, and after only one GD step from a poor start it has not converged yet, so its estimate is still far below the neighbours' prices."
+        }
+      ],
+      "answer": "4-NN: 10.0. LWR: w = (4.623, 1.885, 2.896), ŷ(Q) ≈ 7.26."
+    },
+    {
+      "title": "Q4 · Bagging, Random Forest, AdaBoost (6 marks)",
+      "tags": [
+        "CS 12–13"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Churn data, 20,000 rows, 30 features. (a) How do Bagging and AdaBoost create diverse learners? (b) What extra randomness does Random Forest add, and why does it help? (c) Three independent classifiers, each 70% accurate, combined by majority vote: ensemble accuracy?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Bagging",
+          "text": "Each tree is trained on a different **bootstrap sample** (drawn with replacement), independently and in parallel. Diversity comes from **data-sampling randomness**."
+        },
+        {
+          "label": "(a) AdaBoost",
+          "text": "Learners are trained **one after another**. Misclassified samples get higher weight, so each new learner focuses on earlier mistakes. Diversity is **error-driven**."
+        },
+        {
+          "label": "(b)",
+          "text": "At **each split** Random Forest looks at only a random subset of features (about √30 ≈ 5). A dominant feature can no longer be the top split in every tree, so the trees become **less correlated**, and averaging less-correlated trees reduces variance more."
+        },
+        {
+          "label": "(c) Compute",
+          "text": "Correct if at least 2 of 3 are correct: P(3) = 0.7³ = 0.343; P(2) = 3 × 0.7² × 0.3 = 0.441. Total = **0.784**."
+        },
+        {
+          "label": "(c) Compare",
+          "text": "78.4% > 70%: the ensemble is **8.4 percentage points** better."
+        }
+      ],
+      "answer": "Bootstrap vs error-driven; RF adds random feature subsets; majority vote 0.784."
+    },
+    {
+      "title": "Q5 · GMM, one EM step (6 marks)",
+      "tags": [
+        "CS 14",
+        "GMM / EM"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "X = {−4, −2, 0, 3}. Two components: π = (0.6, 0.4), μ = (−3, 2), σ² = (1, 1). (a) E-step responsibilities. (b) Log-likelihood at iteration 0. (c) M-step. (d) One K-means step from centroids −3, 2: compare and explain."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) E-step",
+          "text": "γᵢ₁ = π₁N(xᵢ|μ₁) / Σₖ πₖN(xᵢ|μₖ). x = −4: (1.000, 0.000). x = −2: (0.9996, 0.0004). x = 0: (**0.1096, 0.8904**). x = 3: (0.000, 1.000)."
+        },
+        {
+          "label": "(a) Why x = 0",
+          "text": "0 is 3 from μ₁ but only 2 from μ₂: exp(−4.5) × 0.6 vs exp(−2) × 0.4, so component 2 takes about 89%."
+        },
+        {
+          "label": "(b)",
+          "text": "log p(X) = Σᵢ log(Σₖ πₖN(xᵢ)) ≈ **−9.914**"
+        },
+        {
+          "label": "(c) N and π",
+          "text": "N₁ = 2.109, N₂ = 1.891 ⇒ π₁ = **0.527**, π₂ = **0.473**."
+        },
+        {
+          "label": "(c) Means",
+          "text": "μ₁ = Σγᵢ₁xᵢ/N₁ = **−2.844**; μ₂ = **1.586**."
+        },
+        {
+          "label": "(c) Variances",
+          "text": "σ₁² = Σγᵢ₁(xᵢ − μ₁)²/N₁ = **1.392**; σ₂² = **2.245**."
+        },
+        {
+          "label": "(d) K-means",
+          "text": "{−4, −2} → centroid **−3**; {0, 3} → centroid **1.5**."
+        },
+        {
+          "label": "(d) Why different",
+          "text": "K-means gives hard assignments and ignores spread. GMM gives x = 0 a partial share (11%) to component 1 and also models variance, so its means come out as −2.844 and 1.586."
+        }
+      ],
+      "answer": "γ(0) = (0.11, 0.89); log L ≈ −9.91; π = (0.527, 0.473), μ = (−2.844, 1.586), σ² = (1.392, 2.245); K-means −3 and 1.5."
+    },
+    {
+      "title": "Q6 · Gradient boosting, one round (3 marks)",
+      "tags": [
+        "CS 12–13"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Delivery times y: J1 34 (High, 3 km), J2 52 (High, 6), J3 28 (Low, 4), J4 46 (Low, 8), J5 40 (High, 5). F₀ = mean(y), squared loss, η = 0.2. Tree: Low → L_A; High and distance ≤ 4 → L_B; else L_C. Each leaf = mean residual. (a) F₀ and residuals. (b) Leaf values. (c) F₁ and the new residual for J2."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "F₀ = 200/5 = **40**. Residuals y − 40: J1 −6, J2 +12, J3 −12, J4 +6, J5 0."
+        },
+        {
+          "label": "(b)",
+          "text": "L_A (J3, J4): (−12 + 6)/2 = **−3**. L_B (J1): **−6**. L_C (J2, J5): (12 + 0)/2 = **6**."
+        },
+        {
+          "label": "(c)",
+          "text": "J2 is High, 6 km ⇒ L_C. F₁(J2) = 40 + 0.2 × 6 = **41.2**. New residual = 52 − 41.2 = **10.8**."
+        }
+      ],
+      "answer": "F₀ = 40; leaves −3, −6, 6; F₁(J2) = 41.2, residual 10.8."
+    },
+    {
+      "title": "Q7 · Linear SVM from two support vectors (8 marks)",
+      "tags": [
+        "CS 9"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "P1 (1,4) +1, P2 (2,3) +1, P3 (4,1) −1, P4 (5,2) −1. Assume only P2 and P3 are support vectors. (a) Hyperplane by geometry. (b) Canonical w and b, and f(x). (c) Which αᵢ identify support vectors? (d) ‖w‖ and the margin. (e) Why can kernel SVMs be expensive?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "The boundary is the perpendicular bisector of P2–P3. Midpoint (3,2); P3 − P2 = (2,−2), so the normal is ∝ (1,−1). Boundary: x₁ − x₂ − 1 = 0, i.e. **x₂ = x₁ − 1**."
+        },
+        {
+          "label": "(b) Scale",
+          "text": "w = k(1,−1), b = −k. P2 is class **+1**, so we need f(P2) = k(2 − 3 − 1) = −2k = +1 ⇒ k = −½."
+        },
+        {
+          "label": "(b) Answer",
+          "text": "**w = (−0.5, 0.5), b = 0.5**, so f(x) = −0.5x₁ + 0.5x₂ + 0.5. Check: f(P2) = +1, f(P3) = −1, f(P1) = 2, f(P4) = −1. Always plug a support vector back in to check the sign: (0.5, −0.5), −0.5 is the same line but with both classes flipped."
+        },
+        {
+          "label": "Side note",
+          "text": "f(P4) = −1 exactly, so P4 also lies on the margin line. The question tells you to assume only P2 and P3 have αᵢ > 0, which is allowed (α₄ = 0), but it is worth noticing."
+        },
+        {
+          "label": "(c)",
+          "text": "A point is a support vector when its **αᵢ > 0**. Since w = Σαᵢyᵢxᵢ, points with αᵢ = 0 add nothing, so only P2 and P3 shape the classifier."
+        },
+        {
+          "label": "(d)",
+          "text": "‖w‖ = √(0.25 + 0.25) = **0.707**; margin width 2/‖w‖ = **2.83** (= √8, the P2–P3 distance). A wider margin means more robustness to noise and better generalisation."
+        },
+        {
+          "label": "(e)",
+          "text": "Kernel SVMs need the **n × n kernel matrix**: time and memory grow with the square of the number of samples. (Also note that sin(xᵀz) is not a valid kernel, since it is not positive semi-definite.)"
+        }
+      ],
+      "answer": "x₂ = x₁ − 1; w = (−0.5, 0.5), b = 0.5; ‖w‖ = 0.707, margin 2.83."
+    },
+    {
+      "title": "Q8 · Decision-tree overfitting (2 marks)",
+      "tags": [
+        "CS 6"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Model A: unlimited depth, leaves can hold 1 sample: 99% train, 71% test. Model B: depth ≤ 4, at least 25 samples per leaf: 86% train, 83% test. (a) Which overfits? (b) Why does the other do well? (c) How do stopping rules affect complexity and generalisation?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "**Model A**: very high training accuracy with a big drop on test data."
+        },
+        {
+          "label": "(b)",
+          "text": "Model B's limits on depth and leaf size keep the tree simple, so it cannot memorise noise."
+        },
+        {
+          "label": "(c)",
+          "text": "Deeper trees with tiny leaves = more complex = **higher variance** and worse generalisation. Stopping rules (max depth, min samples per leaf) act like pre-pruning: a bit more bias, much less variance."
+        }
+      ],
+      "answer": "Model A overfits; stopping rules limit complexity."
+    }
+  ]
+}

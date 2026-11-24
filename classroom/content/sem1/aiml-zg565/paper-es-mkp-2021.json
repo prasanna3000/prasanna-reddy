@@ -1,0 +1,361 @@
+{
+  "id": "p-es-mkp-2021",
+  "title": "EC-3 Makeup · End-Semester · 2022",
+  "subtitle": "DSECLZG565 (2021 batch) · open book · 40% · 2 hours · 40 marks",
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "An older paper from a different batch. About a third of it is pre-mid (regression and information gain), more than the newer papers.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Marks",
+            "Revise in",
+            "Pre/post-mid"
+          ],
+          "rows": [
+            [
+              "1",
+              "kNN with k = 3, 5, 7",
+              "5",
+              "CS 7",
+              "Post"
+            ],
+            [
+              "2",
+              "Non-linear SVM with a 1-D kernel trick",
+              "5",
+              "CS 9",
+              "Post"
+            ],
+            [
+              "3",
+              "Regression through the origin: error curve and prediction",
+              "7",
+              "CS 3",
+              "Pre"
+            ],
+            [
+              "4",
+              "Information gain with a corrupted bit",
+              "7",
+              "CS 6",
+              "Pre"
+            ],
+            [
+              "5",
+              "MLE for a 4-sided die",
+              "3",
+              "CS 10",
+              "Post"
+            ],
+            [
+              "6",
+              "Linear SVM: support vectors and what-ifs",
+              "5",
+              "CS 9",
+              "Post"
+            ],
+            [
+              "7",
+              "AdaBoost with decision stumps",
+              "3",
+              "CS 12–13",
+              "Post"
+            ],
+            [
+              "8",
+              "K-means with an outlier",
+              "5",
+              "CS 14",
+              "Post"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Pre-mid vs post-mid weightage"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Pre-mid marks",
+            "Post-mid marks",
+            "Split (pre / post)"
+          ],
+          "rows": [
+            [
+              "14",
+              "26",
+              "**35% / 65%**"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Pre-mid vs post-mid",
+          "text": "Pre-mid = everything up to **information gain in decision trees**. Everything after that, including decision-tree overfitting, kNN and LWR, is post-mid. Across all four papers (160 marks) the split is **15% / 85%**."
+        },
+        {
+          "type": "note",
+          "label": "How to use this paper",
+          "text": "Open **Worked problems** and try each question on paper before revealing the steps."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · kNN with three values of k (5 marks)",
+      "tags": [
+        "CS 7"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Training points: X1 (−1,1) −, X2 (0,1) +, X3 (0,2) −, X4 (1,−1) −, X5 (1,0) +, X6 (1,2) +, X7 (2,2) −, X8 (2,3) +. Classify (1,1) with k = 7, then k = 3 and k = 5. What is the final class over all three?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Distances to (1,1)",
+          "text": "X2, X5, X6: **1** (all +). X3, X7: **√2 ≈ 1.414** (both −). X1, X4: **2** (both −). X8: √5 ≈ 2.236 (+)."
+        },
+        {
+          "label": "k = 3",
+          "text": "X2, X5, X6 → 3 + ⇒ **Positive**"
+        },
+        {
+          "label": "k = 5",
+          "text": "Add X3, X7 → 3 +, 2 − ⇒ **Positive**"
+        },
+        {
+          "label": "k = 7",
+          "text": "Add X1, X4 → 3 +, 4 − ⇒ **Negative**"
+        },
+        {
+          "label": "Final",
+          "text": "Two of the three k values say + ⇒ **Positive**."
+        }
+      ],
+      "answer": "k=3: +, k=5: +, k=7: −; overall Positive."
+    },
+    {
+      "title": "Q2 · Kernel trick in 1-D (5 marks)",
+      "tags": [
+        "CS 9"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Positive: x = 7, 9, 11. Negative: x = 0, 8, 10, 12 (on the x-axis). Find a separating hyperplane using the kernel trick and plot before and after."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Before",
+          "text": "In order: 0 −, 7 +, 8 −, 9 +, 10 −, 11 +, 12 −. The labels alternate, so the data is **not linearly separable** on the line."
+        },
+        {
+          "label": "Transform",
+          "text": "φ(x) = x mod 2: positives (odd) → 1, negatives (even) → 0."
+        },
+        {
+          "label": "Hyperplane",
+          "text": "**y = 0.5** separates the two levels with maximum margin."
+        }
+      ],
+      "answer": "φ(x) = x mod 2; hyperplane y = 0.5."
+    },
+    {
+      "title": "Q3 · Regression through the origin (7 marks)",
+      "tags": [
+        "CS 3"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Data (x, y): (1,3), (1,2), (2,1), (3,3), (5,3), (7,7), (6,4), (7,6), (6,7), (4,5). Model y = wx. (A) Compute E(w) = Σ(y − wx)² for w = −1, −0.4, −0.2, 0, 0.2, 0.4, 1 and mark the global minimum. (B) Give the best hypothesis and predict y at x = 7.6."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Expand",
+          "text": "E(w) = Σy² − 2wΣxy + w²Σx²"
+        },
+        {
+          "label": "Sums",
+          "text": "Σy² = **207**, Σxy = **208**, Σx² = **226** ⇒ E(w) = 207 − 416w + 226w²"
+        },
+        {
+          "label": "Table",
+          "text": "E(−1) = 849, E(−0.4) = 409.56, E(−0.2) = 299.24, E(0) = 207, E(0.2) = 132.84, E(0.4) = 76.76, E(1) = 17. Plot them: an upward parabola."
+        },
+        {
+          "label": "Minimum",
+          "text": "dE/dw = −416 + 452w = 0 ⇒ w* = 208/226 = **0.920**; E(w*) = 207 − 208²/226 ≈ **15.57**."
+        },
+        {
+          "label": "(B)",
+          "text": "Best hypothesis h(x) = 0.920x. At x = 7.6: **ŷ ≈ 6.99 ≈ 7**."
+        }
+      ],
+      "answer": "E(w) = 207 − 416w + 226w²; w* ≈ 0.92, E ≈ 15.57; ŷ(7.6) ≈ 7."
+    },
+    {
+      "title": "Q4 · Information gain with a corrupted bit (7 marks)",
+      "tags": [
+        "CS 6"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A, B ∈ {0,1}, label Y. Rows: (1,0,no), (1,1,no), (0,*,no), (0,1,yes), (0,1,yes), (1,1,yes). On the clean data, B was chosen at the root over A by information gain. Can you tell what * was?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Entropy(S)",
+          "text": "3 yes, 3 no ⇒ **1**"
+        },
+        {
+          "label": "Gain(A)",
+          "text": "A=1: {no, no, yes} → 0.918. A=0: {no, yes, yes} → 0.918. Gain(A) = 1 − 0.918 = **0.082**."
+        },
+        {
+          "label": "Gain(B), * = 1",
+          "text": "B=0: {no} → 0. B=1: 5 rows {no, no, yes, yes, yes} → 0.971. Weighted 5/6·0.971 = 0.809 ⇒ Gain = **0.191**."
+        },
+        {
+          "label": "Gain(B), * = 0",
+          "text": "B=0: {no, no} → 0. B=1: {no, yes, yes, yes} → 0.811. Weighted 4/6·0.811 = 0.541 ⇒ Gain = **0.459**."
+        },
+        {
+          "label": "Conclusion",
+          "text": "Either way Gain(B) > Gain(A), so B would be at the root whatever * is. The information is **not enough** to recover *."
+        }
+      ],
+      "answer": "Gain(A) = 0.082 < Gain(B) (0.191 or 0.459): * cannot be determined."
+    },
+    {
+      "title": "Q5 · MLE for a 4-sided die (3 marks)",
+      "tags": [
+        "CS 10",
+        "MLE"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "P(0) = a, P(1) = (1−a)/3, P(2) = (1−a)/2, P(3) = (1−a)/6. Observed rolls: 0, 1, 2, 3, 2, 3, 1, 0. Find the most probable a."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Likelihood",
+          "text": "Two 0s give a²; the six other rolls each give a constant × (1−a). L(a) ∝ **a²(1−a)⁶**."
+        },
+        {
+          "label": "Log and differentiate",
+          "text": "log L = 2 log a + 6 log(1−a) + const ⇒ 2/a − 6/(1−a) = 0"
+        },
+        {
+          "label": "Solve",
+          "text": "2(1−a) = 6a ⇒ **a = 1/4**"
+        }
+      ],
+      "answer": "a = 0.25."
+    },
+    {
+      "title": "Q6 · Linear SVM: what-ifs (5 marks)",
+      "tags": [
+        "CS 9"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Positive: (3,2), (4,3), (2,3), (3,−1). Negative: (1,0), (−1,−1), (0,2), (−1,2). (A) Find the support vectors. (B) Does the hyperplane change if (a) (2,3) is removed, (b) (−2,−3) is added?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(A)",
+          "text": "Support vectors: **(2,3), (3,−1)** and **(1,0)**. They give w = (8/7, 2/7), b = −15/7, i.e. 8x₁ + 2x₂ − 15 = 0. (Same data as Q6 of the 2021 regular paper, where the full working is shown.)"
+        },
+        {
+          "label": "(B)(a)",
+          "text": "(2,3) is a support vector, so the hyperplane **changes**. New SVs (3,2), (3,−1), (1,0) give w = (1,0), b = −2: the new boundary is **x₁ = 2**."
+        },
+        {
+          "label": "(B)(b)",
+          "text": "f(−2,−3) = (−16 − 6 − 15)/7 = −37/7 < −1: correct side and outside the margin, so it is not a support vector and the hyperplane **does not change**."
+        }
+      ],
+      "answer": "SVs (2,3), (3,−1), (1,0); without (2,3) the boundary becomes x₁ = 2; adding (−2,−3) changes nothing."
+    },
+    {
+      "title": "Q7 · AdaBoost with stumps (3 marks)",
+      "tags": [
+        "CS 12–13"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Picture: two − at the top left, three + in the lower middle, two − on the right. Train AdaBoost with stumps until zero training error, circling the points whose weights increase."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Round 1",
+          "text": "Vertical stump: left of the right-hand − points ⇒ +, right ⇒ −. Misclassified: the **two top −** (circle them)."
+        },
+        {
+          "label": "Round 2",
+          "text": "Horizontal stump: above the + points ⇒ −, below ⇒ +. Misclassified: the **two right −** (circle them)."
+        },
+        {
+          "label": "After round 2",
+          "text": "The + points are exactly where both stumps say +, so together the two stumps carve out the + region: **2 iterations**."
+        },
+        {
+          "label": "Strict α-weighted vote",
+          "text": "If the final classifier is the α-weighted sum of the stumps, two stumps with different α cannot give zero error here: the larger α wins on one of the − groups. A third stump (e.g. y below the upper + level ⇒ +, else −, which misclassifies only the two upper + points) then gives zero training error."
+        }
+      ],
+      "answer": "2 iterations (the two stumps carve out the + region); 3 with a strict α-weighted vote."
+    },
+    {
+      "title": "Q8 · K-means with an outlier (5 marks)",
+      "tags": [
+        "CS 14"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Points (−R,0), (−R+1,0), …, (0,0), …, (R,0) and an outlier (10R,0). Two clusters; one centre starts at (0,0). Where should the other start so that one cluster gets every point and the other none? Where do the centres end up?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Condition",
+          "text": "Every point must be closer to (0,0) than to (X,0). For the outlier: |X − 10R| > 10R ⇒ X > 20R or X < 0. For (−R,0): |X + R| > R ⇒ X > 0 or X < −2R. Together: **X > 20R or X < −2R**."
+        },
+        {
+          "label": "Iteration 1",
+          "text": "All 2R + 2 points go to the first centre. The second centre gets nothing and stays at (X,0)."
+        },
+        {
+          "label": "New first centre",
+          "text": "Mean = (0 + 10R)/(2R + 2) = **(5R/(R+1), 0)**. The points from −R to R sum to 0, so only the outlier moves it."
+        },
+        {
+          "label": "Final",
+          "text": "Centres **(5R/(R+1), 0)** and **(X, 0)**. For X > 20R nothing changes again. For X just below −2R, check that (−R,0) is still closer to the new first centre: this needs X < −(2R + 5R/(R+1))."
+        }
+      ],
+      "answer": "X > 20R or X < −2R; final centres (5R/(R+1), 0) and (X, 0)."
+    }
+  ]
+}

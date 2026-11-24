@@ -1,0 +1,351 @@
+{
+  "id": "p-es-reg-2026",
+  "title": "EC-3 Regular · Comprehensive · Mar 2026",
+  "subtitle": "AIMLCZG565 / DSECLZG565 · open book · 40% · 2 hours · 40 marks",
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "The newest style: case-study wording around short numericals. About 30% is pre-mid (Lasso, linear/logistic/tree, kNN), the rest is post-mid. Expect the same on 6 Dec 2026.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Marks",
+            "Revise in",
+            "Pre/post-mid"
+          ],
+          "rows": [
+            [
+              "1",
+              "Lasso vs ensemble for a regulated bank",
+              "3",
+              "CS 3, CS 12–13",
+              "Pre"
+            ],
+            [
+              "2",
+              "Distance-weighted kNN with Gower distance",
+              "6",
+              "CS 7",
+              "Post"
+            ],
+            [
+              "3",
+              "AdaBoost: error, learner weight, sample weights",
+              "8",
+              "CS 12–13",
+              "Post"
+            ],
+            [
+              "4",
+              "Multinomial Naive Bayes with Laplace smoothing",
+              "6",
+              "CS 10–11",
+              "Post"
+            ],
+            [
+              "5",
+              "SVM: C, degree, f(x), margin, soft margin",
+              "8",
+              "CS 9",
+              "Post"
+            ],
+            [
+              "6",
+              "K-means iteration, K-means vs GMM",
+              "6",
+              "CS 14",
+              "Post"
+            ],
+            [
+              "7",
+              "Linear vs logistic regression vs decision tree",
+              "3",
+              "CS 3–6",
+              "Pre"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Pre-mid vs post-mid weightage"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Pre-mid marks",
+            "Post-mid marks",
+            "Split (pre / post)"
+          ],
+          "rows": [
+            [
+              "6",
+              "34",
+              "**15% / 85%**"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Pre-mid vs post-mid",
+          "text": "Pre-mid = everything up to **information gain in decision trees**. Everything after that, including decision-tree overfitting, kNN and LWR, is post-mid. Across all four papers (160 marks) the split is **15% / 85%**."
+        },
+        {
+          "type": "note",
+          "label": "How to use this paper",
+          "text": "Open **Worked problems** and try each question on paper before revealing the steps."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · Lasso or ensemble? (3 marks)",
+      "tags": [
+        "CS 3",
+        "CS 12–13"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Predict default risk (0–1). 60,000 samples, 500 features, only 10–15 truly matter, many correlated. Regulators require an auditable model with explainable feature contributions. Lasso RMSE 0.081; Random Forest / Gradient Boosting RMSE 0.062. (a) Which model? (b) Two disadvantages of the ensemble here."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Choose Lasso",
+          "text": "**Lasso (L1) regression**: it sets irrelevant coefficients exactly to zero, which suits \"only 10–15 features matter\". Its single linear equation is auditable and each coefficient shows a feature's contribution."
+        },
+        {
+          "label": "(b) Disadvantage 1",
+          "text": "**Low interpretability**: hundreds of trees, no single equation, so it is hard to trace why a client got a score."
+        },
+        {
+          "label": "(b) Disadvantage 2",
+          "text": "**Poor auditability / regulatory risk**: hard to justify decisions to the regulator or check fairness rules. Feature importances are approximate, not exact contributions."
+        }
+      ],
+      "answer": "Lasso; the ensemble is hard to interpret and hard to audit."
+    },
+    {
+      "title": "Q2 · Weighted kNN with mixed attributes (6 marks)",
+      "tags": [
+        "CS 7"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Training: A0 (35, 40k, Salaried, Tier-3, R2), A1 (45, 70k, Salaried, Tier-2, R2), A2 (30, 38k, Self-Emp, Tier-3, R1), A3 (50, 90k, Salaried, Tier-1, R2), A4 (28, 42k, Self-Emp, Tier-2, R1). Query Q = (32, 41k, Self-Emp, Tier-3). Weight = 1/d², all points used. (a) Distance, scores and class. (b) Why does R1 win with fewer samples? (c) Redo with City Tier as nominal."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Distance",
+          "text": "Mixed numeric, nominal and ordinal attributes ⇒ **Gower distance**: the average of per-attribute distances, each in [0,1]."
+        },
+        {
+          "label": "Per attribute",
+          "text": "Age: |Δ|/22 (range 28–50). Spend: |Δ|/52k (range 38k–90k). Employment: 0 if same, else 1. City Tier (ordinal, 3 levels): |rank difference|/2."
+        },
+        {
+          "label": "Distances",
+          "text": "A2: (0.0909 + 0.0577 + 0 + 0)/4 = **0.0372**. A4: (0.1818 + 0.0192 + 0 + 0.5)/4 = **0.1753**. A0: (0.1364 + 0.0192 + 1 + 0)/4 = **0.2889**. A1: (0.5909 + 0.5577 + 1 + 0.5)/4 = **0.6622**. A3: (0.8182 + 0.9423 + 1 + 1)/4 = **0.9401**."
+        },
+        {
+          "label": "Weights 1/d²",
+          "text": "A2 724.56, A4 32.56, A0 11.98, A1 2.28, A3 1.13."
+        },
+        {
+          "label": "Scores",
+          "text": "R1 = 724.56 + 32.56 = **757.12**; R2 = 11.98 + 2.28 + 1.13 = **15.39** ⇒ predict **R1**."
+        },
+        {
+          "label": "(b)",
+          "text": "Weighting uses similarity, not counts. A2 is extremely close (d ≈ 0.037), and 1/d² turns that into a huge weight that outvotes all three R2 points."
+        },
+        {
+          "label": "(c) Nominal tier",
+          "text": "Tier mismatch now costs 1 instead of 0.5. A4: d = 0.3003, weight 11.09. A1: d = 0.7872, weight 1.61. Others unchanged."
+        },
+        {
+          "label": "(c) New scores",
+          "text": "R1 = 724.56 + 11.09 = **735.65**; R2 = 11.98 + 1.61 + 1.13 = 14.72. Still **R1**. The R1 score drops by 757.12 − 735.65 = **21.47**."
+        }
+      ],
+      "answer": "Gower distance; R1 (757.12 vs 15.39); still R1 with nominal tier, R1 score lower by 21.47."
+    },
+    {
+      "title": "Q3 · AdaBoost at iteration 3 (8 marks)",
+      "tags": [
+        "CS 12–13"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Weights 0.1, 0.3, 0.15, 0.45; true labels +1, +1, −1, −1; h₃ predicts +1, −1, −1, −1. (a) Misclassified samples. (b) ε₃. (c) α₃ = ½ ln((1−ε)/ε). (d) Which sample has the highest weight, and what does that say? (e) One advantage and one disadvantage of AdaBoost vs a single tree."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "Only **sample 2** (true +1, predicted −1)."
+        },
+        {
+          "label": "(b)",
+          "text": "ε₃ = w₂ = **0.3**"
+        },
+        {
+          "label": "(c)",
+          "text": "α₃ = ½ ln(0.7/0.3) = ½ ln 2.333 = ½ × 0.847 ≈ **0.424**"
+        },
+        {
+          "label": "(d)",
+          "text": "**Sample 4** (0.45). It was probably misclassified in earlier rounds, so its weight kept growing. AdaBoost deliberately focuses later learners on the hard examples."
+        },
+        {
+          "label": "(e)",
+          "text": "Advantage: higher accuracy, because many weak learners together reduce bias. Disadvantage: **sensitive to noise and outliers**, since it keeps raising the weight of points that may just be mislabelled, which can lead to overfitting."
+        }
+      ],
+      "answer": "Sample 2; ε₃ = 0.3; α₃ ≈ 0.424; sample 4 shows the focus on hard examples."
+    },
+    {
+      "title": "Q4 · Multinomial Naive Bayes (6 marks)",
+      "tags": [
+        "CS 10–11"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Vocabulary {delay, refund, order, price}. Complaint (C) counts 8, 6, 2, 1 (total 17); Inquiry (I) counts 1, 1, 6, 7 (total 15); 5 emails each. Classify \"delay refund refund\" with Laplace smoothing α = 1."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Priors",
+          "text": "P(C) = P(I) = 5/10 = **0.5**"
+        },
+        {
+          "label": "(b) Smoothing",
+          "text": "P(w|y) = (count + 1)/(total + |V|), with |V| = 4."
+        },
+        {
+          "label": "(b) Class C",
+          "text": "P(delay|C) = 9/21 = 0.429; P(refund|C) = 7/21 = 0.333"
+        },
+        {
+          "label": "(b) Class I",
+          "text": "P(delay|I) = 2/19 = 0.105; P(refund|I) = 2/19 = 0.105"
+        },
+        {
+          "label": "(c) Posteriors",
+          "text": "C: 0.5 × 0.429 × 0.333² ≈ **0.0238**. I: 0.5 × 0.105³ ≈ **0.00058**. Refund appears twice, so it is squared."
+        },
+        {
+          "label": "(c) Class",
+          "text": "**Complaint**"
+        }
+      ],
+      "answer": "Complaint (0.0238 vs 0.00058)."
+    },
+    {
+      "title": "Q5 · SVM for loan default (8 marks)",
+      "tags": [
+        "CS 9"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Model A: linear SVM, C = 0.1, 85% train / 84% test. Model B: polynomial kernel, C = 100, degree 6, 98% train / 72% test. (a) Which overfits? What do C and degree do? What does this say about separability? (b) w = (0.5, −0.3), b = 0.2, x = (2, 1): compute f(x) and classify. (c) Geometric margin, and what a larger margin means. (d) Why soft margin?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Overfitting",
+          "text": "**Model B**: 98% train vs 72% test means it memorised the training data."
+        },
+        {
+          "label": "(a) C and degree",
+          "text": "**C** is the penalty for margin violations. A large C (100) forces almost every training point to be classified correctly, including noise, so the boundary becomes complicated. **Degree** sets how wiggly the polynomial boundary can be, and degree 6 is very flexible."
+        },
+        {
+          "label": "(a) Separability",
+          "text": "Model A's close train/test scores suggest the data is roughly **linearly separable with some overlap**. Model B's extra flexibility only fits noise."
+        },
+        {
+          "label": "(b)",
+          "text": "wᵀx = 0.5·2 − 0.3·1 = 0.7; f(x) = 0.7 + 0.2 = **0.9 > 0** ⇒ **default** (positive class)."
+        },
+        {
+          "label": "(c)",
+          "text": "‖w‖ = √(0.25 + 0.09) = √0.34 ≈ 0.583. Geometric margin = 1/‖w‖ ≈ **1.715**, the distance from the boundary to each margin line. Full margin width = 2/‖w‖ ≈ 3.43. State which one you use. A larger margin means more confident predictions and better generalisation."
+        },
+        {
+          "label": "(d)",
+          "text": "Loan data overlaps: some defaulters look like non-defaulters. A hard margin may have no solution. A **soft margin** allows a few violations (slack ξᵢ) to keep a wide, stable boundary."
+        }
+      ],
+      "answer": "Model B overfits; f(x) = 0.9 ⇒ default; margin 1/‖w‖ ≈ 1.715 (width 2/‖w‖ ≈ 3.43); soft margin handles overlap."
+    },
+    {
+      "title": "Q6 · K-means and GMM (6 marks)",
+      "tags": [
+        "CS 14"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Points A(1,2), B(2,1), C(2,3), D(6,5), E(7,6), F(8,5). (a) One K-means cycle from centres (1,2) and (8,5). (b) One difference between K-means assignments and GMM responsibilities, using a specific point. (c) When would GMM cluster this data better?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Assign",
+          "text": "A, B, C are nearest (1,2); D, E, F are nearest (8,5)."
+        },
+        {
+          "label": "(a) Update",
+          "text": "μ₁ = ((1+2+2)/3, (2+1+3)/3) = **(1.67, 2)**. μ₂ = ((6+7+8)/3, (5+6+5)/3) = **(7, 5.33)**."
+        },
+        {
+          "label": "(b)",
+          "text": "K-means gives **hard** assignments: C(2,3) belongs 100% to cluster 1. GMM gives **soft responsibilities**: C gets a probability for each component, mostly cluster 1 but with a small non-zero share for cluster 2."
+        },
+        {
+          "label": "(c)",
+          "text": "When clusters are **elliptical, of different spread, or overlapping**: GMM models each cluster's covariance and the uncertainty of assignment, while K-means assumes round clusters of equal size."
+        }
+      ],
+      "answer": "Clusters {A,B,C}, {D,E,F}; centres (1.67, 2) and (7, 5.33)."
+    },
+    {
+      "title": "Q7 · Linear, logistic, tree (3 marks)",
+      "tags": [
+        "CS 3–6"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Same two features. A: linear regression with a threshold; B: logistic regression; C: depth-3 tree. A gives values outside [0,1]; B saturates near 0/1; C flips class for small changes in x₂. (a) Why can A leave [0,1] but B cannot? (b) Which overfits most on small data? (c) Which changes most abruptly, and why is that bad?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "A outputs wᵀx + b, which is **unbounded**. B passes the same score through the **sigmoid**, which always lands in (0,1)."
+        },
+        {
+          "label": "(b)",
+          "text": "The **decision tree**: its boundary is made of flexible axis-aligned splits (piecewise constant) that can chase noise. Linear and logistic models draw one global straight boundary, a stronger bias that generalises better on little data."
+        },
+        {
+          "label": "(c)",
+          "text": "The **decision tree**: a tiny change can cross a split threshold and flip the class. Such jumps are unstable and hard to justify, which hurts fairness and trust in high-stakes decisions."
+        }
+      ],
+      "answer": "Sigmoid bounds B; the tree overfits most and changes most abruptly."
+    }
+  ]
+}

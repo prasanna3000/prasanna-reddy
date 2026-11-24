@@ -1,0 +1,423 @@
+{
+  "id": "p-pp01",
+  "title": "Practice Paper 01 · Sourabh sir",
+  "subtitle": "AIML ZG565 comprehensive (EC-3) practice · open book · 40 marks · 7 questions · fully solved",
+  "lesson": [
+    {
+      "title": "Try it on your own: how to use this paper",
+      "lead": "Sit it like the real exam first. Only then open the solutions.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "Set a timer for **2 hours** (the paper says 2½, but your real exam on 6 Dec is 2 hours, so practise at that speed).",
+            "Open book: keep only your textbook and notes, as in the exam.",
+            "Write every answer on paper, showing each step and stating assumptions in one line.",
+            "Use natural logs unless told otherwise; round to 4 decimals.",
+            "When the time is up, open **Worked problems** and mark yourself, question by question."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Marks",
+            "My top 5",
+            "Pre/post-mid"
+          ],
+          "rows": [
+            [
+              "1",
+              "Linear regression: closed form and ridge shrinkage",
+              "6",
+              "·",
+              "Pre"
+            ],
+            [
+              "2",
+              "Instance-based: kNN regression and LWR",
+              "6",
+              "🎯 #5",
+              "Post"
+            ],
+            [
+              "3",
+              "SVM: polynomial and RBF kernels",
+              "6",
+              "🎯 #1",
+              "Post"
+            ],
+            [
+              "4",
+              "Bayesian: maximum likelihood (4-sided die)",
+              "6",
+              "🎯 #4",
+              "Post"
+            ],
+            [
+              "5",
+              "Ensembles: gradient boosting regression",
+              "6",
+              "🎯 #3",
+              "Post"
+            ],
+            [
+              "6",
+              "Unsupervised: K-means and initial centroids",
+              "6",
+              "🎯 #2",
+              "Post"
+            ],
+            [
+              "7",
+              "Model evaluation: confusion matrices",
+              "4",
+              "·",
+              "Post"
+            ],
+            [
+              "**Total**",
+              "",
+              "**40**",
+              "**30 marks from the top 5**",
+              "**6 pre / 34 post**"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Why this paper matters",
+          "text": "Five of its seven questions are your top-five chapters (30 of 40 marks). It also has the 4-mark **model evaluation** question that the past papers never asked, so do not skip CS 15."
+        },
+        {
+          "type": "note",
+          "label": "Marking yourself",
+          "color": "blue",
+          "text": "Give yourself the marks shown in each question's brackets. A score of 30+ here means you are on track."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · Closed-form least squares and ridge (6 marks)",
+      "tags": [
+        "CS 3",
+        "Pre-mid"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Machine age x (years) and maintenance cost y (₹ thousand): (2, 8), (3, 8), (5, 14), (7, 22), (8, 21)."
+        },
+        {
+          "type": "p",
+          "text": "(a) Closed-form θ₀ and θ₁ for y = θ₀ + θ₁x. [2.5 M] (b) Predict y at x = 4. [0.5 M] (c) SSE, SST and R². [1.5 M] (d) Ridge on centred data, minimise Σ((yᵢ − ȳ) − θ₁(xᵢ − x̄))² + λθ₁²: the ridge slope for λ = 2, and the λ that exactly halves the least-squares slope. [1.5 M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Means",
+          "text": "x̄ = 5, ȳ = 14.6"
+        },
+        {
+          "label": "(a) Sums",
+          "text": "x − x̄: −3, −2, 0, 2, 3; y − ȳ: −6.6, −6.6, −0.6, 7.4, 6.4 ⇒ Sxx = 26, Sxy = 67"
+        },
+        {
+          "label": "(a) Line",
+          "text": "θ₁ = 67/26 = **2.5769**; θ₀ = 14.6 − 2.5769 × 5 = **1.7154**"
+        },
+        {
+          "label": "(b)",
+          "text": "ŷ(4) = 1.7154 + 2.5769 × 4 = **12.0231**"
+        },
+        {
+          "label": "(c)",
+          "text": "Fitted 6.8692, 9.4462, 14.6, 19.7538, 22.3308 ⇒ SSE = **10.5462**; SST = Σ(y − ȳ)² = **183.2**; R² = 1 − 10.5462/183.2 = **0.9424**"
+        },
+        {
+          "label": "(d) Ridge slope",
+          "text": "d/dθ₁: −2Sxy + 2θ₁Sxx + 2λθ₁ = 0 ⇒ θ₁ = Sxy/(Sxx + λ) = 67/28 = **2.3929**"
+        },
+        {
+          "label": "(d) Halving",
+          "text": "Sxx + λ = 2Sxx ⇒ **λ = 26**"
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Using Σxy/Σx² (line through the origin); writing SST as Σ(ŷ − ȳ)²; thinking ridge can make the slope exactly 0."
+        }
+      ],
+      "answer": "θ₀ = 1.7154, θ₁ = 2.5769; ŷ(4) = 12.0231; SSE 10.5462, SST 183.2, R² 0.9424; ridge slope 2.3929, λ = 26 halves it."
+    },
+    {
+      "title": "Q2 · kNN regression and locally weighted regression (6 marks)",
+      "tags": [
+        "CS 7",
+        "🎯 #5"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Hours x and score y: (4, 10), (5, 10), (6, 8), (7, 11), (9, 16), (10, 17). Query x_q = 4.5."
+        },
+        {
+          "type": "p",
+          "text": "(a) 3-NN mean. [1 M] (b) Distance-weighted 3-NN, wᵢ = 1/dᵢ. [1.5 M] (c) LWR ŷ = θ₀ + θ₁x on the 3 neighbours, Gaussian kernel Kᵢ = exp(−(xᵢ − x_q)²/(2τ²)) with τ = 3, update θⱼ ← θⱼ + αΣKᵢ(yᵢ − ŷᵢ)xᵢⱼ (xᵢ₀ = 1), start θ₀ = θ₁ = 1, α = 0.02: one update, and the prediction at x_q before and after. [3.5 M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Neighbours",
+          "text": "Distances to 4.5: x = 4 (0.5), 5 (0.5), 6 (1.5), 7 (2.5) … ⇒ 3 nearest: 4, 5, 6"
+        },
+        {
+          "label": "(a)",
+          "text": "(10 + 10 + 8)/3 = **9.3333**"
+        },
+        {
+          "label": "(b)",
+          "text": "Weights 2, 2, 0.6667 ⇒ (20 + 20 + 5.3333)/4.6667 = **9.7143**"
+        },
+        {
+          "label": "(c) Kernel and errors",
+          "text": "K = 0.9862, 0.9862, 0.8825; ŷ = 5, 6, 7; e = 5, 4, 1"
+        },
+        {
+          "label": "(c) Sums",
+          "text": "ΣKe = 9.7584; ΣKe·x = 44.7433"
+        },
+        {
+          "label": "(c) Update",
+          "text": "θ₀ = 1 + 0.02 × 9.7584 = **1.1952**; θ₁ = 1 + 0.02 × 44.7433 = **1.8949**"
+        },
+        {
+          "label": "(c) Predict",
+          "text": "Before: 1 + 4.5 = 5.5. After: 1.1952 + 1.8949 × 4.5 = **9.7221**"
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Choosing neighbours by y instead of x; not dividing by Σw; using 2τ instead of 2τ²."
+        }
+      ],
+      "answer": "9.3333; 9.7143; θ = (1.1952, 1.8949), prediction 5.5 → 9.7221."
+    },
+    {
+      "title": "Q3 · Polynomial and RBF kernels (6 marks)",
+      "tags": [
+        "CS 9",
+        "🎯 #1"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "u = (3, 0), v = (−1, 0), z = (−1, −1). K(x, x′) = (xᵀx′ + 2)², K_RBF = exp(−0.5‖x − x′‖²)."
+        },
+        {
+          "type": "p",
+          "text": "(a) 3 × 3 polynomial Gram matrix. [2 M] (b) Explicit φ(x), φ(u), φ(v), and check φ(u)ᵀφ(v) = K(u, v). [2 M] (c) ‖φ(u) − φ(v)‖² without φ. [1 M] (d) RBF value for each pair; most similar pair. [1 M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "K(u,u) = (9 + 2)² = 121; K(u,v) = (−3 + 2)² = 1; K(u,z) = 1; K(v,v) = 9; K(v,z) = (1 + 2)² = 9; K(z,z) = (2 + 2)² = 16 ⇒ Gram = [[121, 1, 1], [1, 9, 9], [1, 9, 16]]"
+        },
+        {
+          "label": "(b) Map",
+          "text": "(xᵀx′ + 2)² expands to φ(x) = (x₁², x₂², √2·x₁x₂, 2x₁, 2x₂, 2)"
+        },
+        {
+          "label": "(b) Check",
+          "text": "φ(u) = (9, 0, 0, 6, 0, 2), φ(v) = (1, 0, 0, −2, 0, 2) ⇒ φ(u)ᵀφ(v) = 9 − 12 + 4 = **1** = K(u, v) ✓"
+        },
+        {
+          "label": "(c)",
+          "text": "K(u,u) + K(v,v) − 2K(u,v) = 121 + 9 − 2 = **128**"
+        },
+        {
+          "label": "(d)",
+          "text": "‖u − v‖² = 16 ⇒ 0.0003; ‖u − z‖² = 17 ⇒ 0.0002; ‖v − z‖² = 1 ⇒ **0.6065**. Most similar: **v and z**"
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Dropping the +2; missing the √2 and 2 factors in φ; not squaring the distance in RBF."
+        }
+      ],
+      "answer": "Gram [[121, 1, 1], [1, 9, 9], [1, 9, 16]]; φ(u)ᵀφ(v) = 1; 128; v and z (0.6065)."
+    },
+    {
+      "title": "Q4 · Maximum likelihood, 4-sided die (6 marks)",
+      "tags": [
+        "CS 10–11",
+        "🎯 #4"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "P(0) = a, P(1) = (1 − a)/3, P(2) = (1 − a)/2, P(3) = (1 − a)/6. Rolls: 0, 3, 2, 3, 0, 0, 2, 3."
+        },
+        {
+          "type": "p",
+          "text": "(a) L(a), dropping constants. [1.5 M] (b) General MLE in terms of n₀ zeros out of n rolls. [2 M] (c) â for this data. [1.5 M] (d) Using â, P(roll = 2) and the expected number of 2s in 40 rolls. [1 M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "3 zeros and 5 non-zeros ⇒ **L(a) ∝ a³(1 − a)⁵**"
+        },
+        {
+          "label": "(b)",
+          "text": "ℓ = n₀ ln a + (n − n₀) ln(1 − a); ℓ′ = n₀/a − (n − n₀)/(1 − a) = 0 ⇒ **â = n₀/n**"
+        },
+        {
+          "label": "(c)",
+          "text": "â = 3/8 = **0.375**"
+        },
+        {
+          "label": "(d)",
+          "text": "P(2) = (1 − 0.375)/2 = **0.3125**; expected 2s in 40 rolls = 40 × 0.3125 = **12.5**"
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Differentiating L instead of ln L; forgetting to plug â back in for part (d)."
+        }
+      ],
+      "answer": "L ∝ a³(1 − a)⁵; â = n₀/n = 0.375; P(2) = 0.3125, 12.5 twos in 40 rolls."
+    },
+    {
+      "title": "Q5 · Gradient boosting regression (6 marks)",
+      "tags": [
+        "CS 12–13",
+        "🎯 #3"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Jobs (Traffic, Distance km, y): J1 (High, 8, 48), J2 (High, 2, 36), J3 (High, 6, 42), J4 (Low, 4, 34), J5 (Low, 9, 51), J6 (Low, 2, 26). F₀ = mean(y), rᵢ = yᵢ − F(xᵢ), leaves = mean residual, η = 0.1. Tree 1: Low → L_A; else Distance ≤ 6 → L_B; else L_C."
+        },
+        {
+          "type": "p",
+          "text": "(a) F₀ and residuals. [1 M] (b) L_A, L_B, L_C. [1.5 M] (c) F₁ for every job and training MSE before and after tree 1. [2 M] (d) Tree 2 splits Distance ≤ 5.5 on the new residuals: its two leaf values and F₂(J3). [1.5 M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "F₀ = 237/6 = **39.5**; r = 8.5, −3.5, 2.5, −5.5, 11.5, −13.5"
+        },
+        {
+          "label": "(b)",
+          "text": "L_A (J4, J5, J6) = **−2.5**; L_B (J2, J3) = **−0.5**; L_C (J1) = **8.5**"
+        },
+        {
+          "label": "(c) F₁",
+          "text": "J1 40.35; J2, J3 39.45; J4, J5, J6 39.25. New residuals 7.65, −3.45, 2.55, −5.25, 11.75, −13.25"
+        },
+        {
+          "label": "(c) MSE",
+          "text": "Before = **72.5833**; after = **69.6858**"
+        },
+        {
+          "label": "(d)",
+          "text": "Left (≤ 5.5): J2, J4, J6 ⇒ **−7.3167**; right: J1, J3, J5 ⇒ **7.3167**. F₂(J3) = 39.45 + 0.1 × 7.3167 = **40.1817**"
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Adding the full leaf value instead of η × leaf; fitting tree 2 to the old residuals."
+        }
+      ],
+      "answer": "F₀ = 39.5; leaves −2.5, −0.5, 8.5; MSE 72.58 → 69.69; tree 2 leaves ∓7.3167, F₂(J3) = 40.1817."
+    },
+    {
+      "title": "Q6 · K-means and initial centroids (6 marks)",
+      "tags": [
+        "CS 14",
+        "🎯 #2"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "1-D data: 0, 9, 11, 12, 19, 26, 28. K = 2. Analyst A starts at (10, 19), analyst B at (0, 15)."
+        },
+        {
+          "type": "p",
+          "text": "(a) Run from A's start to convergence. [2 M] (b) Run from B's start. [2 M] (c) SSE of both; which is better? [1.5 M] (d) One initialisation scheme that reduces this risk. [0.5 M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Iteration 1",
+          "text": "(10, 19): {0, 9, 11, 12} | {19, 26, 28} ⇒ centroids (8, 24.3333)"
+        },
+        {
+          "label": "(a) Iteration 2",
+          "text": "Same clusters ⇒ converged: **{0, 9, 11, 12} | {19, 26, 28}**, centroids (8, 24.3333)"
+        },
+        {
+          "label": "(b) Iteration 1",
+          "text": "(0, 15): {0} | {9, 11, 12, 19, 26, 28} ⇒ centroids (0, 17.5)"
+        },
+        {
+          "label": "(b) Iteration 2",
+          "text": "Same clusters ⇒ converged: **{0} | {9, …, 28}**, centroids (0, 17.5)"
+        },
+        {
+          "label": "(c)",
+          "text": "SSE(A) = 64 + 1 + 9 + 16 + 28.444 + 2.778 + 13.444 = **134.6667**; SSE(B) = 0 + 329.5 = **329.5** ⇒ **A is better**"
+        },
+        {
+          "label": "(d)",
+          "text": "**K-means++** seeding, or several random restarts keeping the lowest SSE"
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Assuming both starts give the same answer; comparing by iterations instead of SSE."
+        }
+      ],
+      "answer": "A: {0, 9, 11, 12} | {19, 26, 28}, SSE 134.67; B: {0} | rest, SSE 329.5; A better; use K-means++."
+    },
+    {
+      "title": "Q7 · Confusion matrices (4 marks)",
+      "tags": [
+        "CS 15"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "200 actual fraud, 3600 negatives. M1: TP 130, FP 160, FN 70, TN 3440. M2: TP 120, FP 100, FN 80, TN 3500."
+        },
+        {
+          "type": "p",
+          "text": "(a) Accuracy, precision, recall and F1 for both. [2.5 M] (b) Higher F1? [0.5 M] (c) Rule: recall ≥ 0.61. Which model meets it, and how many fraud cases does it miss? [1 M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) M1",
+          "text": "Acc = 3570/3800 = **0.9395**; P = 130/290 = **0.4483**; R = 130/200 = **0.65**; F1 = **0.5306**"
+        },
+        {
+          "label": "(a) M2",
+          "text": "Acc = 3620/3800 = **0.9526**; P = 120/220 = **0.5455**; R = 120/200 = **0.6**; F1 = **0.5714**"
+        },
+        {
+          "label": "(b)",
+          "text": "**M2** has the higher F1"
+        },
+        {
+          "label": "(c)",
+          "text": "Only **M1** has recall ≥ 0.61; it misses **70** fraud cases (FN)"
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Swapping FP and FN in recall; judging by accuracy on imbalanced data; averaging P and R arithmetically."
+        }
+      ],
+      "answer": "M1: 0.9395, 0.4483, 0.65, 0.5306; M2: 0.9526, 0.5455, 0.6, 0.5714; M2 higher F1; M1 meets the rule, 70 missed."
+    }
+  ]
+}

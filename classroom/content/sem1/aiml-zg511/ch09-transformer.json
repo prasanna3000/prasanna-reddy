@@ -338,7 +338,7 @@
         },
         {
           "type": "p",
-          "text": "**W^Q, W^K, W^V shapes (EC-3 makeup 2023 Q2):** with input d, query size d_q, key/value sizes d_k, d_v and h heads, the per-head projections are d × d_q, d × d_k, d × d_v; stacked over heads (h·d) × d_q etc.; W^O is (h·d_v) × d. The answer key writes W^Q = (6 × 1024) × 256, W^K = W^V = (6 × 1024) × 512, W^O = (6 × 512) × 1024."
+          "text": "**W^Q, W^K, W^V shapes (EC-3 makeup 2023 Q2):** with input d, query size d_q, key/value sizes d_k, d_v and h heads, the per-head projections are d × d_q, d × d_k, d × d_v; stacked over heads (h·d) × d_q etc.; W^O is (h·d_v) × d. Stacked over 6 heads: W^Q = (6 × 1024) × 256, W^K = W^V = (6 × 1024) × 512, W^O = (6 × 512) × 1024."
         }
       ]
     }
@@ -455,7 +455,7 @@
           "text": "W^Q 1024 × 256, W^K 1024 × 512, W^V 1024 × 512"
         },
         {
-          "label": "All heads (answer key)",
+          "label": "All heads (stacked)",
           "text": "W^Q (6 × 1024) × 256, W^K (6 × 1024) × 512, W^V (6 × 1024) × 512"
         },
         {
