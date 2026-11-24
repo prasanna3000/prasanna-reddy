@@ -167,6 +167,19 @@
     })));
   }
 
+  /* optional course.weightage = { title, intro, tables: [{ title, head, rows, note }], footnote } */
+  function weightageHTML(w) {
+    if (!w || !Array.isArray(w.tables)) return '';
+    const table = (t) => `<div class="wt-block">
+      ${t.title ? `<h3 class="wt-sub">${md(t.title)}</h3>` : ''}
+      <div class="md-table-wrap"><table class="md-table wt-table"><thead><tr>${t.head.map((h, k) => `<th${k < (t.leftCols || 1) ? ' class="wt-left"' : ''}>${md(h)}</th>`).join('')}</tr></thead>
+      <tbody>${t.rows.map((r) => `<tr>${r.map((c, k) => `<td${k < (t.leftCols || 1) ? ' class="wt-left"' : ''}>${md(String(c))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+      ${t.note ? `<p class="wt-note">${md(t.note)}</p>` : ''}</div>`;
+    return `<section class="weightage"><h2 class="wt-title">${esc(w.title || 'Where the marks are')}</h2>
+      ${w.intro ? `<p class="wt-intro">${md(w.intro)}</p>` : ''}${w.tables.map(table).join('')}
+      ${w.footnote ? `<p class="wt-note">${md(w.footnote)}</p>` : ''}</section>`;
+  }
+
   function viewCourse(sem, course) {
     setCrumbs([{ label: 'Corridor', href: '#/' }, { label: course.title }]); setTitle(course.title);
     /* chapters can set "group" (e.g. "Exam hall"); groups appear in order of first use */
@@ -184,6 +197,7 @@
         <p class="room-sub">${esc([course.code, course.teacher && `Teacher: ${course.teacher}`, sem.title].filter(Boolean).join(' · '))}</p></div>
       </section>
       ${course.description ? `<p class="room-desc">${md(course.description)}</p>` : ''}
+      ${weightageHTML(course.weightage)}
       ${groups.map((g) => `
       <section class="corkboard ${g.name === 'Syllabus board' ? '' : 'exam-hall'}">
         <h2 class="cork-title">${esc(g.name)}</h2>

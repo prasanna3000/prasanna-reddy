@@ -171,6 +171,7 @@ Quiz questions: `mcq` (`options`, `answer` = index of the right option) or `nume
 | `optimizer-race` | `a`, `b` (bowl L = a·w1² + b·w2²), `w` ("4, 2"), `eta`, `beta`, `gamma`, `beta2`, `steps`, `opt` (gd/momentum/adagrad/rmsprop/adam) |
 | `htest-calc` | `kind` (`mean`, `prop`, `mean2`, `prop2`, `paired`), `tail` (`right`, `left`, `two`), `alpha`, plus the inputs for that kind (`xbar, mu0, s, n, dist` · `x, n, p0` · `x1, s1, n1, x2, s2, n2, dist` · `x1, n1, x2, n2, pooled` · `pairs`) |
 | `chisq-calc` | `mode` (`independence` or `gof`), `alpha`; `table` (rows by `;`) or `observed`, `expected` / `probs`, `params` |
+| `corr-calc` | `mode` (`pearson` or `auto`); pearson: `x`, `y` (covariance, r, working table); auto: `series`, `lags` (autocovariance γ̂(h) and autocorrelation r_k) |
 
 ### A new lab
 

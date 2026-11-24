@@ -1,0 +1,4838 @@
+{
+ "id": "ch11",
+ "title": "Correlation & Regression",
+ "subtitle": "Contact session 11 · slides CS-11 · covariance, Pearson's r, autocovariance, autocorrelation, PCA, regression, r², Spearman",
+ "lesson": [
+  {
+   "title": "Why this matters in AI and ML",
+   "lead": "Before you model anything, you ask: do these two things move together? Covariance and correlation answer that.",
+   "blocks": [
+    {
+     "type": "h",
+     "text": "Where you will meet these ideas"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Feature selection:** two input features with a correlation near +1 or −1 carry almost the same information.",
+      "**Regression:** the slope of a fitted line is built from a covariance (slide 13).",
+      "**PCA:** diagonalising the covariance matrix gives the principal components (slides 15–16).",
+      "**Time series:** autocovariance and autocorrelation compare a series with a shifted copy of itself (slides 13–14, then CS 13)."
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Slides 3–5: one variable or two?"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Situation",
+      "What you need"
+     ],
+     "rows": [
+      [
+       "One variable (getting-ready times, example 1)",
+       "Descriptive statistics are enough: mean, variance, standard deviation."
+      ],
+      [
+       "Two or more variables (Showtime revenue vs advertising, example 2)",
+       "Summaries are not enough. You also need to know whether the variables are related."
+      ]
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Plan for this chapter",
+     "text": "Covariance first (it is the raw measure), then Pearson's r (covariance made unit-free), then autocovariance and autocorrelation, then PCA as an application. Regression, r² and Spearman come next in this chapter."
+    }
+   ]
+  },
+  {
+   "title": "Covariance from data (slides 6–8)",
+   "lead": "Covariance tells you the direction of the linear relationship between two variables. It does not tell you the strength.",
+   "blocks": [
+    {
+     "type": "h",
+     "text": "The idea"
+    },
+    {
+     "type": "p",
+     "text": "Take each point and ask two questions: is X above or below its average, and is Y above or below its average? If both are above, or both are below, the product of the two gaps is positive. If they disagree, the product is negative. Add up the products. The total tells you which kind of point wins."
+    },
+    {
+     "type": "formula",
+     "text": "Cov(X, Y) = {{ Σ(X − X̄)(Y − Ȳ) // n − 1 }}",
+     "caption": "slide 8 (written there for X1 and X2)"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Sign of Cov",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "Positive",
+       "X and Y tend to move in the same direction"
+      ],
+      [
+       "Negative",
+       "X and Y tend to move in opposite directions"
+      ],
+      [
+       "Near 0",
+       "No linear pattern"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Standard steps"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Count the pairs: n.",
+      "Find X̄ and Ȳ.",
+      "Subtract the mean from every X and every Y (deviations).",
+      "Multiply the two deviations in each row.",
+      "Add the products.",
+      "Divide by n − 1 (sample covariance).",
+      "Read the sign and say what it means."
+     ]
+    },
+    {
+     "type": "h",
+     "text": "What covariance cannot do (slide 7)"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Its value can be any real number, from minus infinity to plus infinity.",
+      "Its size depends on the units: change kg to grams and the number changes. So the size says nothing about strength.",
+      "Its limits depend on the variances of X and Y, which depend on the scales.",
+      "Only the sign is meaningful. That is the reason Pearson's r was invented."
+     ]
+    },
+    {
+     "type": "trap",
+     "label": "Check yourself",
+     "text": "The deviations X − X̄ always add up to 0, and so do the Y − Ȳ. If yours do not, a mean is wrong."
+    }
+   ]
+  },
+  {
+   "title": "The slide's covariance example (slides 10–11)",
+   "lead": "Age and weight of six children: Cov = 10.6, positive.",
+   "blocks": [
+    {
+     "type": "table",
+     "head": [
+      "Age X",
+      "5",
+      "4",
+      "7",
+      "10",
+      "8",
+      "8"
+     ],
+     "rows": [
+      [
+       "Weight Y",
+       "20",
+       "18",
+       "23",
+       "32",
+       "26",
+       "25"
+      ]
+     ]
+    },
+    {
+     "type": "steps",
+     "items": [
+      "n = 6.",
+      "X̄ = 42/6 = 7 and Ȳ = 144/6 = 24.",
+      "Deviations X − X̄: −2, −3, 0, 3, 1, 1. Deviations Y − Ȳ: −4, −6, −1, 8, 2, 1.",
+      "Products: 8, 18, 0, 24, 2, 1.",
+      "Sum of products = 53.",
+      "Cov = 53 / 5 = **10.6**.",
+      "Positive: older children weigh more."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Slide quirk",
+     "text": "The slide's table uses Ȳ = 23, which gives Y deviations −3, −5, 0, 9, 3, 2. The true mean is 24. The products then differ row by row but the total is still **53**, because the X deviations add to 0. Write Ȳ = 24 in the exam and you still get 53 and 10.6.",
+     "color": "pink"
+    },
+    {
+     "type": "widget",
+     "widget": "corr-calc",
+     "config": {
+      "mode": "pearson",
+      "x": "5, 4, 7, 10, 8, 8",
+      "y": "20, 18, 23, 32, 26, 25"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Covariance from a probability table (slide 12)",
+   "lead": "When the question gives probabilities instead of data values, use expectations.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "If X and Y are random variables with a probability mass function p(x) or density f(x), the slide gives:"
+    },
+    {
+     "type": "formula",
+     "text": "Cov(X, Y) = E[(X − μX)(Y − μY)] = E(XY) − E(X) E(Y)",
+     "caption": "slide 12, where E(X) = μX and E(Y) = μY"
+    },
+    {
+     "type": "table",
+     "head": [
+      "The question gives",
+      "Use"
+     ],
+     "rows": [
+      [
+       "A list of observed values",
+       "Σ(X − X̄)(Y − Ȳ) / (n − 1)"
+      ],
+      [
+       "A joint probability table, pmf or pdf",
+       "E(XY) − E(X) E(Y)"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Standard steps"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Check the table adds to 1.",
+      "Add across rows and down columns to get the separate probabilities of X and of Y.",
+      "E(X) = Σ x·P(x).",
+      "E(Y) = Σ y·P(y).",
+      "E(XY) = Σ x·y·p(x, y) over every cell.",
+      "Cov = E(XY) − E(X)E(Y).",
+      "Interpret the sign."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Add-on (not on the slides)",
+     "text": "If X and Y are independent, E(XY) = E(X)E(Y), so Cov = 0. The reverse is not always true: Cov = 0 only means no *linear* relationship. To prove independence you must check p(x, y) = P(x)·P(y) in **every** cell. A nonzero covariance does prove they are dependent."
+    },
+    {
+     "type": "trap",
+     "label": "Common mistake",
+     "text": "No division by n − 1 here. The probabilities already add to 1 and act as the weights."
+    }
+   ]
+  },
+  {
+   "title": "Variance-covariance matrix and applications (slides 9, 13–16)",
+   "lead": "Put every variance and covariance in one square table. Then use it for regression, time series and PCA.",
+   "blocks": [
+    {
+     "type": "h",
+     "text": "The matrix (slide 9)"
+    },
+    {
+     "type": "p",
+     "text": "For n variables, the variance-covariance matrix has the variances on the diagonal and the covariances off the diagonal. It is symmetric, because Cov(X, Y) = Cov(Y, X)."
+    },
+    {
+     "type": "p",
+     "text": "For the age and weight data: Var(X) = 24/5 = 4.8, Var(Y) = 122/5 = 24.4 and Cov = 10.6 (my calculation from the slide data)."
+    },
+    {
+     "type": "table",
+     "head": [
+      "",
+      "X",
+      "Y"
+     ],
+     "rows": [
+      [
+       "X",
+       "4.8",
+       "10.6"
+      ],
+      [
+       "Y",
+       "10.6",
+       "24.4"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Three applications"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Multivariate linear regression (slide 13):** with one dependent variable and several independent ones, the variance-covariance matrix describes how they relate. The professor added that the regression coefficient is built from a covariance.",
+      "**Time series (slides 13–14):** a series is a set of random variables, one per time point. Autocovariance is the covariance between two of them (next boards).",
+      "**PCA (slides 15–16):** see the board after Pearson's r."
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Pearson's correlation coefficient r (slides 17–22)",
+   "lead": "Divide the covariance by both standard deviations. The units cancel and r always lies between −1 and +1.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "Karl Pearson's idea (slide 17): divide the covariance of the variables by their standard deviations. The result is the product moment correlation, written r. It is free of units and measures the strength **and** direction of the relationship between two continuous variables."
+    },
+    {
+     "type": "formula",
+     "text": "r = {{ Cov(X, Y) // s_{X} · s_{Y} }}",
+     "caption": "standardised covariance, unit free (slide 19)"
+    },
+    {
+     "type": "formula",
+     "text": "r = {{ Cov(X, Y) // s_{X} · s_{Y} }}  =  {{ Σ(X − X̄)(Y − Ȳ) // {{sqrt: Σ(X − X̄)² · Σ(Y − Ȳ)²}} }}",
+     "caption": "covariance divided by both standard deviations, s_{X} = √Var(X) (slides 17–19)"
+    },
+    {
+     "type": "p",
+     "text": "Work it as covariance over the standard deviations. Compute Cov(X, Y), Var(X) and Var(Y), take the square roots, then divide. The n − 1 cancels out of the top and bottom, so Σ(X − X̄)(Y − Ȳ) / √[Σ(X − X̄)² · Σ(Y − Ȳ)²] gives the same r. The slides' sums form (five column totals) is an equal alternative that you can use as a check."
+    },
+    {
+     "type": "h",
+     "text": "Strength table (slide 22)"
+    },
+    {
+     "type": "table",
+     "head": [
+      "r",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "−1 or +1",
+       "Perfect negative or positive"
+      ],
+      [
+       "±0.76 to ±0.99",
+       "Strong"
+      ],
+      [
+       "±0.26 to ±0.75",
+       "Moderate (intermediate)"
+      ],
+      [
+       "0 to ±0.25",
+       "Weak"
+      ],
+      [
+       "0",
+       "Zero correlation"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "The sign gives the direction: positive means a direct relationship (both rise together), negative means an inverse relationship (one rises while the other falls) (slide 20)."
+    },
+    {
+     "type": "h",
+     "text": "Standard steps"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Count the pairs: n. Find X̄ and Ȳ.",
+      "Deviations X − X̄ and Y − Ȳ.",
+      "Cov(X, Y) = Σ(X − X̄)(Y − Ȳ) / (n − 1). Its sign is the sign of r.",
+      "Var(X) = Σ(X − X̄)² / (n − 1) and s_{X} = √Var(X). Same for Y.",
+      "r = Cov(X, Y) / (s_{X} · s_{Y}).",
+      "Check with the slides' sums form: nΣXY − ΣX·ΣY over √[(nΣX² − (ΣX)²)(nΣY² − (ΣY)²)].",
+      "Write the sign, the strength word from the table, and one sentence in the words of the problem."
+     ]
+    },
+    {
+     "type": "trap",
+     "label": "Self-check",
+     "text": "r can never be above +1 or below −1. If you get 1.4, recheck ΣX², ΣY² and (ΣX)². Do not confuse ΣX² (square each, then add) with (ΣX)² (add, then square)."
+    }
+   ]
+  },
+  {
+   "title": "Pearson's r on the slides (slides 23–27)",
+   "lead": "Two slide examples: age and weight (r = 0.759) and anxiety and test score (r = −0.94).",
+   "blocks": [
+    {
+     "type": "h",
+     "text": "Age and weight (slides 23–25)"
+    },
+    {
+     "type": "table",
+     "head": [
+      "X (age)",
+      "Y (weight)",
+      "XY",
+      "X²",
+      "Y²"
+     ],
+     "rows": [
+      [
+       "7",
+       "12",
+       "84",
+       "49",
+       "144"
+      ],
+      [
+       "6",
+       "8",
+       "48",
+       "36",
+       "64"
+      ],
+      [
+       "8",
+       "12",
+       "96",
+       "64",
+       "144"
+      ],
+      [
+       "5",
+       "10",
+       "50",
+       "25",
+       "100"
+      ],
+      [
+       "6",
+       "11",
+       "66",
+       "36",
+       "121"
+      ],
+      [
+       "9",
+       "13",
+       "117",
+       "81",
+       "169"
+      ],
+      [
+       "**41**",
+       "**66**",
+       "**461**",
+       "**291**",
+       "**742**"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "r = (6 × 461 − 41 × 66) / √{[6 × 291 − 41²][6 × 742 − 66²]} = 60 / √(65 × 96) = 60 / 78.99 = **0.759**. Strong positive."
+    },
+    {
+     "type": "h",
+     "text": "Anxiety and test scores (slides 26–27)"
+    },
+    {
+     "type": "table",
+     "head": [
+      "X (anxiety)",
+      "Y (test score)",
+      "XY",
+      "X²",
+      "Y²"
+     ],
+     "rows": [
+      [
+       "10",
+       "2",
+       "20",
+       "100",
+       "4"
+      ],
+      [
+       "8",
+       "3",
+       "24",
+       "64",
+       "9"
+      ],
+      [
+       "2",
+       "9",
+       "18",
+       "4",
+       "81"
+      ],
+      [
+       "1",
+       "7",
+       "7",
+       "1",
+       "49"
+      ],
+      [
+       "5",
+       "6",
+       "30",
+       "25",
+       "36"
+      ],
+      [
+       "6",
+       "5",
+       "30",
+       "36",
+       "25"
+      ],
+      [
+       "**32**",
+       "**32**",
+       "**129**",
+       "**230**",
+       "**204**"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "r = (6 × 129 − 32 × 32) / √{[6 × 230 − 32²][6 × 204 − 32²]} = −250 / √(356 × 200) = −250 / 266.8 = **−0.94**. Strong negative: higher anxiety goes with lower scores."
+    },
+    {
+     "type": "widget",
+     "widget": "corr-calc",
+     "config": {
+      "mode": "pearson",
+      "x": "10, 8, 2, 1, 5, 6",
+      "y": "2, 3, 9, 7, 6, 5"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Autocovariance (slides 13–14)",
+   "lead": "The covariance of a time series with a shifted copy of itself. The shift is called the lag h.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "A time series is a set of random variables, one for every time point. Autocovariance asks how the value at time t varies together with the value at time t + h. The slide defines it as a covariance:"
+    },
+    {
+     "type": "formula",
+     "text": "autocovariance at lag h = Cov( X_{t+h} , X_{t} )",
+     "caption": "slide 13"
+    },
+    {
+     "type": "p",
+     "text": "For observed data X(t1), X(t2), ..., X(tn), the slide gives the sample version:"
+    },
+    {
+     "type": "formula",
+     "text": "γ̂(h) = {{ 1 // n }} Σ ( X_{t+|h|} − X̄ ) ( X_{t} − X̄ )",
+     "caption": "slide 14. The sum runs over i = 1 to n − |h|, for −n < h < n"
+    },
+    {
+     "type": "note",
+     "label": "Professor's lecture (25 Oct)",
+     "text": "He pointed out a typo in the slide's formula: the index that runs inside the sum is **i**, not t, so the sum is over i = 1 to n − |h|. He also stressed that this is a **sample** autocovariance, computed from your observations, which only approximates the true value.",
+     "color": "pink"
+    },
+    {
+     "type": "h",
+     "text": "In plain words"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Find X̄, the mean of all n values.",
+      "Subtract X̄ from every value to get deviations.",
+      "For lag h, pair each deviation with the deviation h positions later.",
+      "Multiply each pair and add the products. There are n − h pairs.",
+      "Divide by **n** (not n − h and not n − 1)."
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Facts to remember"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Lag 0 pairs every deviation with itself, so γ̂(0) is the variance of the series (divided by n).",
+      "A positive γ̂(h) means that values h steps apart tend to be on the same side of the average.",
+      "For a stationary series the autocovariance depends only on the lag h, not on where in the series you start (CS 13)."
+     ]
+    },
+    {
+     "type": "trap",
+     "label": "Common mistake",
+     "text": "Do not divide by n − 1 here. The slide formula divides by n, in the covariance-of-a-series style."
+    }
+   ]
+  },
+  {
+   "title": "Autocorrelation (slide 14, then CS 13 slides 10–12)",
+   "lead": "Autocovariance made unit-free by dividing by the variation of the series.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "Autocorrelation measures how strongly a series at the current time is related to its own earlier values (CS 13, slide 10). The slide gives:"
+    },
+    {
+     "type": "formula",
+     "text": "r_{k} = {{ Σ ( y_{t} − ȳ )( y_{t−k} − ȳ ) // Σ ( y_{t} − ȳ )² }}",
+     "caption": "slide 14. Top: sum over t = k + 1 to T. Bottom: sum over t = 1 to T"
+    },
+    {
+     "type": "p",
+     "text": "CS 13 slide 12 writes the same thing for k = 1, 2, ...: r_{1} pairs y_{t} with y_{t−1}, r_{2} pairs y_{t} with y_{t−2}, and so on."
+    },
+    {
+     "type": "list",
+     "items": [
+      "The numerator has T − k products. The denominator has T squares.",
+      "r_{k} always lies between −1 and +1, like Pearson's r.",
+      "r_{0} = 1, because a series is perfectly correlated with itself.",
+      "Because both the autocovariance and the denominator here are divided by n in the same way, r_{k} = γ̂(k) / γ̂(0). That gives you a check.",
+      "The professor described autocorrelation as the numerator of the autocovariance divided by what looks like a variance of the series."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Where this goes next",
+     "text": "CS 13 uses these to decide whether a series is genuinely dependent on its past or just random noise, and to choose AR and MA models. We will compute them on the retail sales table in CS 13 (slide 13)."
+    },
+    {
+     "type": "widget",
+     "widget": "corr-calc",
+     "config": {
+      "mode": "auto",
+      "series": "4, 6, 5, 7, 8",
+      "lags": 2
+     }
+    }
+   ]
+  },
+  {
+   "title": "PCA: covariance in action (slides 15–16)",
+   "lead": "Principal components come from the eigenvectors of the variance-covariance matrix.",
+   "blocks": [
+    {
+     "type": "list",
+     "items": [
+      "PCA is often described as \"diagonalizing the covariance matrix\" (slide 15). That means finding a combination of the original variables that makes the covariance matrix diagonal.",
+      "When this is done the new variables are uncorrelated. These combinations are called principal components.",
+      "Let A be the variance-covariance matrix. The components come from the eigenvalue problem A x = λ x, where λ is an eigenvalue and x is the matching eigenvector.",
+      "A large eigenvalue means the matching principal component is important in describing the data (slide 16). An eigenvalue near zero means the component is relatively unimportant, so the data depend mainly on fewer components."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Professor's lecture (25 Oct)",
+     "text": "The eigenvectors give the principal component directions and the eigenvalues give the strength along them. He noted this is also being learned in MFML, so it is a definition-level topic here."
+    },
+    {
+     "type": "trap",
+     "label": "Wording",
+     "text": "The slide says the uncorrelated variables are \"independent\". Uncorrelated only means zero linear relationship. Be careful with the word independent in your own answers."
+    }
+   ]
+  },
+  {
+   "title": "Regression: the idea (slides 39–42)",
+   "lead": "Predict Y from X with a straight line. Y is the thing you predict, X is what you use to predict it.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "The Showtime movie-theatre owner wants to predict weekly gross revenue (Y) from television advertising (X) (slide 39). Build the model in three steps:"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Simplest guess: revenue is proportional to advertising, **Y = bX**.",
+      "But revenue is not zero when there is no advertising, so add an intercept: **Y = a + bX**. Here **a** is the baseline revenue at X = 0 and **b** is the slope, the expected change in revenue for one extra unit of advertising.",
+      "Real measurements also contain randomness, so the full model is **Y = a + bX + ε** (slide 40). This is the simple linear regression model."
+     ]
+    },
+    {
+     "type": "table",
+     "head": [
+      "Name",
+      "Also called"
+     ],
+     "rows": [
+      [
+       "Y",
+       "dependent variable, response variable, predicted variable"
+      ],
+      [
+       "X",
+       "independent variable, explanatory variable, predictor variable"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Assumptions about the error ε (slide 42)"
+    },
+    {
+     "type": "list",
+     "items": [
+      "ε is a random variable with mean 0.",
+      "Its variance σ² is the same for every value of X.",
+      "The values of ε are independent.",
+      "ε is normally distributed."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Professor's lecture (25 Oct)",
+     "text": "The slides use the symbol ε both for the model's noise and for the gap between an actual and a fitted value. He solved the fitting as a plain curve-fitting (deterministic) problem and said the same a and b are also the best values for the noisy model.",
+     "color": "pink"
+    }
+   ]
+  },
+  {
+   "title": "Least squares and the formulas (slides 43–46)",
+   "lead": "Choose the line that makes the total squared error as small as possible.",
+   "blocks": [
+    {
+     "type": "steps",
+     "items": [
+      "For a candidate line, the **residual** of each point is actual Y minus predicted Ŷ.",
+      "Square each residual, so positive and negative errors cannot cancel, and add them: Σ(Y − a − bX)².",
+      "Find the a and b that make this smallest: set the derivative with respect to a to 0, then with respect to b to 0 (slide 44).",
+      "That gives two equations, the **normal equations** (slide 45).",
+      "Solving them gives the formulas for b̂ and â (slide 46)."
+     ]
+    },
+    {
+     "type": "formula",
+     "text": "ΣY = n·a + b·ΣX          (1)\nΣXY = a·ΣX + b·ΣX²          (2)",
+     "caption": "the normal equations"
+    },
+    {
+     "type": "formula",
+     "text": "b̂ = {{ Cov(X, Y) // Var(X) }}  =  {{ Σ(X − X̄)(Y − Ȳ) // Σ(X − X̄)² }}  =  {{ nΣXY − (ΣX)(ΣY) // nΣX² − (ΣX)² }}",
+     "caption": "slope: the two forms are equal. The professor's reading: sample covariance of X and Y divided by the sample variance of X"
+    },
+    {
+     "type": "formula",
+     "text": "â = Ȳ − b̂ · X̄"
+    },
+    {
+     "type": "formula",
+     "text": "Ŷ = â + b̂ · X",
+     "caption": "the fitted regression model"
+    },
+    {
+     "type": "note",
+     "label": "Do you need the derivation?",
+     "text": "No. In the six end-sem papers I checked, every regression question was numeric (fit, predict, interpret). It is open book. Know the two normal equations and the final formulas, and the one-line reason: minimise the sum of squared errors."
+    },
+    {
+     "type": "trap",
+     "label": "Common mistake",
+     "text": "The denominator uses the **X** deviations, Σ(X − X̄)². Do not use the Y deviations. The Showtime slide makes exactly this slip (see the Showtime board)."
+    }
+   ]
+  },
+  {
+   "title": "Regression: standard steps and keywords",
+   "lead": "The same nine steps every time, and the words that tell you it is regression.",
+   "blocks": [
+    {
+     "type": "h",
+     "text": "Standard steps"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Decide X and Y. The variable you predict, or the \"effect on\" variable, is Y.",
+      "Write the formulas first.",
+      "n, X̄ and Ȳ.",
+      "Deviations x = X − X̄ and y = Y − Ȳ. Each list must add to 0.",
+      "Columns xy and x². Add them: Σxy and Σx².",
+      "Slope b̂ = Σxy / Σx².",
+      "Intercept â = Ȳ − b̂·X̄.",
+      "Write the line Ŷ = â + b̂X, then substitute any X they ask about.",
+      "Write one sentence: direction, size with units, and the prediction."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Check",
+     "text": "The fitted line always passes through (X̄, Ȳ). If they ask for a prediction at X = X̄, the answer must be Ȳ."
+    },
+    {
+     "type": "h",
+     "text": "Keywords: how you know it is regression"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Words in the question",
+      "What you do"
+     ],
+     "rows": [
+      [
+       "\"effect of A on B\", \"predict B based on A\", \"Y = f(X)\"",
+       "A is X, B is Y"
+      ],
+      [
+       "\"fit a line\", \"least squares\", \"SSE as the loss\", \"simple regression model\", \"find a suitable linear relation\"",
+       "b̂, â, then Ŷ = â + b̂X"
+      ],
+      [
+       "\"predict … when X = …\"",
+       "Substitute X into the line"
+      ],
+      [
+       "\"interpret the direction\"",
+       "Sign of b̂ in the words of the problem"
+      ],
+      [
+       "\"check whether x and y have a linear relation\", \"coefficient of correlation\"",
+       "Pearson's r"
+      ],
+      [
+       "\"draw a scatter plot\"",
+       "Plot the points, then the line"
+      ],
+      [
+       "\"is the linear model appropriate?\", \"what does the pattern suggest\", \"optimal range\"",
+       "Judge from the plot and residuals (Feb 2026)"
+      ],
+      [
+       "\"coefficient of determination\", \"variation explained\", \"how good is the fit\"",
+       "r² = SSR/SST"
+      ],
+      [
+       "data are ranks, \"rank correlation\"",
+       "Spearman"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Interpretation sentence"
+    },
+    {
+     "type": "p",
+     "text": "\"The slope is **[positive/negative]**, so **[Y]** **[increases/decreases]** as **[X]** increases. Each extra **[unit of X]** changes **[Y]** by about **[b̂]** **[unit of Y]**. At **[X value]** the predicted **[Y]** is **[Ŷ]**.\""
+    },
+    {
+     "type": "p",
+     "text": "Example: \"The slope is positive, so extraction efficiency increases with extraction time. Each extra minute raises efficiency by about 0.76 percentage points. At 35 minutes the predicted efficiency is about 65.8%.\""
+    }
+   ]
+  },
+  {
+   "title": "Slide example: Showtime (slides 47–49) and its error",
+   "lead": "The slide's table has its x and y column headings swapped, so the printed slope 0.407 is wrong. The correct slope is 1.604.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "**The problem (slide 47):** The owner of a Showtime movie theatre wishes to predict weekly gross revenue based on advertising expenditures. The sample data are as follows."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Sl. No",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8"
+     ],
+     "rows": [
+      [
+       "Weekly gross revenue Y ('1000s)",
+       "96",
+       "90",
+       "95",
+       "92",
+       "95",
+       "94",
+       "94",
+       "94"
+      ],
+      [
+       "Television advertising X ('1000s)",
+       "5.0",
+       "2.0",
+       "4.0",
+       "2.5",
+       "3.0",
+       "3.5",
+       "2.5",
+       "3.0"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "What the slide does (slides 48–49)"
+    },
+    {
+     "type": "p",
+     "text": "It prints Σxy = 10.375 and Σx² = 25.5, then b̂ = 10.375 / 25.5 = 0.407, â = 92.45 and Ŷ = 92.45 + 0.407X, giving 94.28 at X = 4.5. The professor repeated this in the lecture."
+    },
+    {
+     "type": "trap",
+     "label": "The error",
+     "text": "In the slide-48 table the column headed x = (X − X̄) actually holds the **Y** deviations (96 − 93.75 = 2.25), and the column headed y holds the **X** deviations (5.0 − 3.19 = 1.81). So \"Σx² = 25.5\" is the sum of squared **Y** deviations. The formula on slide 46 is right, but the denominator must use the **X** deviations."
+    },
+    {
+     "type": "h",
+     "text": "The correct working"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "n = 8. ΣX = 25.5, so X̄ = 3.1875. ΣY = 750, so Ȳ = 93.75.",
+      "Σxy = ΣXY − (ΣX)(ΣY)/n = 2401 − 25.5 × 750 / 8 = 2401 − 2390.625 = **10.375** (the slide's value is right).",
+      "Σx² (X deviations) = ΣX² − (ΣX)²/n = 87.75 − 81.28 = **6.469**.",
+      "b̂ = 10.375 / 6.469 = **1.604**.",
+      "â = 93.75 − 1.604 × 3.1875 = **88.64**.",
+      "Ŷ = 88.64 + 1.604X. At X = 4.5: **95.86**."
+     ]
+    },
+    {
+     "type": "p",
+     "text": "Sense check: at X = 4 the correct line gives 95.05 and the data say 95. The slide's line gives 94.08 at X = 4 and 93.26 at X = 2, where the data say 90."
+    },
+    {
+     "type": "widget",
+     "widget": "corr-calc",
+     "config": {
+      "mode": "pearson",
+      "x": "5.0, 2.0, 4.0, 2.5, 3.0, 3.5, 2.5, 3.0",
+      "y": "96, 90, 95, 92, 95, 94, 94, 94",
+      "at": 4.5
+     }
+    }
+   ]
+  },
+  {
+   "title": "r²: how good is the line? (slides 50–59)",
+   "lead": "The fraction of the total variation in Y that the regression line explains.",
+   "blocks": [
+    {
+     "type": "p",
+     "text": "After fitting the line, slide 50 asks: how good is it? Split the total variation in Y into the part the line explains and the part it leaves over."
+    },
+    {
+     "type": "formula",
+     "text": "SST = Σ(Y − Ȳ)²          total variation (slide 51)\nSSR = Σ(Ŷ − Ȳ)²          explained by the line (slide 52)\nSSE = Σ(Y − Ŷ)²          error left over (slide 53)"
+    },
+    {
+     "type": "formula",
+     "text": "SST = SSR + SSE",
+     "caption": "slide 54"
+    },
+    {
+     "type": "formula",
+     "text": "r² = {{ SSR // SST }} = {{ Σ(Ŷ − Ȳ)² // Σ(Y − Ȳ)² }}",
+     "caption": "slide 55. Always between 0 and 1"
+    },
+    {
+     "type": "note",
+     "label": "Same thing, other way round",
+     "text": "Since SST = SSR + SSE, also r² = 1 − SSE / SST. Use this when SSE and SST are given (practice problem 4.5)."
+    },
+    {
+     "type": "h",
+     "text": "Standard steps"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Fit the line first.",
+      "Compute Ŷ for every X.",
+      "SST = Σ(Y − Ȳ)².",
+      "SSR = Σ(Ŷ − Ȳ)².",
+      "r² = SSR / SST.",
+      "Check: SSE = SST − SSR should equal Σ(Y − Ŷ)².",
+      "Say it in words."
+     ]
+    },
+    {
+     "type": "h",
+     "text": "The slide example (slides 56–59)"
+    },
+    {
+     "type": "p",
+     "text": "Number of TV advertisements X = 1, 3, 2, 1, 3, 2 and number of cars sold Y = 14, 24, 18, 17, 27, 20. Fit a regression line of Y on X and find the coefficient of determination."
+    },
+    {
+     "type": "p",
+     "text": "Line: Ŷ = 10 + 5X. SST = 114, SSR = 100, so r² = 100 / 114 = **0.8772**."
+    },
+    {
+     "type": "p",
+     "text": "Interpretation (slide 59): about 87.7% of the variability in the number of cars sold is explained by the linear regression on TV advertisements. The remaining 12.3% is due to other factors or random variation."
+    },
+    {
+     "type": "note",
+     "label": "Add-on (not on the slides)",
+     "text": "r² equals the square of Pearson's r. So r = + or − √r², with the sign of the slope b̂. Here r = +0.937."
+    },
+    {
+     "type": "trap",
+     "label": "Slide note",
+     "text": "The slide-57 table lists only five of the six data pairs. The missing pair (2, 20) adds 0 to every column, so the results are the same."
+    }
+   ]
+  },
+  {
+   "title": "Spearman's rank correlation (add-on)",
+   "lead": "Pearson's r computed on ranks. Asked once, in May 2026 (5 marks).",
+   "blocks": [
+    {
+     "type": "note",
+     "label": "Where it comes from",
+     "text": "The slides only name it (slide 18) and the professor said it would not be covered. But the 23 May 2026 paper asked it for 5 marks, so it is worth fifteen minutes. The textbooks cover it: T1 Kaptein §6.6.3, R1 Miller & Freund §14.4, R2 Anderson et al. §19.5 (equation 19.8).",
+     "color": "pink"
+    },
+    {
+     "type": "p",
+     "text": "Use it when the data are **ranks** (judges, orderings) or when the question says **rank correlation**. It measures how well two orderings agree: +1 identical, −1 exactly opposite, 0 no agreement."
+    },
+    {
+     "type": "h",
+     "text": "Step 1: get the ranks"
+    },
+    {
+     "type": "p",
+     "text": "If the problem already gives ranks, go to step 2. If it gives raw values (marks, scores, sales), rank each column separately:"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Sort the column from smallest to largest and number the positions 1, 2, 3, …",
+      "The smallest value gets rank 1. Rank **both** columns in the same direction (smallest = 1 in both, or largest = 1 in both).",
+      "A value that repeats is a **tie**: give each tied value the **average** of the positions they occupy. Two values at positions 3 and 4 both get 3.5. Three values at positions 2, 3, 4 each get 3.",
+      "The next value carries on from the last position used, so after the three 75s at positions 2 to 4 the next rank is 5 and rank 4 is never used.",
+      "Check: the ranks of each column add to n(n + 1)/2."
+     ]
+    },
+    {
+     "type": "table",
+     "head": [
+      "Raw marks",
+      "82",
+      "75",
+      "91",
+      "75",
+      "68",
+      "75"
+     ],
+     "rows": [
+      [
+       "Sorted position",
+       "5",
+       "2–4",
+       "6",
+       "2–4",
+       "1",
+       "2–4"
+      ],
+      [
+       "Rank",
+       "5",
+       "3",
+       "6",
+       "3",
+       "1",
+       "3"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Step 2: decide the method by scanning for ties"
+    },
+    {
+     "type": "p",
+     "text": "Look down each column of ranks (or raw values) for a repeated number. **Repeats inside the same column** are ties. The same number appearing in X and in Y is not a tie."
+    },
+    {
+     "type": "table",
+     "head": [
+      "What you see",
+      "Method"
+     ],
+     "rows": [
+      [
+       "Ranks given, no repeats in either column",
+       "d² formula only"
+      ],
+      [
+       "Ranks given, some like 3.5 (ties)",
+       "Covariance method on the ranks"
+      ],
+      [
+       "Raw values, nothing repeats in either column: rank, then",
+       "d² formula only"
+      ],
+      [
+       "Raw values with a repeat in X or in Y: rank with averages, then",
+       "Covariance method on the ranks"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "You do not need both methods. The d² formula is the quick route and it is exact only when there are no ties. The covariance method always works, so use it whenever there is a tie."
+    },
+    {
+     "type": "h",
+     "text": "Method A: no ties, the d² formula (R2 equation 19.8)"
+    },
+    {
+     "type": "formula",
+     "text": "r_{s} = 1 − {{ 6 Σd² // n(n² − 1) }}",
+     "caption": "d = rank of X − rank of Y"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Write d for each pair; the d column adds to 0.",
+      "Square: d². Add: Σd².",
+      "Substitute n and Σd².",
+      "Conclusion: sign for direction, size for strength."
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Method B: ties, the covariance method (T1 §6.6.3, R1 §14.4)"
+    },
+    {
+     "type": "formula",
+     "text": "r_{s} = {{ Cov(rank X, rank Y) // s_{X} · s_{Y} }}",
+     "caption": "Pearson's r computed on the ranks"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Mean rank = (n + 1)/2.",
+      "Table: rank X − mean, rank Y − mean, their product, and the two squares. Add each column.",
+      "Cov = Σ product / (n − 1). Var = Σ square / (n − 1), then s = √Var.",
+      "r_{s} = Cov / (s_{X} · s_{Y}).",
+      "Conclusion."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "The symbol",
+     "text": "Pearson's formula on ranks gives the Spearman coefficient, written r_{s}. In the exam you may write \"Pearson's r on the ranks = r_{s}\"."
+    },
+    {
+     "type": "h",
+     "text": "The four scenarios"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Scenario",
+      "Example in the Classroom",
+      "Route"
+     ],
+     "rows": [
+      [
+       "Ranks given, no ties",
+       "Sales potential (R2); Exercise 32",
+       "d²"
+      ],
+      [
+       "Ranks given, with ties",
+       "Two judges (May 2026)",
+       "Covariance"
+      ],
+      [
+       "Raw values, no ties",
+       "English and Maths marks",
+       "Rank, then d²"
+      ],
+      [
+       "Raw values, with ties",
+       "Test marks; ties in both columns",
+       "Rank (average), then covariance"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "May 2026, Q4 (5 marks), a ranks-with-ties case"
+    },
+    {
+     "type": "p",
+     "text": "Two judges ranked 6 products. Judge A: 1, 2, 3.5, 3.5, 5, 6. Judge B: 2, 1, 4, 3, 6, 5. Find Spearman's rank correlation coefficient and give your conclusion."
+    },
+    {
+     "type": "p",
+     "text": "A has a 3.5 twice, so there are ties: covariance method. Σxy = 15, Σx² = 17, Σy² = 17.5, so r_{s} = 15 / √(17 × 17.5) = **0.87**. The d² formula would give 0.871, which is close but only approximate here."
+    },
+    {
+     "type": "widget",
+     "widget": "corr-calc",
+     "config": {
+      "mode": "spearman",
+      "x": "1, 2, 3.5, 3.5, 5, 6",
+      "y": "2, 1, 4, 3, 6, 5"
+     }
+    },
+    {
+     "type": "p",
+     "text": "**Textbook example (Anderson et al., Table 19.16):** 10 salespeople ranked on potential and on later sales, with no ties. Σd² = 44 and n = 10, so r_{s} = 1 − 6(44)/990 = **0.733**."
+    },
+    {
+     "type": "trap",
+     "label": "Common mistakes",
+     "text": "Counting the same number in X and Y as a tie. Ranking one column smallest-first and the other largest-first. Forgetting to average tied ranks. Using d² when there are ties. Dropping the conclusion sentence."
+    }
+   ]
+  },
+  {
+   "title": "Appropriateness, extrapolation and choosing a model",
+   "lead": "The judgement parts of regression questions: 1 to 3 marks each.",
+   "blocks": [
+    {
+     "type": "h",
+     "text": "Is a straight line appropriate? (Feb 2026, Q5 ii)"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Plot Y against X. Do the points follow a straight band?",
+      "Look at the residuals Y − Ŷ. If they are negative at both ends and positive in the middle (or the reverse), the data curve and a straight line is only an approximation.",
+      "A high r² says the line explains much of the variation, but not that it is the best shape."
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Extrapolation (2023 makeup Q4)"
+    },
+    {
+     "type": "p",
+     "text": "The data had X from 9 to 14, but the question asked for a prediction at x = 20. Compute it, then add: \"x = 20 is outside the observed range, so the prediction is less reliable.\""
+    },
+    {
+     "type": "h",
+     "text": "Choosing between regression models (2023 end-sem Q4b, 3 marks)"
+    },
+    {
+     "type": "p",
+     "text": "Team A: multiple linear regression with SSE as the loss, accuracy 80%. Team B: polynomial regression with SSE, accuracy 90%. Team C: multiple regression fitted by gradient descent, accuracy 85%. Write your observations and pick the best model."
+    },
+    {
+     "type": "note",
+     "label": "Add-on reasoning (not in the slides)",
+     "text": "A and C are the same kind of model (a linear model that minimises SSE). Gradient descent is just a way of finding the same solution, so the difference between 80% and 85% comes from how well it was trained or tuned. B has the highest accuracy but a polynomial is more flexible and can overfit, so check accuracy on data not used for fitting. Choose B only if its accuracy holds on a test set; otherwise prefer the simpler model."
+    },
+    {
+     "type": "trap",
+     "label": "Wording",
+     "text": "Say what you would check, not only the percentages: a held-out test set, model complexity and overfitting."
+    },
+    {
+     "type": "h",
+     "text": "When the prediction goes beyond the data: two cases"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Case",
+      "What you see",
+      "What to write"
+     ],
+     "rows": [
+      [
+       "1. Extrapolation",
+       "X is outside the range of the data (2023 makeup: data 9 to 14, asked at x = 20)",
+       "Give the number, then say x is outside the observed range, so the prediction is less reliable."
+      ],
+      [
+       "2. Impossible value",
+       "Ŷ cannot happen (a score above 100, a negative count)",
+       "Say the line predicts this value but it is impossible, so the linear model does not hold this far outside the data."
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "Why: the line only describes the pattern in the X values you observed. Real relationships often flatten, as the Feb 2026 water and yield data do at high water input."
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Do the substitution and give the number.",
+      "State that X is outside the observed range, so the prediction is less reliable.",
+      "If the value is impossible, say so, and say the relationship probably levels off."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Marks",
+     "text": "You lose marks for leaving out the number, not for adding the warning. The warning usually earns the understanding marks."
+    }
+   ]
+  },
+  {
+   "title": "Which tool? Pearson, Spearman, regression, r², autocorrelation",
+   "lead": "Read the question's words and look at the data. That picks the tool; you do not choose by the size of the answer.",
+   "blocks": [
+    {
+     "type": "table",
+     "head": [
+      "What the question says or gives",
+      "Tool"
+     ],
+     "rows": [
+      [
+       "Two columns of raw measurements; \"covariance\", \"direction\"",
+       "Covariance"
+      ],
+      [
+       "A probability table of X and Y; \"covariance\"",
+       "E(XY) − E(X)·E(Y)"
+      ],
+      [
+       "Raw measurements; \"Karl Pearson\", \"coefficient of correlation\", \"linear relation\", \"strength and direction\"",
+       "Pearson r"
+      ],
+      [
+       "Raw measurements and only \"correlation coefficient\"",
+       "Pearson r (the default)"
+      ],
+      [
+       "Data already ranks, or \"rank correlation\", \"Spearman\"",
+       "Spearman r_{s}"
+      ],
+      [
+       "Raw values and \"rank correlation\"",
+       "Rank each column, then Spearman"
+      ],
+      [
+       "\"Fit a line\", \"least squares\", \"predict\", \"effect of A on B\"",
+       "Regression"
+      ],
+      [
+       "\"Coefficient of determination\", \"variation explained\"",
+       "r²"
+      ],
+      [
+       "One column over time with \"lag\"",
+       "Autocovariance / autocorrelation"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "**Pearson or Spearman?** Pearson uses the actual values and measures how well they follow a straight line. Spearman uses only the order, so it fits data that are rankings. If the question names the method, follow the name; if unsure, marks, measurements and amounts mean Pearson and ranks mean Spearman."
+    },
+    {
+     "type": "note",
+     "label": "Add-on (not on the slides)",
+     "text": "Spearman on raw values is also used when an extreme value distorts Pearson, or when the relationship rises steadily but not in a straight line. Use it only when the question asks for rank correlation."
+    },
+    {
+     "type": "note",
+     "label": "Past papers",
+     "text": "2024 end-sem Q1a gave marks and said Karl Pearson: Pearson. May 2026 Q4 gave judges' ranks and said rank correlation: Spearman. The same data can be asked several ways (see the All together problem)."
+    },
+    {
+     "type": "trap",
+     "label": "Do not choose by the answer",
+     "text": "r and r_{s} usually come out close (0.925 and 0.971 in the capstone), but neither is better. Each answers the question that was asked."
+    }
+   ]
+  },
+  {
+   "title": "Traps and the professor's corrections",
+   "lead": "Small points that cost marks.",
+   "blocks": [
+    {
+     "type": "trap",
+     "label": "Y is a constant: covariance 0, correlation undefined",
+     "text": "The slide with the zero-correlation figures suggests that a constant Y gives r = 0. The professor corrected this. If Y = K always, then Cov(X, Y) = E(XK) − E(X)K = 0, but the standard deviation of Y is also 0, so r = 0/0, which is **undefined**. Say \"zero covariance\", not \"zero correlation\"."
+    },
+    {
+     "type": "trap",
+     "label": "Covariance size means nothing",
+     "text": "A covariance of 500 is not stronger than 5. Its size depends on units. Only r tells you the strength."
+    },
+    {
+     "type": "trap",
+     "label": "n − 1 vs n",
+     "text": "Sample covariance divides by n − 1. The probability version divides by nothing (the probabilities are the weights). The sample autocovariance on slide 14 divides by n."
+    },
+    {
+     "type": "trap",
+     "label": "Slide typos",
+     "text": "Slide 11 uses Ȳ = 23 (true mean 24); the total of the products is still 53. Slide 14 has t where the sum index should be i."
+    },
+    {
+     "type": "trap",
+     "label": "Correlation is not causation",
+     "text": "A strong r says the variables move together. It does not say one causes the other. Say this in the interpretation line."
+    },
+    {
+     "type": "note",
+     "label": "Spotting the model",
+     "text": "\"Correlation\", \"strength and direction\" or \"interpret\" with two columns of data: Pearson's r. \"Direction of the relationship\" or \"covariance\": covariance. A probability table with a covariance request: E(XY) − E(X)E(Y). One column over time with lag: autocovariance or autocorrelation."
+    },
+    {
+     "type": "trap",
+     "label": "Showtime slide error",
+     "text": "The slide-48 table has its x and y headings swapped, so 0.407 is wrong. Correct: b̂ = 1.604, â = 88.64, Ŷ(4.5) = 95.86."
+    },
+    {
+     "type": "trap",
+     "label": "Feb 2026 answer key",
+     "text": "The key prints Ŷ = 0.40 + 0.42X for the water-yield data. The correct line is 0.607 + 0.409X (r² = 0.895)."
+    },
+    {
+     "type": "trap",
+     "label": "Extrapolation",
+     "text": "Predicting outside the observed X range: compute it, then say it is less reliable."
+    },
+    {
+     "type": "trap",
+     "label": "Spearman ties",
+     "text": "Tied values get the average rank, and the d² shortcut is then only approximate."
+    }
+   ]
+  }
+ ],
+ "worked": [
+  {
+   "title": "Covariance · Age and weight (slides 10–11)",
+   "tags": [
+    "Class",
+    "Covariance"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Find the covariance between age (years) and weight (kg) for the following data. Age X: 5, 4, 7, 10, 8, 8. Weight Y: 20, 18, 23, 32, 26, 25."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Model",
+     "text": "Two columns of data and the word covariance: Cov(X, Y) = Σ(X − X̄)(Y − Ȳ)/(n − 1) (slide 8)."
+    },
+    {
+     "label": "Count",
+     "text": "n = 6."
+    },
+    {
+     "label": "Means",
+     "text": "X̄ = 42/6 = **7** and Ȳ = 144/6 = **24**."
+    },
+    {
+     "label": "Deviations",
+     "text": "X − X̄: −2, −3, 0, 3, 1, 1. Y − Ȳ: −4, −6, −1, 8, 2, 1. Each list adds to 0, so they check out."
+    },
+    {
+     "label": "Products",
+     "text": "8, 18, 0, 24, 2, 1."
+    },
+    {
+     "label": "Sum",
+     "text": "8 + 18 + 0 + 24 + 2 + 1 = **53**."
+    },
+    {
+     "label": "Divide",
+     "text": "Cov = 53 / (6 − 1) = **10.6** years·kg."
+    },
+    {
+     "label": "Meaning",
+     "text": "Positive, so age and weight rise together. The slide uses Ȳ = 23 but the sum of products is the same 53."
+    }
+   ],
+   "answer": "Cov(X, Y) = 10.6, positive"
+  },
+  {
+   "title": "Covariance · Practice: X = 2, 4, 6 and Y = 1, 3, 8 (my numbers)",
+   "tags": [
+    "Practice",
+    "Covariance"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Find the covariance of X = 2, 4, 6 and Y = 1, 3, 8. Guess the sign first."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Guess",
+     "text": "Y grows as X grows, so expect a positive covariance."
+    },
+    {
+     "label": "Means",
+     "text": "X̄ = 12/3 = 4 and Ȳ = 12/3 = 4."
+    },
+    {
+     "label": "Deviations",
+     "text": "X − X̄: −2, 0, 2. Y − Ȳ: −3, −1, 4."
+    },
+    {
+     "label": "Products",
+     "text": "(−2)(−3) = 6, (0)(−1) = 0, (2)(4) = 8. Sum = 14."
+    },
+    {
+     "label": "Divide",
+     "text": "n − 1 = 2, so Cov = 14/2 = **7**."
+    }
+   ],
+   "answer": "Cov = 7, positive"
+  },
+  {
+   "title": "Covariance · Probability table (slide 12 formula, my numbers)",
+   "tags": [
+    "Practice",
+    "Covariance",
+    "Probability"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "X and Y each take the values 0 or 1. The joint probabilities p(x, y) are: p(0,0) = 0.2, p(0,1) = 0.3, p(1,0) = 0.1, p(1,1) = 0.4. Find Cov(X, Y) and say whether X and Y are independent."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Model",
+     "text": "A probability table, so Cov = E(XY) − E(X)E(Y) (slide 12)."
+    },
+    {
+     "label": "Check",
+     "text": "0.2 + 0.3 + 0.1 + 0.4 = 1.0."
+    },
+    {
+     "label": "Totals",
+     "text": "P(X=0) = 0.5, P(X=1) = 0.5. P(Y=0) = 0.3, P(Y=1) = 0.7."
+    },
+    {
+     "label": "E(X)",
+     "text": "0(0.5) + 1(0.5) = **0.5**."
+    },
+    {
+     "label": "E(Y)",
+     "text": "0(0.3) + 1(0.7) = **0.7**."
+    },
+    {
+     "label": "E(XY)",
+     "text": "Only the cell (1,1) has x·y ≠ 0, so E(XY) = 1 × 1 × 0.4 = **0.4**."
+    },
+    {
+     "label": "Cov",
+     "text": "0.4 − (0.5)(0.7) = 0.4 − 0.35 = **0.05**. Positive but small."
+    },
+    {
+     "label": "Independent?",
+     "text": "Cov ≠ 0, so they are dependent. Direct check on one cell: P(X=0)·P(Y=0) = 0.5 × 0.3 = 0.15, but p(0,0) = 0.2."
+    }
+   ],
+   "answer": "Cov = 0.05; not independent"
+  },
+  {
+   "title": "Covariance · Probability table, practice (my numbers)",
+   "tags": [
+    "Practice",
+    "Covariance",
+    "Probability"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "p(0,0) = 0.4, p(0,1) = 0.1, p(1,0) = 0.1, p(1,1) = 0.4. Find Cov(X, Y). Guess the sign first. Are X and Y independent?"
+    }
+   ],
+   "steps": [
+    {
+     "label": "Guess",
+     "text": "The big probabilities are on the cells where X and Y match, so expect a positive covariance."
+    },
+    {
+     "label": "Totals",
+     "text": "P(X=0) = P(X=1) = 0.5 and P(Y=0) = P(Y=1) = 0.5."
+    },
+    {
+     "label": "E(X), E(Y)",
+     "text": "Both equal 0.5."
+    },
+    {
+     "label": "E(XY)",
+     "text": "Only (1,1): 1 × 1 × 0.4 = **0.4**."
+    },
+    {
+     "label": "Cov",
+     "text": "0.4 − 0.5 × 0.5 = **0.15**."
+    },
+    {
+     "label": "Independent?",
+     "text": "No. P(X=0)·P(Y=0) = 0.25 but p(0,0) = 0.4."
+    }
+   ],
+   "answer": "Cov = 0.15; not independent"
+  },
+  {
+   "title": "Covariance · Variance-covariance matrix (age and weight)",
+   "tags": [
+    "Class",
+    "Covariance",
+    "Matrix"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "For the age and weight data of slides 10–11, write the variance-covariance matrix."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Plan",
+     "text": "Diagonal: the variances. Off the diagonal: the covariance, repeated (slide 9)."
+    },
+    {
+     "label": "Var(X)",
+     "text": "Σ(X − X̄)² = 4 + 9 + 0 + 9 + 1 + 1 = 24, so Var(X) = 24/5 = **4.8**."
+    },
+    {
+     "label": "Var(Y)",
+     "text": "Σ(Y − Ȳ)² = 16 + 36 + 1 + 64 + 4 + 1 = 122, so Var(Y) = 122/5 = **24.4**."
+    },
+    {
+     "label": "Cov",
+     "text": "10.6 from the previous problem."
+    },
+    {
+     "label": "Matrix",
+     "text": "[ 4.8  10.6 ; 10.6  24.4 ]. It is symmetric."
+    },
+    {
+     "label": "Link to r",
+     "text": "r = Cov/(sX·sY) = 10.6/√(4.8 × 24.4) = 10.6/10.82 = **0.98**."
+    }
+   ],
+   "answer": "[[4.8, 10.6], [10.6, 24.4]]"
+  },
+  {
+   "title": "Covariance · Y is a constant (professor's correction)",
+   "tags": [
+    "Class",
+    "Covariance",
+    "Trap"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "X = 1, 2, 3 and Y = 5, 5, 5. Find the covariance and the correlation."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Means",
+     "text": "X̄ = 2 and Ȳ = 5."
+    },
+    {
+     "label": "Deviations",
+     "text": "X − X̄: −1, 0, 1. Y − Ȳ: 0, 0, 0."
+    },
+    {
+     "label": "Covariance",
+     "text": "Every product is 0, so Cov = **0**."
+    },
+    {
+     "label": "Correlation",
+     "text": "sY = 0, so r = Cov/(sX·sY) = 0/0, which is **undefined**."
+    },
+    {
+     "label": "Say",
+     "text": "There is no linear relationship (zero covariance), but do not write r = 0. The professor corrected the slide on this point."
+    }
+   ],
+   "answer": "Cov = 0; r is undefined"
+  },
+  {
+   "title": "Pearson r · Age and weight (slides 23–25)",
+   "tags": [
+    "Class",
+    "Pearson r"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Find Karl Pearson's coefficient of correlation for age X = 7, 6, 8, 5, 6, 9 and weight Y = 12, 8, 12, 10, 11, 13 (kg)."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Model",
+     "text": "Two columns and a relationship question: Pearson's r = Cov(X, Y) / (s_{X} · s_{Y}) (slide 19)."
+    },
+    {
+     "label": "Means",
+     "text": "n = 6. X̄ = 6.8333, Ȳ = 11."
+    },
+    {
+     "label": "Calculation table",
+     "text": "Fill one row per pair, then add each column (last row).\n| X | Y | X − X̄ | Y − Ȳ | (X − X̄)(Y − Ȳ) | (X − X̄)² | (Y − Ȳ)² |\n| 7 | 12 | 0.1667 | 1 | 0.1667 | 0.0278 | 1 |\n| 6 | 8 | −0.8333 | −3 | 2.5 | 0.6944 | 9 |\n| 8 | 12 | 1.1667 | 1 | 1.1667 | 1.3611 | 1 |\n| 5 | 10 | −1.8333 | −1 | 1.8333 | 3.3611 | 1 |\n| 6 | 11 | −0.8333 | 0 | 0 | 0.6944 | 0 |\n| 9 | 13 | 2.1667 | 2 | 4.3333 | 4.6944 | 4 |\n| Total |  | 0 | 0 | 10 | 10.8333 | 16 |"
+    },
+    {
+     "label": "Covariance",
+     "text": "Cov(X, Y) = Σ(X − X̄)(Y − Ȳ) / (n − 1) = 10 / 5 = **2**."
+    },
+    {
+     "label": "Var(X) and s_{X}",
+     "text": "Σ(X − X̄)² = 10.8333. Var(X) = 10.8333 / 5 = 2.1667. s_{X} = √2.1667 = **1.472**."
+    },
+    {
+     "label": "Var(Y) and s_{Y}",
+     "text": "Σ(Y − Ȳ)² = 16. Var(Y) = 16 / 5 = 3.2. s_{Y} = √3.2 = **1.7889**."
+    },
+    {
+     "label": "r",
+     "text": "r = Cov(X, Y) / (s_{X} · s_{Y}) = 2 / (1.472 × 1.7889) = **0.7596**."
+    },
+    {
+     "label": "Check (slide's sums form)",
+     "text": "ΣX = 41, ΣY = 66, ΣXY = 461, ΣX² = 291, ΣY² = 742. r = 60 / √(65 × 96) = 0.7596. Same answer."
+    },
+    {
+     "label": "Meaning",
+     "text": "Positive and in the strong band (0.76 to 0.99 on slide 22, and the slide calls it strong): older children weigh more."
+    }
+   ],
+   "answer": "r = 0.759, strong positive"
+  },
+  {
+   "title": "Pearson r · Anxiety and test scores (slide 27)",
+   "tags": [
+    "Class",
+    "Pearson r"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Anxiety X = 10, 8, 2, 1, 5, 6 and test score Y = 2, 3, 9, 7, 6, 5. Find r."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Model",
+     "text": "Two columns and a relationship question: Pearson's r = Cov(X, Y) / (s_{X} · s_{Y}) (slide 19)."
+    },
+    {
+     "label": "Means",
+     "text": "n = 6. X̄ = 5.3333, Ȳ = 5.3333."
+    },
+    {
+     "label": "Calculation table",
+     "text": "Fill one row per pair, then add each column (last row).\n| X | Y | X − X̄ | Y − Ȳ | (X − X̄)(Y − Ȳ) | (X − X̄)² | (Y − Ȳ)² |\n| 10 | 2 | 4.6667 | −3.3333 | −15.5556 | 21.7778 | 11.1111 |\n| 8 | 3 | 2.6667 | −2.3333 | −6.2222 | 7.1111 | 5.4444 |\n| 2 | 9 | −3.3333 | 3.6667 | −12.2222 | 11.1111 | 13.4444 |\n| 1 | 7 | −4.3333 | 1.6667 | −7.2222 | 18.7778 | 2.7778 |\n| 5 | 6 | −0.3333 | 0.6667 | −0.2222 | 0.1111 | 0.4444 |\n| 6 | 5 | 0.6667 | −0.3333 | −0.2222 | 0.4444 | 0.1111 |\n| Total |  | 0 | 0 | −41.6667 | 59.3333 | 33.3333 |"
+    },
+    {
+     "label": "Covariance",
+     "text": "Cov(X, Y) = Σ(X − X̄)(Y − Ȳ) / (n − 1) = −41.6667 / 5 = **−8.3333**."
+    },
+    {
+     "label": "Var(X) and s_{X}",
+     "text": "Σ(X − X̄)² = 59.3333. Var(X) = 59.3333 / 5 = 11.8667. s_{X} = √11.8667 = **3.4448**."
+    },
+    {
+     "label": "Var(Y) and s_{Y}",
+     "text": "Σ(Y − Ȳ)² = 33.3333. Var(Y) = 33.3333 / 5 = 6.6667. s_{Y} = √6.6667 = **2.582**."
+    },
+    {
+     "label": "r",
+     "text": "r = Cov(X, Y) / (s_{X} · s_{Y}) = −8.3333 / (3.4448 × 2.582) = **−0.9369**."
+    },
+    {
+     "label": "Check (slide's sums form)",
+     "text": "ΣX = 32, ΣY = 32, ΣXY = 129, ΣX² = 230, ΣY² = 204. r = −250 / √(356 × 200) = −0.9369. Same answer."
+    },
+    {
+     "label": "Meaning",
+     "text": "Strong negative: students with more anxiety tend to score lower."
+    }
+   ],
+   "answer": "r = −0.94, strong negative"
+  },
+  {
+   "title": "Pearson r · Maths and Statistics (2024 end-sem Q1a, 4 marks)",
+   "tags": [
+    "Past paper",
+    "Pearson r"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "The scores (out of 20) of 5 students in Mathematics (X) and Statistics (Y) are: Ram 12, 15. Sham 8, 10. Rupa 16, 18. Anil 6, 9. Sunil 14, 16. Calculate Karl Pearson's coefficient of correlation and interpret your result."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Model",
+     "text": "Two columns and a relationship question: Pearson's r = Cov(X, Y) / (s_{X} · s_{Y}) (slide 19)."
+    },
+    {
+     "label": "Means",
+     "text": "n = 5. X̄ = 11.2, Ȳ = 13.6."
+    },
+    {
+     "label": "Calculation table",
+     "text": "Fill one row per pair, then add each column (last row).\n| X | Y | X − X̄ | Y − Ȳ | (X − X̄)(Y − Ȳ) | (X − X̄)² | (Y − Ȳ)² |\n| 12 | 15 | 0.8 | 1.4 | 1.12 | 0.64 | 1.96 |\n| 8 | 10 | −3.2 | −3.6 | 11.52 | 10.24 | 12.96 |\n| 16 | 18 | 4.8 | 4.4 | 21.12 | 23.04 | 19.36 |\n| 6 | 9 | −5.2 | −4.6 | 23.92 | 27.04 | 21.16 |\n| 14 | 16 | 2.8 | 2.4 | 6.72 | 7.84 | 5.76 |\n| Total |  | 0 | 0 | 64.4 | 68.8 | 61.2 |"
+    },
+    {
+     "label": "Covariance",
+     "text": "Cov(X, Y) = Σ(X − X̄)(Y − Ȳ) / (n − 1) = 64.4 / 4 = **16.1**."
+    },
+    {
+     "label": "Var(X) and s_{X}",
+     "text": "Σ(X − X̄)² = 68.8. Var(X) = 68.8 / 4 = 17.2. s_{X} = √17.2 = **4.1473**."
+    },
+    {
+     "label": "Var(Y) and s_{Y}",
+     "text": "Σ(Y − Ȳ)² = 61.2. Var(Y) = 61.2 / 4 = 15.3. s_{Y} = √15.3 = **3.9115**."
+    },
+    {
+     "label": "r",
+     "text": "r = Cov(X, Y) / (s_{X} · s_{Y}) = 16.1 / (4.1473 × 3.9115) = **0.9925**."
+    },
+    {
+     "label": "Check (slide's sums form)",
+     "text": "ΣX = 56, ΣY = 68, ΣXY = 826, ΣX² = 696, ΣY² = 986. r = 322 / √(344 × 306) = 0.9925. Same answer."
+    },
+    {
+     "label": "Meaning",
+     "text": "r ≈ 0.99 is positive and close to +1, a strong positive correlation: students who score high in Mathematics also score high in Statistics. This shows association, not that one subject causes the other."
+    }
+   ],
+   "answer": "r ≈ 0.99, strong positive"
+  },
+  {
+   "title": "Pearson r · A perfect positive line (practice)",
+   "tags": [
+    "Practice",
+    "Pearson r"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "X = 2, 4, 6, 8 and Y = 3, 5, 7, 9. Find r."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Model",
+     "text": "Two columns and a relationship question: Pearson's r = Cov(X, Y) / (s_{X} · s_{Y}) (slide 19)."
+    },
+    {
+     "label": "Means",
+     "text": "n = 4. X̄ = 5, Ȳ = 6."
+    },
+    {
+     "label": "Calculation table",
+     "text": "Fill one row per pair, then add each column (last row).\n| X | Y | X − X̄ | Y − Ȳ | (X − X̄)(Y − Ȳ) | (X − X̄)² | (Y − Ȳ)² |\n| 2 | 3 | −3 | −3 | 9 | 9 | 9 |\n| 4 | 5 | −1 | −1 | 1 | 1 | 1 |\n| 6 | 7 | 1 | 1 | 1 | 1 | 1 |\n| 8 | 9 | 3 | 3 | 9 | 9 | 9 |\n| Total |  | 0 | 0 | 20 | 20 | 20 |"
+    },
+    {
+     "label": "Covariance",
+     "text": "Cov(X, Y) = Σ(X − X̄)(Y − Ȳ) / (n − 1) = 20 / 3 = **6.6667**."
+    },
+    {
+     "label": "Var(X) and s_{X}",
+     "text": "Σ(X − X̄)² = 20. Var(X) = 20 / 3 = 6.6667. s_{X} = √6.6667 = **2.582**."
+    },
+    {
+     "label": "Var(Y) and s_{Y}",
+     "text": "Σ(Y − Ȳ)² = 20. Var(Y) = 20 / 3 = 6.6667. s_{Y} = √6.6667 = **2.582**."
+    },
+    {
+     "label": "r",
+     "text": "r = Cov(X, Y) / (s_{X} · s_{Y}) = 6.6667 / (2.582 × 2.582) = **1**."
+    },
+    {
+     "label": "Check (slide's sums form)",
+     "text": "ΣX = 20, ΣY = 24, ΣXY = 140, ΣX² = 120, ΣY² = 164. r = 80 / √(80 × 80) = 1. Same answer."
+    },
+    {
+     "label": "Meaning",
+     "text": "Every Y equals X + 1, so all points lie on one rising line."
+    }
+   ],
+   "answer": "r = +1"
+  },
+  {
+   "title": "Pearson r · A perfect negative line (practice)",
+   "tags": [
+    "Practice",
+    "Pearson r"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "X = 1, 2, 3, 4, 5 and Y = 5, 4, 3, 2, 1. Without calculating, what do you expect? Then verify."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Model",
+     "text": "Two columns and a relationship question: Pearson's r = Cov(X, Y) / (s_{X} · s_{Y}) (slide 19)."
+    },
+    {
+     "label": "Means",
+     "text": "n = 5. X̄ = 3, Ȳ = 3."
+    },
+    {
+     "label": "Calculation table",
+     "text": "Fill one row per pair, then add each column (last row).\n| X | Y | X − X̄ | Y − Ȳ | (X − X̄)(Y − Ȳ) | (X − X̄)² | (Y − Ȳ)² |\n| 1 | 5 | −2 | 2 | −4 | 4 | 4 |\n| 2 | 4 | −1 | 1 | −1 | 1 | 1 |\n| 3 | 3 | 0 | 0 | 0 | 0 | 0 |\n| 4 | 2 | 1 | −1 | −1 | 1 | 1 |\n| 5 | 1 | 2 | −2 | −4 | 4 | 4 |\n| Total |  | 0 | 0 | −10 | 10 | 10 |"
+    },
+    {
+     "label": "Covariance",
+     "text": "Cov(X, Y) = Σ(X − X̄)(Y − Ȳ) / (n − 1) = −10 / 4 = **−2.5**."
+    },
+    {
+     "label": "Var(X) and s_{X}",
+     "text": "Σ(X − X̄)² = 10. Var(X) = 10 / 4 = 2.5. s_{X} = √2.5 = **1.5811**."
+    },
+    {
+     "label": "Var(Y) and s_{Y}",
+     "text": "Σ(Y − Ȳ)² = 10. Var(Y) = 10 / 4 = 2.5. s_{Y} = √2.5 = **1.5811**."
+    },
+    {
+     "label": "r",
+     "text": "r = Cov(X, Y) / (s_{X} · s_{Y}) = −2.5 / (1.5811 × 1.5811) = **−1**."
+    },
+    {
+     "label": "Check (slide's sums form)",
+     "text": "ΣX = 15, ΣY = 15, ΣXY = 35, ΣX² = 55, ΣY² = 55. r = −50 / √(50 × 50) = −1. Same answer."
+    },
+    {
+     "label": "Meaning",
+     "text": ""
+    }
+   ],
+   "answer": "r = −1"
+  },
+  {
+   "title": "Pearson r · Through the covariance (practice)",
+   "tags": [
+    "Practice",
+    "Pearson r",
+    "Covariance"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "For X = 2, 4, 6 and Y = 1, 3, 8, we found Cov = 7. Find r using the covariance, and check it with the computational form."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Standard deviations",
+     "text": "ΣX deviations² = 8, so sX = √(8/2) = 2. ΣY deviations² = 26, so sY = √(26/2) = √13 = 3.606."
+    },
+    {
+     "label": "r",
+     "text": "r = 7 / (2 × 3.606) = **0.97**."
+    },
+    {
+     "label": "Check",
+     "text": "ΣX = 12, ΣY = 12, ΣXY = 62, ΣX² = 56, ΣY² = 74, n = 3. Numerator 3(62) − 144 = 42. Brackets 3(56) − 144 = 24 and 3(74) − 144 = 78. r = 42/√(24 × 78) = 42/43.27 = 0.97. Same answer."
+    },
+    {
+     "label": "Meaning",
+     "text": "Strong positive."
+    }
+   ],
+   "answer": "r ≈ 0.97, strong positive"
+  },
+  {
+   "title": "Auto · Sample autocovariance (practice, my numbers)",
+   "tags": [
+    "Practice",
+    "Autocovariance"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A series has the values 4, 6, 5, 7, 8. Find the sample autocovariance γ̂(h) for h = 0, 1, 2 using the slide formula."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Mean",
+     "text": "X̄ = 30/5 = **6**, n = 5."
+    },
+    {
+     "label": "Deviations",
+     "text": "−2, 0, −1, 1, 2."
+    },
+    {
+     "label": "Lag 0",
+     "text": "Pair each deviation with itself: 4 + 0 + 1 + 1 + 4 = 10. γ̂(0) = 10/5 = **2**."
+    },
+    {
+     "label": "Lag 1",
+     "text": "Pair each deviation with the next one: (0)(−2) + (−1)(0) + (1)(−1) + (2)(1) = 0 + 0 − 1 + 2 = 1. That is n − 1 = 4 products. γ̂(1) = 1/5 = **0.2**."
+    },
+    {
+     "label": "Lag 2",
+     "text": "Pair with the one two steps on: (−1)(−2) + (1)(0) + (2)(−1) = 2 + 0 − 2 = 0. That is n − 2 = 3 products. γ̂(2) = 0/5 = **0**."
+    },
+    {
+     "label": "Reading",
+     "text": "γ̂(0) is the variance of the series. The small positive γ̂(1) says neighbouring values lean slightly the same way; at lag 2 the relationship disappears."
+    }
+   ],
+   "answer": "γ̂(0) = 2, γ̂(1) = 0.2, γ̂(2) = 0"
+  },
+  {
+   "title": "Auto · Autocorrelation of the same series (practice)",
+   "tags": [
+    "Practice",
+    "Autocorrelation"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "For the series 4, 6, 5, 7, 8, find r_{1} and r_{2} from the slide formula, and check with γ̂(k)/γ̂(0)."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Denominator",
+     "text": "Σ(y_{t} − ȳ)² over all t = 4 + 0 + 1 + 1 + 4 = **10**."
+    },
+    {
+     "label": "r1",
+     "text": "Numerator: Σ over t = 2 to 5 of (y_{t} − ȳ)(y_{t−1} − ȳ) = 1 (from the previous problem). r_{1} = 1/10 = **0.1**."
+    },
+    {
+     "label": "r2",
+     "text": "Numerator: Σ over t = 3 to 5 of (y_{t} − ȳ)(y_{t−2} − ȳ) = 0. r_{2} = **0**."
+    },
+    {
+     "label": "Check",
+     "text": "γ̂(1)/γ̂(0) = 0.2/2 = 0.1 and γ̂(2)/γ̂(0) = 0. They agree because both divide by n."
+    },
+    {
+     "label": "Lag 0",
+     "text": "r_{0} = 10/10 = 1 always."
+    }
+   ],
+   "answer": "r_{1} = 0.1, r_{2} = 0"
+  },
+  {
+   "title": "Auto · A steadily rising series (practice)",
+   "tags": [
+    "Practice",
+    "Autocorrelation"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "For the series 1, 2, 3, 4, 5 find γ̂(0), γ̂(1) and r_{1}, r_{2}."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Mean",
+     "text": "X̄ = 3. Deviations: −2, −1, 0, 1, 2."
+    },
+    {
+     "label": "γ̂(0)",
+     "text": "(4 + 1 + 0 + 1 + 4)/5 = **2**."
+    },
+    {
+     "label": "γ̂(1)",
+     "text": "(−1)(−2) + (0)(−1) + (1)(0) + (2)(1) = 2 + 0 + 0 + 2 = 4, so γ̂(1) = 4/5 = **0.8**."
+    },
+    {
+     "label": "r1",
+     "text": "4/10 = **0.4**."
+    },
+    {
+     "label": "r2",
+     "text": "Products: (0)(−2) + (1)(−1) + (2)(0) = −1, so r_{2} = −1/10 = **−0.1**."
+    },
+    {
+     "label": "Reading",
+     "text": "Neighbouring values are positively related, and the effect fades with lag. (A trend is why the long-lag values look odd in a short series.)"
+    }
+   ],
+   "answer": "γ̂(0) = 2, γ̂(1) = 0.8, r_{1} = 0.4, r_{2} = −0.1"
+  },
+  {
+   "title": "Regression · Extraction time (2024 end-sem Q3)",
+   "tags": [
+    "Past paper",
+    "Regression"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A chemical company, wishing to study the effect of extraction time on the efficiency of an extraction operation, obtained the data shown below. [8 marks]"
+    },
+    {
+     "type": "table",
+     "head": [
+      "X, extraction time (minutes)",
+      "27",
+      "45",
+      "41",
+      "19",
+      "35",
+      "39",
+      "19",
+      "49",
+      "15",
+      "31"
+     ],
+     "rows": [
+      [
+       "Y, extraction efficiency (%)",
+       "57",
+       "64",
+       "80",
+       "46",
+       "62",
+       "72",
+       "52",
+       "77",
+       "57",
+       "68"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "i. Fit a straight line to the given data by the method of least squares. ii. Use it to predict the extraction efficiency when the extraction time is 35 minutes. iii. Draw a scatter plot for the given data."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Identify",
+     "text": "\"Effect of extraction time on efficiency\": time is X, efficiency is Y. \"Fit by least squares\": regression."
+    },
+    {
+     "label": "Formulas",
+     "text": "b̂ = Σxy / Σx², â = Ȳ − b̂X̄, Ŷ = â + b̂X (slide 46)."
+    },
+    {
+     "label": "Means",
+     "text": "n = 10. ΣX = 320, X̄ = **32**. ΣY = 635, Ȳ = **63.5**."
+    },
+    {
+     "label": "Deviations",
+     "text": "x = X − 32: −5, 13, 9, −13, 3, 7, −13, 17, −17, −1. y = Y − 63.5: −6.5, 0.5, 16.5, −17.5, −1.5, 8.5, −11.5, 13.5, −6.5, 4.5. Each list adds to 0."
+    },
+    {
+     "label": "Columns",
+     "text": "xy: 32.5, 6.5, 148.5, 227.5, −4.5, 59.5, 149.5, 229.5, 110.5, −4.5, so Σxy = **955**. x²: 25, 169, 81, 169, 9, 49, 169, 289, 289, 1, so Σx² = **1250**."
+    },
+    {
+     "label": "Slope",
+     "text": "b̂ = 955 / 1250 = **0.764**."
+    },
+    {
+     "label": "Intercept",
+     "text": "â = 63.5 − 0.764 × 32 = **39.05**."
+    },
+    {
+     "label": "(i) The line",
+     "text": "**Ŷ = 39.05 + 0.764X**."
+    },
+    {
+     "label": "(ii) Predict",
+     "text": "Ŷ(35) = 39.05 + 0.764 × 35 = 39.05 + 26.74 = **65.8%**. X = 35 is inside the data range."
+    },
+    {
+     "label": "(iii) Scatter plot",
+     "text": "Axes: time 10 to 55 (horizontal), efficiency 40 to 85 (vertical). Mark the 10 points and draw the line through (15, 50.5) and (49, 76.5). The points rise to the right."
+    },
+    {
+     "label": "Sentence",
+     "text": "The slope is positive, so efficiency rises with extraction time, by about 0.76 percentage points per extra minute."
+    },
+    {
+     "label": "Check",
+     "text": "Computational form: ΣXY = 21275, ΣX² = 11490, b̂ = (10 × 21275 − 320 × 635) / (10 × 11490 − 320²) = 9550 / 12500 = 0.764. Same."
+    }
+   ],
+   "answer": "Ŷ = 39.05 + 0.764X; prediction at 35 minutes = 65.8%"
+  },
+  {
+   "title": "Regression · Screen time (Mar 2026 makeup Q7)",
+   "tags": [
+    "Past paper",
+    "Regression"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A dataset measures daily screen time and productivity score. [5 marks]"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Screen time (hrs)",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6"
+     ],
+     "rows": [
+      [
+       "Productivity",
+       "90",
+       "85",
+       "78",
+       "72",
+       "65",
+       "60"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "a) Fit a simple regression model. b) Interpret the direction of the relationship. c) Predict productivity when screen time = 3.5 hrs."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Identify",
+     "text": "\"Fit a simple regression model\" and \"predict\": regression, X = screen time, Y = productivity."
+    },
+    {
+     "label": "Means",
+     "text": "n = 6. X̄ = 3.5, Ȳ = 75."
+    },
+    {
+     "label": "Deviations",
+     "text": "x: −2.5, −1.5, −0.5, 0.5, 1.5, 2.5. y: 15, 10, 3, −3, −10, −15."
+    },
+    {
+     "label": "Columns",
+     "text": "xy: −37.5, −15, −1.5, −1.5, −15, −37.5, so Σxy = **−108**. x²: 6.25, 2.25, 0.25, 0.25, 2.25, 6.25, so Σx² = **17.5**."
+    },
+    {
+     "label": "(a) Slope and intercept",
+     "text": "b̂ = −108 / 17.5 = **−6.1714**. â = 75 − (−6.1714)(3.5) = 75 + 21.6 = **96.6**. Line: **Ŷ = 96.6 − 6.1714X**."
+    },
+    {
+     "label": "(b) Direction",
+     "text": "b̂ is negative, so productivity decreases as screen time increases: about 6.2 points lower for each extra hour."
+    },
+    {
+     "label": "(c) Predict",
+     "text": "Ŷ(3.5) = 96.6 − 6.1714 × 3.5 = **75**. This must equal Ȳ, because 3.5 = X̄ and the line passes through (X̄, Ȳ)."
+    }
+   ],
+   "answer": "Ŷ = 96.6 − 6.1714X; negative relationship; prediction 75"
+  },
+  {
+   "title": "Regression · Showtime (slides 47–49, corrected)",
+   "tags": [
+    "Class",
+    "Regression",
+    "Slide error"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "The owner of a Showtime movie theatre wishes to predict weekly gross revenue based on advertising expenditures. The sample data are as follows."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Sl. No",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8"
+     ],
+     "rows": [
+      [
+       "Weekly gross revenue Y ('1000s)",
+       "96",
+       "90",
+       "95",
+       "92",
+       "95",
+       "94",
+       "94",
+       "94"
+      ],
+      [
+       "Television advertising X ('1000s)",
+       "5.0",
+       "2.0",
+       "4.0",
+       "2.5",
+       "3.0",
+       "3.5",
+       "2.5",
+       "3.0"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "Fit the regression line of revenue on advertising, and predict revenue when advertising is 4.5."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Identify",
+     "text": "Predict revenue from advertising: Y = revenue, X = advertising."
+    },
+    {
+     "label": "Means",
+     "text": "n = 8. X̄ = 25.5/8 = 3.1875. Ȳ = 750/8 = 93.75."
+    },
+    {
+     "label": "Σxy",
+     "text": "ΣXY = 2401, so Σxy = 2401 − (25.5)(750)/8 = **10.375**."
+    },
+    {
+     "label": "Σx²",
+     "text": "ΣX² = 87.75, so Σx² = 87.75 − (25.5)²/8 = **6.469**. This uses the X deviations."
+    },
+    {
+     "label": "Slope",
+     "text": "b̂ = 10.375 / 6.469 = **1.604**."
+    },
+    {
+     "label": "Intercept",
+     "text": "â = 93.75 − 1.604 × 3.1875 = **88.64**."
+    },
+    {
+     "label": "Line",
+     "text": "**Ŷ = 88.64 + 1.604X**."
+    },
+    {
+     "label": "Predict",
+     "text": "Ŷ(4.5) = 88.64 + 7.22 = **95.86**."
+    },
+    {
+     "label": "Slide error",
+     "text": "The slide's 0.407 divides by 25.5, the sum of squared Y deviations, because the x and y column headings are swapped. Do not use 0.407."
+    }
+   ],
+   "answer": "b̂ = 1.604, â = 88.64, Ŷ(4.5) = 95.86"
+  },
+  {
+   "title": "Regression · Practice 4.1 (ISM Practice Questions)",
+   "tags": [
+    "Practice",
+    "Regression",
+    "r²"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Given the following data on advertising expenditure (X, in $1000s) and sales revenue (Y, in $10,000s):"
+    },
+    {
+     "type": "table",
+     "head": [
+      "X",
+      "2",
+      "3",
+      "5",
+      "6",
+      "8"
+     ],
+     "rows": [
+      [
+       "Y",
+       "5",
+       "7",
+       "10",
+       "11",
+       "15"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "(a) Compute the least squares regression line. (b) Calculate the coefficient of determination r² and interpret its value. (c) Predict the sales revenue if the advertising expenditure is $7,000."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Means",
+     "text": "n = 5. X̄ = 4.8, Ȳ = 9.6."
+    },
+    {
+     "label": "Deviations",
+     "text": "x: −2.8, −1.8, 0.2, 1.2, 3.2. y: −4.6, −2.6, 0.4, 1.4, 5.4."
+    },
+    {
+     "label": "Sums",
+     "text": "Σxy = 12.88 + 4.68 + 0.08 + 1.68 + 17.28 = **36.6**. Σx² = 22.8. Σy² = 59.2."
+    },
+    {
+     "label": "(a) Line",
+     "text": "b̂ = 36.6 / 22.8 = **1.605**. â = 9.6 − 1.605 × 4.8 = **1.895** (the practice file writes 1.896, using b̂ rounded to 1.605). **Ŷ = 1.9 + 1.605X**."
+    },
+    {
+     "label": "(b) r²",
+     "text": "SST = Σy² = 59.2. SSR = b̂ × Σxy = 1.6053 × 36.6 = 58.75. r² = 58.75 / 59.2 = **0.992**. About 99.2% of the variation in sales is explained by advertising."
+    },
+    {
+     "label": "(c) Predict",
+     "text": "X = 7 (in $1000s): Ŷ = 1.895 + 1.605 × 7 = **13.13**, that is $131,300 (Y is in $10,000s)."
+    }
+   ],
+   "answer": "Ŷ = 1.895 + 1.605X; r² = 0.992; prediction 13.13"
+  },
+  {
+   "title": "Regression · Linear relation, fit and predict (2023 makeup Q4)",
+   "tags": [
+    "Past paper",
+    "Regression",
+    "Pearson r"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Consider the following data (Y = f(X)). [10 marks]"
+    },
+    {
+     "type": "table",
+     "head": [
+      "X",
+      "12",
+      "10",
+      "13",
+      "10",
+      "9",
+      "14"
+     ],
+     "rows": [
+      [
+       "Y",
+       "15",
+       "20",
+       "22",
+       "13",
+       "12",
+       "18"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "i) Check whether x and y have any linear relation using a suitable statistical approach. ii) Find a suitable linear relation using the sum of squared errors (SSE) as the loss/cost function. iii) Use this relation to predict y when x is 20."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Identify",
+     "text": "\"Linear relation\": Pearson's r. \"SSE as the loss\": least squares. \"Predict\": substitute."
+    },
+    {
+     "label": "Sums",
+     "text": "n = 6. ΣX = 68, ΣY = 100, X̄ = 11.33, Ȳ = 16.67. ΣXY = 1156, ΣX² = 790, ΣY² = 1746."
+    },
+    {
+     "label": "Sxy, Sxx, Syy",
+     "text": "Σxy = 1156 − 68 × 100/6 = **22.67**. Σx² = 790 − 68²/6 = **19.33**. Σy² = 1746 − 100²/6 = **79.33**."
+    },
+    {
+     "label": "(i) r",
+     "text": "r = 22.67 / √(19.33 × 79.33) = 22.67 / 39.16 = **0.58**, a moderate positive linear relation."
+    },
+    {
+     "label": "(ii) Line",
+     "text": "b̂ = 22.67 / 19.33 = **1.172**. â = 16.67 − 1.172 × 11.33 = **3.38**. **Ŷ = 3.38 + 1.172X**."
+    },
+    {
+     "label": "(iii) Predict",
+     "text": "Ŷ(20) = 3.38 + 1.172 × 20 = **26.8**."
+    },
+    {
+     "label": "Caution",
+     "text": "x = 20 is outside the observed X range (9 to 14), so this is extrapolation and less reliable. r² is only 0.33, so the line explains about a third of the variation."
+    }
+   ],
+   "answer": "r = 0.58; Ŷ = 3.38 + 1.172X; prediction 26.8 (extrapolation)"
+  },
+  {
+   "title": "Regression · Water input and yield (Feb 2026 Q5)",
+   "tags": [
+    "Past paper",
+    "Regression",
+    "Judgement"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "The Mumbai Urban Farming Initiative (MUFI) is piloting IoT-enabled smart irrigation systems in rooftop vegetable gardens across Mumbai. Data were collected from 10 gardens over one growing season. X: average daily water input (L/m²/day). Y: crop yield (kg/m²) for leafy greens. The goal is to model the relationship between water input and yield to optimise resource use and avoid over-irrigation. [2 + 1 + 2 marks]"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Garden",
+      "G1",
+      "G2",
+      "G3",
+      "G4",
+      "G5",
+      "G6",
+      "G7",
+      "G8",
+      "G9",
+      "G10"
+     ],
+     "rows": [
+      [
+       "X (L/m²/day)",
+       "3.0",
+       "4.2",
+       "2.5",
+       "5.1",
+       "3.8",
+       "6.0",
+       "2.0",
+       "4.5",
+       "5.5",
+       "3.3"
+      ],
+      [
+       "Y (kg/m²)",
+       "1.8",
+       "2.5",
+       "1.6",
+       "2.9",
+       "2.3",
+       "2.7",
+       "1.2",
+       "2.6",
+       "2.8",
+       "2.0"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "i. Fit a simple linear regression model Y = β0 + β1X. ii. Discuss whether the linear model is appropriate. What does the pattern suggest? iii. Based on your analysis, what is the optimal water input range (in L/m²/day) for maximising yield per unit water (water-use efficiency)? Justify using your model and real-world constraints (for example, water scarcity in Mumbai)."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Means",
+     "text": "n = 10. ΣX = 39.9, X̄ = 3.99. ΣY = 22.4, Ȳ = 2.24."
+    },
+    {
+     "label": "Sums",
+     "text": "Σxy = 6.354. Σx² = 15.529. Σy² = 2.904."
+    },
+    {
+     "label": "(i) Fit",
+     "text": "b̂ = 6.354 / 15.529 = **0.409**. â = 2.24 − 0.409 × 3.99 = **0.607**. **Ŷ = 0.607 + 0.409X**. Yield rises by about 0.41 kg/m² for each extra litre per m² per day. r² = 0.895."
+    },
+    {
+     "label": "(ii) Appropriate?",
+     "text": "r² = 0.895, so a straight line explains most of the variation. But the residuals are negative at both ends (X = 2.0: −0.23, X = 6.0: −0.36) and positive in the middle (X = 4.2: +0.17, X = 5.1: +0.21). That curved pattern says yield has diminishing returns: it flattens at high water input. The line is a good first model, but a curve would fit better."
+    },
+    {
+     "label": "(iii) Optimal range",
+     "text": "Yield per litre Y/X: about 0.60 to 0.64 for X from 2.5 to 3.8, 0.58 at 4.5, 0.57 at 5.1, 0.51 at 5.5 and 0.45 at 6.0. Beyond about 5 L the extra water adds little yield. The answer key gives **3.5 to 4.5 L/m²/day**, which balances yield and efficiency, and it saves water (scarce in Mumbai) and avoids nutrient leaching and energy costs."
+    },
+    {
+     "label": "Answer-key error",
+     "text": "The official key prints Ŷ = 0.40 + 0.42X. That line does not pass through (X̄, Ȳ) = (3.99, 2.24), since 0.40 + 0.42 × 3.99 = 2.08, so it is a slip. The correct least-squares line is 0.607 + 0.409X. The interpretation and range are unaffected."
+    }
+   ],
+   "answer": "Ŷ = 0.607 + 0.409X; r² = 0.895; curved pattern; optimal range about 3.5 to 4.5 L/m²/day"
+  },
+  {
+   "title": "Regression · Choosing a model (2023 end-sem Q4b)",
+   "tags": [
+    "Past paper",
+    "Regression",
+    "Theory"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A project related to prediction is given to three teams A, B and C. Team A proposed a multiple linear regression model (with SSE as the loss function) with accuracy of 80%. Team B proposed a polynomial regression model (with SSE) with accuracy of 90%. Team C proposed a multiple regression model using the gradient descent approach with accuracy of 85%. Write your observations on each model if you are asked to select the best model for prediction. [3 marks]"
+    }
+   ],
+   "steps": [
+    {
+     "label": "A",
+     "text": "A linear model fitted by minimising SSE (the least-squares solution). Simple, easy to interpret, lowest accuracy here (80%)."
+    },
+    {
+     "label": "C",
+     "text": "The same kind of model as A, fitted by gradient descent instead of the closed form. Gradient descent should reach about the same solution, so the 85% versus 80% gap suggests differences in training (learning rate, iterations, features), not a different model class."
+    },
+    {
+     "label": "B",
+     "text": "A polynomial is more flexible and has the highest accuracy (90%), but a flexible model can overfit."
+    },
+    {
+     "label": "Decision",
+     "text": "Check accuracy on data not used for fitting. If B's 90% holds on a held-out test set, choose B. If it drops, prefer the simpler model. Also weigh interpretability and complexity."
+    },
+    {
+     "label": "Source",
+     "text": "This is reasoning beyond the CS 11 slides; state the checks you would make."
+    }
+   ],
+   "answer": "Prefer B only if its accuracy holds on unseen data; A and C are the same model class"
+  },
+  {
+   "title": "Covariance · Covariance, correlation and inference (2023 end-sem Q4a)",
+   "tags": [
+    "Past paper",
+    "Covariance",
+    "Pearson r"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Consider the following data. [7 marks]"
+    },
+    {
+     "type": "table",
+     "head": [
+      "X",
+      "10",
+      "12",
+      "15",
+      "13",
+      "11",
+      "19"
+     ],
+     "rows": [
+      [
+       "Y",
+       "20",
+       "22",
+       "25",
+       "18",
+       "17",
+       "22"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "i) Comment on the relation between X and Y using covariance. ii) Comment on the relation between X and Y using the coefficient of correlation. iii) Write your inference based on the above."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Sums",
+     "text": "n = 6. ΣX = 80, ΣY = 124. ΣXY = 1678, ΣX² = 1120, ΣY² = 2606."
+    },
+    {
+     "label": "Deviation sums",
+     "text": "Σxy = 1678 − 80 × 124/6 = **24.67**. Σx² = 1120 − 80²/6 = **53.33**. Σy² = 2606 − 124²/6 = **43.33**."
+    },
+    {
+     "label": "(i) Covariance",
+     "text": "Cov = 24.67 / 5 = **4.93**. Positive, so X and Y tend to move in the same direction. The size alone does not give strength."
+    },
+    {
+     "label": "(ii) r",
+     "text": "r = 24.67 / √(53.33 × 43.33) = 24.67 / 48.07 = **0.51**, a moderate positive correlation (slide 22)."
+    },
+    {
+     "label": "(iii) Inference",
+     "text": "X and Y are positively and moderately related. The covariance gives only the direction, and r adds that the strength is moderate. With only 6 pairs, and since correlation is not causation, we cannot say X causes Y."
+    }
+   ],
+   "answer": "Cov = 4.93; r = 0.51; moderate positive"
+  },
+  {
+   "title": "r² · TV advertisements (slide 56)",
+   "tags": [
+    "Class",
+    "r²"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Number of TV advertisements X and number of cars sold Y:"
+    },
+    {
+     "type": "table",
+     "head": [
+      "X",
+      "1",
+      "3",
+      "2",
+      "1",
+      "3",
+      "2"
+     ],
+     "rows": [
+      [
+       "Y",
+       "14",
+       "24",
+       "18",
+       "17",
+       "27",
+       "20"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "Fit a regression line of Y on X and determine the coefficient of determination."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Fit",
+     "text": "X̄ = 2, Ȳ = 20. x: −1, 1, 0, −1, 1, 0. y: −6, 4, −2, −3, 7, 0. Σxy = 20, Σx² = 4. b̂ = 5, â = 20 − 5 × 2 = 10. **Ŷ = 10 + 5X**."
+    },
+    {
+     "label": "Predictions",
+     "text": "Ŷ = 15, 25, 20, 15, 25, 20."
+    },
+    {
+     "label": "SST",
+     "text": "(Y − 20)²: 36, 16, 4, 9, 49, 0, so SST = **114**."
+    },
+    {
+     "label": "SSR",
+     "text": "(Ŷ − 20)²: 25, 25, 0, 25, 25, 0, so SSR = **100**."
+    },
+    {
+     "label": "r²",
+     "text": "100 / 114 = **0.8772**."
+    },
+    {
+     "label": "Check",
+     "text": "SSE = 114 − 100 = 14. Residuals Y − Ŷ: −1, −1, −2, 2, 2, 0, with squares adding to 14."
+    },
+    {
+     "label": "Interpretation",
+     "text": "About 87.7% of the variation in cars sold is explained by the linear regression on TV advertisements. The remaining 12.3% is due to other factors or random variation."
+    }
+   ],
+   "answer": "r² = 0.8772"
+  },
+  {
+   "title": "r² · SSE and SST given (practice 4.5)",
+   "tags": [
+    "Practice",
+    "r²"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A regression of crop yield on rainfall for 20 years of data yields SSE = 150 and SST = 600. The model is Ŷ = 2.5 + 0.8X. (a) Calculate the coefficient of determination r². (b) Calculate the estimate of the model variance s². (c) What is the value of the sample correlation coefficient r?"
+    }
+   ],
+   "steps": [
+    {
+     "label": "(a) r²",
+     "text": "r² = 1 − SSE/SST = 1 − 150/600 = **0.75**. The line explains 75% of the variation."
+    },
+    {
+     "label": "(b) s²",
+     "text": "s² = SSE / (n − 2) = 150 / 18 = **8.33**. (This one is from the practice file, not the CS 11 slides.)"
+    },
+    {
+     "label": "(c) r",
+     "text": "r = √0.75 = **0.866**, positive because the slope 0.8 is positive."
+    }
+   ],
+   "answer": "r² = 0.75; s² = 8.33; r = 0.866"
+  },
+  {
+   "title": "Spearman · Two judges (May 2026 Q4)",
+   "tags": [
+    "Past paper",
+    "Spearman"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Two judges ranked 6 products as given in the following table. Find Spearman's rank correlation coefficient and give your conclusion. [5 marks]"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Product",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F"
+     ],
+     "rows": [
+      [
+       "Rank, Judge A",
+       "1",
+       "2",
+       "3.5",
+       "3.5",
+       "5",
+       "6"
+      ],
+      [
+       "Rank, Judge B",
+       "2",
+       "1",
+       "4",
+       "3",
+       "6",
+       "5"
+      ]
+     ]
+    }
+   ],
+   "steps": [
+    {
+     "label": "Identify",
+     "text": "Ranks given and the words \"rank correlation\": Spearman. C and D tie at 3.5 in Judge A's ranks, so the ranks are already averaged."
+    },
+    {
+     "label": "Decide the method",
+     "text": "The rank lists contain averaged values like 3.5, so there are ties: use the covariance method (Pearson on the ranks)."
+    },
+    {
+     "label": "Calculation table",
+     "text": "Mean rank = (n + 1)/2 = 3.5. One row per pair, then add each column (last row).\n| rank x | rank Y | rank X − mean | rank Y − mean | product | (x − mean)² | (y − mean)² | d | d² |\n| 1 | 2 | −2.5 | −1.5 | 3.75 | 6.25 | 2.25 | −1 | 1 |\n| 2 | 1 | −1.5 | −2.5 | 3.75 | 2.25 | 6.25 | 1 | 1 |\n| 3.5 | 4 | 0 | 0.5 | 0 | 0 | 0.25 | −0.5 | 0.25 |\n| 3.5 | 3 | 0 | −0.5 | 0 | 0 | 0.25 | 0.5 | 0.25 |\n| 5 | 6 | 1.5 | 2.5 | 3.75 | 2.25 | 6.25 | −1 | 1 |\n| 6 | 5 | 2.5 | 1.5 | 3.75 | 6.25 | 2.25 | 1 | 1 |\n| Total |  | 0 | 0 | 15 | 17 | 17.5 | 0 | 4.5 |"
+    },
+    {
+     "label": "Covariance of the ranks",
+     "text": "Cov = Σ(x − mean)(y − mean) / (n − 1) = 15 / 5 = **3**."
+    },
+    {
+     "label": "Variances",
+     "text": "Var(rank X) = 17 / 5 = 3.4, s_{X} = 1.8439. Var(rank Y) = 17.5 / 5 = 3.5, s_{Y} = 1.8708."
+    },
+    {
+     "label": "r_{s}",
+     "text": "r_{s} = Cov / (s_{X} · s_{Y}) = 3 / (1.8439 × 1.8708) = **0.8697**."
+    },
+    {
+     "label": "Why not d²?",
+     "text": "With ties the d² formula is only approximate (it would give 0.8714). Give the covariance answer."
+    },
+    {
+     "label": "Conclusion",
+     "text": "r_{s} ≈ 0.87: a strong positive rank correlation. The two judges largely agree on the order."
+    }
+   ],
+   "answer": "r_{s} ≈ 0.87, strong positive agreement"
+  },
+  {
+   "title": "Spearman · Raw marks with ties (practice, my numbers)",
+   "tags": [
+    "Practice",
+    "Spearman"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Five students' marks in two tests:"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Test 1",
+      "80",
+      "75",
+      "90",
+      "75",
+      "60"
+     ],
+     "rows": [
+      [
+       "Test 2",
+       "70",
+       "65",
+       "85",
+       "80",
+       "50"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "Find Spearman's rank correlation coefficient."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Identify",
+     "text": "Raw marks and the words rank correlation: rank each column first, then correlate the ranks."
+    },
+    {
+     "label": "Rank Test 1",
+     "text": "Sort smallest to largest, number the positions 1 to 5, and give a tied value the average of its positions.\n| value | how many | positions | rank |\n| 60 | 1 | 1 | 1 |\n| 75 | 2 | 2–3 | 2.5 |\n| 80 | 1 | 4 | 4 |\n| 90 | 1 | 5 | 5 |\nIn the original order the ranks are: 4, 2.5, 5, 2.5, 1. Check: the ranks add to n(n + 1)/2 = 15; here 15. A value repeats, so this column has ties."
+    },
+    {
+     "label": "Rank Test 2",
+     "text": "Sort smallest to largest, number the positions 1 to 5, and give a tied value the average of its positions.\n| value | how many | positions | rank |\n| 50 | 1 | 1 | 1 |\n| 65 | 1 | 2 | 2 |\n| 70 | 1 | 3 | 3 |\n| 80 | 1 | 4 | 4 |\n| 85 | 1 | 5 | 5 |\nIn the original order the ranks are: 3, 2, 5, 4, 1. Check: the ranks add to n(n + 1)/2 = 15; here 15. No value repeats in this column."
+    },
+    {
+     "label": "Decide the method",
+     "text": "Scan each column for repeated values. X repeats a value; Y has no repeats. Ties found, so use the covariance method (Pearson on the ranks)."
+    },
+    {
+     "label": "Calculation table",
+     "text": "Mean rank = (n + 1)/2 = 3. One row per pair, then add each column (last row).\n| X | Y | rank X | rank Y | rank X − mean | rank Y − mean | product | (x − mean)² | (y − mean)² | d | d² |\n| 80 | 70 | 4 | 3 | 1 | 0 | 0 | 1 | 0 | 1 | 1 |\n| 75 | 65 | 2.5 | 2 | −0.5 | −1 | 0.5 | 0.25 | 1 | 0.5 | 0.25 |\n| 90 | 85 | 5 | 5 | 2 | 2 | 4 | 4 | 4 | 0 | 0 |\n| 75 | 80 | 2.5 | 4 | −0.5 | 1 | −0.5 | 0.25 | 1 | −1.5 | 2.25 |\n| 60 | 50 | 1 | 1 | −2 | −2 | 4 | 4 | 4 | 0 | 0 |\n| Total |  |  |  | 0 | 0 | 8 | 9.5 | 10 | 0 | 3.5 |"
+    },
+    {
+     "label": "Covariance of the ranks",
+     "text": "Cov = Σ(x − mean)(y − mean) / (n − 1) = 8 / 4 = **2**."
+    },
+    {
+     "label": "Variances",
+     "text": "Var(rank X) = 9.5 / 4 = 2.375, s_{X} = 1.5411. Var(rank Y) = 10 / 4 = 2.5, s_{Y} = 1.5811."
+    },
+    {
+     "label": "r_{s}",
+     "text": "r_{s} = Cov / (s_{X} · s_{Y}) = 2 / (1.5411 × 1.5811) = **0.8208**."
+    },
+    {
+     "label": "Why not d²?",
+     "text": "With ties the d² formula is only approximate (it would give 0.825). Give the covariance answer."
+    },
+    {
+     "label": "Conclusion",
+     "text": "r_{s} ≈ 0.82: a strong positive rank correlation. Students who rank high in Test 1 tend to rank high in Test 2."
+    }
+   ],
+   "answer": "r_{s} ≈ 0.82"
+  },
+  {
+   "title": "Spearman · Textbook R2 Exercise 32",
+   "tags": [
+    "Practice",
+    "Spearman",
+    "Textbook"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Consider the following set of rankings for a sample of 10 elements (R2, Anderson et al., Exercise 32). Compute the Spearman rank-correlation coefficient."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Element",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10"
+     ],
+     "rows": [
+      [
+       "x",
+       "10",
+       "6",
+       "7",
+       "3",
+       "4",
+       "2",
+       "8",
+       "5",
+       "1",
+       "9"
+      ],
+      [
+       "y",
+       "8",
+       "4",
+       "10",
+       "2",
+       "5",
+       "7",
+       "6",
+       "3",
+       "1",
+       "9"
+      ]
+     ]
+    }
+   ],
+   "steps": [
+    {
+     "label": "Identify",
+     "text": "Two sets of rankings and the words Spearman rank-correlation: both columns are already ranks, so no ranking step."
+    },
+    {
+     "label": "Decide the method",
+     "text": "No rank is repeated, so there are no ties: the d² formula is exact and is all you need."
+    },
+    {
+     "label": "Calculation table",
+     "text": "One row per pair; d is the difference of the two ranks. The d column must add to 0.\n| rank X | rank Y | d = rank X − rank Y | d² |\n| 10 | 8 | 2 | 4 |\n| 6 | 4 | 2 | 4 |\n| 7 | 10 | −3 | 9 |\n| 3 | 2 | 1 | 1 |\n| 4 | 5 | −1 | 1 |\n| 2 | 7 | −5 | 25 |\n| 8 | 6 | 2 | 4 |\n| 5 | 3 | 2 | 4 |\n| 1 | 1 | 0 | 0 |\n| 9 | 9 | 0 | 0 |\n| Total |  |  | 0 | 52 |"
+    },
+    {
+     "label": "Formula",
+     "text": "r_{s} = 1 − 6Σd² / [n(n² − 1)], with n = 10, so n(n² − 1) = 990."
+    },
+    {
+     "label": "r_{s}",
+     "text": "r_{s} = 1 − 6 × 52 / 990 = 1 − 0.3152 = **0.6848**."
+    },
+    {
+     "label": "Conclusion",
+     "text": "r_{s} = 0.685: a moderate to fairly strong positive rank correlation."
+    }
+   ],
+   "answer": "r_{s} = 0.685"
+  },
+  {
+   "title": "Spearman · Sales potential vs sales (R2 §19.5)",
+   "tags": [
+    "Textbook",
+    "Spearman"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A company wants to know whether individuals who had greater potential at the time of employment turn out to have higher sales. The personnel director ranked 10 salespeople on potential (1 = most potential) at hiring. Their two-year sales (units) were later ranked too (1 = highest sales). Compute Spearman's rank-correlation coefficient and interpret it. (Anderson et al., Table 19.16)"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Salesperson",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J"
+     ],
+     "rows": [
+      [
+       "Rank of potential",
+       "2",
+       "4",
+       "7",
+       "1",
+       "6",
+       "3",
+       "10",
+       "9",
+       "8",
+       "5"
+      ],
+      [
+       "Two-year sales (units)",
+       "400",
+       "360",
+       "300",
+       "295",
+       "280",
+       "350",
+       "200",
+       "260",
+       "220",
+       "385"
+      ],
+      [
+       "Rank by sales",
+       "1",
+       "3",
+       "5",
+       "6",
+       "7",
+       "4",
+       "10",
+       "8",
+       "9",
+       "2"
+      ]
+     ]
+    }
+   ],
+   "steps": [
+    {
+     "label": "Identify",
+     "text": "Two rankings of the same people and the words rank-correlation: Spearman. Both columns are already ranks, so no ranking step."
+    },
+    {
+     "label": "Decide the method",
+     "text": "No rank is repeated, so there are no ties: the d² formula is exact and is all you need."
+    },
+    {
+     "label": "Calculation table",
+     "text": "One row per pair; d is the difference of the two ranks. The d column must add to 0.\n| rank X | rank Y | d = rank X − rank Y | d² |\n| 2 | 1 | 1 | 1 |\n| 4 | 3 | 1 | 1 |\n| 7 | 5 | 2 | 4 |\n| 1 | 6 | −5 | 25 |\n| 6 | 7 | −1 | 1 |\n| 3 | 4 | −1 | 1 |\n| 10 | 10 | 0 | 0 |\n| 9 | 8 | 1 | 1 |\n| 8 | 9 | −1 | 1 |\n| 5 | 2 | 3 | 9 |\n| Total |  |  | 0 | 44 |"
+    },
+    {
+     "label": "Formula",
+     "text": "r_{s} = 1 − 6Σd² / [n(n² − 1)], with n = 10, so n(n² − 1) = 990."
+    },
+    {
+     "label": "r_{s}",
+     "text": "r_{s} = 1 − 6 × 44 / 990 = 1 − 0.2667 = **0.7333**."
+    },
+    {
+     "label": "Conclusion",
+     "text": "r_{s} = 0.733 is a moderate to strong positive rank correlation: people ranked high on potential at hiring tended to rank high on later sales."
+    }
+   ],
+   "answer": "r_{s} = 0.733"
+  },
+  {
+   "title": "Spearman · Raw marks, no ties (practice, my numbers)",
+   "tags": [
+    "Practice",
+    "Spearman"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Ten students' marks in English (X) and Maths (Y) are given. Find the rank correlation coefficient between the two subjects and comment."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Student",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10"
+     ],
+     "rows": [
+      [
+       "English X",
+       "56",
+       "75",
+       "45",
+       "71",
+       "62",
+       "64",
+       "58",
+       "80",
+       "76",
+       "61"
+      ],
+      [
+       "Maths Y",
+       "66",
+       "70",
+       "40",
+       "60",
+       "65",
+       "56",
+       "59",
+       "77",
+       "67",
+       "63"
+      ]
+     ]
+    }
+   ],
+   "steps": [
+    {
+     "label": "Identify",
+     "text": "Raw marks and the words rank correlation: rank each column first."
+    },
+    {
+     "label": "Rank English (X)",
+     "text": "Sort smallest to largest, number the positions 1 to 10, and give a tied value the average of its positions.\n| value | how many | positions | rank |\n| 45 | 1 | 1 | 1 |\n| 56 | 1 | 2 | 2 |\n| 58 | 1 | 3 | 3 |\n| 61 | 1 | 4 | 4 |\n| 62 | 1 | 5 | 5 |\n| 64 | 1 | 6 | 6 |\n| 71 | 1 | 7 | 7 |\n| 75 | 1 | 8 | 8 |\n| 76 | 1 | 9 | 9 |\n| 80 | 1 | 10 | 10 |\nIn the original order the ranks are: 2, 8, 1, 7, 5, 6, 3, 10, 9, 4. Check: the ranks add to n(n + 1)/2 = 55; here 55. No value repeats in this column."
+    },
+    {
+     "label": "Rank Maths (Y)",
+     "text": "Sort smallest to largest, number the positions 1 to 10, and give a tied value the average of its positions.\n| value | how many | positions | rank |\n| 40 | 1 | 1 | 1 |\n| 56 | 1 | 2 | 2 |\n| 59 | 1 | 3 | 3 |\n| 60 | 1 | 4 | 4 |\n| 63 | 1 | 5 | 5 |\n| 65 | 1 | 6 | 6 |\n| 66 | 1 | 7 | 7 |\n| 67 | 1 | 8 | 8 |\n| 70 | 1 | 9 | 9 |\n| 77 | 1 | 10 | 10 |\nIn the original order the ranks are: 7, 9, 1, 4, 6, 2, 3, 10, 8, 5. Check: the ranks add to n(n + 1)/2 = 55; here 55. No value repeats in this column."
+    },
+    {
+     "label": "Decide the method",
+     "text": "Scan each column for repeated values. X has no repeats; Y has no repeats. No ties, so the d² formula is exact and is all you need."
+    },
+    {
+     "label": "Calculation table",
+     "text": "One row per pair; d is the difference of the two ranks. The d column must add to 0.\n| X | Y | rank X | rank Y | d = rank X − rank Y | d² |\n| 56 | 66 | 2 | 7 | −5 | 25 |\n| 75 | 70 | 8 | 9 | −1 | 1 |\n| 45 | 40 | 1 | 1 | 0 | 0 |\n| 71 | 60 | 7 | 4 | 3 | 9 |\n| 62 | 65 | 5 | 6 | −1 | 1 |\n| 64 | 56 | 6 | 2 | 4 | 16 |\n| 58 | 59 | 3 | 3 | 0 | 0 |\n| 80 | 77 | 10 | 10 | 0 | 0 |\n| 76 | 67 | 9 | 8 | 1 | 1 |\n| 61 | 63 | 4 | 5 | −1 | 1 |\n| Total |  |  |  | 0 | 54 |"
+    },
+    {
+     "label": "Formula",
+     "text": "r_{s} = 1 − 6Σd² / [n(n² − 1)], with n = 10, so n(n² − 1) = 990."
+    },
+    {
+     "label": "r_{s}",
+     "text": "r_{s} = 1 − 6 × 54 / 990 = 1 − 0.3273 = **0.6727**."
+    },
+    {
+     "label": "Conclusion",
+     "text": "r_{s} = 0.673: a moderate positive rank correlation. Students who rank higher in English tend to rank higher in Maths."
+    }
+   ],
+   "answer": "r_s = 0.673"
+  },
+  {
+   "title": "Spearman · Ties in both columns (practice, my numbers)",
+   "tags": [
+    "Practice",
+    "Spearman"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Five products were scored for taste (X) and price appeal (Y):"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Product",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+     ],
+     "rows": [
+      [
+       "Taste X",
+       "10",
+       "20",
+       "20",
+       "30",
+       "40"
+      ],
+      [
+       "Price appeal Y",
+       "5",
+       "15",
+       "15",
+       "15",
+       "25"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "Find Spearman's rank correlation coefficient."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Identify",
+     "text": "Raw scores and the words rank correlation. Both columns repeat values, so ties are certain."
+    },
+    {
+     "label": "Rank X",
+     "text": "Sort smallest to largest, number the positions 1 to 5, and give a tied value the average of its positions.\n| value | how many | positions | rank |\n| 10 | 1 | 1 | 1 |\n| 20 | 2 | 2–3 | 2.5 |\n| 30 | 1 | 4 | 4 |\n| 40 | 1 | 5 | 5 |\nIn the original order the ranks are: 1, 2.5, 2.5, 4, 5. Check: the ranks add to n(n + 1)/2 = 15; here 15. A value repeats, so this column has ties."
+    },
+    {
+     "label": "Rank Y",
+     "text": "Sort smallest to largest, number the positions 1 to 5, and give a tied value the average of its positions.\n| value | how many | positions | rank |\n| 5 | 1 | 1 | 1 |\n| 15 | 3 | 2–4 | 3 |\n| 25 | 1 | 5 | 5 |\nIn the original order the ranks are: 1, 3, 3, 3, 5. Check: the ranks add to n(n + 1)/2 = 15; here 15. A value repeats, so this column has ties."
+    },
+    {
+     "label": "Decide the method",
+     "text": "Scan each column for repeated values. X repeats a value; Y repeats a value. Ties found, so use the covariance method (Pearson on the ranks)."
+    },
+    {
+     "label": "Calculation table",
+     "text": "Mean rank = (n + 1)/2 = 3. One row per pair, then add each column (last row).\n| X | Y | rank X | rank Y | rank X − mean | rank Y − mean | product | (x − mean)² | (y − mean)² | d | d² |\n| 10 | 5 | 1 | 1 | −2 | −2 | 4 | 4 | 4 | 0 | 0 |\n| 20 | 15 | 2.5 | 3 | −0.5 | 0 | 0 | 0.25 | 0 | −0.5 | 0.25 |\n| 20 | 15 | 2.5 | 3 | −0.5 | 0 | 0 | 0.25 | 0 | −0.5 | 0.25 |\n| 30 | 15 | 4 | 3 | 1 | 0 | 0 | 1 | 0 | 1 | 1 |\n| 40 | 25 | 5 | 5 | 2 | 2 | 4 | 4 | 4 | 0 | 0 |\n| Total |  |  |  | 0 | 0 | 8 | 9.5 | 8 | 0 | 1.5 |"
+    },
+    {
+     "label": "Covariance of the ranks",
+     "text": "Cov = Σ(x − mean)(y − mean) / (n − 1) = 8 / 4 = **2**."
+    },
+    {
+     "label": "Variances",
+     "text": "Var(rank X) = 9.5 / 4 = 2.375, s_{X} = 1.5411. Var(rank Y) = 8 / 4 = 2, s_{Y} = 1.4142."
+    },
+    {
+     "label": "r_{s}",
+     "text": "r_{s} = Cov / (s_{X} · s_{Y}) = 2 / (1.5411 × 1.4142) = **0.9177**."
+    },
+    {
+     "label": "Why not d²?",
+     "text": "With ties the d² formula is only approximate (it would give 0.925). Give the covariance answer."
+    },
+    {
+     "label": "Conclusion",
+     "text": "r_{s} ≈ 0.92: a very strong positive rank correlation."
+    }
+   ],
+   "answer": "r_s ≈ 0.92"
+  },
+  {
+   "title": "Ranking raw data · a value repeated three times (practice)",
+   "tags": [
+    "Practice",
+    "Spearman",
+    "Ranking"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Six students scored 82, 75, 91, 75, 68 and 75. Rank them (smallest = 1)."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Rank",
+     "text": "Sort smallest to largest, number the positions 1 to 6, and give a tied value the average of its positions.\n| value | how many | positions | rank |\n| 68 | 1 | 1 | 1 |\n| 75 | 3 | 2–4 | 3 |\n| 82 | 1 | 5 | 5 |\n| 91 | 1 | 6 | 6 |\nIn the original order the ranks are: 5, 3, 6, 3, 1, 3. Check: the ranks add to n(n + 1)/2 = 21; here 21. A value repeats, so this column has ties."
+    },
+    {
+     "label": "Why 3",
+     "text": "The three 75s would have taken positions 2, 3 and 4. Their average is (2 + 3 + 4)/3 = 3. The next value, 82, takes position 5, so no rank 4 appears."
+    }
+   ],
+   "answer": "ranks 5, 3, 6, 3, 1, 3"
+  },
+  {
+   "title": "Capstone · Study hours and exam score (all of Chapter 11)",
+   "tags": [
+    "Practice",
+    "Capstone"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Six students recorded their weekly study time and their exam score (out of 100). [Covariance, correlation, regression, r² and rank correlation in one problem.]"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Student",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6"
+     ],
+     "rows": [
+      [
+       "Study hours X",
+       "2",
+       "3",
+       "3",
+       "4",
+       "6",
+       "6"
+      ],
+      [
+       "Exam score Y",
+       "52",
+       "55",
+       "61",
+       "68",
+       "70",
+       "78"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "(a) Find the covariance of X and Y and say what its sign tells you. (b) Calculate Karl Pearson's coefficient of correlation and interpret it. (c) Fit the regression line of score on study hours by least squares, interpret the slope, and predict the score for 5 hours and for 10 hours. (d) Find the coefficient of determination and interpret it. (e) Find Spearman's rank correlation coefficient."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Read the problem",
+     "text": "Two columns for the same six students, and five different questions. Each question has its own keyword: \"covariance\" / \"direction\" → Cov; \"Karl Pearson\" / \"strength\" → r; \"fit a line\" / \"predict\" → regression; \"variation explained\" → r²; \"rank correlation\" → Spearman. Hours of study is the thing used to predict, so X = hours, Y = score."
+    },
+    {
+     "label": "Calculation table (parts a to d)",
+     "text": "n = 6, X̄ = 24/6 = 4, Ȳ = 384/6 = 64. Fill one row per student, then add each column (last row). The two deviation columns must add to 0.\n| X | Y | X − X̄ | Y − Ȳ | (X − X̄)(Y − Ȳ) | (X − X̄)² | (Y − Ȳ)² |\n| 2 | 52 | −2 | −12 | 24 | 4 | 144 |\n| 3 | 55 | −1 | −9 | 9 | 1 | 81 |\n| 3 | 61 | −1 | −3 | 3 | 1 | 9 |\n| 4 | 68 | 0 | 4 | 0 | 0 | 16 |\n| 6 | 70 | 2 | 6 | 12 | 4 | 36 |\n| 6 | 78 | 2 | 14 | 28 | 4 | 196 |\n| Total |  | 0 | 0 | 76 | 14 | 482 |"
+    },
+    {
+     "label": "(a) Covariance",
+     "text": "Cov(X, Y) = Σ(X − X̄)(Y − Ȳ) / (n − 1) = 76 / 5 = **15.2**. Positive, so hours and score move in the same direction. The size alone does not say how strong."
+    },
+    {
+     "label": "(b) Pearson's r",
+     "text": "Var(X) = 14 / 5 = 2.8, s_{X} = 1.6733. Var(Y) = 482 / 5 = 96.4, s_{Y} = 9.8184. r = Cov / (s_{X} · s_{Y}) = 15.2 / (1.6733 × 9.8184) = **0.925**. Strong positive (0.76 to 0.99, slide 22): students who study more tend to score higher."
+    },
+    {
+     "label": "(c) Regression slope",
+     "text": "b̂ = Cov(X, Y) / Var(X) = 15.2 / 2.8 = **5.4286**. It equals Σxy / Σx² = 76 / 14, since the n − 1 cancels."
+    },
+    {
+     "label": "(c) Intercept and line",
+     "text": "â = Ȳ − b̂X̄ = 64 − 5.4286 × 4 = **42.2857**. Ŷ = 42.2857 + 5.4286X."
+    },
+    {
+     "label": "(c) Predict",
+     "text": "At X = 5: Ŷ = 42.2857 + 5.4286 × 5 = **69.43**. At X = 10: Ŷ = 96.57, but 10 hours is outside the data (2 to 6 hours), so this is extrapolation and less reliable. Check: at X = X̄ = 4 the line gives 64 = Ȳ."
+    },
+    {
+     "label": "(c) Sentence",
+     "text": "The slope is positive, so the score rises with study time: about 5.4 marks for each extra hour. A student who studies 5 hours is predicted to score about 69.4."
+    },
+    {
+     "label": "(d) r² table",
+     "text": "SST = Σ(Y − Ȳ)² = 482. Compute Ŷ for each student, then SSR = Σ(Ŷ − Ȳ)² and SSE = Σ(Y − Ŷ)².\n| X | Y | Ŷ = 42.2857 + 5.4286X | Ŷ − Ȳ | (Ŷ − Ȳ)² | Y − Ŷ | (Y − Ŷ)² |\n| 2 | 52 | 53.143 | −10.857 | 117.88 | −1.143 | 1.31 |\n| 3 | 55 | 58.571 | −5.429 | 29.47 | −3.571 | 12.76 |\n| 3 | 61 | 58.571 | −5.429 | 29.47 | 2.429 | 5.9 |\n| 4 | 68 | 64 | 0 | 0 | 4 | 16 |\n| 6 | 70 | 74.857 | 10.857 | 117.88 | −4.857 | 23.59 |\n| 6 | 78 | 74.857 | 10.857 | 117.88 | 3.143 | 9.88 |\n| Total |  |  |  | 412.57 | 0 | 69.43 |"
+    },
+    {
+     "label": "(d) r²",
+     "text": "r² = SSR / SST = 412.57 / 482 = **0.856**. Check: SSE = 482 − 412.57 = 69.43, and r² = 1 − 69.43/482 = 0.856, which also equals 0.925². About 85.6% of the variation in scores is explained by study hours; the other 14.4% is other factors or chance."
+    },
+    {
+     "label": "(e) How the ranks came out",
+     "text": "X ranks: 2 → 1, the two 3s → 2.5, 4 → 4, the two 6s → 5.5 (ties). Y ranks: 1 to 6 in order, no ties. A tie in X is enough to use the covariance method."
+    },
+    {
+     "label": "(e) Decide the method",
+     "text": "Scan each column for repeated values. X repeats a value; Y has no repeats. Ties found, so use the covariance method (Pearson on the ranks)."
+    },
+    {
+     "label": "(e) Calculation table",
+     "text": "Mean rank = (n + 1)/2 = 3.5. One row per pair, then add each column (last row).\n| X | Y | rank X | rank Y | rank X − mean | rank Y − mean | product | (x − mean)² | (y − mean)² | d | d² |\n| 2 | 52 | 1 | 1 | −2.5 | −2.5 | 6.25 | 6.25 | 6.25 | 0 | 0 |\n| 3 | 55 | 2.5 | 2 | −1 | −1.5 | 1.5 | 1 | 2.25 | 0.5 | 0.25 |\n| 3 | 61 | 2.5 | 3 | −1 | −0.5 | 0.5 | 1 | 0.25 | −0.5 | 0.25 |\n| 4 | 68 | 4 | 4 | 0.5 | 0.5 | 0.25 | 0.25 | 0.25 | 0 | 0 |\n| 6 | 70 | 5.5 | 5 | 2 | 1.5 | 3 | 4 | 2.25 | 0.5 | 0.25 |\n| 6 | 78 | 5.5 | 6 | 2 | 2.5 | 5 | 4 | 6.25 | −0.5 | 0.25 |\n| Total |  |  |  | 0 | 0 | 16.5 | 16.5 | 17.5 | 0 | 1 |"
+    },
+    {
+     "label": "(e) Covariance of the ranks",
+     "text": "Cov = Σ(x − mean)(y − mean) / (n − 1) = 16.5 / 5 = **3.3**."
+    },
+    {
+     "label": "(e) Variances",
+     "text": "Var(rank X) = 16.5 / 5 = 3.3, s_{X} = 1.8166. Var(rank Y) = 17.5 / 5 = 3.5, s_{Y} = 1.8708."
+    },
+    {
+     "label": "(e) r_{s}",
+     "text": "r_{s} = Cov / (s_{X} · s_{Y}) = 3.3 / (1.8166 × 1.8708) = **0.971**."
+    },
+    {
+     "label": "(e) Why not d²?",
+     "text": "With ties the d² formula is only approximate (it would give 0.9714). Give the covariance answer."
+    },
+    {
+     "label": "Putting it together",
+     "text": "Cov > 0, r = 0.925, b̂ > 0 and r_{s} = 0.971 all say the same thing: a strong positive relationship. r_{s} (0.971) and r (0.925) are close but not identical, because r uses the actual values and r_{s} uses only the order. Correlation shows association, not that study time alone causes the score."
+    }
+   ],
+   "answer": "Cov = 15.2; r = 0.925; Ŷ = 42.29 + 5.43X (69.4 at 5 h); r² = 0.856; r_s = 0.971"
+  },
+  {
+   "title": "Spearman · Calls and sales (no ties, d² route)",
+   "tags": [
+    "Practice",
+    "Spearman"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Six salespeople were compared on the number of calls made per week (X) and the sales closed in that week, in thousands (Y). Find Spearman's rank correlation coefficient and give your conclusion."
+    },
+    {
+     "type": "table",
+     "head": [
+      "Salesperson",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F"
+     ],
+     "rows": [
+      [
+       "Calls X",
+       "15",
+       "22",
+       "9",
+       "30",
+       "18",
+       "12"
+      ],
+      [
+       "Sales Y",
+       "40",
+       "35",
+       "25",
+       "48",
+       "38",
+       "20"
+      ]
+     ]
+    }
+   ],
+   "steps": [
+    {
+     "label": "Identify",
+     "text": "Raw values and the words rank correlation: rank each column first."
+    },
+    {
+     "label": "Rank calls (X)",
+     "text": "Sort smallest to largest, number the positions 1 to 6, and give a tied value the average of its positions.\n| value | how many | positions | rank |\n| 9 | 1 | 1 | 1 |\n| 12 | 1 | 2 | 2 |\n| 15 | 1 | 3 | 3 |\n| 18 | 1 | 4 | 4 |\n| 22 | 1 | 5 | 5 |\n| 30 | 1 | 6 | 6 |\nIn the original order the ranks are: 3, 5, 1, 6, 4, 2. Check: the ranks add to n(n + 1)/2 = 21; here 21. No value repeats in this column."
+    },
+    {
+     "label": "Rank sales (Y)",
+     "text": "Sort smallest to largest, number the positions 1 to 6, and give a tied value the average of its positions.\n| value | how many | positions | rank |\n| 20 | 1 | 1 | 1 |\n| 25 | 1 | 2 | 2 |\n| 35 | 1 | 3 | 3 |\n| 38 | 1 | 4 | 4 |\n| 40 | 1 | 5 | 5 |\n| 48 | 1 | 6 | 6 |\nIn the original order the ranks are: 5, 3, 2, 6, 4, 1. Check: the ranks add to n(n + 1)/2 = 21; here 21. No value repeats in this column."
+    },
+    {
+     "label": "Decide the method",
+     "text": "Scan each column for repeated values. X has no repeats; Y has no repeats. No ties, so the d² formula is exact and is all you need."
+    },
+    {
+     "label": "Calculation table",
+     "text": "One row per pair; d is the difference of the two ranks. The d column must add to 0.\n| X | Y | rank X | rank Y | d = rank X − rank Y | d² |\n| 15 | 40 | 3 | 5 | −2 | 4 |\n| 22 | 35 | 5 | 3 | 2 | 4 |\n| 9 | 25 | 1 | 2 | −1 | 1 |\n| 30 | 48 | 6 | 6 | 0 | 0 |\n| 18 | 38 | 4 | 4 | 0 | 0 |\n| 12 | 20 | 2 | 1 | 1 | 1 |\n| Total |  |  |  | 0 | 10 |"
+    },
+    {
+     "label": "Formula",
+     "text": "r_{s} = 1 − 6Σd² / [n(n² − 1)], with n = 6, so n(n² − 1) = 210."
+    },
+    {
+     "label": "r_{s}",
+     "text": "r_{s} = 1 − 6 × 10 / 210 = 1 − 0.2857 = **0.7143**."
+    },
+    {
+     "label": "Conclusion",
+     "text": "r_{s} = 0.714: a moderate-to-strong positive rank correlation. Salespeople who make more calls tend to close more sales. Only six people, and it shows association, not cause."
+    }
+   ],
+   "answer": "r_s = 0.714"
+  },
+  {
+   "title": "Regression · Predicting beyond the data (study hours, 10 h and 15 h)",
+   "tags": [
+    "Practice",
+    "Regression",
+    "Extrapolation"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Using the study-hours data from the All together problem (X = 2, 3, 3, 4, 6, 6 hours; Y = 52, 55, 61, 68, 70, 78) and the fitted line Ŷ = 42.2857 + 5.4286X, predict the exam score (out of 100) for a student who studies 5 hours, 10 hours and 15 hours. Comment on each prediction."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Range of the data",
+     "text": "X runs from 2 to 6 hours. Anything outside that is extrapolation."
+    },
+    {
+     "label": "5 hours",
+     "text": "Ŷ = 42.2857 + 5.4286 × 5 = **69.43**. Inside the range, so reliable."
+    },
+    {
+     "label": "10 hours",
+     "text": "Ŷ = 42.2857 + 5.4286 × 10 = **96.57**. It is possible, but 10 hours is outside 2 to 6, so this is extrapolation and less reliable."
+    },
+    {
+     "label": "15 hours",
+     "text": "Ŷ = 42.2857 + 5.4286 × 15 = **123.71**. A score cannot exceed 100, so this prediction is impossible. The linear model does not hold this far outside the data; the score would level off."
+    },
+    {
+     "label": "What to write",
+     "text": "Give each number, then: 5 h reliable; 10 h extrapolation, less reliable; 15 h impossible, so the model fails beyond the observed range."
+    }
+   ],
+   "answer": "69.43 (reliable); 96.57 (extrapolation); 123.71 (impossible, model fails)"
+  }
+ ],
+ "labs": [],
+ "flashcards": [
+  {
+   "tag": "Formula",
+   "front": "Pearson's r (main form, slide 19)",
+   "back": "r = Cov(X, Y) / (s_X · s_Y), with s_X = √Var(X) and s_Y = √Var(Y)."
+  },
+  {
+   "tag": "Definition",
+   "front": "What does covariance measure?",
+   "back": "The direction of the linear relationship between two variables. Positive: they move together. Negative: opposite ways. Not the strength."
+  },
+  {
+   "tag": "Formula",
+   "front": "Sample covariance (slide 8)",
+   "back": "Cov(X, Y) = Σ(X − X̄)(Y − Ȳ) / (n − 1)."
+  },
+  {
+   "tag": "Formula",
+   "front": "Covariance from a probability table (slide 12)",
+   "back": "Cov(X, Y) = E(XY) − E(X)E(Y), where E(XY) = Σ x·y·p(x, y)."
+  },
+  {
+   "tag": "Why",
+   "front": "Why is covariance alone not enough?",
+   "back": "Its size changes with the units and has no limits, so it cannot show strength. Only its sign is meaningful."
+  },
+  {
+   "tag": "Check",
+   "front": "The deviations X − X̄ add up to…",
+   "back": "Zero. If they do not, a mean is wrong."
+  },
+  {
+   "tag": "Matrix",
+   "front": "What is on the diagonal of the variance-covariance matrix?",
+   "back": "The variances. The covariances are off the diagonal, and the matrix is symmetric."
+  },
+  {
+   "tag": "Definition",
+   "front": "What is Pearson's r?",
+   "back": "The covariance divided by the product of the two standard deviations. Unit-free, from −1 to +1 (slide 17)."
+  },
+  {
+   "tag": "Formula",
+   "front": "Sums form of r (check, slides 23–27)",
+   "back": "r = [nΣXY − ΣXΣY] / √{[nΣX² − (ΣX)²][nΣY² − (ΣY)²]}."
+  },
+  {
+   "tag": "Table",
+   "front": "Strength of r (slide 22)",
+   "back": "±1 perfect; ±0.76 to ±0.99 strong; ±0.26 to ±0.75 moderate; 0 to ±0.25 weak; 0 zero."
+  },
+  {
+   "tag": "Sign",
+   "front": "What does a negative r mean?",
+   "back": "An inverse relationship: when one variable rises, the other tends to fall."
+  },
+  {
+   "tag": "Trap",
+   "front": "r = 1.4. What do you do?",
+   "back": "Something is wrong: r lies between −1 and +1. Recheck ΣX², ΣY² and (ΣX)²."
+  },
+  {
+   "tag": "Trap",
+   "front": "ΣX² versus (ΣX)²",
+   "back": "ΣX²: square each value, then add. (ΣX)²: add the values, then square the total."
+  },
+  {
+   "tag": "Trap",
+   "front": "Y is a constant. What are Cov and r?",
+   "back": "Cov = 0 but r is undefined (0/0). Say zero covariance, not zero correlation (professor's correction)."
+  },
+  {
+   "tag": "Trap",
+   "front": "Does a strong r prove causation?",
+   "back": "No. It shows association only."
+  },
+  {
+   "tag": "Definition",
+   "front": "What is autocovariance?",
+   "back": "The covariance between a series at time t + h and at time t, with lag h (slide 13)."
+  },
+  {
+   "tag": "Formula",
+   "front": "Sample autocovariance (slide 14)",
+   "back": "γ̂(h) = {{ 1 // n }} Σ (X_{t+|h|} − X̄)(X_{t} − X̄), with the sum over i = 1 to n − |h|. Divide by n."
+  },
+  {
+   "tag": "Typo",
+   "front": "Slide 14's formula typo",
+   "back": "The sum index should be i, not t (professor, 25 Oct)."
+  },
+  {
+   "tag": "Fact",
+   "front": "What is γ̂(0)?",
+   "back": "The variance of the series (divided by n), since lag 0 pairs each value with itself."
+  },
+  {
+   "tag": "Formula",
+   "front": "Autocorrelation at lag k (slide 14)",
+   "back": "r_{k} = {{ Σ(y_{t} − ȳ)(y_{t−k} − ȳ) // Σ(y_{t} − ȳ)² }} Top: t = k + 1 to T."
+  },
+  {
+   "tag": "Fact",
+   "front": "r_{0} and the check",
+   "back": "r_{0} = 1, and r_{k} = γ̂(k)/γ̂(0)."
+  },
+  {
+   "tag": "PCA",
+   "front": "What is PCA in terms of covariance (slides 15–16)?",
+   "back": "Diagonalising the variance-covariance matrix by solving A x = λ x. Large eigenvalue: important component. Near zero: unimportant."
+  },
+  {
+   "tag": "Regression",
+   "front": "What do Y and X stand for in regression?",
+   "back": "Y is the dependent (response, predicted) variable. X is the independent (explanatory, predictor) variable."
+  },
+  {
+   "tag": "Regression",
+   "front": "Simple linear regression model (slide 40)",
+   "back": "Y = a + bX + ε. a is the intercept, b is the slope, ε is the error."
+  },
+  {
+   "tag": "Formula",
+   "front": "Slope b̂ (slide 46)",
+   "back": "b̂ = Σ(X − X̄)(Y − Ȳ) / Σ(X − X̄)²  =  [nΣXY − ΣXΣY] / [nΣX² − (ΣX)²]."
+  },
+  {
+   "tag": "Formula",
+   "front": "Intercept and fitted line",
+   "back": "â = Ȳ − b̂X̄ and Ŷ = â + b̂X."
+  },
+  {
+   "tag": "Formula",
+   "front": "The two normal equations (slide 45)",
+   "back": "ΣY = n·a + b·ΣX and ΣXY = a·ΣX + b·ΣX²."
+  },
+  {
+   "tag": "Trap",
+   "front": "Which deviations go in the denominator of b̂?",
+   "back": "The X deviations, Σ(X − X̄)². The Showtime slide used the Y deviations by mistake."
+  },
+  {
+   "tag": "Trap",
+   "front": "Showtime slide: slope and prediction",
+   "back": "The slide gives b̂ = 0.407, which is wrong. The correct values are b̂ = 1.604, â = 88.64, and Ŷ(4.5) = 95.86."
+  },
+  {
+   "tag": "Check",
+   "front": "A quick check on a regression line",
+   "back": "It always passes through (X̄, Ȳ). Predicting at X̄ must give Ȳ."
+  },
+  {
+   "tag": "Keyword",
+   "front": "How do you know a question is regression?",
+   "back": "\"Fit a line\", \"least squares\", \"SSE as loss\", \"predict when X =\", \"effect of A on B\"."
+  },
+  {
+   "tag": "Sentence",
+   "front": "How do you interpret the slope?",
+   "back": "Sign gives the direction. Size gives the change in Y per one unit of X, with units. Then give the prediction."
+  },
+  {
+   "tag": "Trap",
+   "front": "Predicting outside the range of the data",
+   "back": "That is extrapolation. Compute it, but add that it is less reliable."
+  },
+  {
+   "tag": "Formula",
+   "front": "SST, SSR, SSE (slides 51–54)",
+   "back": "SST = Σ(Y − Ȳ)², SSR = Σ(Ŷ − Ȳ)², SSE = Σ(Y − Ŷ)², and SST = SSR + SSE."
+  },
+  {
+   "tag": "Formula",
+   "front": "Coefficient of determination",
+   "back": "r² = SSR / SST = 1 − SSE / SST. It lies between 0 and 1."
+  },
+  {
+   "tag": "Fact",
+   "front": "How do you say r² = 0.877?",
+   "back": "About 87.7% of the variation in Y is explained by the regression on X. The rest is other factors or random variation."
+  },
+  {
+   "tag": "Spearman",
+   "front": "What is Spearman's rank correlation?",
+   "back": "Pearson's r computed on ranks. Add-on topic (May 2026, 5 marks)."
+  },
+  {
+   "tag": "Spearman",
+   "front": "How do you rank tied values?",
+   "back": "Give each tied value the average of the positions they occupy: two values tied for 3rd and 4th both get 3.5."
+  },
+  {
+   "tag": "Spearman",
+   "front": "Shortcut formula for Spearman",
+   "back": "r_{s} = 1 − 6Σd² / [n(n² − 1)], where d is the difference in ranks. Exact with no ties."
+  },
+  {
+   "tag": "Past paper",
+   "front": "How often is each CS 11 topic asked?",
+   "back": "Regression fit and predict: 4 of 6 end-sem papers. Pearson r: 4 of 6. Spearman: 1 of 6 (May 2026)."
+  },
+  {
+   "tag": "Formula",
+   "front": "Regression slope as covariance over variance",
+   "back": "b̂ = Cov(X, Y) / Var(X). The n − 1 cancels, so it equals Σxy / Σx²."
+  },
+  {
+   "tag": "Spearman",
+   "front": "Spearman formula in Anderson (R2 §19.5, eq. 19.8)",
+   "back": "r_{s} = 1 − 6Σd² / [n(n² − 1)], with d_i = x_i − y_i the difference of the two ranks."
+  },
+  {
+   "tag": "Spearman",
+   "front": "How do you decide between the d² formula and the covariance method?",
+   "back": "Scan each column for a repeated value. None: d² formula. A repeat (ties): covariance method on the ranks."
+  },
+  {
+   "tag": "Spearman",
+   "front": "Ranking raw data (smallest = 1)",
+   "back": "Sort, number the positions, and give tied values the average of their positions. The next value carries on from the last position used."
+  },
+  {
+   "tag": "Spearman",
+   "front": "Three values tie at positions 2, 3 and 4. What rank does each get?",
+   "back": "3, the average of 2, 3 and 4. The next value is rank 5; rank 4 is not used."
+  },
+  {
+   "tag": "Spearman",
+   "front": "Are ties between a value in X and the same value in Y a problem?",
+   "back": "No. Ties are repeats inside one column only."
+  },
+  {
+   "tag": "Spearman",
+   "front": "Quick check on a list of ranks",
+   "back": "They add to n(n + 1)/2. For n = 6 the ranks add to 21."
+  },
+  {
+   "tag": "Choose",
+   "front": "Pearson or Spearman?",
+   "back": "Raw measurements with Karl Pearson, linear relation or correlation coefficient: Pearson. Ranks, or the words rank correlation: Spearman."
+  },
+  {
+   "tag": "Choose",
+   "front": "Marks given, question says only \"correlation coefficient\"",
+   "back": "Pearson r. Spearman only if it says rank correlation (then rank the marks first)."
+  },
+  {
+   "tag": "Regression",
+   "front": "The prediction is at an X outside the data range. What do you write?",
+   "back": "Give the number, then say X is outside the observed range, so the prediction is less reliable."
+  },
+  {
+   "tag": "Regression",
+   "front": "The predicted Y is impossible (for example a score above 100). What do you write?",
+   "back": "Say the line predicts it but it is impossible, so the linear model does not hold that far outside the data; the relationship would level off."
+  }
+ ],
+ "quiz": [
+  {
+   "type": "mcq",
+   "q": "Covariance between two variables is positive. This means…",
+   "options": [
+    "X and Y tend to move in the same direction",
+    "The relationship is strong",
+    "X causes Y",
+    "X and Y are independent"
+   ],
+   "answer": 0,
+   "explain": "A positive covariance gives direction only: same direction. It says nothing about strength or cause.",
+   "set": "Covariance"
+  },
+  {
+   "type": "mcq",
+   "q": "Why is covariance a poor measure of strength?",
+   "options": [
+    "It is always between 0 and 1",
+    "Its size depends on the units of measurement",
+    "It needs three variables",
+    "It ignores the sign"
+   ],
+   "answer": 1,
+   "explain": "Change kg to grams and the covariance changes. That is why Pearson's r divides by both standard deviations.",
+   "set": "Covariance"
+  },
+  {
+   "type": "numeric",
+   "q": "Find the covariance of X = 2, 4, 6 and Y = 1, 3, 8.",
+   "answer": 7,
+   "tolerance": 0.01,
+   "explain": "X̄ = 4, Ȳ = 4. Products 6, 0, 8 sum to 14. Divide by n − 1 = 2: 7.",
+   "set": "Covariance"
+  },
+  {
+   "type": "numeric",
+   "q": "Find the covariance of X = 5, 4, 7, 10, 8, 8 and Y = 20, 18, 23, 32, 26, 25 (slides 10–11).",
+   "answer": 10.6,
+   "tolerance": 0.01,
+   "explain": "Sum of products 53, n − 1 = 5, so 10.6.",
+   "set": "Covariance"
+  },
+  {
+   "type": "numeric",
+   "q": "Joint table: p(0,0) = 0.2, p(0,1) = 0.3, p(1,0) = 0.1, p(1,1) = 0.4. Find Cov(X, Y).",
+   "answer": 0.05,
+   "tolerance": 0.001,
+   "explain": "E(X) = 0.5, E(Y) = 0.7, E(XY) = 0.4. Cov = 0.4 − 0.35 = 0.05.",
+   "set": "Covariance"
+  },
+  {
+   "type": "mcq",
+   "q": "If X and Y are independent, then…",
+   "options": [
+    "Cov(X, Y) = 0",
+    "Cov(X, Y) = 1",
+    "r = 1",
+    "Cov(X, Y) is negative"
+   ],
+   "answer": 0,
+   "explain": "E(XY) = E(X)E(Y) when they are independent, so the covariance is 0. The reverse need not hold.",
+   "set": "Covariance"
+  },
+  {
+   "type": "mcq",
+   "q": "Y is always equal to the same constant K. Which is correct?",
+   "options": [
+    "Cov = 0 and r = 0",
+    "Cov = 0 and r is undefined",
+    "Cov = 1 and r = 1",
+    "Cov is undefined and r = 0"
+   ],
+   "answer": 1,
+   "explain": "Cov = 0, but sY = 0 so r = 0/0 is undefined (professor's correction to the slide).",
+   "set": "Covariance"
+  },
+  {
+   "type": "mcq",
+   "q": "Sample covariance of data uses which divisor?",
+   "options": [
+    "n",
+    "n − 1",
+    "n + 1",
+    "No divisor"
+   ],
+   "answer": 1,
+   "explain": "Slide 8: divide by n − 1.",
+   "set": "Covariance"
+  },
+  {
+   "type": "mcq",
+   "q": "Pearson's r always lies between…",
+   "options": [
+    "0 and 1",
+    "−1 and 1",
+    "−∞ and ∞",
+    "−0.5 and 0.5"
+   ],
+   "answer": 1,
+   "explain": "r is unit-free and bounded: −1 ≤ r ≤ +1.",
+   "set": "Pearson r"
+  },
+  {
+   "type": "mcq",
+   "q": "r = −0.82 is described as…",
+   "options": [
+    "Strong negative",
+    "Moderate negative",
+    "Weak negative",
+    "Strong positive"
+   ],
+   "answer": 0,
+   "explain": "Slide 22: −0.99 to −0.76 is strong negative.",
+   "set": "Pearson r"
+  },
+  {
+   "type": "mcq",
+   "q": "r = 0.4 is described as…",
+   "options": [
+    "Weak positive",
+    "Moderate positive",
+    "Strong positive",
+    "Perfect positive"
+   ],
+   "answer": 1,
+   "explain": "Slide 22: 0.26 to 0.75 is moderate (intermediate).",
+   "set": "Pearson r"
+  },
+  {
+   "type": "numeric",
+   "q": "X = 2, 4, 6, 8 and Y = 3, 5, 7, 9. Find r.",
+   "answer": 1,
+   "tolerance": 0.001,
+   "explain": "All points lie on Y = X + 1, a perfect line: r = +1.",
+   "set": "Pearson r"
+  },
+  {
+   "type": "numeric",
+   "q": "X = 1, 2, 3, 4, 5 and Y = 5, 4, 3, 2, 1. Find r.",
+   "answer": -1,
+   "tolerance": 0.001,
+   "explain": "Numerator 5(35) − 15(15) = −50. Both brackets are 50. r = −1.",
+   "set": "Pearson r"
+  },
+  {
+   "type": "numeric",
+   "q": "Sums: n = 5, ΣX = 56, ΣY = 68, ΣXY = 826, ΣX² = 696, ΣY² = 986 (2024 end-sem). Find r.",
+   "answer": 0.99,
+   "tolerance": 0.01,
+   "explain": "322 / √(344 × 306) = 322/324.4 = 0.99.",
+   "set": "Pearson r"
+  },
+  {
+   "type": "numeric",
+   "q": "Sums: n = 6, ΣX = 32, ΣY = 32, ΣXY = 129, ΣX² = 230, ΣY² = 204 (slide 27). Find r.",
+   "answer": -0.94,
+   "tolerance": 0.01,
+   "explain": "−250 / √(356 × 200) = −0.94.",
+   "set": "Pearson r"
+  },
+  {
+   "type": "mcq",
+   "q": "A computed r comes out as 1.3. What should you conclude?",
+   "options": [
+    "Very strong correlation",
+    "An arithmetic error",
+    "Perfect correlation",
+    "Negative correlation"
+   ],
+   "answer": 1,
+   "explain": "r cannot exceed 1. Recheck the sums.",
+   "set": "Pearson r"
+  },
+  {
+   "type": "numeric",
+   "q": "Series 4, 6, 5, 7, 8. Find the sample autocovariance γ̂(0) using the slide formula.",
+   "answer": 2,
+   "tolerance": 0.01,
+   "explain": "Mean 6, deviations squared sum to 10, divided by n = 5: 2.",
+   "set": "Autocovariance"
+  },
+  {
+   "type": "numeric",
+   "q": "Series 4, 6, 5, 7, 8. Find γ̂(1).",
+   "answer": 0.2,
+   "tolerance": 0.01,
+   "explain": "Products 0, 0, −1, 2 sum to 1; divide by n = 5: 0.2.",
+   "set": "Autocovariance"
+  },
+  {
+   "type": "numeric",
+   "q": "Series 4, 6, 5, 7, 8. Find the autocorrelation r_{1}.",
+   "answer": 0.1,
+   "tolerance": 0.01,
+   "explain": "Numerator 1, denominator 10: 0.1.",
+   "set": "Autocovariance"
+  },
+  {
+   "type": "mcq",
+   "q": "The sample autocovariance on slide 14 divides the sum by…",
+   "options": [
+    "n − 1",
+    "n",
+    "n − h",
+    "h"
+   ],
+   "answer": 1,
+   "explain": "Slide 14: (1/n).",
+   "set": "Autocovariance"
+  },
+  {
+   "type": "mcq",
+   "q": "γ̂(0), the autocovariance at lag 0, equals…",
+   "options": [
+    "0",
+    "1",
+    "The variance of the series",
+    "The mean"
+   ],
+   "answer": 2,
+   "explain": "Lag 0 pairs each value with itself, which gives the variance.",
+   "set": "Autocovariance"
+  },
+  {
+   "type": "mcq",
+   "q": "In PCA, an eigenvalue near zero means the matching component is…",
+   "options": [
+    "Very important",
+    "Relatively unimportant",
+    "Negative",
+    "Undefined"
+   ],
+   "answer": 1,
+   "explain": "Slide 16: a near-zero eigenvalue means the component is relatively unimportant.",
+   "set": "Autocovariance"
+  },
+  {
+   "type": "mcq",
+   "q": "\"The scores of 5 students in Mathematics (X) and Statistics (Y) are given. Calculate Karl Pearson's coefficient and interpret your result.\" What do you compute?",
+   "options": [
+    "Regression line of Y on X",
+    "Pearson's r, then a sentence on strength and direction",
+    "Spearman's rank correlation",
+    "Autocorrelation at lag 1"
+   ],
+   "answer": 1,
+   "explain": "\"Karl Pearson's coefficient\" and \"interpret\" mean Pearson's r (2024 end-sem Q1a).",
+   "set": "Spot the model"
+  },
+  {
+   "type": "mcq",
+   "q": "\"A company wishes to study the effect of extraction time on efficiency. Fit a straight line by least squares and predict efficiency at 35 minutes.\" Which is X?",
+   "options": [
+    "Efficiency, because it is the result",
+    "Extraction time, because it is the input used to predict",
+    "Either, the line is the same",
+    "Neither"
+   ],
+   "answer": 1,
+   "explain": "\"Effect of time on efficiency\": time is the predictor X, efficiency is the response Y.",
+   "set": "Spot the model"
+  },
+  {
+   "type": "mcq",
+   "q": "\"Calculate the coefficient of determination. How much of the variation is explained?\" Which formula?",
+   "options": [
+    "r² = SSR / SST",
+    "b = Sxy / Sxx",
+    "Cov = E(XY) − E(X)E(Y)",
+    "r_k over lag k"
+   ],
+   "answer": 0,
+   "explain": "Coefficient of determination and variation explained point to r² = SSR/SST (slide 55).",
+   "set": "Spot the model"
+  },
+  {
+   "type": "mcq",
+   "q": "\"Two judges ranked 6 products. Find the rank correlation coefficient and give your conclusion.\" What is it?",
+   "options": [
+    "Pearson's r on the ranks (Spearman)",
+    "Regression of ranks on time",
+    "Autocovariance",
+    "A chi-square test"
+   ],
+   "answer": 0,
+   "explain": "Ranks given and the words rank correlation mean Spearman (May 2026 Q4).",
+   "set": "Spot the model"
+  },
+  {
+   "type": "mcq",
+   "q": "\"The joint probabilities of X and Y are given in a table. Find Cov(X, Y).\" Which formula?",
+   "options": [
+    "Σ(X − X̄)(Y − Ȳ) divided by n − 1",
+    "E(XY) − E(X)·E(Y)",
+    "nΣXY − ΣXΣY",
+    "1 − SSE/SST"
+   ],
+   "answer": 1,
+   "explain": "A probability table means the expectation form (slide 12).",
+   "set": "Spot the model"
+  },
+  {
+   "type": "mcq",
+   "q": "\"An IoT system records the temperature on 10 days. Compute the lag-1 autocorrelation and comment on persistence.\" What is the data shape?",
+   "options": [
+    "Two columns, X and Y",
+    "One column over time, compared with itself shifted by one step",
+    "A table of probabilities",
+    "Two sets of ranks"
+   ],
+   "answer": 1,
+   "explain": "One series over time with the word lag: autocorrelation (Mar 2026 Q4).",
+   "set": "Spot the model"
+  },
+  {
+   "type": "mcq",
+   "q": "\"Check whether x and y have a linear relation. Find a linear relation using SSE as the loss. Predict y when x is 20.\" What is the best set of tasks?",
+   "options": [
+    "Only Spearman",
+    "Pearson's r, the least-squares line, then a prediction (note if x = 20 is outside the data range)",
+    "Only covariance",
+    "A time-series forecast"
+   ],
+   "answer": 1,
+   "explain": "Three verbs, three tasks (2023 makeup Q4).",
+   "set": "Spot the model"
+  },
+  {
+   "type": "mcq",
+   "q": "X = 1, 2, 3 and Y = 5, 5, 5. Which is correct?",
+   "options": [
+    "Cov = 0 and r = 0",
+    "Cov = 0 and r is undefined",
+    "Cov = 5 and r = 1",
+    "Cov is undefined and r = 0"
+   ],
+   "answer": 1,
+   "explain": "Every product is 0, so Cov = 0, but sY = 0 so r = 0/0 is undefined.",
+   "set": "Spot the model"
+  },
+  {
+   "type": "mcq",
+   "q": "Which sum belongs in the denominator of the regression slope b̂?",
+   "options": [
+    "Σ(Y − Ȳ)²",
+    "Σ(X − X̄)²",
+    "ΣXY",
+    "ΣY²"
+   ],
+   "answer": 1,
+   "explain": "b̂ = Σxy / Σx², with x = X − X̄. The Showtime slide used the Y deviations by mistake.",
+   "set": "Regression & r²"
+  },
+  {
+   "type": "numeric",
+   "q": "Screen time X = 1 to 6 and productivity Y = 90, 85, 78, 72, 65, 60. Find the slope b̂.",
+   "answer": -6.1714,
+   "tolerance": 0.001,
+   "explain": "Σxy = −108, Σx² = 17.5, so b̂ = −6.1714.",
+   "set": "Regression & r²"
+  },
+  {
+   "type": "numeric",
+   "q": "For the 2024 extraction line Ŷ = 39.05 + 0.764X, predict Y at X = 35.",
+   "answer": 65.8,
+   "tolerance": 0.1,
+   "explain": "39.05 + 0.764 × 35 = 65.79.",
+   "set": "Regression & r²"
+  },
+  {
+   "type": "numeric",
+   "q": "Showtime data (slide 47). Find the correct slope b̂.",
+   "answer": 1.604,
+   "tolerance": 0.01,
+   "explain": "Σxy = 10.375 and Σ(X − X̄)² = 6.469, so b̂ = 1.604. The slide's 0.407 is wrong.",
+   "set": "Regression & r²"
+  },
+  {
+   "type": "numeric",
+   "q": "SST = 114 and SSR = 100. Find r².",
+   "answer": 0.8772,
+   "tolerance": 0.001,
+   "explain": "r² = 100/114 = 0.8772.",
+   "set": "Regression & r²"
+  },
+  {
+   "type": "numeric",
+   "q": "SSE = 150 and SST = 600. Find r².",
+   "answer": 0.75,
+   "tolerance": 0.001,
+   "explain": "r² = 1 − 150/600 = 0.75.",
+   "set": "Regression & r²"
+  },
+  {
+   "type": "mcq",
+   "q": "A regression line is fitted on X from 9 to 14, and you predict at X = 20. What should you say?",
+   "options": [
+    "The prediction is exact",
+    "It is extrapolation, so it is less reliable",
+    "Regression cannot predict",
+    "The slope is wrong"
+   ],
+   "answer": 1,
+   "explain": "Outside the observed range the prediction is extrapolation.",
+   "set": "Regression & r²"
+  },
+  {
+   "type": "mcq",
+   "q": "The residuals of a straight-line fit are negative at both ends and positive in the middle. What does this suggest?",
+   "options": [
+    "A perfect linear fit",
+    "The data curve, so a straight line is only an approximation",
+    "X and Y are independent",
+    "The slope is zero"
+   ],
+   "answer": 1,
+   "explain": "A systematic curved residual pattern means the relationship is not exactly linear (Feb 2026).",
+   "set": "Regression & r²"
+  },
+  {
+   "type": "mcq",
+   "q": "Two values tie for 3rd and 4th place when ranking. What rank does each get?",
+   "options": [
+    "3",
+    "4",
+    "3.5",
+    "Both 3 and 4 are dropped"
+   ],
+   "answer": 2,
+   "explain": "Tied values share the average of their positions: 3.5.",
+   "set": "Spearman"
+  },
+  {
+   "type": "numeric",
+   "q": "Two judges' ranks: Σd² = 4.5 with n = 6. Use the shortcut to find r_{s}.",
+   "answer": 0.871,
+   "tolerance": 0.005,
+   "explain": "1 − 6 × 4.5 / (6 × 35) = 0.871.",
+   "set": "Spearman"
+  },
+  {
+   "type": "numeric",
+   "q": "R2 Exercise 32: Σd² = 52 and n = 10. Find r_{s}.",
+   "answer": 0.685,
+   "tolerance": 0.005,
+   "explain": "1 − 6 × 52 / 990 = 0.685.",
+   "set": "Spearman"
+  },
+  {
+   "type": "mcq",
+   "q": "Spearman's rank correlation is best described as…",
+   "options": [
+    "Covariance of the raw values",
+    "Pearson's r calculated on the ranks",
+    "The slope of a regression line",
+    "r² of the ranks"
+   ],
+   "answer": 1,
+   "explain": "T1 and R1 define it as Pearson's r on the ranks.",
+   "set": "Spearman"
+  },
+  {
+   "type": "mcq",
+   "q": "Judge A's ranks are 1, 2, 3.5, 3.5, 5, 6. Which method?",
+   "options": [
+    "d² formula",
+    "Covariance method on the ranks, because of the tie",
+    "Regression",
+    "Either, they are always identical"
+   ],
+   "answer": 1,
+   "explain": "The repeated 3.5 means a tie, so the d² formula is only approximate.",
+   "set": "Spearman"
+  },
+  {
+   "type": "mcq",
+   "q": "X = 4, 7, 9, 12 and Y = 7, 3, 8, 2. Are there ties?",
+   "options": [
+    "Yes, 7 appears in both",
+    "No, the repeat is across columns, not inside one",
+    "Yes, because n is even",
+    "Cannot tell"
+   ],
+   "answer": 1,
+   "explain": "Ties are repeats inside one column. Here neither column repeats a value.",
+   "set": "Spearman"
+  },
+  {
+   "type": "mcq",
+   "q": "Raw data, no repeats in X or Y. What is the quickest route?",
+   "options": [
+    "Rank both columns, then use the d² formula",
+    "Skip ranking",
+    "Pearson on the raw values",
+    "Regression"
+   ],
+   "answer": 0,
+   "explain": "Rank, then d²: exact when there are no ties.",
+   "set": "Spearman"
+  },
+  {
+   "type": "numeric",
+   "q": "Marks 82, 75, 91, 75, 68, 75. What rank does each 75 get (smallest = 1)?",
+   "answer": 3,
+   "tolerance": 0.01,
+   "explain": "The three 75s take positions 2, 3, 4; average 3.",
+   "set": "Spearman"
+  },
+  {
+   "type": "numeric",
+   "q": "Marks 5, 8, 8, 10. What rank does each 8 get (smallest = 1)?",
+   "answer": 2.5,
+   "tolerance": 0.01,
+   "explain": "The two 8s take positions 2 and 3; average 2.5.",
+   "set": "Spearman"
+  },
+  {
+   "type": "numeric",
+   "q": "Marks 5, 8, 8, 10. What is the rank of 10?",
+   "answer": 4,
+   "tolerance": 0.01,
+   "explain": "After the tied 8s (positions 2 and 3), 10 is at position 4.",
+   "set": "Spearman"
+  },
+  {
+   "type": "numeric",
+   "q": "Ranks without ties: n = 10 and Σd² = 54. Find r_s.",
+   "answer": 0.673,
+   "tolerance": 0.005,
+   "explain": "1 − 6 × 54 / 990 = 0.6727.",
+   "set": "Spearman"
+  },
+  {
+   "type": "mcq",
+   "q": "\"The scores of 5 students in Mathematics and Statistics are given. Calculate Karl Pearson's coefficient.\" Which?",
+   "options": [
+    "Spearman",
+    "Pearson r",
+    "Regression only",
+    "Autocorrelation"
+   ],
+   "answer": 1,
+   "explain": "Karl Pearson names the method.",
+   "set": "Spearman"
+  },
+  {
+   "type": "mcq",
+   "q": "\"Two judges ranked 6 products. Find the correlation between their rankings.\" Which?",
+   "options": [
+    "Pearson on raw scores",
+    "Spearman rank correlation",
+    "Covariance from a probability table",
+    "Regression"
+   ],
+   "answer": 1,
+   "explain": "The data are ranks, so Spearman.",
+   "set": "Spearman"
+  },
+  {
+   "type": "mcq",
+   "q": "Marks are given and the question says \"Find the rank correlation coefficient\". What do you do first?",
+   "options": [
+    "Apply d² directly to the marks",
+    "Rank each column, then decide between d² and the covariance method",
+    "Use Pearson on the raw marks",
+    "Skip ranking"
+   ],
+   "answer": 1,
+   "explain": "Rank first (averaging ties), then choose the method by scanning for ties.",
+   "set": "Spearman"
+  },
+  {
+   "type": "mcq",
+   "q": "\"Find the correlation coefficient\" with raw measurements and no other words. What is the default?",
+   "options": [
+    "Pearson r",
+    "Spearman",
+    "r²",
+    "Autocovariance"
+   ],
+   "answer": 0,
+   "explain": "Raw measurements default to Pearson.",
+   "set": "Spearman"
+  },
+  {
+   "type": "mcq",
+   "q": "Which question is Spearman?",
+   "options": [
+    "Fit a line to predict sales from advertising",
+    "How well do the ranks of two judges agree?",
+    "Find Cov(X, Y) from a probability table",
+    "Compute lag-1 autocorrelation"
+   ],
+   "answer": 1,
+   "explain": "Agreement between two rankings is rank correlation.",
+   "set": "Spearman"
+  },
+  {
+   "type": "numeric",
+   "q": "No ties: n = 6 and Σd² = 10. Find r_s.",
+   "answer": 0.714,
+   "tolerance": 0.005,
+   "explain": "1 − 6 × 10 / 210 = 0.714.",
+   "set": "Spearman"
+  },
+  {
+   "type": "mcq",
+   "q": "A line fitted on X from 2 to 6 predicts a score of 123.7 at X = 15 for a test out of 100. What do you say?",
+   "options": [
+    "The student scores 123.7",
+    "It is impossible: the linear model fails outside the data range",
+    "The slope is wrong",
+    "r² must be above 1"
+   ],
+   "answer": 1,
+   "explain": "A value outside the possible range shows the line cannot be trusted that far from the data.",
+   "set": "Regression & r²"
+  },
+  {
+   "type": "mcq",
+   "q": "What is the minimum you write for a prediction outside the observed X range?",
+   "options": [
+    "Only the number",
+    "The number and a note that it is extrapolation and less reliable",
+    "Refuse to predict",
+    "A new line fitted to that X only"
+   ],
+   "answer": 1,
+   "explain": "Compute it and flag it.",
+   "set": "Regression & r²"
+  }
+ ],
+ "formulas": [
+  {
+   "name": "Sample covariance",
+   "formula": "Cov(X, Y) = {{ Σ(X − X̄)(Y − Ȳ) // n − 1 }}",
+   "note": "Slide 8. Sign = direction."
+  },
+  {
+   "name": "Covariance, probability form",
+   "formula": "Cov(X, Y) = E(XY) − E(X)·E(Y)",
+   "note": "Slide 12. E(XY) = Σ x·y·p(x, y)."
+  },
+  {
+   "name": "Pearson's r (main form)",
+   "formula": "r = {{ Cov(X, Y) // s_{X} · s_{Y} }}",
+   "note": "Slide 19. s_{X} = √Var(X). Use this form."
+  },
+  {
+   "name": "Pearson's r, sums form (check)",
+   "formula": "r = {{ nΣXY − (ΣX)(ΣY) // {{sqrt: [nΣX² − (ΣX)²][nΣY² − (ΣY)²]}} }}",
+   "note": "Slides 23–27. Equal to the main form; use it to verify."
+  },
+  {
+   "name": "Strength of r (slide 22)",
+   "formula": "±1 perfect · ±0.76–0.99 strong · ±0.26–0.75 moderate · 0–0.25 weak · 0 zero"
+  },
+  {
+   "name": "Sample autocovariance",
+   "formula": "γ̂(h) = {{ 1 // n }} Σ (X_{t+|h|} − X̄)(X_{t} − X̄)",
+   "note": "Slide 14. Sum over i = 1 to n − |h|. Professor: the index is i."
+  },
+  {
+   "name": "Autocorrelation",
+   "formula": "r_{k} = {{ Σ(y_{t} − ȳ)(y_{t−k} − ȳ) // Σ(y_{t} − ȳ)² }}",
+   "note": "Slide 14. Top: t = k + 1 to T. Bottom: t = 1 to T."
+  },
+  {
+   "name": "Link",
+   "formula": "r_{k} = {{ γ̂(k) // γ̂(0) }}",
+   "note": "Both divide by n."
+  },
+  {
+   "name": "PCA eigenproblem",
+   "formula": "A x = λ x",
+   "note": "A = variance-covariance matrix (slide 15)."
+  },
+  {
+   "name": "Regression model (slide 40)",
+   "formula": "Y = a + bX + ε"
+  },
+  {
+   "name": "Normal equations (slide 45)",
+   "formula": "ΣY = n·a + b·ΣX\nΣXY = a·ΣX + b·ΣX²"
+  },
+  {
+   "name": "Regression slope (slide 46)",
+   "formula": "b̂ = {{ Cov(X, Y) // Var(X) }}  =  {{ Σ(X − X̄)(Y − Ȳ) // Σ(X − X̄)² }}  =  {{ nΣXY − (ΣX)(ΣY) // nΣX² − (ΣX)² }}",
+   "note": "X deviations in the denominator."
+  },
+  {
+   "name": "Regression intercept",
+   "formula": "â = Ȳ − b̂ · X̄"
+  },
+  {
+   "name": "Fitted line",
+   "formula": "Ŷ = â + b̂ · X",
+   "note": "Passes through (X̄, Ȳ)."
+  },
+  {
+   "name": "Sums of squares (slides 51–54)",
+   "formula": "SST = Σ(Y − Ȳ)²,  SSR = Σ(Ŷ − Ȳ)²,  SSE = Σ(Y − Ŷ)²\nSST = SSR + SSE"
+  },
+  {
+   "name": "Coefficient of determination (slide 55)",
+   "formula": "r² = {{ SSR // SST }} = 1 − {{ SSE // SST }}",
+   "note": "Between 0 and 1."
+  },
+  {
+   "name": "Spearman (add-on)",
+   "formula": "r_{s} = Pearson's r on the ranks",
+   "note": "Ties get average ranks. T1 §6.6.3, R1 §14.4."
+  },
+  {
+   "name": "Spearman shortcut (add-on)",
+   "formula": "r_{s} = 1 − {{ 6 Σd² // n(n² − 1) }}",
+   "note": "R2 §19.5. d = difference in ranks."
+  }
+ ],
+ "families": [
+  {
+   "id": "cov",
+   "label": "Covariance",
+   "icon": "C",
+   "title": "Covariance: do X and Y move together?",
+   "lead": "Direction only. Two formulas: one for data, one for a probability table.",
+   "problems": [
+    "Covariance ·"
+   ],
+   "blocks": [
+    {
+     "type": "h",
+     "text": "How to recognise it"
+    },
+    {
+     "type": "list",
+     "items": [
+      "The word \"covariance\" is in the question, or it asks for the **direction** of a relationship.",
+      "A list of paired values: sample formula. A probability table, pmf or pdf: E(XY) − E(X)E(Y)."
+     ]
+    },
+    {
+     "type": "formula",
+     "text": "Cov(X, Y) = {{ Σ(X − X̄)(Y − Ȳ) // n − 1 }}     or     Cov(X, Y) = E(XY) − E(X)·E(Y)"
+    },
+    {
+     "type": "h",
+     "text": "Standard steps"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Decide data or probability table.",
+      "Means (or E(X), E(Y)).",
+      "Products of deviations (or E(XY)).",
+      "Add and divide (data), or subtract the two terms (table).",
+      "State the sign and what it means."
+     ]
+    },
+    {
+     "type": "trap",
+     "label": "Remember",
+     "text": "The size depends on units. Only the sign is meaningful. For strength, use r."
+    }
+   ]
+  },
+  {
+   "id": "pearson",
+   "label": "Pearson r",
+   "icon": "r",
+   "title": "Pearson's r: how strong is the straight-line relationship?",
+   "lead": "Five sums, one formula, then a sentence.",
+   "problems": [
+    "Pearson r ·"
+   ],
+   "blocks": [
+    {
+     "type": "h",
+     "text": "How to recognise it"
+    },
+    {
+     "type": "list",
+     "items": [
+      "\"Karl Pearson\", \"coefficient of correlation\", \"strength and direction\", \"interpret your result\".",
+      "Two columns of numbers and no request to predict (if they say predict or fit a line, that is regression)."
+     ]
+    },
+    {
+     "type": "formula",
+     "text": "r = {{ Cov(X, Y) // s_{X} · s_{Y} }}",
+     "caption": "s_{X} = √Var(X), s_{Y} = √Var(Y)"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "n, X̄, Ȳ.",
+      "Deviations X − X̄ and Y − Ȳ.",
+      "Cov(X, Y) = Σ(X − X̄)(Y − Ȳ) / (n − 1).",
+      "Var(X) and Var(Y) with the same n − 1, then s_{X} and s_{Y}.",
+      "r = Cov(X, Y) / (s_{X} · s_{Y}).",
+      "Optional check with the sums form (slides 23–27).",
+      "Interpret with the slide 22 table: sign for direction, size for strength."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Write this line",
+     "text": "\"r = 0.99, a strong positive correlation, so students who score high in one subject also score high in the other. Correlation does not imply causation.\""
+    }
+   ]
+  },
+  {
+   "id": "auto",
+   "label": "Autocorrelation",
+   "icon": "γ",
+   "title": "Autocovariance and autocorrelation: a series against its own past",
+   "lead": "Same idea as covariance, but the second variable is the same series shifted by the lag.",
+   "problems": [
+    "Auto ·"
+   ],
+   "blocks": [
+    {
+     "type": "h",
+     "text": "How to recognise it"
+    },
+    {
+     "type": "list",
+     "items": [
+      "One column of values over time, and the words \"lag\", \"autocovariance\" or \"autocorrelation\"."
+     ]
+    },
+    {
+     "type": "formula",
+     "text": "γ̂(h) = {{ 1 // n }} Σ (X_{t+|h|} − X̄)(X_{t} − X̄)\n\nr_{k} = {{ Σ (y_{t} − ȳ)(y_{t−k} − ȳ) // Σ (y_{t} − ȳ)² }}"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Mean of the whole series.",
+      "Deviations.",
+      "Pair each deviation with the one h places later; multiply and add (n − h products).",
+      "Divide by n for γ̂(h), or by the sum of squared deviations for r_{k}.",
+      "Check r_{k} = γ̂(k)/γ̂(0)."
+     ]
+    },
+    {
+     "type": "trap",
+     "label": "Common mistake",
+     "text": "Dividing the autocovariance by n − 1, or forgetting that there are only n − h pairs at lag h."
+    }
+   ]
+  },
+  {
+   "id": "regression",
+   "label": "Regression",
+   "icon": "ŷ",
+   "title": "Regression: fit the line, then use it",
+   "lead": "Fit by least squares, predict, interpret, and answer the judgement parts.",
+   "problems": [
+    "Regression ·"
+   ],
+   "blocks": [
+    {
+     "type": "h",
+     "text": "How to recognise it"
+    },
+    {
+     "type": "list",
+     "items": [
+      "\"Fit a line\", \"least squares\", \"SSE as the loss\", \"simple regression\", \"find a suitable linear relation\".",
+      "\"Predict … when X = …\", \"effect of A on B\", \"based on\", \"Y = f(X)\".",
+      "Often with extras: interpret the sign, draw a scatter plot, say whether the model is appropriate."
+     ]
+    },
+    {
+     "type": "formula",
+     "text": "b̂ = {{ Cov(X, Y) // Var(X) }}  =  {{ Σ(X − X̄)(Y − Ȳ) // Σ(X − X̄)² }}  =  {{ nΣXY − (ΣX)(ΣY) // nΣX² − (ΣX)² }}        â = Ȳ − b̂·X̄        Ŷ = â + b̂·X"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "X and Y.",
+      "n, X̄, Ȳ.",
+      "Deviations x and y (each adds to 0).",
+      "Σxy and Σx².",
+      "b̂ = Σxy / Σx² (X deviations in the denominator).",
+      "â = Ȳ − b̂X̄.",
+      "Line, then prediction.",
+      "One sentence: direction, size with units, prediction."
+     ]
+    },
+    {
+     "type": "trap",
+     "label": "Common mistakes",
+     "text": "Y deviations in the denominator (the Showtime slide's slip). Swapping X and Y. Extrapolating without a warning. Forgetting units in the sentence."
+    }
+   ]
+  },
+  {
+   "id": "r2",
+   "label": "r²",
+   "icon": "r²",
+   "title": "r²: how good is the fitted line?",
+   "lead": "The share of the variation in Y that the line explains.",
+   "problems": [
+    "r² ·"
+   ],
+   "blocks": [
+    {
+     "type": "h",
+     "text": "How to recognise it"
+    },
+    {
+     "type": "list",
+     "items": [
+      "\"coefficient of determination\", \"variation explained\", \"how good is the fit\", or SSE and SST given."
+     ]
+    },
+    {
+     "type": "formula",
+     "text": "r² = {{ SSR // SST }} = 1 − {{ SSE // SST }}        SST = SSR + SSE"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Fit the line and get Ŷ.",
+      "SST = Σ(Y − Ȳ)², SSR = Σ(Ŷ − Ȳ)².",
+      "r² = SSR / SST.",
+      "Say it as a percentage of the variation in Y."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Add-on",
+     "text": "r = + or − √r², with the sign of the slope."
+    }
+   ]
+  },
+  {
+   "id": "spearman",
+   "label": "Spearman",
+   "icon": "ρ",
+   "title": "Spearman: correlation of ranks",
+   "lead": "Add-on topic. Pearson's r on the ranks, with averaged ranks for ties.",
+   "problems": [
+    "Spearman ·",
+    "Ranking raw data"
+   ],
+   "blocks": [
+    {
+     "type": "h",
+     "text": "How to recognise it"
+    },
+    {
+     "type": "list",
+     "items": [
+      "The data are ranks, or the question says \"rank correlation\" or \"Spearman\"."
+     ]
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Raw values? Rank each column (smallest = 1), averaging tied positions.",
+      "Scan each column for a repeat. **No repeats:** use r_{s} = 1 − 6Σd² / [n(n² − 1)]. **Repeats:** use Cov(rank X, rank Y) / (s_{X}·s_{Y}).",
+      "Table, then the formula, then a conclusion on sign and strength."
+     ]
+    },
+    {
+     "type": "formula",
+     "text": "r_{s} = 1 − {{ 6 Σd² // n(n² − 1) }}      (no ties)\n\nr_{s} = {{ Cov(rank X, rank Y) // s_{X} · s_{Y} }}      (ties, or always)"
+    },
+    {
+     "type": "trap",
+     "label": "Common mistakes",
+     "text": "Forgetting to average ties. Using d² when ties exist. Ranking the two columns in opposite directions. Dropping the conclusion sentence."
+    }
+   ]
+  },
+  {
+   "id": "capstone",
+   "label": "All together",
+   "icon": "★",
+   "title": "One problem, every Chapter 11 tool",
+   "lead": "Cov, r, regression, r², Spearman on the same data. Work it top to bottom.",
+   "problems": [
+    "Capstone ·"
+   ],
+   "blocks": [
+    {
+     "type": "h",
+     "text": "Order to work in"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Table of deviations once; reuse it for Cov, r, the slope and SST.",
+      "Cov, then Var(X), Var(Y), then r = Cov / (s_{X}·s_{Y}).",
+      "Slope b̂ = Cov / Var(X), intercept â = Ȳ − b̂X̄, predict, interpret.",
+      "Fitted values, then SSR, SST, r².",
+      "Rank both columns (average ties), then choose d² or the covariance method."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Consistency check",
+     "text": "All four measures should agree on the sign. r² = r². Spearman is close to r when the relationship is steady."
+    }
+   ]
+  }
+ ]
+}

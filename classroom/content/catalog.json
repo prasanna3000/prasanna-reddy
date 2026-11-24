@@ -210,8 +210,8 @@
               "id": "ch11",
               "number": 11,
               "title": "Correlation & Regression",
-              "blurb": "Pearson and Spearman, least squares.",
-              "comingSoon": true
+              "blurb": "Covariance, Pearson r, autocovariance and autocorrelation, PCA. Regression line, r², Spearman, and every past-paper question type.",
+              "file": "content/sem1/aiml-zc418/ch11-correlation.json"
             },
             {
               "id": "ch12",
@@ -230,15 +230,553 @@
             {
               "id": "ch14",
               "number": 14,
-              "title": "Smoothing & ARIMA in practice",
-              "blurb": "Exponential smoothing, Holt, autocorrelation.",
-              "comingSoon": true
+              "title": "Smoothing & Time-series Models",
+              "blurb": "Simple exponential smoothing (worked), videos, and a red pending board for Holt, moving averages and SARIMA to VARMAX.",
+              "file": "content/sem1/aiml-zc418/ch14-smoothing.json"
             },
             {
               "id": "ch15",
               "number": 15,
               "title": "Gaussian Mixture Models & EM",
               "blurb": "Soft clustering, mixtures of Gaussians, expectation-maximisation.",
+              "comingSoon": true
+            }
+          ],
+          "weightage": {
+            "title": "Where the marks are: end-sem weightage",
+            "intro": "Counted from seven end-sem papers (the previous batch's April 2023 paper, 2023 regular and makeup, 2024, and Feb, Mar and May 2026). 280 marks in all.",
+            "tables": [
+              {
+                "title": "Marks per chapter in each end-sem paper",
+                "head": [
+                  "CS",
+                  "Prev batch (Apr 2023)",
+                  "2023 reg",
+                  "2023 makeup",
+                  "2024",
+                  "Feb 2026",
+                  "Mar 2026",
+                  "May 2026",
+                  "Total /280",
+                  "Share",
+                  "Papers"
+                ],
+                "rows": [
+                  [
+                    "9 Hypothesis testing",
+                    "18",
+                    "10",
+                    "10",
+                    "4",
+                    "10",
+                    "13",
+                    "6",
+                    "**71**",
+                    "25.4%",
+                    "7 of 7"
+                  ],
+                  [
+                    "11 Correlation and regression",
+                    "7",
+                    "10",
+                    "10",
+                    "12",
+                    "10",
+                    "5",
+                    "5",
+                    "**59**",
+                    "21.1%",
+                    "7 of 7"
+                  ],
+                  [
+                    "14 Smoothing (SES, Holt, autocorrelation)",
+                    "5",
+                    "5",
+                    "5",
+                    "16",
+                    "8",
+                    "10",
+                    "8",
+                    "**57**",
+                    "20.4%",
+                    "7 of 7"
+                  ],
+                  [
+                    "10 MLE, F-test, ANOVA",
+                    "5",
+                    "·",
+                    "5",
+                    "8",
+                    "5",
+                    "5",
+                    "6",
+                    "**34**",
+                    "12.1%",
+                    "6 of 7"
+                  ],
+                  [
+                    "12 Moving averages",
+                    "·",
+                    "5",
+                    "5",
+                    "·",
+                    "·",
+                    "5",
+                    "·",
+                    "**15**",
+                    "5.4%",
+                    "3 of 7"
+                  ],
+                  [
+                    "3 Conditional probability",
+                    "5",
+                    "3",
+                    "5",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "**13**",
+                    "4.6%",
+                    "3 of 7"
+                  ],
+                  [
+                    "15 Gaussian mixture models",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "5",
+                    "·",
+                    "3",
+                    "**8**",
+                    "2.9%",
+                    "2 of 7"
+                  ],
+                  [
+                    "1 Descriptive statistics",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "5",
+                    "**5**",
+                    "1.8%",
+                    "1 of 7"
+                  ],
+                  [
+                    "5 Random variables",
+                    "·",
+                    "5",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "**5**",
+                    "1.8%",
+                    "1 of 7"
+                  ],
+                  [
+                    "4 Bayes and Naïve Bayes",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "4",
+                    "**4**",
+                    "1.4%",
+                    "1 of 7"
+                  ],
+                  [
+                    "7 Sampling and estimation",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "2",
+                    "2",
+                    "·",
+                    "**4**",
+                    "1.4%",
+                    "2 of 7"
+                  ],
+                  [
+                    "2 Probability basics",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "3",
+                    "**3**",
+                    "1.1%",
+                    "1 of 7"
+                  ],
+                  [
+                    "6 Probability distributions",
+                    "·",
+                    "2",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "**2**",
+                    "0.7%",
+                    "1 of 7"
+                  ],
+                  [
+                    "13 AR, MA, ARMA, ARIMA",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "·",
+                    "**0**",
+                    "0.0%",
+                    "0 of 7"
+                  ],
+                  [
+                    "**Total**",
+                    "**40**",
+                    "**40**",
+                    "**40**",
+                    "**40**",
+                    "**40**",
+                    "**40**",
+                    "**40**",
+                    "**280**",
+                    "100%",
+                    ""
+                  ]
+                ],
+                "note": "Each paper is 40 marks. A dot means the chapter was not asked. The top three chapters average about 27 marks per paper."
+              },
+              {
+                "title": "What is inside each chapter",
+                "head": [
+                  "CS",
+                  "Topic",
+                  "Marks /280",
+                  "Papers"
+                ],
+                "rows": [
+                  [
+                    "9",
+                    "Mean tests: z, t, paired, two-sample",
+                    "**38**",
+                    "7 of 7"
+                  ],
+                  [
+                    "9",
+                    "Chi-square (fit and independence)",
+                    "**25**",
+                    "4 of 7"
+                  ],
+                  [
+                    "9",
+                    "Proportion test",
+                    "**8**",
+                    "2 of 7"
+                  ],
+                  [
+                    "11",
+                    "Regression (fit, predict, model choice)",
+                    "**35**",
+                    "6 of 7"
+                  ],
+                  [
+                    "11",
+                    "Correlation (Pearson, covariance, Spearman)",
+                    "**24**",
+                    "5 of 7"
+                  ],
+                  [
+                    "14",
+                    "Simple exponential smoothing",
+                    "**36**",
+                    "6 of 7"
+                  ],
+                  [
+                    "14",
+                    "Holt's method",
+                    "**13**",
+                    "2 of 7"
+                  ],
+                  [
+                    "14",
+                    "Autocorrelation and white noise",
+                    "**8**",
+                    "2 of 7"
+                  ],
+                  [
+                    "10",
+                    "One-way ANOVA",
+                    "**21**",
+                    "4 of 7"
+                  ],
+                  [
+                    "10",
+                    "MLE",
+                    "**9**",
+                    "2 of 7"
+                  ],
+                  [
+                    "10",
+                    "F-test on variances",
+                    "**4**",
+                    "1 of 7"
+                  ],
+                  [
+                    "12",
+                    "Moving averages",
+                    "**15**",
+                    "3 of 7"
+                  ],
+                  [
+                    "3",
+                    "Conditional and total probability",
+                    "**13**",
+                    "3 of 7"
+                  ],
+                  [
+                    "15",
+                    "Mixture density, which component, why GMM",
+                    "**8**",
+                    "2 of 7"
+                  ],
+                  [
+                    "1, 2, 4, 5, 6, 7",
+                    "Descriptive 5, events 3, Bayes 4, joint pdf 5, binomial 2, confidence intervals 4",
+                    "**23**",
+                    "1 to 2 of 7 each"
+                  ]
+                ],
+                "leftCols": 2
+              }
+            ],
+            "footnote": "Judgement calls: 2023 makeup Q3b (10) is split 5 and 5 between CS 12 and CS 14; previous-batch Q1b (7) is split 3 correlation and 4 regression; previous-batch Q2b (5) is taken as a chi-square test; autocorrelation and white noise are counted under CS 14."
+          }
+        },
+        {
+          "id": "aiml-zg565",
+          "code": "AIML ZG565",
+          "title": "Machine Learning",
+          "room": "Room 565",
+          "color": "#4a6fa5",
+          "teacher": "Prof. Amit Sharma",
+          "description": "Texts: T1 Mitchell, **Machine Learning**; R1 Bishop, **Pattern Recognition and Machine Learning**; R2 Hastie et al. EC-3 comprehensive: open book, 40%, 2 hours (**6 Dec 2026**, afternoon). Chapters are numbered by contact session (CS). Built so far: **CS 12–13 Ensemble Learning** (page numbers refer to your watermarked slides).",
+          "weightage": {
+            "title": "Where the marks are: ML end-sem",
+            "intro": "Two things below: the official pattern printed on the sample question paper, and the real marks in the two end-sem papers I could read in full (Mar 2026 regular and makeup, 80 marks). Each paper is 40 marks, 2 hours, open book.",
+            "tables": [
+              {
+                "title": "Official pattern (ML Comprehensive Sample QP)",
+                "head": [
+                  "Topic",
+                  "Marks"
+                ],
+                "leftCols": 1,
+                "rows": [
+                  [
+                    "Instance-based learning (CS 7)",
+                    "4–8"
+                  ],
+                  [
+                    "SVM (CS 9)",
+                    "4–8"
+                  ],
+                  [
+                    "Bayesian learning (CS 10–11)",
+                    "4–8"
+                  ],
+                  [
+                    "Ensemble learning (CS 12–13)",
+                    "4–8"
+                  ],
+                  [
+                    "Unsupervised learning (CS 14)",
+                    "4–8"
+                  ],
+                  [
+                    "Model evaluation and comparison (CS 15)",
+                    "4–8"
+                  ],
+                  [
+                    "Pre-midterm topics (CS 1–6)",
+                    "5–10"
+                  ]
+                ],
+                "note": "Six post-mid topics each get 4 to 8 marks, so none can be skipped."
+              },
+              {
+                "title": "Marks per topic in the last two end-sems",
+                "head": [
+                  "CS",
+                  "Topic",
+                  "Mar 2026 regular",
+                  "Mar 2026 makeup",
+                  "Total /80"
+                ],
+                "leftCols": 2,
+                "rows": [
+                  [
+                    "12–13",
+                    "Ensembles (AdaBoost, bagging/RF, gradient boosting, voting)",
+                    "8",
+                    "9",
+                    "**17**"
+                  ],
+                  [
+                    "9",
+                    "SVM",
+                    "8",
+                    "8",
+                    "**16**"
+                  ],
+                  [
+                    "7",
+                    "kNN, locally weighted regression",
+                    "6",
+                    "6",
+                    "**12**"
+                  ],
+                  [
+                    "14",
+                    "K-means, GMM",
+                    "6",
+                    "6",
+                    "**12**"
+                  ],
+                  [
+                    "11",
+                    "Naive Bayes",
+                    "6",
+                    "5",
+                    "**11**"
+                  ],
+                  [
+                    "3",
+                    "Ridge, Lasso",
+                    "3",
+                    "4",
+                    "**7**"
+                  ],
+                  [
+                    "4–6",
+                    "Logistic regression and decision-tree concepts",
+                    "3",
+                    "2",
+                    "**5**"
+                  ],
+                  [
+                    "15",
+                    "Model evaluation",
+                    "0",
+                    "0",
+                    "0"
+                  ]
+                ],
+                "note": "Model evaluation did not appear in these two papers, but the sample QP lists it, so keep a short pass on it."
+              }
+            ],
+            "footnote": "Judgement calls: Mar 2026 regular Q7 (3 marks, linear vs logistic regression vs tree) is counted under CS 4–6. Marks come from the papers' own mark schemes. Only these two end-sem papers were available in full, so treat the totals as a guide, not a forecast."
+          },
+          "chapters": [
+            {
+              "id": "ch01",
+              "number": 1,
+              "label": "CS 1",
+              "title": "Introduction",
+              "blurb": "What ML is, how a learning system is designed, issues in ML.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch02",
+              "number": 2,
+              "label": "CS 2",
+              "title": "Maths Preliminaries and ML Workflow",
+              "blurb": "Linear algebra, calculus, probability, information theory, data pre-processing.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch03",
+              "number": 3,
+              "label": "CS 3",
+              "title": "Linear Models for Regression",
+              "blurb": "Direct solution, gradient descent, basis functions, bias-variance, Ridge and Lasso.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch04",
+              "number": 4,
+              "label": "CS 4–5",
+              "title": "Linear Classification and Logistic Regression",
+              "blurb": "Discriminant functions, logistic regression, log loss, multi-class.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch06",
+              "number": 6,
+              "label": "CS 6",
+              "title": "Decision Trees",
+              "blurb": "Entropy, information gain, overfitting, continuous and missing values.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch07",
+              "number": 7,
+              "label": "CS 7",
+              "title": "Instance-based Learning",
+              "blurb": "kNN, locally weighted regression, radial basis functions.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch09",
+              "number": 9,
+              "label": "CS 9",
+              "title": "Support Vector Machines",
+              "blurb": "Linear and non-linear SVM, kernels, support vectors.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch10",
+              "number": 10,
+              "label": "CS 10–11",
+              "title": "Bayesian Learning",
+              "blurb": "MLE, MAP, Bayes optimal classifier, Naive Bayes.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch12",
+              "number": 12,
+              "label": "CS 12–13",
+              "title": "Ensemble Learning",
+              "blurb": "Voting, bagging, Random Forest, AdaBoost, gradient boosting, XGBoost, stacking.",
+              "file": "content/sem1/aiml-zg565/ch12-ensembles.json"
+            },
+            {
+              "id": "ch14",
+              "number": 14,
+              "label": "CS 14",
+              "title": "Unsupervised Learning",
+              "blurb": "K-means, Gaussian mixture models, EM.",
+              "comingSoon": true
+            },
+            {
+              "id": "ch15",
+              "number": 15,
+              "label": "CS 15",
+              "title": "Model Evaluation",
+              "blurb": "Comparing models, confusion matrix, bias and fairness.",
               "comingSoon": true
             }
           ]

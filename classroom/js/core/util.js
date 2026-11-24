@@ -15,7 +15,37 @@
     t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     t = t.replace(/==([^=]+)==/g, '<mark>$1</mark>');
     t = t.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    t = mathMarkup(t);
+    /* a block of lines that start and end with | becomes a table (first row = heading, a line of only --- is ignored) */
+    t = t.replace(/(?:^|\n)((?:\|[^\n]*\|[ ]*(?:\n|$))+)/g, (m, blk) => {
+      const rows = blk.trim().split('\n').filter((r) => !/^\|[\s|:-]+\|$/.test(r.trim())).map((r) => r.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim()));
+      const cell = (tag, c) => `<${tag}>${c}</${tag}>`;
+      const head = rows[0].map((c) => cell('th', c)).join('');
+      const body = rows.slice(1).map((r) => `<tr>${r.map((c) => cell('td', c)).join('')}</tr>`).join('');
+      return `<div class="md-table-wrap"><table class="md-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+    });
     t = t.replace(/\n/g, '<br>');
+    return t;
+  }
+
+  /* Readable maths for content files (written after esc, so it only sees plain text):
+       {{ top // bottom }}      stacked fraction with a bar
+       {{sqrt: expression}}     square root with a bar over the expression
+       x_{t+1}   x^{2}          subscript / superscript
+     Fractions and roots can be nested. Everything else is left alone. */
+  function mathMarkup(t) {
+    t = t.replace(/_\{([^{}]*)\}/g, '<sub>$1</sub>').replace(/\^\{([^{}]*)\}/g, '<sup>$1</sup>');
+    let prev;
+    do {
+      prev = t;
+      t = t.replace(/\{\{([^{}]*)\}\}/g, (m, inner) => {
+        const s = inner.trim();
+        if (s.startsWith('sqrt:')) return `<span class="rad"><span class="rsym">\u221a</span><span class="rbody">${s.slice(5).trim()}</span></span>`;
+        const i = s.indexOf(' // ');
+        if (i < 0) return m;
+        return `<span class="fr"><span class="fn">${s.slice(0, i).trim()}</span><span class="fd">${s.slice(i + 4).trim()}</span></span>`;
+      });
+    } while (t !== prev);
     return t;
   }
 

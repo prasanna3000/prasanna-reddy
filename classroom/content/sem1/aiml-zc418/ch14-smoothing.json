@@ -1,0 +1,732 @@
+{
+ "id": "ch14",
+ "title": "Smoothing & Time-series Models",
+ "subtitle": "Contact session 14 · slides CS-14 · exponential smoothing, Holt, and the models revision (SARIMA to VARMAX)",
+ "lesson": [
+  {
+   "title": "PENDING in this chapter: read these in revision",
+   "lead": "Topics in CS 14 that are not yet walked through step by step.",
+   "blocks": [
+    {
+     "type": "note",
+     "label": "PENDING: read before the exam",
+     "text": "Still to be taught. Do in this order.\n1. HOLT (pages 22-36), exam critical, asked in 2 exams. Formulas: Lt = α·Yt + (1-α)(L(t-1)+T(t-1)); Tt = β(Lt-L(t-1)) + (1-β)T(t-1); F(t+1) = Lt + Tt; F(t+k) = Lt + k·Tt. Idea: SES lags on a trend, Holt tracks the slope T. Always compute L first, then T. Problems: (a) Mar 2026 makeup Q6 (weeks 1-7 demand 20..32, α=0.4, β=0.3, L1=20, T1=2: every L and T comes out clean, F8 = 34, 5M, part c is the why-Holt-over-SES reason); (b) Sept 2025 regular (L0=15, T0=3, α=0.5, β=0.3, subscriptions 15,18,22,25,29,33 for Jan-Jun, forecast July). Also the special cases α or β = 0 or 1 (pages 28-33) and remember Holt is not Holt-Winters (no seasonal part).\n2. Moving averages (pages 16-21): asked in 2023 and the Mar 2026 makeup (3-year MA gave 51 for 2025).\n3. Model slides (pages 67-82): AR(1) 37, 27.9, 21.53; ARMA(1,1) 8.8, 7.4; ARIMA(1,1,1) 122.3, 123.22; SARIMA 165 then 137; SARIMAX 42 vs 34; VAR(1) 1.6%, 2.4%; VARMAX 1.735%; comparison table p.82. No past paper asks these.\n4. Holt-Winters and decomposition (pages 37-66): skim, no question seen.",
+     "color": "red"
+    },
+    {
+     "type": "note",
+     "label": "Already taught step by step",
+     "text": "Simple exponential smoothing: the formula, the flow, Feb 2026 Q2 (5 marks), the Sept 2025 Q2 (8 marks, with the MSE comparison) the 2023 Q3a (5 marks, Jan-May sales), Practice 5.2 (update with a new actual) and the 2023 makeup Q3b (SES possible? compared with a moving average).",
+     "color": "blue"
+    }
+   ]
+  },
+  {
+   "title": "Watch first: videos",
+   "lead": "Watch one SES video before the calculations. The notation may differ from the slides; the numbers come out the same.",
+   "blocks": [
+    {
+     "type": "h",
+     "text": "Simple exponential smoothing"
+    },
+    {
+     "type": "list",
+     "items": [
+      "[Forecasting: How to Calculate MAD, MSE & MAPE](https://www.youtube.com/watch?v=_5EZRy6tEEM): your pick for the calculations. It covers the error measures from pages 8-9.",
+      "[Forecasting: How to Perform Exponential Smoothing](https://www.youtube.com/watch?v=BphvGj70-Y4): a step-by-step example.",
+      "[Forecasting: Exponential Smoothing, MSE](https://www.youtube.com/watch?v=k_HN0wOKDd0): the calculation and the MSE, which matches the 'compare two alpha' question.",
+      "[Smoothing 4: Simple exponential smoothing (SES)](https://www.youtube.com/watch?v=Fqge2HDH2Co): the idea, for series with no trend and no seasonality."
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Holt (double exponential smoothing)"
+    },
+    {
+     "type": "list",
+     "items": [
+      "[Trend-Corrected Exponential Smoothing (Holt's Method)](https://www.youtube.com/watch?v=lYLCSHk4guc): walks through the steps.",
+      "[Forecasting (13): Holt's trend method](https://www.youtube.com/watch?v=3mpCzheoXeM): the concept with an Excel demonstration.",
+      "[5. Double Exponential Smoothing (Holt's method)](https://www.youtube.com/watch?v=t7NwuZaeeAg): the fifth video of the Business Forecasting series."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Check against the slides",
+     "text": "Some videos write F(t) = F(t−1) + α(A(t−1) − F(t−1)). It is the same formula as the slides' F(t+1) = αYt + (1 − α)Ft. For Holt, the starting level and trend differ between videos; in the exam they are given.",
+     "color": "blue"
+    }
+   ]
+  },
+  {
+   "title": "What this chapter is trying to do",
+   "lead": "Predict the next value of a series by blending what just happened with what you predicted last time.",
+   "blocks": [
+    {
+     "type": "h",
+     "text": "The idea (page 3)"
+    },
+    {
+     "type": "p",
+     "text": "Simple exponential smoothing (SES) is a weighted average of all the past values, with exponentially decreasing importance for older values. In practice you never average everything: each new forecast is a blend of the latest actual value and the previous forecast, and α sets the blend."
+    },
+    {
+     "type": "formula",
+     "text": "F2 = Y1\nF(t+1) = α × Yt + (1 − α) × Ft",
+     "caption": "pages 3-4"
+    },
+    {
+     "type": "table",
+     "head": [
+      "α",
+      "What it does",
+      "Page"
+     ],
+     "rows": [
+      [
+       "α = 1",
+       "The forecast is just the last actual value: a naive forecast",
+       "3"
+      ],
+      [
+       "α = 0",
+       "The forecast is just the previous forecast",
+       "3"
+      ],
+      [
+       "Small α",
+       "Gives less weight to the current value: a smoother series",
+       "10"
+      ],
+      [
+       "Large α",
+       "Gives more weight to the current value: a more variable series that reacts faster",
+       "10"
+      ]
+     ]
+    },
+    {
+     "type": "h",
+     "text": "The flow for any SES question"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Read the start rule. 'Initial forecast equals the first actual' means F(first period) = Y(first period).",
+      "Write α and 1 − α.",
+      "Build a table row by row: the new forecast uses the previous row's actual and the previous row's forecast.",
+      "Go one row past the data if they ask for the next period.",
+      "If they ask which α is better: error = actual − forecast for every period, square it, add, divide by the number of periods (MSE), and pick the smaller.",
+      "Write one line of justification."
+     ]
+    },
+    {
+     "type": "trap",
+     "label": "Check yourself",
+     "text": "F(first) and F(second) are equal when the initial forecast equals the first actual, because F2 = α·Y1 + (1 − α)·F1 = Y1."
+    }
+   ]
+  },
+  {
+   "title": "Measuring forecast error (pages 8-9)",
+   "lead": "To choose between two forecasts, add up how wrong each one was.",
+   "blocks": [
+    {
+     "type": "formula",
+     "text": "error in period t = actual − forecast = Yt − Ft"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Measure",
+      "What it is"
+     ],
+     "rows": [
+      [
+       "MSE",
+       "Mean Square Error: average of the squared errors"
+      ],
+      [
+       "MAD",
+       "Mean Absolute Deviation: average of the absolute errors"
+      ],
+      [
+       "MAPE",
+       "Mean Absolute Percent Error: average of |error| / actual"
+      ],
+      [
+       "LAD",
+       "Largest Absolute Deviation: the biggest single |error|"
+      ]
+     ]
+    },
+    {
+     "type": "formula",
+     "text": "MSE = {{ Σ (Yt − Ft)² // number of periods }}"
+    },
+    {
+     "type": "note",
+     "label": "A caution about the slides' table (pages 11-15)",
+     "text": "The utilization table on pages 11-15 gives each row the smoothed value that already includes that row's actual Y, and then compares the two. That is not a true forecast error. A proper one-step forecast error gives larger MSEs (3.59, 2.24 and 1.47 when I recomputed them). The ranking is the same: α = 0.7 is the best. The Feb 2026 answer key uses the page 4 form, so use that in the exam. Pages 5-7 are images that I could not read.",
+     "color": "pink"
+    },
+    {
+     "type": "note",
+     "label": "Convention to state",
+     "text": "When the initial forecast equals the first actual, the first year's error is 0. The slides' page 12 table averages over all rows including that 0 row. If you divide by n − 1 instead the MSE is larger, but the ranking of two α values does not change. Say which you used.",
+     "color": "blue"
+    }
+   ]
+  }
+ ],
+ "worked": [
+  {
+   "title": "SES · Feb 2026 end-sem Q2: monthly demand (5 marks)",
+   "tags": [
+    "Past paper",
+    "SES"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A logistics company uses Simple Exponential Smoothing to forecast monthly demand for a machine-learning inference service deployed on cloud servers. The demand (in thousands of requests) for the past six months is shown below. [5 marks]"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Month",
+      "Jan",
+      "Feb",
+      "March",
+      "April",
+      "May",
+      "June"
+     ],
+     "rows": [
+      [
+       "Demand",
+       "82",
+       "88",
+       "91",
+       "97",
+       "95",
+       "102"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "The initial forecast for January is assumed to be equal to the actual demand in January. (i) Forecast the demand for July using α = 0.4. (ii) Forecast the demand for July using α = 0.7. (iii) Briefly comment on which α value is more suitable if sudden spikes in demand are expected in real-time AI applications. All calculations must be shown clearly. Use Simple Exponential Smoothing only."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Keywords",
+     "text": "Simple exponential smoothing, smoothing constant α, initial forecast = January actual, forecast for July (one month after the data ends), sudden spikes."
+    },
+    {
+     "label": "Formula (page 4)",
+     "text": "F(t+1) = α·Yt + (1 − α)·Ft. New forecast = α × (latest actual) + (1 − α) × (last forecast)."
+    },
+    {
+     "label": "Start",
+     "text": "F(Jan) = 82, because the question says so. Then F(Feb) = α·82 + (1 − α)·82 = 82."
+    },
+    {
+     "label": "(i) α = 0.4",
+     "text": "Mar: 0.4 × 88 + 0.6 × 82 = 84.4. Apr: 0.4 × 91 + 0.6 × 84.4 = 87.04. May: 0.4 × 97 + 0.6 × 87.04 = 91.024. Jun: 0.4 × 95 + 0.6 × 91.024 = 92.6144. **Jul: 0.4 × 102 + 0.6 × 92.6144 = 96.37.**"
+    },
+    {
+     "label": "(ii) α = 0.7",
+     "text": "Mar: 0.7 × 88 + 0.3 × 82 = 86.2. Apr: 0.7 × 91 + 0.3 × 86.2 = 89.56. May: 0.7 × 97 + 0.3 × 89.56 = 94.768. Jun: 0.7 × 95 + 0.3 × 94.768 = 94.9304. **Jul: 0.7 × 102 + 0.3 × 94.9304 = 99.88.**"
+    },
+    {
+     "label": "(iii) Which α for spikes",
+     "text": "**α = 0.7.** It puts 70% of the weight on the latest actual value, so it reacts quickly to a spike. α = 0.4 keeps 60% on the old forecast, so it reacts slowly. Check: demand is rising to 102, and 99.88 is closer to it than 96.37. As extra support, the average squared error for Feb to Jun is 32.9 for α = 0.7 and 56.5 for α = 0.4."
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "Using the actuals and forecasts the wrong way round; forgetting F(Jan) = F(Feb) = 82; stopping at June when the question asks for July."
+    }
+   ],
+   "answer": "F(July) ≈ 96.37 for α = 0.4 and ≈ 99.88 for α = 0.7. α = 0.7 is more suitable for spikes because it reacts faster to recent changes."
+  },
+  {
+   "title": "SES · Sept 2025 end-sem Q2: rice exports, MSE comparison (8 marks)",
+   "tags": [
+    "Past paper",
+    "SES",
+    "MSE"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "The following data relates to the export of rice (in thousands of quintals) to USA from 2015 to 2021. [8 marks]"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Year",
+      "2015",
+      "2016",
+      "2017",
+      "2018",
+      "2019",
+      "2020",
+      "2021"
+     ],
+     "rows": [
+      [
+       "Export",
+       "146",
+       "159",
+       "161",
+       "170",
+       "174",
+       "140",
+       "145"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "Using the Simple Exponential Smoothing technique: (i) Forecast the export for the year 2022 using α = 0.3, assuming the initial forecast for 2015 is equal to the actual export value in that year. (ii) Forecast the export for 2022 using α = 0.6, with the same initial condition. (iii) Determine which of the two smoothing constants (α = 0.3 or α = 0.6) provides a better forecast based on Mean Squared Error (MSE) and justify your answer."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Keywords",
+     "text": "Simple exponential smoothing, initial forecast for 2015 = actual, forecast for 2022 (one year past the data), MSE."
+    },
+    {
+     "label": "Formulas",
+     "text": "F(t+1) = α·Yt + (1 − α)·Ft. Error = Yt − Ft. MSE = Σ(error²) / number of years (pages 4, 8-9, 12)."
+    },
+    {
+     "label": "(i) α = 0.3 forecasts",
+     "text": "2015: 146. 2016: 0.3 × 146 + 0.7 × 146 = 146. 2017: 0.3 × 159 + 0.7 × 146 = 149.9. 2018: 0.3 × 161 + 0.7 × 149.9 = 153.23. 2019: 0.3 × 170 + 0.7 × 153.23 = 158.261. 2020: 0.3 × 174 + 0.7 × 158.261 = 162.983. 2021: 0.3 × 140 + 0.7 × 162.983 = 156.088. **2022: 0.3 × 145 + 0.7 × 156.088 = 152.76.**"
+    },
+    {
+     "label": "(ii) α = 0.6 forecasts",
+     "text": "2015: 146. 2016: 146. 2017: 0.6 × 159 + 0.4 × 146 = 153.8. 2018: 0.6 × 161 + 0.4 × 153.8 = 158.12. 2019: 0.6 × 170 + 0.4 × 158.12 = 165.248. 2020: 0.6 × 174 + 0.4 × 165.248 = 170.499. 2021: 0.6 × 140 + 0.4 × 170.499 = 152.200. **2022: 0.6 × 145 + 0.4 × 152.200 = 147.88.**"
+    },
+    {
+     "label": "Errors, α = 0.3",
+     "text": "2015: 0. 2016: 13. 2017: 11.1. 2018: 16.77. 2019: 15.739. 2020: −22.983. 2021: −11.088. Squares: 0, 169, 123.21, 281.23, 247.71, 528.2, 122.94. Sum = 1472.29. **MSE = 1472.29 / 7 = 210.33.**"
+    },
+    {
+     "label": "Errors, α = 0.6",
+     "text": "2015: 0. 2016: 13. 2017: 7.2. 2018: 11.88. 2019: 8.752. 2020: −30.499. 2021: −7.200. Squares: 0, 169, 51.84, 141.13, 76.60, 930.20, 51.84. Sum = 1420.61. **MSE = 1420.61 / 7 = 202.94.**"
+    },
+    {
+     "label": "(iii) Which is better",
+     "text": "**α = 0.6, because its MSE is smaller (202.94 < 210.33).** The series jumps and drops (174 to 140 in 2020), and a larger α follows recent changes more closely."
+    },
+    {
+     "label": "Convention",
+     "text": "The first year's error is 0 (forecast set equal to the actual), and I divided by all 7 years as the slides' page 12 table does. Dividing by 6 gives 245.38 and 236.77; the ranking is the same. State which you used. There is no answer key for this paper, so these numbers are my calculations, checked two ways."
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "Writing F2016 as 159 instead of 146; swapping α and 1 − α; stopping at 2021 when the question asks for 2022."
+    }
+   ],
+   "answer": "F(2022) ≈ 152.76 (α = 0.3) and ≈ 147.88 (α = 0.6). MSE 210.33 vs 202.94, so α = 0.6 is better."
+  },
+  {
+   "title": "SES · 2023 end-sem Q3a: monthly sales, choose the best α (5 marks)",
+   "tags": [
+    "Past paper",
+    "SES",
+    "MSE"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Consider the following time series data. [5 marks]"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Month",
+      "January",
+      "February",
+      "March",
+      "April",
+      "May"
+     ],
+     "rows": [
+      [
+       "Sales (in Lakhs)",
+       "50",
+       "52",
+       "54",
+       "55",
+       "57"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "Assuming the forecast for the month of January as 50, fit exponential smoothing models to the above data with a smoothing parameter α = 0.10 and α = 0.70. Choose the best model between these two and forecast the sales for the month of June."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Keywords",
+     "text": "Exponential smoothing, forecast for January = 50 (the start), two α values, 'choose the best model' (so you need an error measure), forecast June (one month past the data)."
+    },
+    {
+     "label": "Formulas",
+     "text": "F(t+1) = α·Yt + (1 − α)·Ft. Error = Yt − Ft. MSE = Σ error² / n. The question names no error measure, so use MSE (pages 8-9) and say so."
+    },
+    {
+     "label": "α = 0.10 forecasts (1 − α = 0.9)",
+     "text": "Jan: 50. Feb: 0.1 × 50 + 0.9 × 50 = 50. Mar: 0.1 × 52 + 0.9 × 50 = 50.2. Apr: 0.1 × 54 + 0.9 × 50.2 = 50.58. May: 0.1 × 55 + 0.9 × 50.58 = 51.022. **Jun: 0.1 × 57 + 0.9 × 51.022 = 51.62.**"
+    },
+    {
+     "label": "α = 0.70 forecasts (1 − α = 0.3)",
+     "text": "Jan: 50. Feb: 0.7 × 50 + 0.3 × 50 = 50. Mar: 0.7 × 52 + 0.3 × 50 = 51.4. Apr: 0.7 × 54 + 0.3 × 51.4 = 53.22. May: 0.7 × 55 + 0.3 × 53.22 = 54.466. **Jun: 0.7 × 57 + 0.3 × 54.466 = 56.24.**"
+    },
+    {
+     "label": "Errors, α = 0.10",
+     "text": "Jan 0, Feb 2, Mar 3.8, Apr 4.42, May 5.978. Squares: 0, 4, 14.44, 19.54, 35.74. Sum = 73.71. **MSE = 73.71 / 5 = 14.74.**"
+    },
+    {
+     "label": "Errors, α = 0.70",
+     "text": "Jan 0, Feb 2, Mar 2.6, Apr 1.78, May 2.534. Squares: 0, 4, 6.76, 3.17, 6.42. Sum = 20.35. **MSE = 20.35 / 5 = 4.07.**"
+    },
+    {
+     "label": "Choose the best model",
+     "text": "**α = 0.70, because its MSE is smaller (4.07 < 14.74).** The same answer comes from the mean absolute deviation (1.78 for α = 0.7 against 3.24 for α = 0.1). Reason: sales rise steadily, and a larger α follows the latest values more closely."
+    },
+    {
+     "label": "Forecast for June",
+     "text": "From the best model (α = 0.70): **about 56.24 lakhs.**"
+    },
+    {
+     "label": "Why every error is positive",
+     "text": "Sales keep rising, so SES (which only tracks the level) always forecasts too low. That lag is exactly what Holt's method fixes with a trend term."
+    },
+    {
+     "label": "Convention",
+     "text": "The first month's error is 0 (forecast set equal to the actual) and I divided by all 5 months. Dividing by 4 gives 18.43 and 5.09; the ranking is the same. State which you used. There is no answer key for this paper, so the numbers are my calculations, checked by recomputing."
+    }
+   ],
+   "answer": "F(June) ≈ 51.62 for α = 0.10 and ≈ 56.24 for α = 0.70. α = 0.70 is the better model (MSE 4.07 vs 14.74), so the June forecast is about 56.24 lakhs."
+  },
+  {
+   "title": "SES · Practice 5.2: update the forecast when the new actual arrives",
+   "tags": [
+    "Practice",
+    "SES"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "The number of weekly visitors over the last 5 weeks was: 1500, 1750, 1600, 1800, 1700. (a) Forecast visitors for week 6 using exponential smoothing with α = 0.3. (b) If the actual visitors in week 6 was 1850, what is the forecast for week 7?"
+    }
+   ],
+   "steps": [
+    {
+     "label": "Keywords",
+     "text": "Exponential smoothing, α = 0.3, forecast week 6, then a new actual arrives and you forecast week 7. The slides' start rule: F2 = Y1 (page 4)."
+    },
+    {
+     "label": "Start",
+     "text": "F2 = Y1 = 1500."
+    },
+    {
+     "label": "(a) Down to week 6",
+     "text": "F3 = 0.3 × 1750 + 0.7 × 1500 = 1575. F4 = 0.3 × 1600 + 0.7 × 1575 = 1582.5. F5 = 0.3 × 1800 + 0.7 × 1582.5 = 1647.75. **F6 = 0.3 × 1700 + 0.7 × 1647.75 = 1663.43.**"
+    },
+    {
+     "label": "(b) One more row",
+     "text": "The actual week 6 is 1850 (not the forecast). **F7 = 0.3 × 1850 + 0.7 × 1663.43 = 555 + 1164.40 = 1719.40.**"
+    },
+    {
+     "label": "What this teaches",
+     "text": "Each time a real actual arrives, you use it in the next forecast and carry the old forecast forward. The forecast for week 6 was 1663, but the actual was 1850, so the model moves up for week 7 by 0.3 × (1850 − 1663.43) = 56."
+    }
+   ],
+   "answer": "(a) F6 ≈ 1663.43, about 1663 visitors. (b) F7 ≈ 1719.40, about 1719 visitors."
+  },
+  {
+   "title": "SES · 2023 makeup Q3b: is SES possible? Compare with a moving average (10 marks)",
+   "tags": [
+    "Past paper",
+    "SES",
+    "Theory"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Consider the following time series data. [10 marks]"
+    },
+    {
+     "type": "table",
+     "head": [
+      "Year",
+      "2014",
+      "2015",
+      "2016",
+      "2017",
+      "2018",
+      "2019",
+      "2020",
+      "2021",
+      "2022"
+     ],
+     "rows": [
+      [
+       "Sales (in crores)",
+       "12",
+       "16",
+       "20",
+       "15",
+       "16",
+       "17",
+       "21",
+       "18",
+       "19"
+      ]
+     ]
+    },
+    {
+     "type": "p",
+     "text": "(i) Fit an exponential smoothing model, if possible. If not, state the reasons. (ii) Fit a suitable moving average of your choice. (iii) Compare the above models and conclude."
+    }
+   ],
+   "steps": [
+    {
+     "label": "Keywords",
+     "text": "'If possible. If not, state the reasons' is a test of whether you check the conditions first. 'Moving average of your choice': you pick k. 'Compare and conclude': error measure on the same years."
+    },
+    {
+     "label": "(i) Is SES possible?",
+     "text": "Page 22: exponential smoothing is suitable with constant variance and no seasonality, for short-term forecasts. Page 23: with a strong trend it lags. This data is yearly (no seasonal pattern) and wanders around 15 to 21 with only a slow rise, so **yes, SES is possible.** Say these reasons in a line. If the data had climbed steadily (like the 50, 52, 54, 55, 57 sales) you would say SES lags and Holt is better."
+    },
+    {
+     "label": "(i) Choose α: the question gives none",
+     "text": "No α is given, so you choose it, and you say how. The slides try three values and keep the smallest MSE (pages 11-15: α = 0.2, 0.4, 0.7). Same here, over 2017 to 2022: α = 0.2 gives MSE 8.43, **α = 0.4 gives 4.31**, α = 0.7 gives 5.74. So fit with α = 0.4."
+    },
+    {
+     "label": "(i) Fit SES with α = 0.4",
+     "text": "Start F2014 = 12. Then F2015 = 12. F2016 = 0.4 × 16 + 0.6 × 12 = 13.6. F2017 = 0.4 × 20 + 0.6 × 13.6 = 16.16. F2018 = 0.4 × 15 + 0.6 × 16.16 = 15.696. F2019 = 0.4 × 16 + 0.6 × 15.696 = 15.818. F2020 = 0.4 × 17 + 0.6 × 15.818 = 16.291. F2021 = 0.4 × 21 + 0.6 × 16.291 = 18.174. F2022 = 0.4 × 18 + 0.6 × 18.174 = 18.105. **Forecast 2023 = 0.4 × 19 + 0.6 × 18.105 = 18.46.**"
+    },
+    {
+     "label": "(ii) Moving average, k = 3",
+     "text": "Forecast for a year = the average of the previous three years. 2017: (12 + 16 + 20)/3 = 16. 2018: (16 + 20 + 15)/3 = 17. 2019: (20 + 15 + 16)/3 = 17. 2020: (15 + 16 + 17)/3 = 16. 2021: (16 + 17 + 21)/3 = 18. 2022: (17 + 21 + 18)/3 = 18.67. **Forecast 2023: (21 + 18 + 19)/3 = 19.33.**"
+    },
+    {
+     "label": "(iii) Compare on the same years (2017 to 2022)",
+     "text": "SES (α = 0.4) errors, actual − forecast: −1.16, 0.30, 1.18, 4.71, −0.17, 0.90; squares sum to 25.85, so **MSE = 4.31.** 3-year MA errors: −1, −1, 0, 5, 0, 0.33; squares sum to 27.11, so **MSE = 4.52.**"
+    },
+    {
+     "label": "Conclude",
+     "text": "The two models are almost equal. SES with α = 0.4 has the slightly lower MSE (4.31 < 4.52), so it is marginally better on 2017 to 2022. Forecasts for 2023: SES 18.46 and MA 19.33 crores. What earns the marks is the method: check the conditions, choose α by trying values and keeping the smallest MSE, compare both models over the same years, and conclude from the numbers. If you compare over all nine years instead, the best α changes (about 0.6), so state your basis."
+    },
+    {
+     "label": "Convention",
+     "text": "There is no answer key, so the numbers are my calculations, checked by recomputing. The MA is covered fully in the moving-average topic (pages 16-21)."
+    }
+   ],
+   "answer": "SES is possible (no seasonality, no strong trend). No α is given, so try several and keep the best: α = 0.4 (MSE 4.31 over 2017-2022). It forecasts 18.46 for 2023; the 3-year MA (MSE 4.52) forecasts 19.33. The two are nearly equal; SES is marginally better."
+  }
+ ],
+ "labs": [],
+ "flashcards": [
+  {
+   "tag": "Formula",
+   "front": "SES forecast formula (pages 3-4)",
+   "back": "F(t+1) = α·Yt + (1 − α)·Ft, starting with F2 = Y1."
+  },
+  {
+   "tag": "Concept",
+   "front": "What does α = 1 give? And α = 0? (page 3)",
+   "back": "α = 1: the forecast is just the last actual value (a naive forecast). α = 0: the forecast is just the previous forecast."
+  },
+  {
+   "tag": "Concept",
+   "front": "Small α or large α for a series with sudden spikes? (page 10)",
+   "back": "Large α. It gives more weight to the current value, so the forecast reacts faster. Small α gives a smoother series."
+  },
+  {
+   "tag": "Method",
+   "front": "'Initial forecast for the first period equals the first actual': what is the second forecast?",
+   "back": "The same number. F2 = α·Y1 + (1 − α)·F1 = Y1 when F1 = Y1."
+  },
+  {
+   "tag": "Formula",
+   "front": "Forecast error and MSE (pages 8-9, 12)",
+   "back": "error = actual − forecast. MSE = (sum of squared errors) / number of periods."
+  },
+  {
+   "tag": "Concept",
+   "front": "Name the four error measures on page 9",
+   "back": "MSE, MAD (mean absolute deviation), MAPE (mean absolute percent error), LAD (largest absolute deviation)."
+  },
+  {
+   "tag": "Method",
+   "front": "How do you choose between two α values?",
+   "back": "Compute the MSE for each and pick the smaller one."
+  },
+  {
+   "tag": "Trap",
+   "front": "The question says 'forecast for July' and the data ends in June. How many rows is that?",
+   "back": "One more row than the data: July's forecast uses June's actual and June's forecast."
+  }
+ ],
+ "quiz": [
+  {
+   "type": "mcq",
+   "q": "Which α makes the simple exponential smoothing forecast react fastest to the latest value?",
+   "options": [
+    "α = 0",
+    "α = 0.2",
+    "α = 0.5",
+    "α = 1"
+   ],
+   "answer": 3,
+   "explain": "α = 1 puts all the weight on the latest actual, a naive forecast (page 3).",
+   "set": "SES"
+  },
+  {
+   "type": "mcq",
+   "q": "In F(t+1) = α·Yt + (1 − α)·Ft, what does Ft stand for?",
+   "options": [
+    "The previous forecast",
+    "The previous actual",
+    "The forecast error",
+    "The trend"
+   ],
+   "answer": 0,
+   "explain": "Ft is the forecast made for period t; Yt is the actual.",
+   "set": "SES"
+  },
+  {
+   "type": "mcq",
+   "q": "To compare two smoothing constants you would use…",
+   "options": [
+    "The one with the smaller MSE",
+    "The one with the larger MSE",
+    "The larger α always",
+    "The smaller α always"
+   ],
+   "answer": 0,
+   "explain": "A smaller error means a better fit; the question asks you to justify with the MSE.",
+   "set": "SES"
+  },
+  {
+   "type": "numeric",
+   "q": "Demand 100, 110; F1 = 100; α = 0.5. What is F3, the forecast for the third period?",
+   "answer": 105,
+   "tolerance": 0.01,
+   "unit": "",
+   "explain": "F2 = 100 (= Y1), F3 = 0.5 × 110 + 0.5 × 100 = 105.",
+   "set": "SES"
+  },
+  {
+   "type": "numeric",
+   "q": "Initial forecast F(Jan) = 82, actuals Jan = 82 and Feb = 88, α = 0.4. What is F(Mar)?",
+   "answer": 84.4,
+   "tolerance": 0.01,
+   "unit": "",
+   "explain": "F(Feb) = 82, F(Mar) = 0.4 × 88 + 0.6 × 82 = 84.4.",
+   "set": "SES"
+  },
+  {
+   "type": "numeric",
+   "q": "Feb 2026 SES question, α = 0.7: what is the July forecast?",
+   "answer": 99.88,
+   "tolerance": 0.02,
+   "unit": "",
+   "explain": "Work down the table: 82, 82, 86.2, 89.56, 94.768, 94.9304, then July = 0.7 × 102 + 0.3 × 94.9304 = 99.88.",
+   "set": "SES"
+  },
+  {
+   "type": "numeric",
+   "q": "Sept 2025 SES question, α = 0.6: what is the 2022 forecast?",
+   "answer": 147.88,
+   "tolerance": 0.02,
+   "unit": "",
+   "explain": "Forecasts run 146, 146, 153.8, 158.12, 165.248, 170.499, 152.200; 2022 = 0.6 × 145 + 0.4 × 152.200 = 147.88.",
+   "set": "SES"
+  },
+  {
+   "type": "numeric",
+   "q": "Sept 2025 SES question: what is the MSE for α = 0.3, dividing by all 7 years?",
+   "answer": 210.33,
+   "tolerance": 0.05,
+   "unit": "",
+   "explain": "Sum of squared errors 1472.29, divided by 7.",
+   "set": "SES"
+  }
+ ],
+ "formulas": [
+  {
+   "name": "Simple exponential smoothing",
+   "formula": "F2 = Y1\nF(t+1) = α·Yt + (1 − α)·Ft",
+   "note": "Pages 3-4. 0 ≤ α ≤ 1."
+  },
+  {
+   "name": "Forecast error and MSE",
+   "formula": "error = Yt − Ft\nMSE = {{ Σ (Yt − Ft)² // number of periods }}",
+   "note": "Pages 8-9 and 12."
+  },
+  {
+   "name": "Other error measures",
+   "formula": "MAD = average of |error|\nMAPE = average of |error| / Yt\nLAD = largest |error|",
+   "note": "Page 9 and the page 20 table."
+  }
+ ],
+ "families": [
+  {
+   "id": "ses",
+   "label": "SES",
+   "icon": "S",
+   "title": "Simple exponential smoothing: forecast and compare α",
+   "lead": "Asked in 2023, Sept 2025 and Feb 2026. Plug-and-play: build a table down the data.",
+   "problems": [
+    "SES ·"
+   ],
+   "blocks": [
+    {
+     "type": "h",
+     "text": "How to recognise it"
+    },
+    {
+     "type": "list",
+     "items": [
+      "'Simple exponential smoothing', 'smoothing constant α', 'initial forecast equals …'.",
+      "A short table of actuals and a request to forecast the next period, often for two α values."
+     ]
+    },
+    {
+     "type": "formula",
+     "text": "F(t+1) = α·Yt + (1 − α)·Ft          error = Yt − Ft          MSE = Σ error² / n"
+    },
+    {
+     "type": "h",
+     "text": "Standard steps"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "Note the start rule (initial forecast = first actual).",
+      "Write α and 1 − α.",
+      "Fill in the forecasts down the table, one row per period.",
+      "Add one row for the period to be forecast.",
+      "If asked to compare, compute the squared errors, add them, divide by n and pick the smaller MSE.",
+      "Write the justification line."
+     ]
+    },
+    {
+     "type": "trap",
+     "label": "Remember",
+     "text": "A larger α reacts faster (good for sudden spikes); a smaller α gives a smoother series."
+    }
+   ]
+  }
+ ]
+}

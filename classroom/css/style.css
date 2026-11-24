@@ -27,6 +27,7 @@
   --warn: #a8650f;
   --radius: 10px;
   --shadow: 0 2px 0 rgba(0,0,0,.08), 0 10px 24px rgba(60,40,10,.14);
+  --font-math: 'Cambria Math', 'STIX Two Math', 'Latin Modern Math', 'Times New Roman', Georgia, serif;
   --font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-chalk: 'Patrick Hand', 'Caveat', 'Comic Sans MS', cursive;
   --font-script: 'Caveat', 'Patrick Hand', cursive;
@@ -128,7 +129,7 @@ mark { background: var(--chalk-yellow); padding: 0 3px; border-radius: 3px; }
 .chalk-list li::marker { color: var(--chalk-yellow); }
 .chalk-line { margin: 10px 0 0; }
 .formula {
-  font-family: var(--font-mono); font-size: 1.02rem; color: var(--chalk-yellow);
+  font-family: var(--font-math); font-size: 1.2rem; color: var(--chalk-yellow);
   background: rgba(0,0,0,.18); border: 1px dashed rgba(243,227,138,.45); border-radius: 8px;
   padding: 12px 16px; margin: 12px 0; overflow-x: auto; white-space: pre-wrap;
 }
@@ -159,6 +160,8 @@ mark { background: var(--chalk-yellow); padding: 0 3px; border-radius: 3px; }
 .sticky::before { content: ''; position: absolute; top: -9px; left: 50%; width: 70px; height: 18px; transform: translateX(-50%) rotate(2deg); background: rgba(255,255,255,.55); border: 1px solid rgba(0,0,0,.06); }
 .sticky.pink { background: var(--sticky-pink); transform: rotate(.7deg); }
 .sticky.blue { background: var(--sticky-blue); transform: rotate(-.4deg); }
+.sticky.red { background: #ff9d9d; border: 2px solid #c0222d; transform: rotate(-.3deg); }
+.sticky.red .sticky-label { color: #8a1119; font-weight: 700; }
 .sticky ul { margin: 4px 0 0; padding-left: 1.2em; }
 .sticky strong { color: var(--ink); }
 .sticky code { background: rgba(0,0,0,.08); color: var(--ink); }
@@ -386,7 +389,7 @@ a.index-card:hover { transform: rotate(0deg) scale(1.03); }
 .cs-table { width: 100%; border-collapse: collapse; }
 .cs-table th { text-align: left; vertical-align: top; width: 30%; padding: 10px 12px 10px 0; font-weight: 800; border-bottom: 1px solid var(--paper-line); }
 .cs-table td { padding: 10px 0; border-bottom: 1px solid var(--paper-line); }
-.cs-f { font-family: var(--font-mono); font-size: .97rem; }
+.cs-f { font-family: var(--font-math); font-size: 1.12rem; }
 .cs-note { font-size: .85rem; color: var(--ink-soft); margin-top: 3px; }
 
 /* ---------- responsive & print ---------- */
@@ -527,3 +530,31 @@ input, select, textarea { font-size: max(16px, 1em); }  /* stop iOS zooming in o
 @media (max-width: 600px) { .tree-map > summary { padding: 14px 14px 0; } }
 .family-links { flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
 .family-links .btn { text-decoration: none; }
+
+/* readable maths: stacked fractions, roots, sub/superscripts (see mathMarkup in js/core/util.js) */
+.fr { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 .3em; line-height: 1.3; }
+.fr > .fn { border-bottom: 1.6px solid currentColor; padding: 0 .4em .12em; white-space: nowrap; }
+.fr > .fd { padding: .12em .4em 0; white-space: nowrap; }
+.rad { display: inline-flex; align-items: stretch; vertical-align: middle; margin: 0 .15em; }
+.rsym { font-size: 1.3em; line-height: 1; margin-right: 1px; }
+.rbody { border-top: 1.6px solid currentColor; padding: .1em .3em 0 .2em; margin-top: .22em; white-space: nowrap; }
+sub, sup { font-size: .72em; line-height: 0; }
+
+/* calculation tables inside step text */
+.md-table-wrap { overflow-x: auto; margin: 8px 0; }
+.md-table { border-collapse: collapse; font-size: .92rem; min-width: 60%; }
+.md-table th, .md-table td { border: 1px solid rgba(128,128,128,.4); padding: 4px 9px; text-align: right; white-space: nowrap; }
+.md-table th { background: rgba(128,128,128,.14); font-weight: 600; }
+.md-table tbody tr:last-child { font-weight: 700; background: rgba(128,128,128,.10); }
+
+/* course page: exam weightage tables */
+.weightage { background: #fffdf6; border: 1px solid #e0d5b8; border-radius: 12px; padding: 16px 18px; margin: 18px 0; box-shadow: 0 2px 0 rgba(0,0,0,.05); }
+.wt-title { font-family: var(--font-chalk, inherit); margin: 0 0 6px; font-size: 1.35rem; }
+.wt-sub { margin: 16px 0 6px; font-size: 1.05rem; }
+.wt-intro, .wt-note { font-size: .92rem; opacity: .85; margin: 4px 0 8px; }
+.wt-table th, .wt-table td { font-size: .88rem; }
+.wt-table td.wt-left, .wt-table th:first-child { text-align: left; }
+.wt-table tbody tr:last-child { font-weight: inherit; background: none; }
+.wt-table tbody tr.wt-total { font-weight: 700; }
+.wt-table th.wt-left { text-align: left; }
+.wt-table th, .wt-table td { padding: 4px 8px; }
