@@ -5,17 +5,17 @@
  "lesson": [
   {
    "title": "PENDING in this chapter: read these in revision",
-   "lead": "Topics in CS 14 that are not yet walked through step by step.",
+   "lead": "Topics in CS 14 not yet practised step by step.",
    "blocks": [
     {
      "type": "note",
      "label": "PENDING: read before the exam",
-     "text": "Still to be taught. Do in this order.\n1. HOLT (pages 22-36), exam critical, asked in 2 exams. Formulas: Lt = α·Yt + (1-α)(L(t-1)+T(t-1)); Tt = β(Lt-L(t-1)) + (1-β)T(t-1); F(t+1) = Lt + Tt; F(t+k) = Lt + k·Tt. Idea: SES lags on a trend, Holt tracks the slope T. Always compute L first, then T. Problems: (a) Mar 2026 makeup Q6 (weeks 1-7 demand 20..32, α=0.4, β=0.3, L1=20, T1=2: every L and T comes out clean, F8 = 34, 5M, part c is the why-Holt-over-SES reason); (b) Sept 2025 regular (L0=15, T0=3, α=0.5, β=0.3, subscriptions 15,18,22,25,29,33 for Jan-Jun, forecast July). Also the special cases α or β = 0 or 1 (pages 28-33) and remember Holt is not Holt-Winters (no seasonal part).\n2. Moving averages (pages 16-21): asked in 2023 and the Mar 2026 makeup (3-year MA gave 51 for 2025).\n3. Model slides (pages 67-82): AR(1) 37, 27.9, 21.53; ARMA(1,1) 8.8, 7.4; ARIMA(1,1,1) 122.3, 123.22; SARIMA 165 then 137; SARIMAX 42 vs 34; VAR(1) 1.6%, 2.4%; VARMAX 1.735%; comparison table p.82. No past paper asks these.\n4. Holt-Winters and decomposition (pages 37-66): skim, no question seen.",
+     "text": "Pending: still to practise step by step. Do them in this order.\n1. HOLT (pages 22-36), exam critical, asked in 2 exams. Formulas: Lt = α·Yt + (1-α)(L(t-1)+T(t-1)); Tt = β(Lt-L(t-1)) + (1-β)T(t-1); F(t+1) = Lt + Tt; F(t+k) = Lt + k·Tt. Idea: SES lags on a trend, Holt tracks the slope T. Always compute L first, then T. Problems: (a) Mar 2026 makeup Q6 (weeks 1-7 demand 20..32, α=0.4, β=0.3, L1=20, T1=2: every L and T comes out clean, F8 = 34, 5M, part c is the why-Holt-over-SES reason); (b) Sept 2025 regular (L0=15, T0=3, α=0.5, β=0.3, subscriptions 15,18,22,25,29,33 for Jan-Jun, forecast July). Also the special cases α or β = 0 or 1 (pages 28-33) and remember Holt is not Holt-Winters (no seasonal part).\n2. Moving averages (pages 16-21): asked in 2023 and the Mar 2026 makeup (3-year MA gave 51 for 2025).\n3. Model slides (pages 67-82): AR(1) 37, 27.9, 21.53; ARMA(1,1) 8.8, 7.4; ARIMA(1,1,1) 122.3, 123.22; SARIMA 165 then 137; SARIMAX 42 vs 34; VAR(1) 1.6%, 2.4%; VARMAX 1.735%; comparison table p.82. No past paper asks these.\n4. Holt-Winters and decomposition (pages 37-66): skim, no question seen.",
      "color": "red"
     },
     {
      "type": "note",
-     "label": "Already taught step by step",
+     "label": "Done: practised step by step",
      "text": "Simple exponential smoothing: the formula, the flow, Feb 2026 Q2 (5 marks), the Sept 2025 Q2 (8 marks, with the MSE comparison) the 2023 Q3a (5 marks, Jan-May sales), Practice 5.2 (update with a new actual) and the 2023 makeup Q3b (SES possible? compared with a moving average).",
      "color": "blue"
     }

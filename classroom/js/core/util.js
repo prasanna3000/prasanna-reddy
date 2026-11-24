@@ -7,12 +7,15 @@
   }[c]));
 
   /* Tiny inline markup for content files:
-       **bold**   `code`   [text](url)   ==highlight==   new lines -> <br>
-     (single * is left alone on purpose: formulas use w* and J*) */
+       **bold**   *italic*   `code`   [text](url)   ==highlight==   new lines -> <br>
+       | a | b | lines -> a real table    "- " / "1. " lines -> a list
+     (a * glued to a letter is left alone: formulas use w*, J* and p*q*) */
   function md(s) {
     let t = esc(s);
     t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
     t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    /* *italic* only when the first * follows a space or bracket, so p*, w* and p*q* stay as they are */
+    t = t.replace(/(^|[\s(])\*(?=\S)([^*\n]*?\S)\*(?=[\s.,;:!?)]|$)/g, '$1<em>$2</em>');
     t = t.replace(/==([^=]+)==/g, '<mark>$1</mark>');
     t = t.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
     t = mathMarkup(t);
@@ -21,8 +24,16 @@
       const rows = blk.trim().split('\n').filter((r) => !/^\|[\s|:-]+\|$/.test(r.trim())).map((r) => r.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim()));
       const cell = (tag, c) => `<${tag}>${c}</${tag}>`;
       const head = rows[0].map((c) => cell('th', c)).join('');
-      const body = rows.slice(1).map((r) => `<tr>${r.map((c) => cell('td', c)).join('')}</tr>`).join('');
+      const isTotal = (r) => /^(<strong>)?\s*(total|sum|Σ)/i.test(r[0] || '');
+      const body = rows.slice(1).map((r) => `<tr${isTotal(r) ? ' class="total"' : ''}>${r.map((c) => cell('td', c)).join('')}</tr>`).join('');
       return `<div class="md-table-wrap"><table class="md-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+    });
+    /* runs of lines starting "- " become a bullet list; "1. ", "2. " a numbered list */
+    t = t.replace(/(?:^|\n)((?:- [^\n]*(?:\n|$))+)/g, (m, blk) =>
+      `<ul class="md-list">${blk.trim().split('\n').map((l) => `<li>${l.replace(/^- /, '')}</li>`).join('')}</ul>`);
+    t = t.replace(/(?:^|\n)((?:\d+\. [^\n]*(?:\n|$))+)/g, (m, blk) => {
+      const lines = blk.trim().split('\n');
+      return `<ol class="md-list" start="${parseInt(lines[0], 10)}">${lines.map((l) => `<li>${l.replace(/^\d+\. /, '')}</li>`).join('')}</ol>`;
     });
     t = t.replace(/\n/g, '<br>');
     return t;
@@ -35,6 +46,9 @@
      Fractions and roots can be nested. Everything else is left alone. */
   function mathMarkup(t) {
     t = t.replace(/_\{([^{}]*)\}/g, '<sub>$1</sub>').replace(/\^\{([^{}]*)\}/g, '<sup>$1</sup>');
+    /* calculator-style powers: e^(−μ) and e^(−(x − μ)²) -> superscript of the bracket; p^x, W^Q, e^2.6 -> superscript of the token */
+    t = t.replace(/\^\(((?:[^()]|\([^()]*\))*)\)/g, '<sup>$1</sup>');
+    t = t.replace(/\^([A-Za-z0-9Ͱ-Ͽ̀-ͯᴀ-ᶿ⁰-₟′]+(?:\.\d+)?)/g, '<sup>$1</sup>');
     let prev;
     do {
       prev = t;

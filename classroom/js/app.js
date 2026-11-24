@@ -1,6 +1,6 @@
 /* The Classroom: a static, content-driven study site.
    Routes (hash based, so it works on any static host incl. GitHub Pages):
-     #/                                   corridor: all semesters and courses
+     #/                                   dashboard: all semesters and courses
      #/<sem>/<course>                     a classroom: the course's syllabus board
      #/<sem>/<course>/<chapter>/<tab>[/n] a lesson: lesson | worked | lab | cards | quiz | sheet
    All content comes from content/catalog.json and the chapter JSON files it points to. */
@@ -129,59 +129,137 @@
       <p>${esc(err.message || err)}</p>
       ${local ? `<p>This page reads its lessons from <code>content/content-bundle.js</code>. If you just added or edited content, rebuild the bundle in the classroom folder:</p>
       <div class="formula">python3 build-content.py</div><p>Then reload this page.</p>` : '<p>Check that the file path in <code>content/catalog.json</code> is right and the JSON is valid.</p>'}
-      <p><a class="btn btn-chalk" href="#/">Back to the corridor</a></p></div></section>`;
+      <p><a class="btn btn-chalk" href="#/">Back to the dashboard</a></p></div></section>`;
+  }
+
+  /* helpers shared by the dashboard and course pages */
+  const courseColor = (c) => esc(c.color || '#b5523b');
+  function courseStats(sem, c) {
+    const ready = c.chapters.filter((ch) => ch.file && !ch.comingSoon);
+    const scores = ready.map((ch) => P.score(`${sem.id}/${c.id}/${ch.id}`, chapterCache[ch.file]));
+    const pct = ready.length ? scores.reduce((a, b) => a + b, 0) / ready.length : 0;
+    return { ready: ready.length, total: c.chapters.length, pct, done: scores.filter((s) => s >= 0.95).length };
+  }
+  const ring = (pct, label) => `<span class="ring" style="--p:${Math.round(pct * 100)}" role="img" aria-label="${Math.round(pct * 100)}% ${esc(label || 'done')}"><span>${Math.round(pct * 100)}%</span></span>`;
+  function status(s, ready) {
+    if (!ready) return '<span class="chip chip-soon">Coming soon</span>';
+    if (s >= 0.95) return '<span class="chip chip-done">✓ Completed</span>';
+    if (s > 0) return '<span class="chip chip-going">In progress</span>';
+    return '<span class="chip">Not started</span>';
+  }
+
+  /* end-sem weightage of one chapter (catalog chapter.weight = { marks, outOf, papers, pattern, note }) */
+  function weightInfo(course) {
+    const ws = course.chapters.map((c) => c.weight).filter((w) => w && w.outOf);
+    const maxShare = Math.max(0, ...ws.map((w) => w.marks / w.outOf));
+    const ranked = [...ws].sort((x, y) => y.marks / y.outOf - x.marks / x.outOf);
+    return { maxShare, rank: (w) => ranked.indexOf(w) + 1 };
+  }
+  function weightLevel(w) {
+    if (!w.outOf) return { cls: 'lvl-qp', tag: 'Sample QP' };
+    const s = w.marks / w.outOf;
+    if (s >= 0.15) return { cls: 'lvl-high', tag: '🔥 High weightage' };
+    if (s >= 0.06) return { cls: 'lvl-mid', tag: 'Medium weightage' };
+    if (s > 0) return { cls: 'lvl-low', tag: 'Low weightage' };
+    return { cls: 'lvl-none', tag: 'Not asked yet' };
+  }
+  function weightHTML(w, info) {
+    if (!w) return '';
+    const lvl = weightLevel(w);
+    if (!w.outOf) {
+      return `<span class="ch-weight ${lvl.cls}"><span class="cw-top"><span class="cw-tag">${lvl.tag}</span></span>
+        <span class="cw-main"><span class="cw-big">${esc(w.pattern.split(' ')[0])}</span><span class="cw-info"><b>marks in the sample QP</b><span>${esc(w.pattern.split(' ').slice(1).join(' '))}</span></span></span></span>`;
+    }
+    const share = w.marks / w.outOf;
+    const rank = info.rank(w);
+    return `<span class="ch-weight ${lvl.cls}" title="End-sem weightage">
+      <span class="cw-top"><span class="cw-tag">${lvl.tag}</span>${w.marks > 0 && rank <= 3 ? `<span class="cw-rank">#${rank} most asked</span>` : ''}</span>
+      <span class="cw-main"><span class="cw-big">${w.marks}<small>/${w.outOf}</small></span>
+        <span class="cw-info"><b>${Math.round(share * 1000) / 10}% of end-sem marks</b><span>asked in ${esc(w.papers)} papers${w.note ? ` · ${esc(w.note)}` : ''}</span></span></span>
+      <span class="cw-meter"><span style="width:${info.maxShare ? Math.round(share / info.maxShare * 100) : 0}%"></span></span>
+      ${w.pattern ? `<span class="cw-qp">Sample QP: ${esc(w.pattern.replace(/^(\S+)/, '$1 marks'))}</span>` : ''}
+    </span>`;
   }
 
   function viewHome() {
-    setCrumbs([{ label: 'Corridor' }]); setTitle('');
-    const sems = catalog.semesters.map((sem) => `
-      <section class="floor">
-        <div class="floor-sign"><span class="pin"></span><h2>${esc(sem.title)}</h2>${sem.subtitle ? `<p>${esc(sem.subtitle)}</p>` : ''}</div>
-        <div class="doors">
-          ${sem.courses.map((c) => {
-            const ready = c.chapters.filter((ch) => ch.file && !ch.comingSoon);
-            const scores = ready.map((ch) => P.score(`${sem.id}/${c.id}/${ch.id}`, chapterCache[ch.file]));
-            const pct = ready.length ? scores.reduce((a, b) => a + b, 0) / ready.length : 0;
-            return `<a class="door" href="#/${sem.id}/${c.id}" style="--door:${esc(c.color || '#b5523b')}">
-              <span class="door-plate">${esc(c.room || c.code || '')}</span>
-              <span class="door-window"></span>
-              <span class="door-title">${esc(c.title)}</span>
-              <span class="door-code">${esc(c.code || '')}</span>
-              <span class="door-meta">${ready.length} of ${c.chapters.length} chapters ready</span>
-              <span class="door-bar"><span style="width:${Math.round(pct * 100)}%"></span></span>
-              <span class="door-knob"></span>
-            </a>`;
-          }).join('')}
-        </div>
-      </section>`).join('');
+    setCrumbs([{ label: 'Dashboard' }]); setTitle('');
+    /* totals across every chapter you have touched */
+    const all = Object.values(progress);
+    const sum = (f) => all.reduce((a, p) => a + (p[f]?.length || 0), 0);
+    const courses = catalog.semesters.flatMap((sem) => sem.courses.map((c) => ({ sem, c, st: courseStats(sem, c) })));
+    const chaptersReady = courses.reduce((a, x) => a + x.st.ready, 0);
+    const overall = chaptersReady ? courses.reduce((a, x) => a + x.st.pct * x.st.ready, 0) / chaptersReady : 0;
+    const last = store.get('classroom.last', null);
+    const tiles = [
+      ['📚', courses.length, 'Courses'],
+      ['📖', chaptersReady, 'Chapters ready'],
+      ['✓', sum('worked'), 'Problems solved'],
+      ['🃏', sum('known'), 'Flashcards known'],
+      ['★', all.filter((p) => p.quizBest).length, 'Quizzes taken']
+    ];
     app.innerHTML = `
-      <section class="hero board"><div class="board-inner">
-        <h1 class="chalk-title">${esc(catalog.school?.welcome || 'Welcome to class')}</h1>
-        <p class="chalk-sub">${esc(catalog.school?.intro || 'Pick a classroom. Every chapter has a chalkboard lesson, worked problems, a lab bench, flashcards, a pop quiz and a cheat sheet.')}</p>
-        <div class="chalk-tray"><span class="chalk c1"></span><span class="chalk c2"></span><span class="chalk c3"></span><span class="duster"></span></div>
-      </div></section>
-      ${sems}`;
-    // warm the cache so the door progress bars fill in
+      <section class="dash-hero">
+        <div class="dash-hero-text">
+          <p class="eyebrow light">${esc(catalog.school?.name || 'The Classroom')}</p>
+          <h1>${esc(catalog.school?.welcome || 'Welcome to class')}</h1>
+          <p>${esc(catalog.school?.intro || 'Pick a course. Every chapter has a chalkboard lesson, worked problems, a lab bench, flashcards, a pop quiz and a cheat sheet.')}</p>
+        </div>
+        <div class="dash-hero-side">
+          ${ring(overall, 'of all ready chapters done')}
+          <span class="dash-hero-cap">overall progress</span>
+        </div>
+      </section>
+      ${last ? `<a class="continue-card" href="${esc(last.href)}" style="--door:${esc(last.color || '#2d4a3a')}">
+        <span class="cc-icon" aria-hidden="true">▶</span>
+        <span class="cc-text"><span class="cc-label">Continue where you left off</span>
+          <span class="cc-title">${esc(last.title)}</span><span class="cc-sub">${esc(last.course)}${last.tab ? ` · ${esc(last.tab)}` : ''}</span></span>
+        <span class="cc-go">Resume →</span></a>` : ''}
+      <section class="stat-tiles">
+        ${tiles.map(([i, n, l]) => `<div class="stat-tile"><span class="st-icon" aria-hidden="true">${i}</span><span class="st-num">${n}</span><span class="st-label">${l}</span></div>`).join('')}
+      </section>
+      ${catalog.semesters.map((sem) => `
+        <section class="dash-section">
+          <div class="section-head"><h2>${esc(sem.title)}</h2>${sem.subtitle ? `<span class="muted">${esc(sem.subtitle)}</span>` : ''}</div>
+          <div class="course-grid">
+            ${sem.courses.map((c) => {
+              const st = courseStats(sem, c);
+              return `<a class="course-card" href="#/${sem.id}/${c.id}" style="--door:${courseColor(c)}">
+                <span class="cc-band"><span class="cc-code">${esc(c.code || '')}</span><span class="cc-room">${esc(c.room || '')}</span></span>
+                <span class="cc-body">
+                  <span class="cc-name">${esc(c.title)}</span>
+                  ${c.teacher ? `<span class="cc-teacher">${esc(c.teacher)}</span>` : ''}
+                  <span class="cc-meta"><span>${st.ready} of ${st.total} chapters ready</span><span>${Math.round(st.pct * 100)}%</span></span>
+                  <span class="bar"><span style="width:${Math.round(st.pct * 100)}%"></span></span>
+                  <span class="cc-open">Open course →</span>
+                </span>
+              </a>`;
+            }).join('')}
+          </div>
+        </section>`).join('')}`;
+    // warm the cache so the progress bars fill in
     catalog.semesters.forEach((s) => s.courses.forEach((c) => c.chapters.forEach((ch) => {
       if (ch.file && !ch.comingSoon && !chapterCache[ch.file]) loadChapter(ch).then(() => { if (location.hash.replace(/^#\/?/, '') === '') viewHome(); }).catch(() => {});
     })));
   }
 
   /* optional course.weightage = { title, intro, tables: [{ title, head, rows, note }], footnote } */
-  function weightageHTML(w) {
+  function weightageHTML(w, courseId) {
     if (!w || !Array.isArray(w.tables)) return '';
     const table = (t) => `<div class="wt-block">
       ${t.title ? `<h3 class="wt-sub">${md(t.title)}</h3>` : ''}
       <div class="md-table-wrap"><table class="md-table wt-table"><thead><tr>${t.head.map((h, k) => `<th${k < (t.leftCols || 1) ? ' class="wt-left"' : ''}>${md(h)}</th>`).join('')}</tr></thead>
       <tbody>${t.rows.map((r) => `<tr>${r.map((c, k) => `<td${k < (t.leftCols || 1) ? ' class="wt-left"' : ''}>${md(String(c))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
       ${t.note ? `<p class="wt-note">${md(t.note)}</p>` : ''}</div>`;
-    return `<section class="weightage"><h2 class="wt-title">${esc(w.title || 'Where the marks are')}</h2>
+    /* collapsible and minimised by default; opening it is remembered per course */
+    const opened = (store.get('classroom.wtOpen', {}) || {})[courseId];
+    return `<details class="weightage" data-course="${esc(courseId)}"${opened ? ' open' : ''}>
+      <summary><h2 class="wt-title">${esc(w.title || 'Where the marks are')}</h2><span class="wt-toggle btn small-btn" aria-hidden="true"></span></summary>
       ${w.intro ? `<p class="wt-intro">${md(w.intro)}</p>` : ''}${w.tables.map(table).join('')}
-      ${w.footnote ? `<p class="wt-note">${md(w.footnote)}</p>` : ''}</section>`;
+      ${w.footnote ? `<p class="wt-note">${md(w.footnote)}</p>` : ''}</details>`;
   }
 
   function viewCourse(sem, course) {
-    setCrumbs([{ label: 'Corridor', href: '#/' }, { label: course.title }]); setTitle(course.title);
+    setCrumbs([{ label: 'Dashboard', href: '#/' }, { label: course.title }]); setTitle(course.title);
     /* chapters can set "group" (e.g. "Exam hall"); groups appear in order of first use */
     const groups = [];
     course.chapters.forEach((ch, i) => {
@@ -190,34 +268,49 @@
       if (!g) { g = { name, intro: (course.groupIntros || {})[name], items: [] }; groups.push(g); }
       g.items.push({ ch, i });
     });
+    const st = courseStats(sem, course);
+    const winfo = weightInfo(course);
     app.innerHTML = `
-      <section class="room-head">
-        <div class="room-plate" style="--door:${esc(course.color || '#b5523b')}">${esc(course.room || course.code || '')}</div>
-        <div><h1 class="room-title">${esc(course.title)}</h1>
-        <p class="room-sub">${esc([course.code, course.teacher && `Teacher: ${course.teacher}`, sem.title].filter(Boolean).join(' · '))}</p></div>
+      <section class="course-banner" style="--door:${courseColor(course)}">
+        <div class="cb-text">
+          <p class="eyebrow light">${esc([course.code, course.room, sem.title].filter(Boolean).join(' · '))}</p>
+          <h1 class="room-title">${esc(course.title)}</h1>
+          ${course.teacher ? `<p class="cb-teacher">Teacher: ${esc(course.teacher)}</p>` : ''}
+        </div>
+        <div class="cb-stats">
+          ${ring(st.pct, 'of this course done')}
+          <div class="cb-nums"><span><b>${st.ready}</b> / ${st.total} chapters ready</span><span><b>${st.done}</b> completed</span></div>
+        </div>
       </section>
-      ${course.description ? `<p class="room-desc">${md(course.description)}</p>` : ''}
-      ${weightageHTML(course.weightage)}
+      ${course.description ? `<div class="info-card">${md(course.description)}</div>` : ''}
+      ${weightageHTML(course.weightage, course.id)}
       ${groups.map((g) => `
-      <section class="corkboard ${g.name === 'Syllabus board' ? '' : 'exam-hall'}">
-        <h2 class="cork-title">${esc(g.name)}</h2>
-        ${g.intro ? `<p class="cork-intro">${md(g.intro)}</p>` : ''}
-        <div class="pinned">
+      <section class="dash-section">
+        <div class="section-head"><h2 class="cork-title">${esc(g.name === 'Syllabus board' ? 'Chapters' : g.name)}</h2>
+          <span class="muted">${g.items.length} ${g.name === 'Syllabus board' ? 'chapters' : 'papers'}</span></div>
+        ${g.intro ? `<p class="section-intro">${md(g.intro)}</p>` : ''}
+        <div class="chapter-grid">
           ${g.items.map(({ ch, i }) => {
             const ready = ch.file && !ch.comingSoon;
-            const key = `${sem.id}/${course.id}/${ch.id}`;
-            const tilt = ((i * 37) % 5) - 2;
-            const inner = `<span class="pin red"></span>
-              <span class="card-num">${esc(ch.label || `Chapter ${ch.number ?? i + 1}`)}</span>
-              <span class="card-title">${esc(ch.title)}</span>
-              ${ch.blurb ? `<span class="card-blurb">${esc(ch.blurb)}</span>` : ''}
-              ${ready ? `<span class="card-foot">${stars(P.score(key, chapterCache[ch.file]))}<span class="go">Enter →</span></span>` : '<span class="stamp">Coming soon</span>'}`;
+            const s = ready ? P.score(`${sem.id}/${course.id}/${ch.id}`, chapterCache[ch.file]) : 0;
+            const inner = `
+              <span class="ch-top"><span class="ch-num">${esc(ch.group ? '✎' : (ch.number ?? i + 1))}</span>${status(s, ready)}</span>
+              ${weightHTML(ch.weight, winfo)}
+              ${ch.label ? `<span class="ch-label">${esc(ch.label)}</span>` : ''}
+              <span class="ch-title">${esc(ch.title)}</span>
+              ${ch.blurb ? `<span class="ch-blurb">${esc(ch.blurb)}</span>` : ''}
+              ${ready ? `<span class="ch-foot"><span class="bar"><span style="width:${Math.round(s * 100)}%"></span></span>${stars(s)}</span>` : ''}`;
             return ready
-              ? `<a class="index-card" style="--tilt:${tilt}deg" href="#/${sem.id}/${course.id}/${ch.id}/lesson">${inner}</a>`
-              : `<div class="index-card soon" style="--tilt:${tilt}deg">${inner}</div>`;
+              ? `<a class="chapter-card" style="--door:${courseColor(course)}" href="#/${sem.id}/${course.id}/${ch.id}/lesson">${inner}</a>`
+              : `<div class="chapter-card soon">${inner}</div>`;
           }).join('')}
         </div>
       </section>`).join('')}`;
+    app.querySelector('details.weightage')?.addEventListener('toggle', (ev) => {
+      const all = store.get('classroom.wtOpen', {}) || {};
+      all[ev.target.dataset.course] = ev.target.open;
+      store.set('classroom.wtOpen', all);
+    });
     course.chapters.forEach((ch) => {
       if (ch.file && !ch.comingSoon && !chapterCache[ch.file]) loadChapter(ch).then(() => {
         const parts = location.hash.replace(/^#\/?/, '').split('/');
@@ -234,20 +327,18 @@
     const fam = (ch.families || []).map((f) => ({ id: 'f-' + f.id, label: f.label, icon: f.icon || '◆' }));
     if (fam.length) tabs.splice(Math.max(1, tabs.findIndex((t) => t.id === 'lesson') + 1), 0, ...fam);
     if (!tabs.find((t) => t.id === tab)) tab = tabs[0]?.id;
-    setCrumbs([{ label: 'Corridor', href: '#/' }, { label: course.title, href: `#/${sem.id}/${course.id}` }, { label: meta.label ? meta.title : `Ch ${meta.number ?? ''} · ${ch.title || meta.title}` }]);
+    setCrumbs([{ label: 'Dashboard', href: '#/' }, { label: course.title, href: `#/${sem.id}/${course.id}` }, { label: meta.label ? meta.title : `Ch ${meta.number ?? ''} · ${ch.title || meta.title}` }]);
     setTitle(ch.title || meta.title);
+    store.set('classroom.last', { href: `${base}/${tab}`, title: ch.title || meta.title, course: course.title, color: course.color, tab: tabs.find((t) => t.id === tab)?.label });
 
     app.innerHTML = `
       <section class="lesson-head">
         <div>
-          <p class="eyebrow">${esc(course.code || course.title)} · ${esc(meta.label || `Chapter ${meta.number ?? ''}`)}</p>
+          <p class="eyebrow"><a href="#/${sem.id}/${course.id}" style="--door:${courseColor(course)}" class="eyebrow-course">${esc(course.code || course.title)}</a> · ${esc(meta.label || `Chapter ${meta.number ?? ''}`)}${meta.weight?.outOf ? ` <span class="eyebrow-weight ${weightLevel(meta.weight).cls}">End-sem: ${meta.weight.marks}/${meta.weight.outOf} marks · ${Math.round(meta.weight.marks / meta.weight.outOf * 1000) / 10}%</span>` : ''}</p>
           <h1 class="room-title">${esc(ch.title || meta.title)}</h1>
           ${ch.subtitle ? `<p class="room-sub">${md(ch.subtitle)}</p>` : ''}
         </div>
-        <div class="report-card" title="Your progress on this chapter">
-          <span class="rc-label">Report card</span>${stars(P.score(key, ch))}
-          <span class="rc-pct">${Math.round(P.score(key, ch) * 100)}%</span>
-        </div>
+        <div class="report-card" title="Your progress on this chapter">${reportCard(P.score(key, ch))}</div>
       </section>
       <nav class="desk-tabs" role="tablist">
         ${tabs.map((t) => `<a role="tab" class="desk-tab ${t.id === tab ? 'on' : ''}" aria-selected="${t.id === tab}" href="${base}/${t.id}"><span class="ti">${t.icon}</span>${t.label}</a>`).join('')}
@@ -259,11 +350,12 @@
     ({ lesson: tabLesson, worked: tabWorked, lab: tabLab, cards: tabCards, quiz: tabQuiz, sheet: tabSheet })[tab](ctx);
   }
 
+  const reportCard = (s) => `${ring(s, 'of this chapter done')}<span class="rc-text"><span class="rc-label">Your progress</span>${stars(s)}</span>`;
   function refreshReportCard(ctx) {
     const rc = document.querySelector('.report-card');
     if (!rc) return;
     const s = P.score(ctx.key, ctx.ch);
-    rc.innerHTML = `<span class="rc-label">Report card</span>${stars(s)}<span class="rc-pct">${Math.round(s * 100)}%</span>`;
+    rc.innerHTML = reportCard(s);
   }
 
   /* --- Chalkboard lesson --- */
@@ -354,6 +446,13 @@
             ${(w.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</header>
           <h3>${md(w.title)}</h3>
           <div class="nb-problem">${renderBlocks(w.problem, widgets)}</div>
+          <nav class="nb-flow" aria-label="Solution flowchart">
+            <span class="flow-title">Solution path</span>
+            <ol>
+              ${w.steps.map((s, j) => `<li><button class="fl-box${j === 0 ? ' next' : ''}" data-act="upto" data-j="${j}" type="button" title="Reveal up to this step"><span class="fl-n">${j + 1}</span>${md(s.label || `Step ${j + 1}`)}</button></li>`).join('')}
+              ${w.answer ? '<li><span class="fl-box fl-end">Answer</span></li>' : ''}
+            </ol>
+          </nav>
           <ol class="nb-steps">
             ${w.steps.map((s, j) => `<li class="nb-step" data-j="${j}" hidden><span class="step-label">${md(s.label || `Step ${j + 1}`)}</span><div>${md(s.text)}</div></li>`).join('')}
           </ol>
@@ -372,10 +471,19 @@
       const steps = [...nb.querySelectorAll('.nb-step')]; const ans = nb.querySelector('.nb-answer');
       if (btn.dataset.act === 'next') { const s = steps.find((x) => x.hidden); if (s) { s.hidden = false; s.classList.add('chalk-in'); } }
       if (btn.dataset.act === 'all') steps.forEach((s) => { s.hidden = false; });
+      if (btn.dataset.act === 'upto') steps.forEach((s, j) => { if (j <= +btn.dataset.j && s.hidden) { s.hidden = false; s.classList.add('chalk-in'); } });
       if (btn.dataset.act === 'hide') { steps.forEach((s) => { s.hidden = true; }); if (ans) ans.hidden = true; }
       const all = steps.every((s) => !s.hidden);
       if (all && ans) ans.hidden = false;
-      btn.closest('.btn-row').querySelector('[data-act="next"]').disabled = all;
+      // Keep the flowchart in step: revealed boxes are "done", the first hidden one is "next".
+      const firstHidden = steps.findIndex((s) => s.hidden);
+      nb.querySelectorAll('.fl-box[data-j]').forEach((b) => {
+        const j = +b.dataset.j;
+        b.classList.toggle('done', !steps[j].hidden);
+        b.classList.toggle('next', j === firstHidden);
+      });
+      nb.querySelector('.fl-end')?.classList.toggle('done', all);
+      nb.querySelector('.btn-row [data-act="next"]').disabled = all;
       if (all && !P.of(key).worked.includes(i)) {
         P.mark(key, 'worked', i); refreshReportCard(ctx);
         nb.querySelector('header').insertAdjacentHTML('beforeend', '<span class="tick">✓ done</span>');
@@ -567,8 +675,106 @@
     keyHandler && keyHandler(e);
   });
 
+  /* ---------- left navigation: semesters › courses › chapters ---------- */
+  const sideNav = document.getElementById('side-nav');
+  const navToggle = document.getElementById('nav-toggle');
+  const scrim = document.getElementById('nav-scrim');
+  const NAV_KEY = 'classroom.navOpen';
+  const isWide = () => window.matchMedia('(min-width: 1100px)').matches;
+  /* wide screens: a column that stays open (remembered); narrow screens: a drawer over the page */
+  function setNav(open, remember) {
+    const wide = isWide();
+    document.body.classList.toggle('nav-open', open && wide);
+    document.body.classList.toggle('nav-drawer', open && !wide);
+    scrim.hidden = !(open && !wide);
+    navToggle.setAttribute('aria-expanded', String(open));
+    if (remember && wide) store.set(NAV_KEY, open);
+  }
+  const navIsOpen = () => document.body.classList.contains('nav-open') || document.body.classList.contains('nav-drawer');
+  navToggle.addEventListener('click', () => setNav(!navIsOpen(), true));
+  scrim.addEventListener('click', () => setNav(false));
+  sideNav.addEventListener('click', (e) => { if (e.target.closest('a') && !isWide()) setNav(false); });
+  window.matchMedia('(min-width: 1100px)').addEventListener('change', () => setNav(isWide() && store.get(NAV_KEY, true)));
+  setNav(isWide() && store.get(NAV_KEY, true));
+
+  function renderSideNav(parts) {
+    if (!catalog) return;
+    const [semId, courseId, chId] = parts;
+    sideNav.innerHTML = `<a class="sn-home${!semId ? ' on' : ''}" href="#/">⌂ Dashboard</a>
+      ${catalog.semesters.map((sem) => `
+        <div class="sn-sem">${esc(sem.title)}</div>
+        ${sem.courses.map((c) => {
+          const here = sem.id === semId && c.id === courseId;
+          return `<details class="sn-course"${here || !courseId ? ' open' : ''}>
+            <summary title="Show or hide the chapters"><span class="sn-dot" style="--door:${esc(c.color || '#b5523b')}"></span>
+              <span class="sn-name${here ? ' here' : ''}">${esc(c.title)}</span><span class="sn-caret" aria-hidden="true">▾</span></summary>
+            <ol><li><a href="#/${sem.id}/${c.id}" class="sn-overview${here && !chId ? ' on' : ''}"${here && !chId ? ' aria-current="page"' : ''}><span class="sn-num">⌂</span><span>Course overview</span></a></li>${c.chapters.map((ch) => {
+              const ready = ch.file && !ch.comingSoon;
+              const label = ch.label || (ch.number != null ? `${ch.number}` : '');
+              const inner = `<span class="sn-num">${esc(ch.group ? '✎' : label)}</span><span>${esc(ch.group ? `${ch.label || ''} ${ch.title}`.trim() : ch.title)}</span>`;
+              return `<li>${ready
+                ? `<a href="#/${sem.id}/${c.id}/${ch.id}/lesson" class="${here && ch.id === chId ? 'on' : ''}"${here && ch.id === chId ? ' aria-current="page"' : ''}>${inner}</a>`
+                : `<span class="sn-soon" title="Coming soon">${inner}</span>`}</li>`;
+            }).join('')}</ol>
+          </details>`;
+        }).join('')}`).join('')}`;
+    sideNav.querySelector('.on')?.scrollIntoView({ block: 'nearest' });
+  }
+
+  /* ---------- floating "on this page" button ---------- */
+  const pageNav = document.getElementById('page-nav');
+  const fab = document.getElementById('page-nav-fab');
+  const menu = document.getElementById('page-nav-menu');
+  const HEADINGS = '.room-title, .wt-title, .cork-title, .chalk-title, .chalk-h, .tab-subhead, .notebook > h3, .exam-head';
+  function pageHeadings() {
+    return [...app.querySelectorAll(HEADINGS)].filter((h) => h.offsetParent !== null && !h.closest('.lab, .widget-slot'));
+  }
+  function updateFab() {
+    pageNav.hidden = document.documentElement.scrollHeight < window.innerHeight * 1.4;
+    if (pageNav.hidden) closeMenu();
+  }
+  function closeMenu() { menu.hidden = true; fab.setAttribute('aria-expanded', 'false'); }
+  function openMenu() {
+    const hs = pageHeadings();
+    const current = hs.filter((h) => h.getBoundingClientRect().top < 140).pop();
+    menu.innerHTML = `<div class="pn-head">On this page</div>
+      <button type="button" role="menuitem" data-go="top">↑ Top of page</button>
+      ${hs.map((h, i) => {
+        const nb = h.closest('.notebook');
+        const prefix = nb ? `${nb.querySelector('.nb-num')?.textContent || ''} · ` : '';
+        const text = (prefix + h.textContent).replace(/\s+/g, ' ').trim();
+        const sub = h.matches('.chalk-h, .notebook > h3') ? ' sub' : '';
+        return `<button type="button" role="menuitem" class="pn-item${sub}${h === current ? ' on' : ''}" data-go="${i}">${esc(text.length > 80 ? text.slice(0, 78) + '…' : text)}</button>`;
+      }).join('')}
+      <button type="button" role="menuitem" data-go="bottom">↓ Bottom of page</button>`;
+    menu.hidden = false; fab.setAttribute('aria-expanded', 'true');
+    menu.querySelector('.on')?.scrollIntoView({ block: 'nearest' });
+    menu.onclick = (e) => {
+      const b = e.target.closest('[data-go]'); if (!b) return;
+      const go = b.dataset.go;
+      if (go === 'top') window.scrollTo({ top: 0, behavior: 'smooth' });
+      else if (go === 'bottom') window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+      else {
+        const h = hs[+go];
+        h.closest('details:not([open])')?.setAttribute('open', '');
+        h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      closeMenu();
+    };
+  }
+  fab.addEventListener('click', () => (menu.hidden ? openMenu() : closeMenu()));
+  document.addEventListener('click', (e) => { if (!menu.hidden && !pageNav.contains(e.target)) closeMenu(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!menu.hidden) { closeMenu(); fab.focus(); } else if (document.body.classList.contains('nav-drawer')) setNav(false);
+  });
+  window.addEventListener('resize', updateFab);
+  /* tabs, reveals and quizzes change the page height without a route change */
+  new MutationObserver(() => requestAnimationFrame(updateFab)).observe(app, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'open'] });
+
   async function route() {
     keyHandler = null;
+    closeMenu();
     const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
     try {
       await loadCatalog();
@@ -583,6 +789,8 @@
       console.error(err); viewError(err);
     } finally {
       window.scrollTo({ top: 0 });
+      renderSideNav(parts);
+      updateFab();
     }
   }
 

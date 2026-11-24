@@ -3,7 +3,7 @@
     "name": "The Classroom",
     "tagline": "learn it, then teach it",
     "welcome": "Welcome to class!",
-    "intro": "Pick a classroom door. Every chapter has a chalkboard lesson, worked problems you reveal step by step, a lab bench to play with, flashcards, a pop quiz and a printable cheat sheet. Your stars are saved in this browser."
+    "intro": "Pick a course to start. Every chapter has a chalkboard lesson, worked problems you reveal step by step, a lab bench to play with, flashcards, a pop quiz and a printable cheat sheet. Your stars are saved in this browser."
   },
   "semesters": [
     {
@@ -148,98 +148,168 @@
               "number": 1,
               "title": "Descriptive Statistics",
               "blurb": "Central tendency, spread, skew, outliers, five-number summary.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 5,
+                "outOf": 280,
+                "papers": "1 of 7"
+              }
             },
             {
               "id": "ch02",
               "number": 2,
               "title": "Probability Basics",
               "blurb": "Axioms, addition rule, mutually exclusive vs independent events.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 3,
+                "outOf": 280,
+                "papers": "1 of 7"
+              }
             },
             {
               "id": "ch03",
               "number": 3,
               "title": "Conditional & Total Probability",
               "blurb": "Conditioning, independence, the law of total probability.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 13,
+                "outOf": 280,
+                "papers": "3 of 7"
+              }
             },
             {
               "id": "ch04",
               "number": 4,
               "title": "Bayes' Theorem & Naïve Bayes",
               "blurb": "Bayes with proof, Naïve Bayes classification, Laplace smoothing.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 4,
+                "outOf": 280,
+                "papers": "1 of 7"
+              }
             },
             {
               "id": "ch05",
               "number": 5,
               "title": "Random Variables",
               "blurb": "Discrete and continuous, expectation, variance, joint distributions.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 5,
+                "outOf": 280,
+                "papers": "1 of 7"
+              }
             },
             {
               "id": "ch06",
               "number": 6,
               "title": "Probability Distributions",
               "blurb": "Bernoulli, Binomial, Poisson, Normal; t, F and χ² introduced.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 2,
+                "outOf": 280,
+                "papers": "1 of 7"
+              }
             },
             {
               "id": "ch07",
               "number": 7,
               "title": "Sampling & Estimation",
               "blurb": "Sampling distributions, CLT, point and interval estimation.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 4,
+                "outOf": 280,
+                "papers": "2 of 7"
+              }
             },
             {
               "id": "ch09",
               "number": 9,
               "title": "Hypothesis Testing",
               "blurb": "H₀/H₁, errors, p-values, z and t tests, proportions, paired data, chi-square.",
-              "file": "content/sem1/aiml-zc418/ch09-hypothesis-testing.json"
+              "file": "content/sem1/aiml-zc418/ch09-hypothesis-testing.json",
+              "weight": {
+                "marks": 71,
+                "outOf": 280,
+                "papers": "7 of 7"
+              }
             },
             {
               "id": "ch10",
               "number": 10,
               "title": "Maximum Likelihood & ANOVA",
               "blurb": "MLE for Bernoulli, Binomial, Poisson and Normal, F-test for two variances, one-way and two-way ANOVA.",
-              "file": "content/sem1/aiml-zc418/ch10-mle-anova.json"
+              "file": "content/sem1/aiml-zc418/ch10-mle-anova.json",
+              "weight": {
+                "marks": 34,
+                "outOf": 280,
+                "papers": "6 of 7"
+              }
             },
             {
               "id": "ch11",
               "number": 11,
               "title": "Correlation & Regression",
               "blurb": "Covariance, Pearson r, autocovariance and autocorrelation, PCA. Regression line, r², Spearman, and every past-paper question type.",
-              "file": "content/sem1/aiml-zc418/ch11-correlation.json"
+              "file": "content/sem1/aiml-zc418/ch11-correlation.json",
+              "weight": {
+                "marks": 59,
+                "outOf": 280,
+                "papers": "7 of 7"
+              }
             },
             {
               "id": "ch12",
               "number": 12,
               "title": "Prediction & Forecasting",
               "blurb": "Trend, seasonality, moving averages.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 15,
+                "outOf": 280,
+                "papers": "3 of 7"
+              }
             },
             {
               "id": "ch13",
               "number": 13,
               "title": "Time Series Models",
               "blurb": "AR, MA, ARMA, ARIMA.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 0,
+                "outOf": 280,
+                "papers": "0 of 7"
+              }
             },
             {
               "id": "ch14",
               "number": 14,
               "title": "Smoothing & Time-series Models",
               "blurb": "Simple exponential smoothing (worked), videos, and a red pending board for Holt, moving averages and SARIMA to VARMAX.",
-              "file": "content/sem1/aiml-zc418/ch14-smoothing.json"
+              "file": "content/sem1/aiml-zc418/ch14-smoothing.json",
+              "weight": {
+                "marks": 57,
+                "outOf": 280,
+                "papers": "7 of 7"
+              }
             },
             {
               "id": "ch15",
               "number": 15,
               "title": "Gaussian Mixture Models & EM",
               "blurb": "Soft clustering, mixtures of Gaussians, expectation-maximisation.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 8,
+                "outOf": 280,
+                "papers": "2 of 7"
+              }
             }
           ],
           "weightage": {
@@ -697,7 +767,10 @@
               "label": "CS 1",
               "title": "Introduction",
               "blurb": "What ML is, how a learning system is designed, issues in ML.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "pattern": "5–10 for CS 1–6 together"
+              }
             },
             {
               "id": "ch02",
@@ -705,7 +778,10 @@
               "label": "CS 2",
               "title": "Maths Preliminaries and ML Workflow",
               "blurb": "Linear algebra, calculus, probability, information theory, data pre-processing.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "pattern": "5–10 for CS 1–6 together"
+              }
             },
             {
               "id": "ch03",
@@ -713,7 +789,13 @@
               "label": "CS 3",
               "title": "Linear Models for Regression",
               "blurb": "Direct solution, gradient descent, basis functions, bias-variance, Ridge and Lasso.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 7,
+                "outOf": 80,
+                "papers": "2 of 2",
+                "pattern": "5–10 for CS 1–6 together"
+              }
             },
             {
               "id": "ch04",
@@ -721,7 +803,14 @@
               "label": "CS 4–5",
               "title": "Linear Classification and Logistic Regression",
               "blurb": "Discriminant functions, logistic regression, log loss, multi-class.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 5,
+                "outOf": 80,
+                "papers": "2 of 2",
+                "pattern": "5–10 for CS 1–6 together",
+                "note": "shared with CS 6"
+              }
             },
             {
               "id": "ch06",
@@ -729,7 +818,14 @@
               "label": "CS 6",
               "title": "Decision Trees",
               "blurb": "Entropy, information gain, overfitting, continuous and missing values.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 5,
+                "outOf": 80,
+                "papers": "2 of 2",
+                "pattern": "5–10 for CS 1–6 together",
+                "note": "shared with CS 4–5"
+              }
             },
             {
               "id": "ch07",
@@ -737,7 +833,13 @@
               "label": "CS 7",
               "title": "Instance-based Learning",
               "blurb": "kNN, locally weighted regression, radial basis functions.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 12,
+                "outOf": 80,
+                "papers": "2 of 2",
+                "pattern": "4–8"
+              }
             },
             {
               "id": "ch09",
@@ -745,7 +847,13 @@
               "label": "CS 9",
               "title": "Support Vector Machines",
               "blurb": "Linear and non-linear SVM, kernels, support vectors.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 16,
+                "outOf": 80,
+                "papers": "2 of 2",
+                "pattern": "4–8"
+              }
             },
             {
               "id": "ch10",
@@ -753,7 +861,13 @@
               "label": "CS 10–11",
               "title": "Bayesian Learning",
               "blurb": "MLE, MAP, Bayes optimal classifier, Naive Bayes.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 11,
+                "outOf": 80,
+                "papers": "2 of 2",
+                "pattern": "4–8"
+              }
             },
             {
               "id": "ch12",
@@ -761,7 +875,13 @@
               "label": "CS 12–13",
               "title": "Ensemble Learning",
               "blurb": "Voting, bagging, Random Forest, AdaBoost, gradient boosting, XGBoost, stacking.",
-              "file": "content/sem1/aiml-zg565/ch12-ensembles.json"
+              "file": "content/sem1/aiml-zg565/ch12-ensembles.json",
+              "weight": {
+                "marks": 17,
+                "outOf": 80,
+                "papers": "2 of 2",
+                "pattern": "4–8"
+              }
             },
             {
               "id": "ch14",
@@ -769,7 +889,13 @@
               "label": "CS 14",
               "title": "Unsupervised Learning",
               "blurb": "K-means, Gaussian mixture models, EM.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 12,
+                "outOf": 80,
+                "papers": "2 of 2",
+                "pattern": "4–8"
+              }
             },
             {
               "id": "ch15",
@@ -777,7 +903,13 @@
               "label": "CS 15",
               "title": "Model Evaluation",
               "blurb": "Comparing models, confusion matrix, bias and fairness.",
-              "comingSoon": true
+              "comingSoon": true,
+              "weight": {
+                "marks": 0,
+                "outOf": 80,
+                "papers": "0 of 2",
+                "pattern": "4–8"
+              }
             }
           ]
         }

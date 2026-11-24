@@ -5,12 +5,12 @@
  "lesson": [
   {
    "title": "PENDING in this chapter: read these in revision",
-   "lead": "Topics not yet walked through step by step in our sessions. Everything below is already in this chapter; it just has not been taught together.",
+   "lead": "Topics not yet practised step by step. Everything below is already in this chapter; it just has not been practised together yet.",
    "blocks": [
     {
      "type": "note",
      "label": "PENDING: read before the exam",
-     "text": "These are still to be walked through.\n- Voting arithmetic: Sourabh sir Problem 33 (worked problems, 'Voting' family).\n- Bagging and Random Forest by the numbers: Problem 34.\n- Random Forest majority vote, slide problem types 1 and 2 (pages 35-38).\n- Stacking (pages 68-72): see the 'Stacking' board.\n- Short theory: bagging vs Random Forest and out-of-bag (OOB) samples; bagging vs boosting.\n- XGBoost add-on: choosing the split by gain (longer deck, not in your watermarked pages).",
+     "text": "Pending: still to practise step by step.\n- Voting arithmetic: Sourabh sir Problem 33 (worked problems, 'Voting' family).\n- Bagging and Random Forest by the numbers: Problem 34.\n- Random Forest majority vote, slide problem types 1 and 2 (pages 35-38).\n- Stacking (pages 68-72): see the 'Stacking' board.\n- Short theory: bagging vs Random Forest and out-of-bag (OOB) samples; bagging vs boosting.\n- XGBoost add-on: choosing the split by gain (longer deck, not in your watermarked pages).",
      "color": "red"
     },
     {
@@ -21,7 +21,7 @@
     },
     {
      "type": "note",
-     "label": "Already taught step by step",
+     "label": "Done: practised step by step",
      "text": "Bagging and Random Forest flow; AdaBoost (all six numerical types); gradient boosting (Mar 2026 makeup Q6, Problem 38); the XGBoost slide example (pages 60-62); Mar 2026 makeup Q4.",
      "color": "blue"
     }

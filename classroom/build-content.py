@@ -8,8 +8,10 @@ Run this after adding or editing anything in content/:
 
     python3 build-content.py
 """
+import hashlib
 import json
 import pathlib
+import re
 
 ROOT = pathlib.Path(__file__).resolve().parent
 CONTENT = ROOT / "content"
@@ -31,3 +33,21 @@ OUT.write_text(
     encoding="utf-8",
 )
 print(f"Bundled {len(bundle)} files into {OUT.relative_to(ROOT)} ({OUT.stat().st_size // 1024} KB)")
+
+# Cache-busting: give every local css/js link in index.html a ?v=<hash of that file>, so after a
+# deploy browsers fetch the changed scripts instead of pairing new lessons with an old cached util.js.
+INDEX = ROOT / "index.html"
+html = INDEX.read_text(encoding="utf-8")
+
+
+def stamp(m):
+    f = ROOT / m.group(2)
+    if not f.is_file():
+        return m.group(0)
+    return f'{m.group(1)}{m.group(2)}?v={hashlib.sha1(f.read_bytes()).hexdigest()[:8]}"'
+
+
+new_html = re.sub(r'((?:src|href)=")((?:css|js|content)/[^"?]+\.(?:css|js))(?:\?v=[0-9a-f]*)?"', stamp, html)
+if new_html != html:
+    INDEX.write_text(new_html, encoding="utf-8")
+    print("Updated the ?v= version stamps in index.html")
