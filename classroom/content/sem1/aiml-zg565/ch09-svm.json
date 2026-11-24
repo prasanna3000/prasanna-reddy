@@ -5,14 +5,14 @@
   "lesson": [
     {
       "title": "Prerequisites: only three things",
-      "lead": "SVM uses three ideas from earlier topics. If you can already do the quick check at the bottom, skip straight to the next part.",
+      "lead": "SVM uses three ideas from earlier topics. Each has its own part next (P1–P3) with the slides to read and YouTube videos to watch. If you can already do the quick check at the bottom, skip them.",
       "blocks": [
         {
           "type": "steps",
           "items": [
-            "**Vectors: dot product wᵀx, length ‖w‖, distance from a point to a line.** Where: MFML Lecture 3 (inner products, norms). Used in: every SVM numerical (wᵀx + b, margin = 2/‖w‖).",
-            "**Linear classifier: the line wᵀx + b = 0, and which side is + or −.** Where: ML CS 4–5 slides, first few pages. Used in: SVM is a linear classifier that picks the widest gap.",
-            "**Lagrange multipliers (primal, dual, KKT).** Where: MFML Lecture 14 and `Lagrange-KKT-Duality-Practice-Set.pdf`. Used in: only the dual method (w = Σαᵢyᵢxᵢ, αᵢ > 0 ⇒ support vector). The geometry method doesn't need it."
+            "**P1 · Vectors:** dot product wᵀx, length ‖w‖, orthogonality, distance from a point to a line. Slides: MFML `Lecture_3.pdf` (Prof. Saurabh → Lecture_Slides). Used in every SVM numerical.",
+            "**P2 · Linear classifier:** the line wᵀx + b = 0 and the rule y = sign(wᵀx + b). Slides: ML `ML_CS 5 6.pdf` (Session PPTs) and MFML `Lecture_14.pdf` (Prof. Saurabh → Lecture_Slides). SVM is a linear classifier.",
+            "**P3 · Lagrange multipliers, dual, KKT.** Slides: MFML `Lecture_14.pdf` (Prof. Saurabh → Lecture_Slides) and the practice set `Lagrange-KKT-Duality-Practice-Set.pdf` (Prof. Saurabh → practice_problems). Needed only for the dual method; the geometry method doesn't use it."
           ]
         },
         {
@@ -36,9 +36,335 @@
       ]
     },
     {
+      "title": "P1 · Vectors: dot product, norm, distance",
+      "lead": "Source: MFML `Lecture_3.pdf` (Prof. Saurabh → Lecture_Slides). Four facts, each with the slide that prints it.",
+      "blocks": [
+        {
+          "type": "h",
+          "text": "1. Dot product"
+        },
+        {
+          "type": "formula",
+          "text": "xᵀy = x₁y₁ + x₂y₂ + … + xₙyₙ",
+          "caption": "Slide: *Inner Products* (p. 5)"
+        },
+        {
+          "type": "p",
+          "text": "Example: (3, 4)ᵀ(4, 2) = 12 + 8 = **20**. In SVM, wᵀx + b is this dot product plus a number."
+        },
+        {
+          "type": "h",
+          "text": "2. Length (norm)"
+        },
+        {
+          "type": "formula",
+          "text": "‖x‖ = {{sqrt: x₁² + x₂² + … + xₙ²}} = {{sqrt: xᵀx}}",
+          "caption": "Slides: *Norms* (p. 4, Euclidean norm) and *Lengths and Distances* (p. 9)"
+        },
+        {
+          "type": "p",
+          "text": "Example: ‖(3, 4)‖ = {{sqrt: 9 + 16}} = **5**. In SVM the margin is 2/‖w‖, so ‖w‖ = 5 gives margin 0.4."
+        },
+        {
+          "type": "h",
+          "text": "3. Orthogonal means dot product 0"
+        },
+        {
+          "type": "formula",
+          "text": "x ⊥ y  ⇔  xᵀy = 0",
+          "caption": "Slide: *Angles and Orthogonality* (p. 16)"
+        },
+        {
+          "type": "p",
+          "text": "Why SVM needs it: w is perpendicular to the line wᵀx + b = 0. Take two points xₐ, x_{b} on the line; subtracting gives wᵀ(xₐ − x_{b}) = 0. Slide: MFML `Lecture_14.pdf` (Prof. Saurabh → Lecture_Slides), *Hyperplane* (p. 13)."
+        },
+        {
+          "type": "h",
+          "text": "4. Distance from a point to a line"
+        },
+        {
+          "type": "formula",
+          "text": "distance of x₀ from wᵀx + b = 0  =  |wᵀx₀ + b| / ‖w‖",
+          "caption": "Not printed on L3. One-line derivation below."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Walk from x₀ towards the line along the unit normal w/‖w‖ (fact 3) for a distance t: the foot is x₀ − t·w/‖w‖.",
+            "The foot is on the line: wᵀ(x₀ − t·w/‖w‖) + b = 0 ⇒ wᵀx₀ + b − t·‖w‖ = 0 (since wᵀw = ‖w‖², fact 2).",
+            "So t = (wᵀx₀ + b)/‖w‖; distance = its absolute value."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Example: (4, 2) to 3x₁ + 4x₂ − 10 = 0: |12 + 8 − 10| / 5 = **2**."
+        },
+        {
+          "type": "note",
+          "color": "blue",
+          "label": "Link to SVM",
+          "text": "A point on the margin line wᵀx + b = +1 is |1|/‖w‖ from the boundary; one on −1 is also 1/‖w‖ away. Total gap = **2/‖w‖**, the margin (SVM slide *Linear SVM Mathematically*, p. 16)."
+        },
+        {
+          "type": "note",
+          "label": "Read",
+          "text": "L3 pages 4, 5, 9, 13–18 (norms, inner products, lengths, angles, the worked example on p. 17–18). Skip Gram–Schmidt and elementary transformations (p. 24–29) for SVM."
+        },
+        {
+          "type": "h",
+          "text": "Watch (YouTube, optional)"
+        },
+        {
+          "type": "list",
+          "items": [
+            "[▶ 3Blue1Brown · Vectors, what even are they? (Essence of linear algebra, Ch. 1)](https://www.youtube.com/results?search_query=3blue1brown+vectors+what+even+are+they+essence+of+linear+algebra+chapter+1): what a vector is, picture first. ~10 min.",
+            "[▶ 3Blue1Brown · Dot products and duality (Ch. 9)](https://www.youtube.com/results?search_query=3blue1brown+dot+products+and+duality+chapter+9): why wᵀx measures how far x goes along w. ~14 min.",
+            "[▶ Khan Academy · Distance between a point and a line](https://www.youtube.com/results?search_query=khan+academy+distance+between+point+and+line): the |ax + by + c| / √(a² + b²) formula worked out."
+          ]
+        }
+      ],
+      "check": {
+        "cards": [
+          30,
+          31,
+          32,
+          33
+        ],
+        "quiz": [
+          25,
+          26,
+          27,
+          28
+        ]
+      }
+    },
+    {
+      "title": "P2 · Linear classifier: a line and a sign",
+      "lead": "Sources: ML `ML_CS 5 6.pdf` (Session PPTs) and MFML `Lecture_14.pdf` (Prof. Saurabh → Lecture_Slides).",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "f(x, w) = w₀ + wᵀx,   y = sign(w₀ + wᵀx),   boundary: w₀ + wᵀx = 0",
+          "caption": "Slide: *Decision Rules* (ML CS 5–6, p. 9). The SVM slides write b instead of w₀: same thing."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**The boundary** is a line in 2-D (a plane in 3-D, a hyperplane in general).",
+            "**The sign** decides the class: f > 0 ⇒ +1, f < 0 ⇒ −1.",
+            "**w** points towards the + side (it is perpendicular to the line, P1 fact 3). **b** shifts the line without turning it."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Point",
+            "f = 3x₁ + 4x₂ − 10",
+            "Class"
+          ],
+          "rows": [
+            [
+              "(4, 2)",
+              "12 + 8 − 10 = 10",
+              "+1"
+            ],
+            [
+              "(1, 1)",
+              "3 + 4 − 10 = −3",
+              "−1"
+            ],
+            [
+              "(2, 1)",
+              "6 + 4 − 10 = 0",
+              "on the line"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Logistic regression uses the same line: on the boundary its output is 0.5 (slide *Logistic Regression – Sample Linear Boundary*, p. 14)."
+        },
+        {
+          "type": "note",
+          "color": "blue",
+          "label": "Link to SVM",
+          "text": "Many lines separate the same data. The slides *Linear Classifier for Binary Classification* and *Linear Classifier* (MFML L14, p. 20–24) draw several. SVM chooses the one with the **widest gap** to the nearest points. That choice is the whole chapter."
+        },
+        {
+          "type": "note",
+          "label": "Read",
+          "text": "ML CS 5–6 p. 7–14 (logistic regression set-up, decision rules, sample boundaries). Cost functions and ROC (p. 16 onward) are not needed for SVM."
+        },
+        {
+          "type": "h",
+          "text": "Watch (YouTube, optional)"
+        },
+        {
+          "type": "list",
+          "items": [
+            "[▶ Andrew Ng · Decision Boundary (Machine Learning, logistic regression)](https://www.youtube.com/results?search_query=andrew+ng+machine+learning+decision+boundary+logistic+regression): the line wᵀx + b = 0 and which side is which. ~15 min.",
+            "[▶ StatQuest · Logistic Regression](https://www.youtube.com/results?search_query=statquest+logistic+regression): the same classifier, explained slowly. ~9 min."
+          ]
+        }
+      ],
+      "check": {
+        "cards": [
+          34,
+          35,
+          36
+        ],
+        "quiz": [
+          29,
+          30,
+          31
+        ]
+      }
+    },
+    {
+      "title": "P3 · Lagrange multipliers, dual and KKT",
+      "lead": "Source: MFML `Lecture_14.pdf` (Prof. Saurabh → Lecture_Slides). Its agenda (p. 2) says it is the *Mathematical preliminaries for Support Vector Machines*. Practice: `Lagrange-KKT-Duality-Practice-Set.pdf` (Prof. Saurabh → practice_problems).",
+      "blocks": [
+        {
+          "type": "h",
+          "text": "1. The problem and its Lagrangian"
+        },
+        {
+          "type": "formula",
+          "text": "minimise f(x)  subject to  gᵢ(x) ≤ 0,  hⱼ(x) = 0",
+          "caption": "Slide: *Optimization problem* (p. 3)"
+        },
+        {
+          "type": "formula",
+          "text": "L = f(x) + Σ λᵢ gᵢ(x) + Σ νⱼ hⱼ(x)",
+          "caption": "Slide: *Optimization problem : Lagrangian* (p. 4). One multiplier per constraint."
+        },
+        {
+          "type": "h",
+          "text": "2. Recipe: set the derivative to 0, then use the constraint"
+        },
+        {
+          "type": "p",
+          "text": "Example (equality): minimise x² + y² subject to x + y = 2. Write h = x + y − 2."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "L = x² + y² + ν(x + y − 2).",
+            "∂L/∂x = 2x + ν = 0, ∂L/∂y = 2y + ν = 0 ⇒ x = y = −ν/2.",
+            "Constraint: x + y = 2 ⇒ −ν = 2 ⇒ ν = −2, so **x = y = 1**, minimum value 2."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The practice set writes this as ∇f = λ∇h, which gives λ = +2. That's the same answer with the opposite sign convention."
+        },
+        {
+          "type": "h",
+          "text": "3. Inequality constraints: KKT"
+        },
+        {
+          "type": "formula",
+          "text": "1. gᵢ(x*) ≤ 0, hⱼ(x*) = 0   2. λᵢ ≥ 0   3. λᵢ gᵢ(x*) = 0   4. ∇f + Σλᵢ∇gᵢ + Σνⱼ∇hⱼ = 0",
+          "caption": "Slide: *KKT conditions* (p. 11). Condition 3 is complementary slackness."
+        },
+        {
+          "type": "p",
+          "text": "Example: minimise x² subject to x ≥ 1, i.e. g = 1 − x ≤ 0. L = x² + λ(1 − x), so 2x − λ = 0."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Case",
+            "Result",
+            "Valid?"
+          ],
+          "rows": [
+            [
+              "λ = 0 (constraint inactive)",
+              "x = 0, but 0 ≥ 1 fails",
+              "✗"
+            ],
+            [
+              "g = 0 (constraint active): x = 1",
+              "λ = 2 ≥ 0",
+              "✓ answer x = 1"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "color": "blue",
+          "label": "Link to SVM",
+          "text": "In SVM each training point gives one constraint yᵢ(wᵀxᵢ + b) ≥ 1 with multiplier αᵢ. Complementary slackness says **αᵢ > 0 only if the point sits exactly on the margin**. Those points are the support vectors. Every other point has αᵢ = 0."
+        },
+        {
+          "type": "h",
+          "text": "4. Primal → dual, and when they agree"
+        },
+        {
+          "type": "list",
+          "items": [
+            "*Recall : Quadratic programming* (p. 5–7): for ½xᵀQx + cᵀx with Ax ≤ b, set ∂L/∂x = 0, substitute x back, and maximise the result D(λ) over λ ≥ 0. **The SVM primal (min ½‖w‖² with linear constraints) is exactly such a QP**, and this is how the SVM dual is built.",
+            "*Weak duality* (p. 8): dual optimum ≤ primal optimum.",
+            "*Strong duality* (p. 9) and *Slater's condition* (p. 10): convex objective, linear constraints, and a strictly feasible point ⇒ the two are equal. SVM satisfies this, so solving the dual gives the same w and b."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Practise (practice set)",
+          "text": "Problems **1–2** (Lagrange, p. 4–5), **6–7** (first KKT, p. 11–12), **11** (primal to dual in one variable, p. 17), and **15** (*Capstone: a tiny hard-margin SVM*, p. 23). Problem 15 is the bridge into this chapter."
+        },
+        {
+          "type": "h",
+          "text": "Watch (YouTube, optional)"
+        },
+        {
+          "type": "list",
+          "items": [
+            "[▶ Khan Academy · Lagrange multipliers, introduction](https://www.youtube.com/results?search_query=khan+academy+lagrange+multipliers+introduction): why the gradients line up at the optimum. ~10 min.",
+            "[▶ Visually Explained · Understanding Lagrange Multipliers Visually](https://www.youtube.com/results?search_query=visually+explained+understanding+lagrange+multipliers+visually): the geometry behind L = f + λg. ~13 min.",
+            "[▶ Visually Explained · The KKT Conditions](https://www.youtube.com/results?search_query=visually+explained+karush+kuhn+tucker+kkt+conditions): inequality constraints, active vs inactive, complementary slackness."
+          ]
+        },
+        {
+          "type": "note",
+          "color": "pink",
+          "label": "Skip for now",
+          "text": "L14 *Kernel Functions* (p. 14–18) belongs to SVM itself. It is covered in the Kernels part of this lesson."
+        }
+      ],
+      "check": {
+        "cards": [
+          37,
+          38,
+          39,
+          40
+        ],
+        "quiz": [
+          32,
+          33,
+          34,
+          35
+        ]
+      }
+    },
+    {
       "title": "What SVM is, in simple terms",
       "lead": "A classifier that separates two groups with the widest possible empty road between them.",
       "blocks": [
+        {
+          "type": "h",
+          "text": "Watch first: SVM on YouTube"
+        },
+        {
+          "type": "list",
+          "items": [
+            "[▶ StatQuest · Support Vector Machines Part 1 (of 3): Main Ideas!](https://www.youtube.com/results?search_query=statquest+support+vector+machines+part+1+main+ideas): margin, support vectors, soft margin, all with pictures. Start here.",
+            "[▶ Visually Explained · Support Vector Machines: All you need to know!](https://www.youtube.com/results?search_query=visually+explained+support+vector+machines+all+you+need+to+know): the whole chapter in one sitting: margin, primal, dual, kernels.",
+            "[▶ MIT OCW 6.034 · 16. Learning: Support Vector Machines (Patrick Winston)](https://www.youtube.com/results?search_query=mit+6.034+16+learning+support+vector+machines+winston): derives 2/‖w‖, the Lagrangian and w = Σαᵢyᵢxᵢ on the board. The closest to the exam.",
+            "[▶ StatQuest · Support Vector Machines Part 2: The Polynomial Kernel](https://www.youtube.com/results?search_query=statquest+support+vector+machines+part+2+polynomial+kernel): (a·b + r)ᵈ and why it is a dot product in a bigger space. (with Part 3 after kernels)"
+          ]
+        },
         {
           "type": "p",
           "text": "**What it is for:** classification: deciding which of two groups a point belongs to (fraud or genuine, pass or fail, +1 or −1)."
@@ -89,7 +415,18 @@
             ]
           ]
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          0,
+          41,
+          15
+        ],
+        "quiz": [
+          0,
+          36
+        ]
+      }
     },
     {
       "title": "Previous-year questions: where 22.5% comes from",
@@ -228,7 +565,16 @@
           "label": "The four kinds of question",
           "text": "**Geometry** (find w, b, margin), **dual** (α's), **kernel trick**, and **soft margin / C**. The four tabs above (Geometry, Dual, Kernels, Soft margin) collect the practice for each."
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          42,
+          43
+        ],
+        "quiz": [
+          37
+        ]
+      }
     },
     {
       "title": "Syllabus map: the four handout topics",
@@ -349,61 +695,14 @@
             ]
           ]
         }
-      ]
-    },
-    {
-      "title": "Study plan: what to read, practise and watch",
-      "lead": "This is the SVM material itself, in the order to use it.",
-      "blocks": [
-        {
-          "type": "h",
-          "text": "1. Read and practise, in this order"
-        },
-        {
-          "type": "steps",
-          "items": [
-            "**This lesson**, part by part. It follows ML `Session PPTs/Lecture 10.pdf` (68 pages). The page numbers here (p. 6, p. 22 …) refer to that file.",
-            "**Sourabh sir's SVM companion:** `Support_Vector_Machines_Companion.pdf` (MFML → Prof. Saurabh → practice_problems). Exam-style explanations.",
-            "**MFML Lecture 15 (SVM):** `Lecture_15.pdf` (MFML → Prof. Saurabh → Lecture_Slides). The same SVM from the maths side; also 8 marks in both 2026 MFML papers.",
-            "**Practice:** Sourabh sir's 50 Solved Problems **P16–P23**, then the **Worked problems** tab here, then the SVM questions in the four past papers (Exam hall)."
-          ]
-        },
-        {
-          "type": "h",
-          "text": "2. Checklist: everything the papers have asked"
-        },
-        {
-          "type": "list",
-          "items": [
-            "Hyperplane, margin = 2/‖w‖, and why we maximise it",
-            "Support vectors by geometry (closest opposite-class points)",
-            "w and b from the support vectors using yᵢ(wᵀxᵢ + b) = 1, **then check the sign**",
-            "Hard-margin primal: min ½‖w‖² subject to one constraint per point, written out",
-            "Dual and Lagrange multipliers: w = Σαᵢyᵢxᵢ, Σαᵢyᵢ = 0, αᵢ > 0 only for support vectors",
-            "What-if questions: remove or add a point; does the hyperplane change?",
-            "Soft margin: slack ξ, the role of C (large C → overfit), hinge loss max(0, 1 − y·f(x))",
-            "Kernel trick: 1-D maps such as x mod 2 or x², polynomial and RBF kernel values, valid kernels",
-            "Theory: overfitting with C and degree, soft vs hard margin, cost of kernels"
-          ]
-        },
-        {
-          "type": "h",
-          "text": "3. Videos (optional)"
-        },
-        {
-          "type": "list",
-          "items": [
-            "**StatQuest: \"Support Vector Machines Part 1 (of 3): Main Ideas!\"**, then **Part 2: The Polynomial Kernel** and **Part 3: The Radial (RBF) Kernel**. Short and visual; start here.",
-            "**MIT OpenCourseWare 6.034, \"16. Learning: Support Vector Machines\"** (Patrick Winston). Derives the margin and the Lagrange multipliers step by step, very close to the exam.",
-            "**Stanford CS229 (Andrew Ng), the SVM / kernels lecture.** Deeper; only if you have spare time."
-          ]
-        },
-        {
-          "type": "note",
-          "label": "How long",
-          "text": "About 30 minutes of StatQuest, then the slides. Keep videos under an hour in total: the marks come from doing the numericals in **Worked problems**."
-        }
-      ]
+      ],
+      "check": {
+        "cards": [
+          25,
+          29
+        ],
+        "quiz": []
+      }
     },
     {
       "title": "Slide formula sheet: find these on your printout",
@@ -542,7 +841,20 @@
           "label": "Finding the slide",
           "text": "Slide titles are the same on your 4-per-page printout. The page numbers here are positions in Lecture 10, so look for the title."
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          1,
+          2,
+          3,
+          5,
+          11,
+          17
+        ],
+        "quiz": [
+          10
+        ]
+      }
     },
     {
       "title": "Hyperplane, margin and support vectors (p. 6–15)",
@@ -580,8 +892,30 @@
           "type": "note",
           "label": "Canonical form",
           "text": "Any multiple k·(w, b) gives the same line. SVM fixes the scale by demanding **yᵢ(wᵀxᵢ + b) = 1 exactly on the support vectors**. That is why the exam says \"canonical w and b\"."
+        },
+        {
+          "type": "h",
+          "text": "Watch"
+        },
+        {
+          "type": "list",
+          "items": [
+            "[▶ StatQuest · Support Vector Machines Part 1 (of 3): Main Ideas!](https://www.youtube.com/results?search_query=statquest+support+vector+machines+part+1+main+ideas): margin, support vectors, soft margin, all with pictures. Start here.",
+            "[▶ Visually Explained · Support Vector Machines: All you need to know!](https://www.youtube.com/results?search_query=visually+explained+support+vector+machines+all+you+need+to+know): the whole chapter in one sitting: margin, primal, dual, kernels."
+          ]
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          0,
+          1
+        ],
+        "quiz": [
+          0,
+          10,
+          11
+        ]
+      }
     },
     {
       "title": "The primal problem (p. 16–18)",
@@ -638,7 +972,16 @@
           "label": "Example from",
           "text": "MFML Feb 2026 Q5(a): the objective is ½(w₁² + w₂²) with these four constraints."
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          2
+        ],
+        "quiz": [
+          1,
+          38
+        ]
+      }
     },
     {
       "title": "Method 1: geometry (the fastest way)",
@@ -672,7 +1015,19 @@
           "label": "Sign check",
           "text": "Always plug a support vector back in. The right line with the wrong sign (w and b both negated) puts every point in the wrong class, and loses the marks for w and b."
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          5,
+          7,
+          24
+        ],
+        "quiz": [
+          12,
+          13,
+          14
+        ]
+      }
     },
     {
       "title": "Method 2: the dual and Lagrange multipliers (p. 19–21)",
@@ -710,8 +1065,29 @@
           "type": "trap",
           "label": "Exam trap",
           "text": "Dropping yᵢ in w = Σαᵢyᵢxᵢ is the most common mistake. A − support vector contributes **−αᵢxᵢ**."
+        },
+        {
+          "type": "h",
+          "text": "Watch"
+        },
+        {
+          "type": "list",
+          "items": [
+            "[▶ MIT OCW 6.034 · 16. Learning: Support Vector Machines (Patrick Winston)](https://www.youtube.com/results?search_query=mit+6.034+16+learning+support+vector+machines+winston): derives 2/‖w‖, the Lagrangian and w = Σαᵢyᵢxᵢ on the board. The closest to the exam."
+          ]
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          3,
+          4,
+          6
+        ],
+        "quiz": [
+          9,
+          19
+        ]
+      }
     },
     {
       "title": "The slides' augmented-vector method (p. 22–37)",
@@ -742,7 +1118,17 @@
           "type": "p",
           "text": "Positive (−1, 3), (1, 3), (−1, 4), (1, 4); negative (0, 1), (−1, 0), (1, 0), (0, −1). Support vectors (−1, 3), (1, 3) and (0, 1). The same equations give α = −3.5, 0.75, 0.75 and w̃ = (0, 1, −2): w = (0, 1), b = −2, so the boundary is the horizontal line **x₂ = 2**."
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          44,
+          45
+        ],
+        "quiz": [
+          39,
+          40
+        ]
+      }
     },
     {
       "title": "What-if questions: add, remove or move a point",
@@ -783,7 +1169,16 @@
           "label": "Exam trap",
           "text": "A new point can be on the correct side but **inside** the margin (0 < y·f < 1). It still changes the hyperplane. Sourabh P17(e): y·f = 0.6 < 1 ⇒ changes."
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          8,
+          9
+        ],
+        "quiz": [
+          4
+        ]
+      }
     },
     {
       "title": "Soft margin, slack and C (p. 38–46)",
@@ -861,8 +1256,35 @@
           "type": "note",
           "label": "Why soft margin in practice",
           "text": "Hard margin needs perfectly separable data and is pulled around by one outlier. Soft margin keeps a wide, stable boundary when classes overlap (Mar 2026 regular Q5(d))."
+        },
+        {
+          "type": "h",
+          "text": "Watch"
+        },
+        {
+          "type": "list",
+          "items": [
+            "[▶ StatQuest · Support Vector Machines Part 1 (of 3): Main Ideas!](https://www.youtube.com/results?search_query=statquest+support+vector+machines+part+1+main+ideas): margin, support vectors, soft margin, all with pictures. Revisit the soft-margin half.",
+            "[▶ Cornell CS4780 (Kilian Weinberger) · Support Vector Machines lecture](https://www.youtube.com/results?search_query=cornell+cs4780+kilian+weinberger+support+vector+machine+lecture): hard and soft margin, slack ξ and C, hinge loss. Longer, very clear."
+          ]
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "quiz": [
+          2,
+          3,
+          15,
+          16,
+          20
+        ]
+      }
     },
     {
       "title": "Kernels and the kernel trick (p. 48–63)",
@@ -988,8 +1410,42 @@
           "type": "trap",
           "label": "Theory point",
           "text": "Kernel SVMs are expensive because they need the n × n kernel (Gram) matrix: time and memory grow with n²."
+        },
+        {
+          "type": "h",
+          "text": "Watch"
+        },
+        {
+          "type": "list",
+          "items": [
+            "[▶ StatQuest · Support Vector Machines Part 2: The Polynomial Kernel](https://www.youtube.com/results?search_query=statquest+support+vector+machines+part+2+polynomial+kernel): (a·b + r)ᵈ and why it is a dot product in a bigger space.",
+            "[▶ StatQuest · Support Vector Machines Part 3: The Radial (RBF) Kernel](https://www.youtube.com/results?search_query=statquest+support+vector+machines+part+3+radial+rbf+kernel): e^(−γ‖a − b‖²), and what γ does.",
+            "[▶ Visually Explained · The Kernel Trick in Support Vector Machines](https://www.youtube.com/results?search_query=visually+explained+kernel+trick+support+vector+machine): lifting 1-D/2-D data so a line can separate it."
+          ]
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          15,
+          16,
+          17,
+          18,
+          20,
+          21,
+          22,
+          26,
+          27
+        ],
+        "quiz": [
+          5,
+          7,
+          17,
+          18,
+          21,
+          22,
+          23
+        ]
+      }
     },
     {
       "title": "Applications: structured and unstructured data (handout)",
@@ -1038,7 +1494,16 @@
           "label": "How it is asked",
           "text": "So far only as context or a 1-mark theory line: \"why SVM suits text\", \"what changes for unstructured data\", \"why kernels get expensive\". One or two sentences each."
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          28,
+          29
+        ],
+        "quiz": [
+          24
+        ]
+      }
     },
     {
       "title": "Multi-class SVM, pros and cons (p. 64–66)",
@@ -1089,7 +1554,18 @@
             ]
           ]
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          23,
+          19
+        ],
+        "quiz": [
+          8,
+          6,
+          41
+        ]
+      }
     },
     {
       "title": "Exam playbook for SVM",
@@ -1144,8 +1620,27 @@
           "type": "trap",
           "label": "Exam trap",
           "text": "Three ways to lose easy marks: wrong sign of w and b; 1/‖w‖ instead of 2/‖w‖; forgetting yᵢ in w = Σαᵢyᵢxᵢ."
+        },
+        {
+          "type": "note",
+          "color": "blue",
+          "label": "Also study (not in this lesson)",
+          "text": "- **Sourabh sir's SVM companion:** `Support_Vector_Machines_Companion.pdf` (MFML → Prof. Saurabh → practice_problems). Exam-style explanations.\n- **MFML Lecture 15 (SVM):** `Lecture_15.pdf` (MFML → Prof. Saurabh → Lecture_Slides). The same SVM from the maths side; 8 marks in both 2026 MFML papers.\n- **Practice order:** Sourabh sir's 50 Solved Problems **P16–P23**, then the **Worked problems** tab, then the SVM questions in the four past papers (Exam hall)."
         }
-      ]
+      ],
+      "check": {
+        "cards": [
+          24,
+          7,
+          11
+        ],
+        "quiz": [
+          12,
+          13,
+          14,
+          15
+        ]
+      }
     }
   ],
   "worked": [
@@ -1883,6 +2378,86 @@
       "tag": "Concept",
       "front": "Structured vs unstructured data for SVM",
       "back": "Structured: scaled numeric/one-hot features. Unstructured: convert to vectors (TF-IDF, embeddings, image features) or use a kernel that compares items directly."
+    },
+    {
+      "tag": "Prereq",
+      "front": "Dot product of x and y",
+      "back": "xᵀy = x₁y₁ + … + xₙyₙ. Slide: *Inner Products* (MFML L3, p. 5)."
+    },
+    {
+      "tag": "Prereq",
+      "front": "Euclidean norm ‖x‖",
+      "back": "‖x‖ = √(x₁² + … + xₙ²) = √(xᵀx). Slides: *Norms* (p. 4), *Lengths and Distances* (p. 9)."
+    },
+    {
+      "tag": "Prereq",
+      "front": "When are two vectors orthogonal?",
+      "back": "When their dot product is 0. Slide: *Angles and Orthogonality* (p. 16). So w ⊥ the hyperplane."
+    },
+    {
+      "tag": "Prereq",
+      "front": "Distance from x₀ to the line wᵀx + b = 0",
+      "back": "|wᵀx₀ + b| / ‖w‖. Not on the slides; derived by walking along w/‖w‖."
+    },
+    {
+      "tag": "Prereq",
+      "front": "Decision rule of a linear classifier",
+      "back": "y = sign(w₀ + wᵀx); boundary w₀ + wᵀx = 0. Slide: *Decision Rules* (ML CS 5–6, p. 9). SVM writes b for w₀."
+    },
+    {
+      "tag": "Prereq",
+      "front": "What does b (w₀) do to the line?",
+      "back": "It shifts the line without turning it. w sets the direction."
+    },
+    {
+      "tag": "Prereq",
+      "front": "Many lines separate the data. Which does SVM pick?",
+      "back": "The one with the widest margin to the nearest points (MFML L14, *Linear Classifier*, p. 20–24)."
+    },
+    {
+      "tag": "Prereq",
+      "front": "Lagrangian of min f s.t. gᵢ ≤ 0, hⱼ = 0",
+      "back": "L = f + Σλᵢgᵢ + Σνⱼhⱼ. Slide: *Optimization problem : Lagrangian* (MFML L14, p. 4)."
+    },
+    {
+      "tag": "Prereq",
+      "front": "The four KKT conditions",
+      "back": "1 feasibility, 2 λᵢ ≥ 0, 3 λᵢgᵢ = 0 (complementary slackness), 4 ∇f + Σλᵢ∇gᵢ + Σνⱼ∇hⱼ = 0. Slide: *KKT conditions* (p. 11)."
+    },
+    {
+      "tag": "Prereq",
+      "front": "Complementary slackness in one line",
+      "back": "λᵢ > 0 only if constraint i is active (gᵢ = 0). In SVM: αᵢ > 0 only for points on the margin, the support vectors."
+    },
+    {
+      "tag": "Prereq",
+      "front": "Weak vs strong duality",
+      "back": "Weak: dual ≤ primal (p. 8). Strong: equal (p. 9); holds under Slater's condition (p. 10), which SVM meets."
+    },
+    {
+      "tag": "Concept",
+      "front": "SVM in one sentence",
+      "back": "Among all lines that separate the two classes, pick the one with the widest empty gap (margin) to the nearest points."
+    },
+    {
+      "tag": "Exam",
+      "front": "How many SVM marks per paper recently?",
+      "back": "8 marks in each Mar 2026 paper (10 in each 2021 paper): 36 of 160 in all, 22.5%."
+    },
+    {
+      "tag": "Exam",
+      "front": "The four kinds of SVM question",
+      "back": "Geometry (w, b, margin), dual (α's), kernel trick, soft margin / C."
+    },
+    {
+      "tag": "Method",
+      "front": "Augmented-vector method (slides p. 22–37)",
+      "back": "Append 1 to each support vector, solve Σαⱼ(S̃ⱼ·S̃ᵢ) = yᵢ, then w̃ = ΣαⱼS̃ⱼ; its last entry is b."
+    },
+    {
+      "tag": "Method",
+      "front": "Why can α be negative in the augmented method?",
+      "back": "Its α already includes the label (it is αᵢyᵢ). In the standard dual all αᵢ ≥ 0."
     }
   ],
   "quiz": [
@@ -2144,6 +2719,182 @@
       ],
       "answer": 0,
       "explain": "Text vectors are high-dimensional and usually linearly separable.",
+      "set": "Concepts"
+    },
+    {
+      "type": "numeric",
+      "q": "x = (2, −1), y = (3, 4). Compute xᵀy.",
+      "answer": 2,
+      "tolerance": 0.005,
+      "explain": "6 − 4 = 2.",
+      "set": "Prerequisites"
+    },
+    {
+      "type": "numeric",
+      "q": "‖(6, 8)‖ = ?",
+      "answer": 10,
+      "tolerance": 0.005,
+      "explain": "√(36 + 64) = 10.",
+      "set": "Prerequisites"
+    },
+    {
+      "type": "numeric",
+      "q": "Distance from the origin (0, 0) to 3x₁ + 4x₂ − 10 = 0?",
+      "answer": 2,
+      "tolerance": 0.005,
+      "explain": "|0 + 0 − 10| / 5 = 2.",
+      "set": "Prerequisites"
+    },
+    {
+      "type": "mcq",
+      "q": "The vector w in wᵀx + b = 0 is … to the line.",
+      "options": [
+        "Parallel",
+        "Perpendicular",
+        "At 45°",
+        "Unrelated"
+      ],
+      "answer": 1,
+      "explain": "For two points on the line, wᵀ(xₐ − x_{b}) = 0, so w is orthogonal to every direction along the line (MFML L14, *Hyperplane*, p. 13).",
+      "set": "Prerequisites"
+    },
+    {
+      "type": "numeric",
+      "q": "w = (1, −1), b = 0.5, x = (2, 3). Compute f(x) = wᵀx + b.",
+      "answer": -0.5,
+      "tolerance": 0.005,
+      "explain": "2 − 3 + 0.5 = −0.5.",
+      "set": "Prerequisites"
+    },
+    {
+      "type": "mcq",
+      "q": "Same point: f(x) = −0.5. Predicted class?",
+      "options": [
+        "+1",
+        "−1",
+        "On the boundary",
+        "Cannot tell"
+      ],
+      "answer": 1,
+      "explain": "sign(−0.5) = −1.",
+      "set": "Prerequisites"
+    },
+    {
+      "type": "mcq",
+      "q": "On the decision boundary, logistic regression outputs…",
+      "options": [
+        "0",
+        "0.5",
+        "1",
+        "−1"
+      ],
+      "answer": 1,
+      "explain": "Slide *Logistic Regression – Sample Linear Boundary* (p. 14): σ(0) = 0.5.",
+      "set": "Prerequisites"
+    },
+    {
+      "type": "numeric",
+      "q": "Minimise x² + y² subject to x + y = 4. What is x at the optimum?",
+      "answer": 2,
+      "tolerance": 0.005,
+      "explain": "∂L/∂x = 2x + ν = 0 and the same for y ⇒ x = y; x + y = 4 ⇒ x = 2.",
+      "set": "Prerequisites"
+    },
+    {
+      "type": "numeric",
+      "q": "Minimise x² subject to x ≥ 3 (g = 3 − x ≤ 0). L = x² + λ(3 − x). What is λ?",
+      "answer": 6,
+      "tolerance": 0.005,
+      "explain": "λ = 0 gives x = 0, infeasible. So the constraint is active: x = 3, and 2x − λ = 0 ⇒ λ = 6 ≥ 0.",
+      "set": "Prerequisites"
+    },
+    {
+      "type": "mcq",
+      "q": "At the optimum a constraint is inactive (gᵢ < 0). Its multiplier λᵢ is…",
+      "options": [
+        "Positive",
+        "Zero",
+        "Negative",
+        "Undefined"
+      ],
+      "answer": 1,
+      "explain": "Complementary slackness: λᵢgᵢ = 0 with gᵢ ≠ 0 ⇒ λᵢ = 0.",
+      "set": "Prerequisites"
+    },
+    {
+      "type": "mcq",
+      "q": "Weak duality says the dual optimum is … the primal optimum (for a minimisation).",
+      "options": [
+        "≥",
+        "≤",
+        "always equal to",
+        "unrelated to"
+      ],
+      "answer": 1,
+      "explain": "Slide *Weak duality* (p. 8).",
+      "set": "Prerequisites"
+    },
+    {
+      "type": "mcq",
+      "q": "If no straight line separates the classes, SVM…",
+      "options": [
+        "Fails",
+        "Uses the kernel trick (or a soft margin)",
+        "Switches to k-NN",
+        "Drops the hard points"
+      ],
+      "answer": 1,
+      "explain": "Kernels lift the data so a line works; a soft margin allows a few violations.",
+      "set": "Concepts"
+    },
+    {
+      "type": "numeric",
+      "q": "SVM carried 36 of the 160 marks across four papers. Weightage in %?",
+      "answer": 22.5,
+      "tolerance": 0.05,
+      "explain": "36 ÷ 160 = 22.5%.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "For a −1 point (2, 0), the primal constraint is…",
+      "options": [
+        "2w₁ + b ≥ 1",
+        "−(2w₁ + b) ≥ 1",
+        "2w₁ + b ≤ 1",
+        "2w₁ + b = 0"
+      ],
+      "answer": 1,
+      "explain": "yᵢ(wᵀxᵢ + b) ≥ 1 with y = −1.",
+      "set": "Concepts"
+    },
+    {
+      "type": "numeric",
+      "q": "Augmented S̃1 = (1, 0, 1), S̃2 = (3, 1, 1). Compute S̃1·S̃2.",
+      "answer": 4,
+      "tolerance": 0.005,
+      "explain": "3 + 0 + 1 = 4.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "w̃ = (1, 0, −2). What is b?",
+      "answer": -2,
+      "tolerance": 0.005,
+      "explain": "The last entry of w̃ is b, so w = (1, 0), b = −2: boundary x₁ = 2.",
+      "set": "Numericals"
+    },
+    {
+      "type": "mcq",
+      "q": "With 5 classes, one-vs-rest SVM trains how many classifiers?",
+      "options": [
+        "5",
+        "10",
+        "20",
+        "25"
+      ],
+      "answer": 0,
+      "explain": "One per class.",
       "set": "Concepts"
     }
   ],

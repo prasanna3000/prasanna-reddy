@@ -396,6 +396,7 @@
             <h2 class="chalk-title">${md(sec.title)}</h2>
             ${sec.lead ? `<p class="chalk-sub">${md(sec.lead)}</p>` : ''}
             <div class="board-content">${renderBlocks(sec.blocks, widgets)}</div>
+            ${partCheckHTML(ch, sec, base, P.of(key).known)}
           </div>
           <div class="board-ledge">
             ${i > 0 ? `<a class="btn" href="${base}/lesson/${i - 1}">← Previous</a>` : '<span></span>'}
@@ -405,6 +406,7 @@
         </article>
       </div>`;
     mountWidgets(body, widgets);
+    wirePartCheck(ctx, body.querySelector('.part-check'));
     P.mark(key, 'seen', i); refreshReportCard(ctx);
     document.querySelector('.clipboard li.on')?.classList.add('done');
     ctx.keys = (e) => {
@@ -412,6 +414,69 @@
       if (e.key === 'ArrowLeft' && i > 0) location.hash = `${base}/lesson/${i - 1}`;
     };
     keyHandler = ctx.keys;
+  }
+
+  /* --- Per-part check: a lesson part may list `check: { cards: [i…], quiz: [i…] }`, indexes into the
+     chapter's flashcards and quiz. The Flashcards and Pop quiz tabs still hold every item (all topics). --- */
+  function partCheckHTML(ch, sec, base, known) {
+    const c = sec.check || {};
+    const cards = (c.cards || []).filter((i) => ch.flashcards?.[i]);
+    const qs = (c.quiz || []).filter((i) => ch.quiz?.[i]);
+    if (!cards.length && !qs.length) return '';
+    const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+    return `<section class="part-check">
+      ${cards.length ? `<h3 class="pc-h">❏ Flashcards for this part <small>${plural(cards.length, 'card')} · tap a card to see the answer</small></h3>
+        <div class="pc-cards">${cards.map((fi) => { const f = ch.flashcards[fi]; return `
+          <div class="mc" data-fi="${fi}">
+            <button class="mc-face" type="button" aria-expanded="false"><span class="mc-tag">${esc(f.tag || 'Question')}</span><span class="mc-front">${md(f.front)}</span><span class="mc-back">${md(f.back)}</span></button>
+            <button class="linkish mc-know" type="button" data-know="${fi}">${known.includes(fi) ? '✓ Known' : 'Mark as known'}</button>
+          </div>`; }).join('')}</div>` : ''}
+      ${qs.length ? `<h3 class="pc-h">? Pop quiz for this part <small>${plural(qs.length, 'question')}</small></h3>
+        <div class="pc-quiz">${qs.map((qi, n) => { const q = ch.quiz[qi]; return `
+          <div class="pq" data-qi="${qi}">
+            <div class="pq-q"><span class="pq-n">Q${n + 1}</span> ${md(q.q)}</div>
+            ${q.type === 'numeric'
+              ? `<label class="num-ans">Answer: <input type="text" inputmode="decimal" autocomplete="off">${q.unit ? ` <span>${esc(q.unit)}</span>` : ''}</label>`
+              : `<div class="pq-opts">${q.options.map((o, j) => `<label class="opt"><input type="radio" name="pq${qi}" value="${j}"> <span>${md(o)}</span></label>`).join('')}</div>`}
+            <div class="btn-row"><button class="btn btn-chalk small-btn" type="button" data-pq="check">Check</button></div>
+            <div class="feedback" hidden></div>
+          </div>`; }).join('')}</div>` : ''}
+      <p class="pc-more small muted">Every topic together: the <a href="${base}/cards">Flashcards</a> and <a href="${base}/quiz">Pop quiz</a> tabs.</p>
+    </section>`;
+  }
+
+  function wirePartCheck(ctx, box) {
+    if (!box) return;
+    const { ch, key } = ctx;
+    box.addEventListener('click', (ev) => {
+      const face = ev.target.closest('.mc-face');
+      if (face) { const on = face.parentElement.classList.toggle('flipped'); face.setAttribute('aria-expanded', on); return; }
+      const kn = ev.target.closest('[data-know]');
+      if (kn) {
+        const fi = +kn.dataset.know; const has = P.of(key).known.includes(fi);
+        if (has) P.unmark(key, 'known', fi); else P.mark(key, 'known', fi);
+        kn.textContent = has ? 'Mark as known' : '✓ Known'; refreshReportCard(ctx); return;
+      }
+      if (!ev.target.closest('[data-pq="check"]')) return;
+      const el = ev.target.closest('.pq'); const q = ch.quiz[+el.dataset.qi]; const fb = el.querySelector('.feedback');
+      let ok = false; let given = '';
+      if (q.type === 'numeric') {
+        const raw = el.querySelector('input').value.trim().replace('−', '-'); const v = Number(raw); given = raw;
+        const tol = q.tolerance ?? Math.max(Math.abs(q.answer) * 0.01, 0.005);
+        ok = raw !== '' && Number.isFinite(v) && Math.abs(v - q.answer) <= tol;
+      } else {
+        const sel = el.querySelector('input:checked'); given = sel ? sel.value : '';
+        ok = !!sel && Number(sel.value) === q.answer;
+        el.querySelectorAll('.opt').forEach((lab) => {
+          const v = Number(lab.querySelector('input').value);
+          lab.classList.toggle('right', v === q.answer);
+          lab.classList.toggle('wrong', !!sel && v === Number(sel.value) && v !== q.answer);
+        });
+      }
+      el.classList.toggle('is-right', ok); el.classList.toggle('is-wrong', !ok);
+      fb.hidden = false;
+      fb.innerHTML = `<b>${ok ? '✓ Correct.' : given === '' ? '✗ Left blank.' : '✗ Not quite.'}</b> ${q.type === 'numeric' ? `Answer: <b>${fmt(q.answer)}</b>${q.unit ? ' ' + esc(q.unit) : ''}. ` : ''}${md(q.explain || '')}`;
+    });
   }
 
   /* --- Worked problems: reveal one step at a time --- */

@@ -1005,3 +1005,30 @@ mark { background: #FFF2C7; color: var(--navy); }
   .nb-problem { padding: 14px; }
 }
 @media print { .nb-problem { background: #fff; color: #000; border: 1px solid #999; } }
+
+/* per-part check inside a lesson part: flashcards + pop quiz for that part only */
+.part-check { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); }
+.pc-h { font-weight: 800; font-size: 1.1rem; color: var(--navy); margin: 14px 0 10px; }
+.pc-h small { font-weight: 600; font-size: .8rem; color: var(--gray-600); margin-left: 6px; }
+.pc-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); gap: 12px; }
+.mc { display: flex; flex-direction: column; gap: 4px; }
+.mc-face { display: flex; flex-direction: column; gap: 6px; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
+  background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; min-height: 96px; box-shadow: 0 4px 12px rgba(112,144,176,.10); }
+.mc-face:hover { border-color: var(--brand-light); }
+.mc-tag { font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--brand); }
+.mc-front { font-weight: 700; color: var(--navy); }
+.mc-back { display: none; padding-top: 8px; border-top: 1px dashed var(--line); font-size: .93rem; }
+.mc.flipped .mc-face { background: #F7F5FF; border-color: var(--brand-light); }
+.mc.flipped .mc-back { display: block; }
+.mc-know { align-self: flex-end; font-size: .8rem; color: var(--gray-600); }
+.pc-quiz { display: grid; gap: 14px; }
+.pq { border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; background: #fff; }
+.pq-q { padding: 12px 16px; border-radius: 12px; color: #F4F7FE; background: linear-gradient(135deg, #1B254B, #111C44); margin-bottom: 8px; }
+.pq-q strong { color: #fff; }
+.pq-n { font-weight: 800; color: #B9BDFF; margin-right: 4px; }
+.pq .btn-row { margin-top: 8px; }
+.pq .small-btn { margin-left: 0; }
+.pq.is-right .feedback { background: #E6FAF5; border-left: 4px solid var(--good); }
+.pq.is-wrong .feedback { background: #FFF1F1; border-left: 4px solid var(--bad); }
+.pc-more { margin: 14px 0 0; }
+.pc-more a { color: var(--brand); }
