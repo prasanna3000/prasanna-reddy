@@ -181,6 +181,9 @@
     </span>`;
   }
 
+  /* green blinking "Current" badge for the semester in progress (catalog: "current": true) */
+  const liveBadge = () => '<span class="live-badge" title="Current semester"><span class="live-dot" aria-hidden="true"></span>Current</span>';
+
   function viewHome() {
     setCrumbs([{ label: 'Dashboard' }]); setTitle('');
     /* totals across every chapter you have touched */
@@ -219,7 +222,7 @@
       </section>
       ${catalog.semesters.map((sem) => `
         <section class="dash-section">
-          <div class="section-head"><h2>${esc(sem.title)}</h2>${sem.subtitle ? `<span class="muted">${esc(sem.subtitle)}</span>` : ''}</div>
+          <div class="section-head"><h2>${esc(sem.title)}</h2>${sem.current ? liveBadge() : ''}${sem.subtitle ? `<span class="muted">${esc(sem.subtitle)}</span>` : ''}</div>
           <div class="course-grid">
             ${sem.courses.map((c) => {
               const st = courseStats(sem, c);
@@ -702,7 +705,7 @@
     const [semId, courseId, chId] = parts;
     sideNav.innerHTML = `<a class="sn-home${!semId ? ' on' : ''}" href="#/">⌂ Dashboard</a>
       ${catalog.semesters.map((sem) => `
-        <div class="sn-sem">${esc(sem.title)}</div>
+        <div class="sn-sem">${esc(sem.title)}${sem.current ? liveBadge() : ''}</div>
         ${sem.courses.map((c) => {
           const here = sem.id === semId && c.id === courseId;
           return `<details class="sn-course"${here || !courseId ? ' open' : ''}>

@@ -10,6 +10,7 @@
       "id": "sem1",
       "title": "Semester 1",
       "subtitle": "M.Tech AIML · BITS Pilani WILP · 2026",
+      "current": true,
       "courses": [
         {
           "id": "aiml-zg511",

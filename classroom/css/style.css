@@ -792,3 +792,16 @@ a.chapter-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba
 .sn-course > summary:hover .sn-caret { background: #e0e9e4; color: var(--ink); }
 .sn-course:not([open]) .sn-caret { transform: rotate(-90deg); }
 .sn-overview .sn-num { color: var(--board); }
+
+/* current-semester badge with a blinking green light */
+.live-badge {
+  display: inline-flex; align-items: center; gap: 6px; vertical-align: middle;
+  font: 800 .72rem/1 var(--font-body); letter-spacing: .06em; text-transform: uppercase;
+  color: #1f7a3d; background: #e3f6e8; border: 1px solid #b6e2c2; padding: 4px 10px 4px 8px; border-radius: 999px;
+}
+.sn-sem .live-badge { margin-left: 8px; padding: 2px 8px 2px 6px; font-size: .62rem; }
+.live-dot { position: relative; width: 9px; height: 9px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 6px #22c55e; animation: live-blink 1.4s ease-in-out infinite; }
+.live-dot::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #22c55e; animation: live-ping 1.4s ease-out infinite; }
+@keyframes live-blink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes live-ping { 0% { transform: scale(.6); opacity: .8; } 100% { transform: scale(1.8); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .live-dot, .live-dot::after { animation: none !important; } }
