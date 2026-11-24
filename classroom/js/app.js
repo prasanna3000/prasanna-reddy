@@ -105,7 +105,13 @@
         case 'formula': return `<div class="formula">${md(b.text)}${b.caption ? `<div class="formula-cap">${md(b.caption)}</div>` : ''}</div>`;
         case 'note': return `<aside class="sticky ${b.color || ''}"><div class="sticky-label">${esc(b.label || 'Note')}</div>${md(b.text)}</aside>`;
         case 'trap': return `<aside class="trap"><div class="trap-label">${esc(b.label || 'Exam trap')}</div>${md(b.text)}</aside>`;
-        case 'table': return `<div class="table-wrap"><table class="chalk-table"><thead><tr>${b.head.map((h) => `<th>${md(h)}</th>`).join('')}</tr></thead><tbody>${b.rows.map((r) => `<tr>${r.map((c) => `<td>${md(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+        case 'table': {
+          /* wide or wordy tables stack into one card per row on phones (see .stack-sm in the CSS) */
+          const cells = b.rows.flat(); const avg = cells.reduce((s, c) => s + String(c).length, 0) / Math.max(1, cells.length);
+          const stack = b.head.length >= 4 || (b.head.length >= 3 && avg > 22);
+          const lbl = (j) => esc(String(b.head[j] ?? '').replace(/[*=_`]/g, ''));
+          return `<div class="table-wrap"><table class="chalk-table${stack ? ' stack-sm' : ''}"><thead><tr>${b.head.map((h) => `<th>${md(h)}</th>`).join('')}</tr></thead><tbody>${b.rows.map((r) => `<tr>${r.map((c, j) => `<td data-label="${lbl(j)}">${md(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+        }
         case 'tree': {
           const node = (n) => `<li class="tn${n.kind ? ' ' + n.kind : ''}"><div class="tn-box"><span class="tn-label">${md(n.label)}</span>${n.count != null ? `<span class="tn-count">×${n.count}</span>` : ''}${n.note ? `<span class="tn-note">${md(n.note)}</span>` : ''}</div>${n.children && n.children.length ? `<ul>${n.children.map(node).join('')}</ul>` : ''}</li>`;
           return `<div class="tree-wrap"><ul class="tree">${node(b.root)}</ul>${b.caption ? `<div class="formula-cap">${md(b.caption)}</div>` : ''}</div>`;

@@ -1032,3 +1032,20 @@ mark { background: #FFF2C7; color: var(--navy); }
 .pq.is-wrong .feedback { background: #FFF1F1; border-left: 4px solid var(--bad); }
 .pc-more { margin: 14px 0 0; }
 .pc-more a { color: var(--brand); }
+
+/* solution-path "Answer" box once done: solid green so the white text shows */
+.fl-box.fl-end.done { background: var(--good); border-color: var(--good); color: #fff; }
+
+/* phones: wide lesson tables become one card per row (label on the left, value on the right) */
+@media (max-width: 600px) {
+  .board-inner table.chalk-table.stack-sm { display: block; overflow: visible; }
+  .chalk-table.stack-sm thead { display: none; }
+  .chalk-table.stack-sm tbody { display: grid; gap: 10px; }
+  .chalk-table.stack-sm tr { display: block; padding: 8px 12px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+  .chalk-table.stack-sm td { display: block; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  .chalk-table.stack-sm td:last-child { border-bottom: 0; }
+  .chalk-table.stack-sm td::before { content: attr(data-label); font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--gray-500); display: block; margin-bottom: 1px; }
+  .chalk-table.stack-sm td:first-child { font-weight: 700; color: var(--navy); }
+  .chalk-table.stack-sm td[data-label=""]::before { display: none; }
+  .chalk-table.stack-sm td:empty { display: none; }
+}
