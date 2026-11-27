@@ -1,0 +1,385 @@
+{
+  "id": "p-es-reg-2025",
+  "title": "EC-3 Regular · Comprehensive · Sep 2025",
+  "subtitle": "AIMLC ZC416 · Second Semester 2024-25 · 6 Sep 2025 · open book · 40% · 150 minutes · 6 questions",
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "The first paper in the current 6-question format. No official key came with it: these solutions are worked here, so check the arithmetic as you go.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Lecture",
+            "Marks"
+          ],
+          "rows": [
+            [
+              "Q1",
+              "Rank, column-space basis, a subspace of it",
+              "L2",
+              "7"
+            ],
+            [
+              "Q2",
+              "SVD of a 3×2 matrix; covariance and maximum-variance direction",
+              "L5 · L12",
+              "7"
+            ],
+            [
+              "Q3",
+              "Chain rule (3) + constrained problem and its dual (3)",
+              "L6 · L11",
+              "6"
+            ],
+            [
+              "Q4",
+              "Momentum versus plain GD, two iterations each",
+              "L11",
+              "7"
+            ],
+            [
+              "Q5",
+              "Soft margin: hinge loss of two models",
+              "L15",
+              "7"
+            ],
+            [
+              "Q6",
+              "Feature map → (1 + xz)², 4×4 kernel matrix",
+              "L14",
+              "6"
+            ],
+            [
+              "Total",
+              "",
+              "",
+              "40"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "SVM share",
+          "text": "Q5 + Q6 = 13 of 40 marks on SVM and kernels.",
+          "color": "blue"
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · Rank, column space, subspace (7 marks)",
+      "tags": [
+        "Lecture 2",
+        "Pre-mid"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A = [[1, 0, 0, 1], [2, −1, 0, 1], [0, −2, −2, −4], [0, 1, 1, 2]]. (a) Rank of A. [3M] (b) W = column space of A: basis and dimension. [2M] (c) Show U = {r(1, 1, −2, 1) : r ∈ ℝ} is a subspace of W. [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Row reduce",
+          "text": "R2 − 2R1 → (0, −1, 0, −1). R3 − 2R2 → (0, 0, −2, −2). R4 + R2 → (0, 0, 1, 1), then R4 + ½R3 → (0, 0, 0, 0)."
+        },
+        {
+          "label": "(a) Rank",
+          "text": "Three non-zero rows ⇒ **rank A = 3**."
+        },
+        {
+          "label": "(b)",
+          "text": "Pivots in columns 1, 2, 3 ⇒ basis of W = the original columns {(1, 2, 0, 0), (0, −1, −2, 1), (0, 0, −2, 1)}, **dim W = 3**. (Column 4 = column 1 + column 2 + column 3.)"
+        },
+        {
+          "label": "(c) In W",
+          "text": "(1, 1, −2, 1) = c₁ + c₂ (first two columns): 1 = 1, 2 − 1 = 1, −2 = −2, 1 = 1 ✓. So U ⊂ W."
+        },
+        {
+          "label": "(c) Subspace",
+          "text": "0 ∈ U (r = 0); r₁v + r₂v = (r₁ + r₂)v ∈ U; c(rv) = (cr)v ∈ U. So U is a subspace of W."
+        }
+      ],
+      "answer": "rank 3; W has basis {c₁, c₂, c₃}, dim 3; (1, 1, −2, 1) = c₁ + c₂, so U is a subspace of W.",
+      "priority": "must",
+      "priorityWhy": "Recent paper: sit it as a timed mock (≈ 3.4 min per mark)"
+    },
+    {
+      "title": "Q2 · SVD; covariance and the direction of maximum variance (7 marks)",
+      "tags": [
+        "Lecture 5 · 12"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A = [[−2, 0], [1, 1], [1, −1]]. (a) SVD A = UΣVᵀ. [4M] (b) Treat the rows of A as sample data: eigenvalues of the covariance matrix and the direction of maximum variance. [3M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) AᵀA",
+          "text": "AᵀA = [[6, 0], [0, 2]] ⇒ σ₁ = √6, σ₂ = √2; V = I."
+        },
+        {
+          "label": "(a) U",
+          "text": "u₁ = Av₁/σ₁ = (−2, 1, 1)/√6; u₂ = Av₂/σ₂ = (0, 1, −1)/√2; u₃ completes the basis: (1, 1, 1)/√3."
+        },
+        {
+          "label": "(a) Answer",
+          "text": "U = [u₁ u₂ u₃], Σ = [[√6, 0], [0, √2], [0, 0]] (3×2), V = I₂."
+        },
+        {
+          "label": "(b) Centre",
+          "text": "Row mean = (0, 0): the data is already centred."
+        },
+        {
+          "label": "(b) Covariance",
+          "text": "Sample covariance AᵀA/(N − 1) = [[3, 0], [0, 1]] ⇒ eigenvalues **3 and 1** (with 1/N: 2 and 2/3; state which you use)."
+        },
+        {
+          "label": "(b) Direction",
+          "text": "Largest eigenvalue's eigenvector: **(1, 0)**, the x₁-axis."
+        }
+      ],
+      "answer": "σ = √6, √2 with U = [(−2, 1, 1)/√6, (0, 1, −1)/√2, (1, 1, 1)/√3], V = I; covariance eigenvalues 3, 1; maximum variance along (1, 0).",
+      "priority": "must",
+      "priorityWhy": "Recent paper: sit it as a timed mock (≈ 3.4 min per mark)"
+    },
+    {
+      "title": "Q3 · Chain rule; constrained problem and its dual (6 marks)",
+      "tags": [
+        "Lecture 6 · 11"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(a) w = xy + yz + xz with x = u + v, y = u² − v, z = u − v². Find ∂w/∂u and ∂w/∂v. [3M] (b) Receiver cost 3(x² + y²); region R: x + y − 1 ≥ 0, x + y − 3 ≤ 0. (i) Formulate the problem. [1M] (ii) Its Lagrangian dual. [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Pieces",
+          "text": "∂w/∂x = y + z, ∂w/∂y = x + z, ∂w/∂z = x + y. ∂x/∂u = 1, ∂y/∂u = 2u, ∂z/∂u = 1; ∂x/∂v = 1, ∂y/∂v = −1, ∂z/∂v = −2v."
+        },
+        {
+          "label": "(a) ∂w/∂u",
+          "text": "(y + z) + 2u(x + z) + (x + y) = **6u² + 2u − v − v² + 2uv − 2uv²**."
+        },
+        {
+          "label": "(a) ∂w/∂v",
+          "text": "(y + z) − (x + z) − 2v(x + y) = y − x − 2v(x + y) = **u² − u − 2v − 2v(u² + u)**."
+        },
+        {
+          "label": "(b)(i)",
+          "text": "min 3(x² + y²) s.t. 1 − x − y ≤ 0, x + y − 3 ≤ 0."
+        },
+        {
+          "label": "(b)(ii) Lagrangian",
+          "text": "L = 3x² + 3y² + λ₁(1 − x − y) + λ₂(x + y − 3), λ₁, λ₂ ≥ 0. ∂L/∂x = 0 ⇒ x = (λ₁ − λ₂)/6, the same for y."
+        },
+        {
+          "label": "(b)(ii) Dual",
+          "text": "Substituting: D(λ₁, λ₂) = −(λ₁ − λ₂)²/6 + λ₁ − 3λ₂. Dual: **max D s.t. λ₁, λ₂ ≥ 0**. (Check: optimum λ = (3, 0), D = 1.5 = primal cost at (½, ½).)"
+        },
+        {
+          "label": "More",
+          "text": "Method and similar problems: [Lecture 11 card](#/sem1/aiml-zc416/ch11/f-lagrange/12)."
+        }
+      ],
+      "answer": "∂w/∂u = 6u² + 2u − v − v² + 2uv − 2uv²; ∂w/∂v = u² − u − 2v − 2v(u² + u); dual max −(λ₁ − λ₂)²/6 + λ₁ − 3λ₂, λ ≥ 0.",
+      "priority": "must",
+      "priorityWhy": "Recent paper: sit it as a timed mock (≈ 3.4 min per mark)"
+    },
+    {
+      "title": "Q4 · Momentum versus plain GD (7 marks)",
+      "tags": [
+        "Lecture 11",
+        "GD",
+        "Momentum"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "f(x, y) = (x − 1)² + (y − 1)², start (1.5, 1.5), α = 0.05, β = 0.8. Two momentum iterations (x₁, y₁), (x₂, y₂); two plain GD iterations (a₁, b₁), (a₂, b₂). Is momentum better?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "Running momentum and plain GD side by side for two iterations, then a one-line conclusion about which is better."
+        },
+        {
+          "label": "Plan of attack",
+          "text": "1. Write both update rules. 2. Find ∇f once. 3. Momentum: for each iteration, gradient at the current point → new velocity → new position. 4. Plain GD: gradient → new position. 5. Compare distances (or f) to the minimum and conclude."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are kept: **α = 0.05 is the step size** (η on the lecture boards), β = 0.8 is the momentum, (x, y) for momentum and (a, b) for plain GD."
+        },
+        {
+          "label": "STEP 1 · Update rules",
+          "text": "Momentum: vₜ₊₁ = βvₜ − α∇f(xₜ), xₜ₊₁ = xₜ + vₜ₊₁, v₀ = (0, 0).\nPlain GD: aₜ₊₁ = aₜ − α∇f(aₜ)."
+        },
+        {
+          "label": "STEP 2 · Gradient",
+          "text": "∂f/∂x = 2(x − 1), ∂f/∂y = 2(y − 1). Minimum at (1, 1). f and the start (1.5, 1.5) are symmetric in x and y, so both coordinates always move together."
+        },
+        {
+          "label": "STEP 3 · Momentum 1: gradient",
+          "text": "∇f(1.5, 1.5) = (2(1.5 − 1), 2(1.5 − 1)) = (2 × 0.5, 2 × 0.5) = **(1, 1)**."
+        },
+        {
+          "label": "STEP 4 · Momentum 1: velocity",
+          "text": "v₁ = βv₀ − α∇f = 0.8 × (0, 0) − 0.05 × (1, 1)\n= (0, 0) − (0.05, 0.05)\n= **(−0.05, −0.05)**"
+        },
+        {
+          "label": "STEP 5 · Momentum 1: position",
+          "text": "(x₁, y₁) = (1.5, 1.5) + (−0.05, −0.05) = (1.5 − 0.05, 1.5 − 0.05) = **(1.45, 1.45)**"
+        },
+        {
+          "label": "STEP 6 · Momentum 2: gradient",
+          "text": "∇f(1.45, 1.45) = (2(1.45 − 1), 2(1.45 − 1)) = (2 × 0.45, 2 × 0.45) = **(0.9, 0.9)**."
+        },
+        {
+          "label": "STEP 7 · Momentum 2: velocity",
+          "text": "v₂ = βv₁ − α∇f = 0.8 × (−0.05, −0.05) − 0.05 × (0.9, 0.9)\n= (−0.04, −0.04) − (0.045, 0.045)\n= **(−0.085, −0.085)**\n(−0.04 is the memory, −0.045 the fresh push.)"
+        },
+        {
+          "label": "STEP 8 · Momentum 2: position",
+          "text": "(x₂, y₂) = (1.45, 1.45) + (−0.085, −0.085) = (1.45 − 0.085, 1.45 − 0.085) = **(1.365, 1.365)**"
+        },
+        {
+          "label": "STEP 9 · Plain GD 1",
+          "text": "∇f(1.5, 1.5) = (1, 1) ⇒ (a₁, b₁) = (1.5, 1.5) − 0.05 × (1, 1) = (1.5 − 0.05, 1.5 − 0.05) = **(1.45, 1.45)**. Same as momentum: v₀ = 0."
+        },
+        {
+          "label": "STEP 10 · Plain GD 2",
+          "text": "∇f(1.45, 1.45) = (0.9, 0.9) ⇒ (a₂, b₂) = (1.45, 1.45) − 0.05 × (0.9, 0.9) = (1.45 − 0.045, 1.45 − 0.045) = **(1.405, 1.405)**"
+        },
+        {
+          "label": "STEP 11 · Table",
+          "text": "Momentum: (1.5, 1.5) → (1.45, 1.45) → (1.365, 1.365).\nPlain GD: (1.5, 1.5) → (1.45, 1.45) → (1.405, 1.405)."
+        },
+        {
+          "label": "STEP 12 · Why compare",
+          "text": "The last part of the question asks: **is there any advantage of momentum?** To answer with numbers instead of a guess, measure **how close each method got to the minimum** after two iterations.\nThis is **not** an MSE: there is no data here. We only use the question's own function f."
+        },
+        {
+          "label": "STEP 13 · Measure 1: gap to the minimum",
+          "text": "f(x, y) = (x − 1)² + (y − 1)² is smallest at **(1, 1)**.\n• Momentum is at (1.365, 1.365): gap = 1.365 − 1 = **0.365** in each coordinate.\n• Plain GD is at (1.405, 1.405): gap = 1.405 − 1 = **0.405** in each coordinate.\nSmaller gap = closer ⇒ momentum is closer."
+        },
+        {
+          "label": "STEP 14 · Measure 2: value of f",
+          "text": "Evaluate the question's f at each point: this says how high we still are on the bowl (the lowest value is 0, at (1, 1)).\nSince x = y here, f = (x − 1)² + (x − 1)² = 2(x − 1)².\n• Start (1.5, 1.5): f = 2 × 0.5² = 2 × 0.25 = **0.5**\n• Momentum (1.365, 1.365): f = 2 × 0.365² = 2 × 0.133225 = **0.2665**\n• Plain GD (1.405, 1.405): f = 2 × 0.405² = 2 × 0.164025 = **0.3281**\nLower f = closer to the minimum ⇒ momentum is lower."
+        },
+        {
+          "label": "STEP 15 · Conclude",
+          "text": "**Yes, momentum helps.** Both measures agree: after two iterations momentum is closer to (1, 1) (gap 0.365 vs 0.405) and has the lower f (0.2665 vs 0.3281).\nWhy: the two methods agree in iteration 1 (v₀ = 0). From iteration 2 momentum adds β × v₁ = 0.8 × (−0.05) = −0.04, the extra distance it covers.\nExam tip: one measure is enough to support the conclusion; the gaps are quicker to write."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "Momentum: (x₁, y₁) = (1.45, 1.45), (x₂, y₂) = (1.365, 1.365). Plain GD: (a₁, b₁) = (1.45, 1.45), (a₂, b₂) = (1.405, 1.405). Momentum is better."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Forgetting that iteration 1 is identical for both.\n• Dropping βv₁ in iteration 2.\n• Concluding without numbers: state the gaps 0.365 vs 0.405."
+        },
+        {
+          "label": "More",
+          "text": "Method and similar problems: [Lecture 11 card](#/sem1/aiml-zc416/ch11/f-momentum/2)."
+        }
+      ],
+      "answer": "Momentum: (1.45, 1.45), (1.365, 1.365); plain GD: (1.45, 1.45), (1.405, 1.405); momentum converges faster.",
+      "priority": "must",
+      "priorityWhy": "Recent paper: sit it as a timed mock (≈ 3.4 min per mark)"
+    },
+    {
+      "title": "Q5 · Soft margin: compare two models (7 marks)",
+      "tags": [
+        "Lecture 15",
+        "SVM"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x₁ (0, 0) −1, x₂ (2, 2) +1, x₃ (2, 0) −1, x₄ (0, 2) +1; C = 1. A: w = (1, 1), b = −1.5. B: w = (1, −1), b = 0. (a) ½‖w‖². (b) Hinge losses and sums. (c) Objectives; better model. (d) Margin errors and correct points of the better model."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "1 for both."
+        },
+        {
+          "label": "(b)",
+          "text": "A: y·f = 1.5, 2.5, −0.5, 0.5 ⇒ hinge 0, 0, 1.5, 0.5, sum 2. B: y·f = 0, 0, −2, −2 ⇒ hinge 1, 1, 3, 3, sum 8."
+        },
+        {
+          "label": "(c)",
+          "text": "A = 3, B = 9 ⇒ **Model A**."
+        },
+        {
+          "label": "(d)",
+          "text": "x₃ misclassified, x₄ inside the margin; x₁, x₂, x₄ correctly classified."
+        },
+        {
+          "label": "More",
+          "text": "Full table: [Lecture 15, Soft margin tab](#/sem1/aiml-zc416/ch15/f-soft/5)."
+        }
+      ],
+      "answer": "A: 3, B: 9; A is better; x₃ misclassified, x₄ a margin error.",
+      "priority": "must",
+      "priorityWhy": "Recent paper: sit it as a timed mock (≈ 3.4 min per mark)"
+    },
+    {
+      "title": "Q6 · Feature map and 4×4 kernel matrix (6 marks)",
+      "tags": [
+        "Lecture 14",
+        "SVM",
+        "Kernels"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x = [−1.5, −0.5, 0.5, 1.5], y = [1, −1, −1, 1]; φ(x) = [1, √2x, x²]. (a) Show k(x, z) = (1 + xz)². [3M] (b) The 4×4 kernel matrix. [3M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "φ(x)ᵀφ(z) = 1 + 2xz + x²z² = (1 + xz)²."
+        },
+        {
+          "label": "(b)",
+          "text": "Diagonal 10.5625, 1.5625, 1.5625, 10.5625; K₁₂ = K₃₄ = 3.0625; K₁₃ = K₂₄ = 0.0625; K₁₄ = 1.5625; K₂₃ = 0.5625."
+        },
+        {
+          "label": "More",
+          "text": "Every entry worked out: [Lecture 14, Kernels tab](#/sem1/aiml-zc416/ch14/f-kernels/3)."
+        }
+      ],
+      "answer": "k = (1 + xz)²; K symmetric with the entries above.",
+      "priority": "must",
+      "priorityWhy": "Recent paper: sit it as a timed mock (≈ 3.4 min per mark)"
+    }
+  ],
+  "readme": {
+    "summary": "**[1M]** = marks the answer key gives for that step. **LN** in the tables = `Lecture_N.pdf`.",
+    "sections": [
+      {
+        "title": "Short names",
+        "items": [
+          "**[1M]**, **[0.5M]** = marks the official key gives for that step.",
+          "**LN** = Lecture N (`Lecture_N.pdf`, contact session N).",
+          "**More** steps link to the lecture card with the method and similar problems.",
+          "**No official key** came with this paper: the solutions are worked here, so check the arithmetic.",
+          "**Notation:** each question and its solution keep the paper's own symbols. Where they differ from the lecture boards (η step size, β momentum, v velocity, λ inequality / μ equality multipliers), the solution starts with a **Notation** line mapping them."
+        ]
+      }
+    ]
+  }
+}

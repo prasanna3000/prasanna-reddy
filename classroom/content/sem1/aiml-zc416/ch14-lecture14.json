@@ -1,0 +1,1010 @@
+{
+  "id": "ch14",
+  "title": "Lecture 14 · KKT, Hyperplanes, Kernel Functions & the SVM Primal",
+  "subtitle": "Lecture 14 · `Lecture_14.pdf` · handout: mathematical preliminaries for SVM (KKT), T2 §6.4",
+  "lesson": [
+    {
+      "title": "Where the marks are: Lecture 14",
+      "lead": "Lecture 14 sets up everything the SVM questions use: KKT, the hyperplane, kernel functions and the hard-margin primal.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Paper",
+            "Question",
+            "Question model",
+            "Marks",
+            "Solution"
+          ],
+          "rows": [
+            [
+              "Feb 2026 regular",
+              "Q5",
+              "M1 Hard-margin primal, two separating lines, margins",
+              "8",
+              "[Open →](#/sem1/aiml-zc416/ch14/f-hard/1)"
+            ],
+            [
+              "Feb 2026 regular",
+              "Q3d",
+              "KKT conditions verified at a point (slides p. 11)",
+              "3",
+              "[Exam hall →](#/sem1/aiml-zc416/p-es-reg-2026/worked/3)"
+            ],
+            [
+              "Sep 2025 regular",
+              "Q6",
+              "M7 φ = [1, √2x, x²] gives (1 + xz)² · M6 4×4 kernel matrix",
+              "6",
+              "[Open →](#/sem1/aiml-zc416/ch14/f-kernels/3)"
+            ],
+            [
+              "Sep 2024 regular",
+              "Q(B)",
+              "M7 φ for (xᵀz)² + 3(xᵀz + 2)²",
+              "5",
+              "[Open →](#/sem1/aiml-zc416/ch14/f-kernels/4)"
+            ],
+            [
+              "2022 makeup",
+              "Q4(2)",
+              "M7 the same kernel",
+              "5",
+              "[Open →](#/sem1/aiml-zc416/ch14/f-kernels/4)"
+            ],
+            [
+              "2023 regular (Apr 2024)",
+              "Q2B",
+              "M6 kernel matrix with a ‖x‖ feature",
+              "3",
+              "[Open →](#/sem1/aiml-zc416/ch14/f-kernels/5)"
+            ],
+            [
+              "2023 DS makeup ¹",
+              "Q2B",
+              "M6 the same kernel matrix",
+              "3",
+              "[Open →](#/sem1/aiml-zc416/ch14/f-kernels/5)"
+            ],
+            [
+              "2023 DS regular ¹",
+              "Q2B",
+              "M7 dimension and kernel of a cubic φ",
+              "1.5",
+              "[Open →](#/sem1/aiml-zc416/ch14/f-kernels/6)"
+            ],
+            [
+              "Total",
+              "",
+              "**34.5 / 400** in 10 papers · **17 / 120** in the last three",
+              "",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "¹ Sister course",
+          "color": "blue",
+          "text": "DSECL ZC416 (*Mathematical Foundations for Data Science*) shares its SVM questions with MFML."
+        }
+      ]
+    },
+    {
+      "title": "SVM across Lectures 14, 15, 16: the 8 question models",
+      "lead": "Every SVM question so far is one of these 8 models. Each model is taught in one lecture: this card has M1, M6, M7 and the KKT basics.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Lecture",
+            "What it covers",
+            "Slides",
+            "Card"
+          ],
+          "rows": [
+            [
+              "14",
+              "Lagrangian, QP, duality, Slater, KKT · hyperplane · kernel functions · linear classifier and the SVM primal",
+              "`Lecture_14.pdf` (24 pages)",
+              "this card"
+            ],
+            [
+              "15",
+              "Solving the SVM primal through the dual · soft-margin SVM",
+              "`Lecture_15.pdf` (27 pages)",
+              "[Lecture 15](#/sem1/aiml-zc416/ch15/lesson)"
+            ],
+            [
+              "16",
+              "Nonlinear SVM: kernels, examples (expert lecture)",
+              "no slides",
+              "[Lecture 16](#/sem1/aiml-zc416/ch16/lesson)"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Priority",
+            "Model",
+            "Lecture",
+            "Past-paper marks",
+            "Times asked",
+            "In Sourabh sir's material"
+          ],
+          "rows": [
+            [
+              "1",
+              "**M4** Soft margin: hinge loss and objective",
+              "**15**",
+              "**18**",
+              "4 (2 in the last 3 papers)",
+              "3: P48, Companion Q11, L15 slide example"
+            ],
+            [
+              "2",
+              "**M7** Feature map ↔ kernel",
+              "**14**",
+              "**14.5**",
+              "4 (one repeated word for word)",
+              "3: P51, Companion Q12, Q13"
+            ],
+            [
+              "3",
+              "**M1** Hard-margin primal, separating line, margin",
+              "**14**",
+              "**8**",
+              "1 (Feb 2026, the newest paper)",
+              "5: P44, P46, Practice Paper Q6, Companion Q7, Q15"
+            ],
+            [
+              "4",
+              "**M8** Kernel SVM on non-separable data",
+              "**16**",
+              "**10**",
+              "2",
+              "8: P49, P50, P52, Practice Paper Q7, Companion Q1, Q2, Q5, Q17"
+            ],
+            [
+              "5",
+              "**M6** Kernel matrix",
+              "**14**",
+              "**9**",
+              "3 (one repeated)",
+              "inside P49, P50, Practice Paper Q7(a), Companion Q1, Q2"
+            ],
+            [
+              "6",
+              "**M3** Solve or reason with the dual",
+              "**15**",
+              "**11**",
+              "2 (2022, Sep 2024)",
+              "4: P47, Companion Q3, Q4, Q14"
+            ],
+            [
+              "7",
+              "**M2** Support vectors and boundary from tiny data",
+              "**15**",
+              "**5**",
+              "1",
+              "6: P45, Companion Q6, Q8, Q9, Q10, KKT set P15"
+            ],
+            [
+              "8",
+              "**M5** Effect of C, reading a soft-margin model",
+              "**15**",
+              "**5**",
+              "1",
+              "1: Companion Q16 (plus P48's C part)"
+            ],
+            [
+              "Total",
+              "",
+              "",
+              "**80.5**",
+              "18 parts in 10 papers",
+              "**30 problems**"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Where Saurabh sir's 30 SVM problems are"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Source",
+            "File",
+            "SVM problems"
+          ],
+          "rows": [
+            [
+              "Solved Practice Set",
+              "Prof Saurabh materials/Practice materials/Endsem Practice materials/MFML_ZC416_Solved_Practice_Set.pdf",
+              "9 (P44–P48 SVM, P49–P52 kernels)"
+            ],
+            [
+              "Practice Paper (40 marks)",
+              "same folder, MFML_ZC416_Practice_Paper.pdf",
+              "2 (Q6 hard margin 5M, Q7 kernel SVM 5M)"
+            ],
+            [
+              "SVM Companion",
+              "Prof. Saurabh/practice_problems/Support_Vector_Machines_Companion.pdf",
+              "17 (Q1–Q17)"
+            ],
+            [
+              "Lagrange-KKT-Duality set",
+              "Prof. Saurabh/practice_problems/Lagrange-KKT-Duality-Practice-Set.pdf",
+              "1 (P15 capstone: tiny hard-margin SVM)"
+            ],
+            [
+              "Lecture 15 slides",
+              "Session PPTs/Lecture_15.pdf",
+              "1 (soft margin, 4 points, C = 0.5)"
+            ]
+          ]
+        },
+        {
+          "type": "trap",
+          "label": "Note",
+          "text": "The Practice Paper puts **10 of its 40 marks** on SVM and kernels (Q6 + Q7). Saurabh sir expects this chapter to be big too."
+        }
+      ]
+    },
+    {
+      "title": "Prerequisites: what each model really needs",
+      "lead": "Only two earlier topics feed SVM. Most models need just the first one, so you can start SVM before KKT.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "**P1 · Vectors:** dot product wᵀx, length ‖w‖, and the distance |wᵀx + b| / ‖w‖ from a point to a line. MFML `Lecture_3.pdf` (inner products, norms). Needed by **every** model.",
+            "**P2 · Lagrange multipliers and KKT:** Lagrangian, the four KKT conditions, the dual. MFML `Lecture_11.pdf` and `Lecture_14.pdf`, plus `Lagrange-KKT-Duality-Practice-Set.pdf`. Needed **only** for M3, M8 and the KKT proof in M2."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "How to use the time",
+          "text": "Each board ends with a **fastest path**: the slide pages and Sourabh sir's sections to read, the problems to do, and **at most one video, only if you're stuck**. The SVM Companion (`Prof. Saurabh/practice_problems/Support_Vector_Machines_Companion.pdf`) already explains every model with proofs, so read it before any video. Whole chapter: about 7 hours, with no video needed."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Model",
+            "Needs first",
+            "Does not need"
+          ],
+          "rows": [
+            [
+              "M1 Hard margin, separating line, margin",
+              "P1",
+              "KKT, dual, kernels"
+            ],
+            [
+              "M4 Soft margin, hinge loss",
+              "P1 + **M1** (the constraint yᵢ(wᵀxᵢ + b) ≥ 1)",
+              "KKT, dual, kernels"
+            ],
+            [
+              "M5 Effect of C",
+              "M4 + which points are support vectors (M2 idea)",
+              "KKT algebra, kernels"
+            ],
+            [
+              "M6 Kernel matrix",
+              "P1 (dot product only)",
+              "M1–M5, KKT"
+            ],
+            [
+              "M7 Feature map ↔ kernel",
+              "P1 + expanding (a + b)² + **M6**",
+              "M1–M5, KKT"
+            ],
+            [
+              "M2 Support vectors from tiny data",
+              "**M1**; P2 only to prove it with KKT",
+              "kernels"
+            ],
+            [
+              "M3 Dual",
+              "**M1** + **P2** + partial derivatives",
+              "kernels"
+            ],
+            [
+              "M8 Kernel SVM on non-separable data",
+              "**M6 + M7 + M3** (f(x) = Σαᵢyᵢk(xᵢ, x) + b)",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Suggested order",
+          "text": "Lecture 14: P1 → M1 → M6 → M7, then P2. Lecture 15: M4 → M5 → M2 → M3. Lecture 16: M8. The first five models are about 22 of the 28 SVM marks."
+        },
+        {
+          "type": "h",
+          "text": "Quick check (2 minutes)"
+        },
+        {
+          "type": "list",
+          "items": [
+            "w = (3, 4), x = (4, 2): wᵀx and ‖w‖? → *Answer:* 20 and 5.",
+            "Distance from (4, 2) to 3x₁ + 4x₂ − 10 = 0? → *Answer:* |12 + 8 − 10| / 5 = 2.",
+            "Minimise x² + y² subject to x + y = 2 with a Lagrange multiplier. → *Answer:* x = y = 1, λ = 2 (P2 only)."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Same material in ML",
+          "text": "Your ML SVM chapter walks through P1 and P2 slide by slide: [ML · P1 Vectors](#/sem1/aiml-zg565/ch09/lesson) (boards 2–4)."
+        }
+      ]
+    },
+    {
+      "title": "P1 · Vectors: dot product, norm, distance to a line",
+      "lead": "Needed by all 8 models. Source: MFML `Lecture_3.pdf`.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "wᵀx = w₁x₁ + w₂x₂ + … + wₙxₙ     ‖w‖ = √(wᵀw)",
+          "caption": "Example: (3, 4)ᵀ(4, 2) = 20, ‖(3, 4)‖ = 5"
+        },
+        {
+          "type": "formula",
+          "text": "distance of x₀ from wᵀx + b = 0  =  |wᵀx₀ + b| / ‖w‖",
+          "caption": "So the margin lines wᵀx + b = ±1 are each 1/‖w‖ from the boundary"
+        },
+        {
+          "type": "list",
+          "items": [
+            "The sign of wᵀx + b says which side of the line x is on: that is the SVM prediction.",
+            "w is perpendicular to the line wᵀx + b = 0."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 25 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** `Lecture_3.pdf` p. 4–5 (norms, inner products), p. 9 (lengths and distances); `Lecture_14.pdf` p. 12–13 (hyperplane); SVM Companion §2 (w is perpendicular to the boundary, distance formula).",
+            "**Do:** the quick check on the previous board.",
+            "**Video, only if stuck:** [3Blue1Brown · Dot products and duality](https://www.youtube.com/watch?v=LyGKycYT2v0), only if wᵀx still feels like just arithmetic."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "P2 · Lagrange multipliers and KKT",
+      "lead": "Needed only for M3 (dual), M8 (kernel SVM) and the KKT proof in M2. Source: MFML `Lecture_11.pdf`, `Lecture_14.pdf`.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "L(x, λ) = f(x) + Σ λᵢ gᵢ(x),  gᵢ(x) ≤ 0,  λᵢ ≥ 0"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Stationarity:** ∇f + Σλᵢ∇gᵢ = 0",
+            "**Primal feasibility:** gᵢ(x) ≤ 0",
+            "**Dual feasibility:** λᵢ ≥ 0",
+            "**Complementary slackness:** λᵢgᵢ(x) = 0, so λᵢ > 0 only on an active constraint (in SVM: only support vectors have α > 0)"
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 45 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** `Lecture_11.pdf` p. 20–22 (Lagrangian, primal and dual); `Lecture_14.pdf` p. 3–4 and 8–11 (weak and strong duality, Slater, KKT); SVM Companion §6.2 (the four KKT conditions).",
+            "**Do:** Solved Practice Set P37 (verify KKT), KKT set P15 (tiny SVM capstone).",
+            "**Video, only if stuck:** [Visualizing KKT conditions](https://www.youtube.com/watch?v=yDMlNumgZ9E), only if complementary slackness (λ·g = 0) is not clear."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "M1 · Hard-margin primal, separating line, margin",
+      "lead": "Priority 3. Feb 2026 Q5 (8 marks), the newest paper. Saurabh sir has 5 problems on it.",
+      "blocks": [
+        {
+          "type": "note",
+          "label": "Before this",
+          "color": "blue",
+          "text": "P1: dot product, ‖w‖, distance to a line."
+        },
+        {
+          "type": "p",
+          "text": "**They give:** a small 2-D dataset and one or two candidate lines. **They ask:** the primal with one constraint per point, show each line separates the data, the margin of each line, which is bigger, and classify new points."
+        },
+        {
+          "type": "formula",
+          "text": "min ½(w₁² + w₂²)   s.t.  yᵢ(wᵀxᵢ + b) ≥ 1  for every point",
+          "caption": "Write all constraints out with the numbers substituted: that is where the marks are"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Separates:** put every point into wᵀx + b. The sign must match its label for every point.",
+            "**Margin:** distance from a point to the line is |wᵀxᵢ + b| ÷ ‖w‖. The line's margin is the smallest distance over all points.",
+            "Compare the two margins. The larger one is the better line.",
+            "**Classify** a new point by the sign of wᵀx + b."
+          ]
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "1/‖w‖ is the margin only after scaling w, b so that the closest point has |wᵀx + b| = 1. 2/‖w‖ is the full width between the two margin lines. Say which one you are giving."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Saurabh sir: **P44** (which line has the bigger margin), **P46** (verify a claimed solution), **Practice Paper Q6** (5M), **Companion Q7** (verify a hyperplane by KKT), **Q15** (geometric margin)."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 60 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** `Lecture_14.pdf` p. 20–24 (linear classifier); SVM Companion §1–5 (why maximise the margin, one inequality replaces two, the convex QP).",
+            "**Do:** P44, P46, Practice Paper Q6, then Feb 2026 Q5 timed (8 marks, 28 min).",
+            "**Video, only if stuck:** [StatQuest · SVM Part 1](https://www.youtube.com/watch?v=efR1C6CvhmE), only if you can't picture the margin. Otherwise skip."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "M6 · Kernel matrix",
+      "lead": "Priority 5. 9 marks: 2023 regular Q2B (3), 2023 DS makeup Q2B (3, the same question), Sep 2025 Q6b (3). Quick marks.",
+      "blocks": [
+        {
+          "type": "note",
+          "label": "Before this",
+          "color": "blue",
+          "text": "P1 only: a kernel value is a dot product."
+        },
+        {
+          "type": "formula",
+          "text": "Kᵢⱼ = k(xᵢ, xⱼ) = φ(xᵢ)ᵀφ(xⱼ)",
+          "caption": "N points give an N × N symmetric matrix. The diagonal entries are ‖φ(xᵢ)‖²"
+        },
+        {
+          "type": "note",
+          "label": "The repeated question",
+          "text": "X = [(4, −3), (0, 1)], φ(x) = [x₁, x₂, ‖x‖]: φ(x₁) = (4, −3, 5), φ(x₂) = (0, 1, 1), so K = [[50, 2], [2, 2]]."
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "Compute only the upper triangle and copy it across, but write the full matrix in the answer."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Saurabh sir: part (a) of **P49**, **P50**, **Practice Paper Q7**, **Companion Q1, Q2**."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 15 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** `Lecture_14.pdf` p. 14–16 (kernel functions and their property); SVM Companion §11.7 (the kernel matrix).",
+            "**Do:** 2023 Q2B and Sep 2025 Q6b (both 3 marks).",
+            "**Video, only if stuck:** No video: the slides and the companion cover it."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "M7 · Feature map ↔ kernel",
+      "lead": "Priority 2. 14.5 marks: 2022 makeup Q4(2) (5), Sep 2024 regular Q(B) (5, the same question), Sep 2025 Q6a (3), 2023 DS regular Q2B (1.5).",
+      "blocks": [
+        {
+          "type": "note",
+          "label": "Before this",
+          "color": "blue",
+          "text": "P1 (dot product), expanding (a + b)², and M6 (what a kernel value is)."
+        },
+        {
+          "type": "p",
+          "text": "**They give:** a kernel and ask for φ (with its dimension), or a φ and ask for its kernel, or ask you to show that φ produces k."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Expand the kernel into a sum of products of x-terms and z-terms.",
+            "Each term ax_i x_j·z_i z_j becomes the feature √a·x_i x_j (and the same with z).",
+            "Write φ(x) as one long vector and count its entries for the dimension.",
+            "Check: φ(x)ᵀφ(z) must give back every term of k."
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "(xᵀz)² + 3(xᵀz + 2)² = 4(xᵀz)² + 12·xᵀz + 12",
+          "caption": "The repeated question. φ = [2x_i x_j for all i, j (n² entries), √12·x_i (n entries), √12] has dimension n² + n + 1"
+        },
+        {
+          "type": "formula",
+          "text": "φ(x) = [1, √2·x, x²]  ⇒  φ(x)ᵀφ(z) = 1 + 2xz + x²z² = (1 + xz)²",
+          "caption": "Sep 2025 Q6a, 3 marks"
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "(xᵀz)ᵖ (homogeneous) and (xᵀz + 1)ᵖ (non-homogeneous) use different feature counts. Companion Q12 drills the two counting formulas."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Saurabh sir: **P51** (feature map behind a polynomial kernel), **Companion Q12** (feature counting), **Q13** (verify the kernel identity)."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 40 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** `Lecture_14.pdf` p. 17–18 (constructing kernels); SVM Companion §11.5–11.6 (the kernels you meet, how many features).",
+            "**Do:** P51, Companion Q12, Q13, then the repeated question (2022 makeup Q4(2) = Sep 2024 Q(B)).",
+            "**Video, only if stuck:** [StatQuest · SVM Part 2: Polynomial kernel](https://www.youtube.com/watch?v=Toet3EiSFcM), only if expanding (xᵀz + c)² into φ(x)ᵀφ(z) is unclear."
+          ]
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Hard margin · Feb 2026 Q5: two separating lines (8 marks)",
+      "tags": [
+        "Past paper",
+        "M1",
+        "Newest paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "X1 (2, 2) +1, X2 (4, 4) +1, X3 (2, 0) −1, X4 (4, 0) −1. (a) Write the hard-margin primal. [2M] (b) Show x₂ = 1 separates the data. [2M] (c) Show x₂ − x₁ = −1 separates the data. [2M] (d) Find the margin of each and say which is better. [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Primal",
+          "text": "min ½(w₁² + w₂²) subject to one constraint per point, yᵢ(wᵀxᵢ + b) ≥ 1:\n- 2w₁ + 2w₂ + b ≥ 1\n- 4w₁ + 4w₂ + b ≥ 1\n- −(2w₁ + b) ≥ 1\n- −(4w₁ + b) ≥ 1\n[1M objective, 1M the four constraints]"
+        },
+        {
+          "label": "(b) x₂ = 1",
+          "text": "Write it as x₂ − 1 = 0, so w = (0, 1), b = −1, f(x) = x₂ − 1.\nX1: 1 > 0, X2: 3 > 0 (both +1 ✓). X3: −1 < 0, X4: −1 < 0 (both −1 ✓). Every sign matches its label, so it separates."
+        },
+        {
+          "label": "(c) x₂ − x₁ = −1",
+          "text": "x₂ − x₁ + 1 = 0, so w = (−1, 1), b = 1.\nX1: 1 > 0, X2: 1 > 0 ✓. X3: −1 < 0, X4: −3 < 0 ✓. It separates."
+        },
+        {
+          "label": "(d) Margins",
+          "text": "The key uses margin = 1/‖w‖ (each line is already scaled so the closest points give |f| = 1).\nx₂ = 1: ‖w‖ = 1 ⇒ margin **1**.\nx₂ − x₁ = −1: ‖w‖ = √2 ⇒ margin 1/√2 ≈ **0.7071**.\n1 > 0.7071, so **x₂ = 1 is the better separator**."
+        }
+      ],
+      "answer": "Both lines separate the data; margins 1 and 0.7071, so x₂ = 1 is better.",
+      "priority": "must",
+      "priorityWhy": "Newest paper (Feb 2026), 8 marks"
+    },
+    {
+      "title": "Hard margin · Practice Paper Q6: verify a solver's answer (5 marks)",
+      "tags": [
+        "Sourabh sir",
+        "M1",
+        "Practice Paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Training data: (2, 2)+, (4, 3)+, (0, 0)−, (−1, 0)−. A solver returns w = (½, ½), b = −1. (a) Primal with its four constraints. [1M] (b) Check every constraint, name the support vectors, find the αᵢ from KKT. [2M] (c) Margin 1/‖w‖. [1M] (d) Classify (3, 0) and (1, 0.5). [1M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Primal",
+          "text": "min ½(w₁² + w₂²) s.t. 2w₁ + 2w₂ + b ≥ 1, 4w₁ + 3w₂ + b ≥ 1, −b ≥ 1, −(−w₁ + b) ≥ 1."
+        },
+        {
+          "label": "(b) Check",
+          "text": "yᵢ(wᵀxᵢ + b): (2, 2) → 1; (4, 3) → 2.5; (0, 0) → 1; (−1, 0) → 1.5. All ≥ 1, so feasible. The value is exactly 1 for **(2, 2) and (0, 0)**: those are the support vectors."
+        },
+        {
+          "label": "(b) α from KKT",
+          "text": "Non-support vectors get α = 0: α₂ = α₄ = 0. With α₁ = α₃ = α (from Σαᵢyᵢ = 0): w = α(2, 2) − α(0, 0) = (2α, 2α) = (½, ½) ⇒ **α = ¼**."
+        },
+        {
+          "label": "(c) Margin",
+          "text": "‖w‖ = √(¼ + ¼) = 1/√2 ⇒ margin = √2 ≈ **1.4142**."
+        },
+        {
+          "label": "(d) Classify",
+          "text": "(3, 0): 1.5 + 0 − 1 = 0.5 > 0 ⇒ **+1**. (1, 0.5): 0.5 + 0.25 − 1 = −0.25 < 0 ⇒ **−1**."
+        }
+      ],
+      "answer": "Support vectors (2, 2) and (0, 0), α = (¼, 0, ¼, 0), margin √2; (3, 0) → +1, (1, 0.5) → −1.",
+      "priority": "must",
+      "priorityWhy": "Saurabh sir's Practice Paper"
+    },
+    {
+      "title": "Kernels · Sep 2025 Q6: (1 + xz)² and a 4×4 kernel matrix (6 marks)",
+      "tags": [
+        "Past paper",
+        "M7",
+        "M6"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "1-D data x = [−1.5, −0.5, 0.5, 1.5], y = [1, −1, −1, 1] (not linearly separable). Feature map φ(x) = [1, √2·x, x²]. (a) Show the kernel is k(x, z) = (1 + xz)². [3M] (b) Compute the 4×4 kernel matrix Kᵢⱼ = k(xᵢ, xⱼ). [3M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Expand",
+          "text": "φ(x)ᵀφ(z) = 1·1 + (√2x)(√2z) + x²z² = 1 + 2xz + (xz)² = **(1 + xz)²** ✓"
+        },
+        {
+          "label": "(b) Products xᵢxⱼ",
+          "text": "x₁x₁ = x₄x₄ = 2.25; x₂x₂ = x₃x₃ = 0.25; x₁x₂ = x₃x₄ = 0.75; x₁x₃ = x₂x₄ = −0.75; x₁x₄ = −2.25; x₂x₃ = −0.25."
+        },
+        {
+          "label": "(b) Square 1 + xᵢxⱼ",
+          "text": "3.25² = 10.5625; 1.25² = 1.5625; 1.75² = 3.0625; 0.25² = 0.0625; (−1.25)² = 1.5625; 0.75² = 0.5625."
+        },
+        {
+          "label": "(b) Matrix",
+          "text": "| | x₁ | x₂ | x₃ | x₄ |\n| x₁ | 10.5625 | 3.0625 | 0.0625 | 1.5625 |\n| x₂ | 3.0625 | 1.5625 | 0.5625 | 0.0625 |\n| x₃ | 0.0625 | 0.5625 | 1.5625 | 3.0625 |\n| x₄ | 1.5625 | 0.0625 | 3.0625 | 10.5625 |"
+        },
+        {
+          "label": "Why it helps",
+          "text": "In feature space the x² coordinate is 2.25 for the +1 points and 0.25 for the −1 points, so the plane x² = 1.25 (|x| = 1.118) separates them."
+        }
+      ],
+      "answer": "k = (1 + xz)²; K as in the table (symmetric, diagonal 10.5625, 1.5625, 1.5625, 10.5625).",
+      "priority": "must",
+      "priorityWhy": "Recent paper (Sep 2025)"
+    },
+    {
+      "title": "Kernels · 2022 makeup Q4(2) = Sep 2024 Q(B): find φ for a sum of kernels (5 marks)",
+      "tags": [
+        "Past paper",
+        "M7",
+        "Repeated"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "K(x, z) = (xᵀz)² + 3(xᵀz + 2)² for x, z ∈ ℝⁿ. If possible, find φ: ℝⁿ → ℝ^(n² + n + 1) with K(x, z) = φ(x)ᵀφ(z)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Expand",
+          "text": "(xᵀz)² + 3[(xᵀz)² + 4xᵀz + 4] = **4(xᵀz)² + 12xᵀz + 12**."
+        },
+        {
+          "label": "Quadratic part",
+          "text": "4(xᵀz)² = ΣᵢΣⱼ 4xᵢxⱼzᵢzⱼ = ΣᵢΣⱼ (2xᵢxⱼ)(2zᵢzⱼ) ⇒ φ₁(x) = [2xᵢxⱼ for all i, j]: **n²** entries."
+        },
+        {
+          "label": "Linear part",
+          "text": "12xᵀz = Σ (√12 xᵢ)(√12 zᵢ) ⇒ φ₂(x) = [√12 x₁, …, √12 xₙ]: **n** entries."
+        },
+        {
+          "label": "Constant",
+          "text": "12 = √12 · √12 ⇒ φ₃(x) = √12: **1** entry."
+        },
+        {
+          "label": "Answer",
+          "text": "φ(x) = [φ₁(x), φ₂(x), φ₃(x)] has n² + n + 1 entries and φ(x)ᵀφ(z) = K(x, z). So the mapping exists."
+        }
+      ],
+      "answer": "φ(x) = [2xᵢxⱼ (all i, j), √12·xᵢ, √12], dimension n² + n + 1.",
+      "priority": "must",
+      "priorityWhy": "Asked twice (2022 makeup, Sep 2024)"
+    },
+    {
+      "title": "Kernels · 2023 Q2B: kernel matrix with a ‖x‖ feature (3 marks)",
+      "tags": [
+        "Past paper",
+        "M6",
+        "Repeated"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "X = [(4, −3), (0, 1)], φ(x) = [x₁, x₂, ‖x‖]ᵀ. Compute the kernel matrix K."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Map the points",
+          "text": "φ(4, −3) = (4, −3, 5) [1M]; φ(0, 1) = (0, 1, 1) [1M]."
+        },
+        {
+          "label": "Dot products",
+          "text": "K₁₁ = 16 + 9 + 25 = 50; K₁₂ = K₂₁ = 0 − 3 + 5 = 2; K₂₂ = 0 + 1 + 1 = 2."
+        },
+        {
+          "label": "Matrix",
+          "text": "K = [[50, 2], [2, 2]] [1M]."
+        }
+      ],
+      "answer": "K = [[50, 2], [2, 2]].",
+      "priority": "must",
+      "priorityWhy": "Asked more than once"
+    },
+    {
+      "title": "Kernels · 2023 DS regular Q2B: dimension and kernel of a cubic feature map (1.5 marks)",
+      "tags": [
+        "Past paper",
+        "M7",
+        "Sister course"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "φ(x) = [1, x₁, …, xₘ, x₁³, …, xₘ³, x₁x₂x₃, x₂x₃x₄, …, xₘ₋₂xₘ₋₁xₘ]ᵀ. Find the dimension of the transformed data and the kernel K(x, y)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Count",
+          "text": "1 + m + m + (m − 2) = **3m − 1** [0.5M]."
+        },
+        {
+          "label": "Kernel",
+          "text": "K(x, y) = φ(x)ᵀφ(y) = 1 + Σxᵢyᵢ + Σxᵢ³yᵢ³ + Σ xᵢxᵢ₊₁xᵢ₊₂·yᵢyᵢ₊₁yᵢ₊₂ (i = 1 … m − 2) [1M]."
+        }
+      ],
+      "answer": "Dimension 3m − 1; K = 1 + Σxᵢyᵢ + Σxᵢ³yᵢ³ + Σ(xᵢxᵢ₊₁xᵢ₊₂)(yᵢyᵢ₊₁yᵢ₊₂).",
+      "priority": "optional"
+    }
+  ],
+  "families": [
+    {
+      "id": "hard",
+      "label": "Hard margin",
+      "icon": "⟂",
+      "title": "Hard margin: primal, separating line, margin",
+      "lead": "Model M1. Feb 2026 Q5 (8 marks) and Practice Paper Q6.",
+      "problems": [
+        "Hard margin ·"
+      ],
+      "blocks": [
+        {
+          "type": "h",
+          "text": "How to recognise it"
+        },
+        {
+          "type": "list",
+          "items": [
+            "A small labelled 2-D (or 1-D) dataset, no slacks, no C.",
+            "Asks: write the primal, check a line separates, margin, support vectors, classify a point."
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "min ½‖w‖²  s.t.  yᵢ(wᵀxᵢ + b) ≥ 1;   margin = 1/‖w‖",
+          "caption": "After scaling so the closest point has |wᵀx + b| = 1"
+        }
+      ]
+    },
+    {
+      "id": "kernels",
+      "label": "Kernels",
+      "icon": "φ",
+      "title": "Kernels: kernel matrix and feature map",
+      "lead": "Models M6 and M7 (taught on Lecture_14.pdf p. 14–18). Two of these questions came back word for word.",
+      "problems": [
+        "Kernels ·"
+      ],
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Model",
+            "They ask",
+            "Do"
+          ],
+          "rows": [
+            [
+              "M6",
+              "Kernel matrix",
+              "Kᵢⱼ = k(xᵢ, xⱼ); symmetric, compute the upper triangle"
+            ],
+            [
+              "M7",
+              "φ ↔ k",
+              "Expand k into products; count the features"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Formula",
+      "front": "Hard-margin primal",
+      "back": "min ½‖w‖² s.t. yᵢ(wᵀxᵢ + b) ≥ 1 for every point."
+    },
+    {
+      "tag": "Formula",
+      "front": "Margin of a scaled hyperplane",
+      "back": "1/‖w‖ to each side; 2/‖w‖ full width."
+    },
+    {
+      "tag": "Formula",
+      "front": "Kernel matrix entry",
+      "back": "Kᵢⱼ = k(xᵢ, xⱼ) = φ(xᵢ)ᵀφ(xⱼ). Symmetric; diagonal = ‖φ(xᵢ)‖²."
+    },
+    {
+      "tag": "Repeated",
+      "front": "φ for (xᵀz)² + 3(xᵀz + 2)²",
+      "back": "Expand to 4(xᵀz)² + 12xᵀz + 12: φ = [2xᵢxⱼ (n²), √12·xᵢ (n), √12], dimension n² + n + 1."
+    },
+    {
+      "tag": "Repeated",
+      "front": "K for X = [(4, −3), (0, 1)], φ = [x₁, x₂, ‖x‖]",
+      "back": "φ's are (4, −3, 5) and (0, 1, 1): K = [[50, 2], [2, 2]]."
+    },
+    {
+      "tag": "Formula",
+      "front": "φ behind (1 + xz)² in 1-D",
+      "back": "φ(x) = [1, √2·x, x²]."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "numeric",
+      "q": "Margin 1/‖w‖ for the line x₂ − x₁ + 1 = 0 (already scaled)?",
+      "answer": 0.7071,
+      "tolerance": 0.001,
+      "explain": "‖w‖ = √2, so 1/√2 ≈ 0.7071.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "Dimension of φ for K = (xᵀz)² + 3(xᵀz + 2)² with n = 3?",
+      "answer": 13,
+      "tolerance": 0,
+      "explain": "n² + n + 1 = 9 + 3 + 1 = 13.",
+      "set": "Numericals"
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Hard-margin primal",
+      "formula": "min ½‖w‖²  s.t.  yᵢ(wᵀxᵢ + b) ≥ 1"
+    },
+    {
+      "name": "Distance from a point to the line",
+      "formula": "|wᵀx + b| ÷ ‖w‖"
+    },
+    {
+      "name": "Margin",
+      "formula": "1/‖w‖ to each side, 2/‖w‖ full width",
+      "note": "After scaling so the closest point has |wᵀx + b| = 1"
+    },
+    {
+      "name": "Kernel matrix",
+      "formula": "Kᵢⱼ = k(xᵢ, xⱼ) = φ(xᵢ)ᵀφ(xⱼ)",
+      "note": "Symmetric; diagonal = ‖φ(xᵢ)‖²"
+    },
+    {
+      "name": "Quadratic kernel in 1-D",
+      "formula": "(1 + xz)² = φ(x)ᵀφ(z) with φ(x) = [1, √2·x, x²]"
+    }
+  ],
+  "readme": {
+    "summary": "**p. N** = PDF page of `Lecture_14.pdf` (the slides have no footer numbers). **M1–M8** = the 8 SVM question models.",
+    "sections": [
+      {
+        "title": "Page numbers",
+        "items": [
+          "`Lecture_14.pdf` has no printed slide numbers, so **p. N** is the page your PDF viewer shows."
+        ]
+      },
+      {
+        "title": "Symbols",
+        "head": [
+          "Here",
+          "Also written as",
+          "Meaning"
+        ],
+        "rows": [
+          [
+            "w, b",
+            "",
+            "normal vector and bias of the line wᵀx + b = 0"
+          ],
+          [
+            "yᵢ",
+            "label +1 / −1",
+            "class of point xᵢ"
+          ],
+          [
+            "f(x)",
+            "wᵀx + b",
+            "decision value; its sign is the prediction"
+          ],
+          [
+            "yf",
+            "yᵢf(xᵢ) = yᵢ(wᵀxᵢ + b)",
+            "shorthand used in the tables"
+          ],
+          [
+            "αᵢ",
+            "λᵢ (board P2, general Lagrangian)",
+            "dual multiplier of point i"
+          ],
+          [
+            "ξᵢ",
+            "slack",
+            "how far point i breaks the margin"
+          ],
+          [
+            "C",
+            "",
+            "penalty on slack (soft margin)"
+          ],
+          [
+            "margin",
+            "1/‖w‖ (each side), 2/‖w‖ (full width, 'street width' in the SVM Companion)",
+            "say which one you give"
+          ],
+          [
+            "φ(x)",
+            "feature map",
+            "x mapped to the bigger space"
+          ],
+          [
+            "k(x, z)",
+            "K(x, z)",
+            "kernel value = φ(x)ᵀφ(z)"
+          ],
+          [
+            "K",
+            "Gram matrix",
+            "kernel matrix, Kᵢⱼ = k(xᵢ, xⱼ)"
+          ],
+          [
+            "M1–M8",
+            "question models",
+            "the 8 kinds of SVM question (board 'The 8 question models', Lecture 14)"
+          ]
+        ]
+      },
+      {
+        "title": "Sources and short names",
+        "items": [
+          "**P31** = Problem 31 of Sourabh sir's Solved Practice Set (`MFML_ZC416_Solved_Practice_Set.pdf`, Prof Saurabh materials → Practice materials → Endsem Practice materials).",
+          "**Practice Paper Q4** = question 4 of `MFML_ZC416_Practice_Paper.pdf` (same folder).",
+          "**Companion §3** = section 3 of the companion PDF named on that board (Prof. Saurabh → Companion_Doc or practice_problems).",
+          "**KKT set P15** = problem 15 of `Lagrange-KKT-Duality-Practice-Set.pdf` (Prof. Saurabh → practice_problems).",
+          "**[1M]** = the marks the official answer key gives for that step.",
+          "**Feb 2026 / Mar 2026 / Sep 2025** = the end-sem (EC-3) papers in the Exam hall. **Mar 2026 makeup** and anything marked **DS** were set for the sister course DSECL ZC416 (same syllabus).",
+          "**Lecture N** or **LN** = `Lecture_N.pdf` = contact session N in the handout."
+        ]
+      }
+    ]
+  }
+}

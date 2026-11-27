@@ -21,6 +21,30 @@
     { id: 'sheet', label: 'Cheat sheet', icon: '≡', has: (c) => c.formulas?.length }
   ];
 
+
+  /* Formulas written on one line ("a = …,  b = …", "x ← …;   y ← …", or one per line) are shown
+     one equation per row, lined up on the first ←, =, ⇒ or ⇔. Text drawn as a picture with
+     spaces (matrices, diagrams) is left exactly as written. */
+  function alignedFormula(text) {
+    /* √x and √(…) get a bar over what is under the root (the math font's √ alone looks broken) */
+    const raw = String(text ?? '').replace(/√\(((?:[^()]|\([^()]*\))*)\)/g, '{{sqrt: $1}}').replace(/√([^\s()+−\-·/,;=]+)/g, '{{sqrt: $1}}');
+    if (/\n[ \t]/.test(raw) || /\n\s*\n/.test(raw)) return md(raw);
+    const keep = [];
+    const prot = raw.replace(/\{\{(?:[^{}]|\{\{[^{}]*\}\})*\}\}|\([^()]*\)|\[[^\]]*\]/g, (m) => { keep.push(m); return `\u0000${keep.length - 1}\u0000`; });
+    const back = (t) => t.replace(/\u0000(\d+)\u0000/g, (m, i) => keep[+i]);
+    const segs = prot.split(/\n|;\s+|,\s{2,}|\s{3,}/).map((x) => x.trim().replace(/[;,]$/, '')).filter(Boolean);
+    const OPS = [' ← ', ' += ', ' = ', ' ⇒ ', ' ⇔ '];
+    const rows = segs.map((sg) => {
+      let at = -1, op = '';
+      for (const o of OPS) { const k = sg.indexOf(o); if (k > 0 && (at < 0 || k < at)) { at = k; op = o; } }
+      return at < 0 ? { all: back(sg) } : { l: back(sg.slice(0, at)), o: op.trim(), r: back(sg.slice(at + op.length)) };
+    });
+    if (rows.length < 2 || rows.filter((r) => r.o).length < 2) return md(raw);
+    return `<div class="eq-grid fx-grid">${rows.map((r) => r.o
+      ? `<span class="eq-l">${md(r.l)}</span><span class="eq-o">${esc(r.o)}</span><span class="eq-r">${md(r.r)}</span>`
+      : `<span class="eq-all">${md(r.all)}</span>`).join('')}</div>`;
+  }
+
   let catalog = null;
   const chapterCache = {};
   let progress = store.get(PKEY, {});
@@ -102,7 +126,13 @@
         case 'h': return `<h3 class="chalk-h">${md(b.text)}</h3>`;
         case 'list': return `<ul class="chalk-list">${b.items.map((i) => `<li>${md(i)}</li>`).join('')}</ul>`;
         case 'steps': return `<ol class="chalk-list">${b.items.map((i) => `<li>${md(i)}</li>`).join('')}</ol>`;
-        case 'formula': return `<div class="formula">${md(b.text)}${b.caption ? `<div class="formula-cap">${md(b.caption)}</div>` : ''}</div>`;
+        /* aligned equations: groups of lines [lhs, op, rhs] lined up on the operator;
+           [[num || den]] draws a stacked fraction, x_f a subscript */
+        case 'eqs': {
+          const m = md;
+          return `<div class="eqs"><div class="eq-grid eq-all-grid">${b.groups.map((g, gi) => `${gi ? '<span class="eq-sep"></span>' : ''}${g.label ? `<div class="eq-label">${md(g.label)}${g.ref ? ` <span class="eq-ref">${md(g.ref)}</span>` : ''}</div>` : ''}${g.lines.map(([l, o, r]) => `<span class="eq-l">${m(l)}</span><span class="eq-o">${esc(o)}</span><span class="eq-r">${m(r)}</span>`).join('')}${g.note ? `<div class="eq-note">${m(g.note)}</div>` : ''}`).join('')}</div>${b.caption ? `<div class="formula-cap">${md(b.caption)}</div>` : ''}</div>`;
+        }
+        case 'formula': return `<div class="formula">${alignedFormula(b.text)}${b.caption ? `<div class="formula-cap">${md(b.caption)}</div>` : ''}</div>`;
         case 'note': return `<aside class="sticky ${b.color || ''}"><div class="sticky-label">${esc(b.label || 'Note')}</div>${md(b.text)}</aside>`;
         case 'trap': return `<aside class="trap"><div class="trap-label">${esc(b.label || 'Exam trap')}</div>${md(b.text)}</aside>`;
         case 'table': {
@@ -182,10 +212,57 @@
     return `<span class="ch-weight ${lvl.cls}" title="End-sem weightage">
       <span class="cw-top"><span class="cw-tag">${lvl.tag}</span>${w.marks > 0 && rank <= 3 ? `<span class="cw-rank">#${rank} most asked</span>` : ''}</span>
       <span class="cw-main"><span class="cw-big">${w.marks}<small>/${w.outOf}</small></span>
-        <span class="cw-info"><b>${Math.round(share * 1000) / 10}% of end-sem marks</b><span>asked in ${esc(w.papers)} papers${w.note ? ` · ${esc(w.note)}` : ''}</span></span></span>
+        <span class="cw-info"><b>${Math.round(share * 1000) / 10}% of end-sem marks</b>${(() => { const n = +(String(w.papers || '').match(/of\s*(\d+)/)?.[1] || 0); return n ? `<span class="cw-avg">≈ ${Math.round(w.marks / n * 10) / 10} of ${Math.round(w.outOf / n)} marks per paper</span>` : ''; })()}<span>asked in ${esc(w.papers)} papers${w.note ? ` · ${esc(w.note)}` : ''}</span></span></span>
       <span class="cw-meter"><span style="width:${info.maxShare ? Math.round(share / info.maxShare * 100) : 0}%"></span></span>
       ${w.pattern ? `<span class="cw-qp">Sample QP: ${esc(w.pattern.replace(/^(\S+)/, '$1 marks'))}</span>` : ''}
     </span>`;
+  }
+
+  /* optional chapter.phase: "pre", "post" or { kind: "mixed", text: "…" } — mid-sem syllabus chip */
+  function phaseHTML(ph) {
+    if (!ph) return '';
+    const kind = typeof ph === 'string' ? ph : ph.kind;
+    const label = { pre: 'Pre-mid', post: 'Post-mid', mixed: 'Pre + post-mid' }[kind] || '';
+    const tip = typeof ph === 'object' && ph.text ? ph.text : (kind === 'pre' ? 'In the mid-sem syllabus' : 'After the mid-sem');
+    return label ? `<span class="ch-phase ph-${esc(kind)}" title="${esc(tip)}">${label}</span>` : '';
+  }
+
+  /* chapter.readme = { summary, sections: [{ title, items | head + rows }] }: shown in click-to-open ⓘ tooltips.
+     readmeHTML(r, only) renders it; `only` (a RegExp) keeps just the sections whose title matches. */
+  function readmeHTML(r, only) {
+    const secs = (r.sections || []).filter((s) => !only || only.test(s.title || ''));
+    return `${!only && r.summary ? `<p class="ip-sum">${md(r.summary)}</p>` : ''}${secs.map((s) => `<div class="ip-sec">${s.title ? `<h4>${md(s.title)}</h4>` : ''}${s.rows ? `<div class="md-table-wrap"><table class="md-table"><thead><tr>${s.head.map((h) => `<th>${md(h)}</th>`).join('')}</tr></thead><tbody>${s.rows.map((row) => `<tr>${row.map((x) => `<td>${md(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : ''}${s.items ? `<ul class="md-list">${s.items.map((i) => `<li>${md(i)}</li>`).join('')}</ul>` : ''}</div>`).join('')}`;
+  }
+  function infoHTML(html, label) {
+    return `<span class="info-wrap"><button type="button" class="info-i" aria-expanded="false" aria-label="${esc(label)}" title="${esc(label)}">i</button><span class="info-pop" role="dialog" hidden>${html}</span></span>`;
+  }
+  /* one handler for every ⓘ: click toggles its tooltip; a click elsewhere or Escape closes it */
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest && e.target.closest('.info-i');
+    if (btn) { e.preventDefault(); e.stopPropagation(); }
+    if (e.target.closest && e.target.closest('.info-pop') && !btn) return;
+    document.querySelectorAll('.info-pop:not([hidden])').forEach((p) => { if (!btn || p !== btn.nextElementSibling) { p.hidden = true; p.previousElementSibling.setAttribute('aria-expanded', 'false'); } });
+    if (btn) { const pop = btn.nextElementSibling; pop.hidden = !pop.hidden; btn.setAttribute('aria-expanded', String(!pop.hidden)); }
+  }, true);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.querySelectorAll('.info-pop:not([hidden])').forEach((p) => { p.hidden = true; p.previousElementSibling.setAttribute('aria-expanded', 'false'); }); });
+
+  /* optional chapter.needs =["ch09", "aiml-zc416/ch11", …]: chapters to study first (same course, or "courseId/chapterId").
+     Cards show them as badges; the chapter page shows them as links. No needs → nothing is shown. */
+  function needsHTML(ch, sem, course, asLinks) {
+    if (!ch.needs || !ch.needs.length) return '';
+    const items = ch.needs.map((ref) => {
+      const [cid, chid] = ref.includes('/') ? ref.split('/') : [course.id, ref];
+      const c = sem.courses.find((x) => x.id === cid);
+      const t = c && c.chapters.find((x) => x.id === chid);
+      if (!t) return '';
+      const name = (t.label || `Ch ${t.number ?? ''}`).replace(/^Lecture /, 'L');
+      const text = (cid !== course.id ? `${c.short || c.code} · ` : '') + name;
+      const tip = `${c.short || c.title}: ${t.title}`;
+      return asLinks && t.file && !t.comingSoon
+        ? `<a class="need-chip" href="#/${sem.id}/${cid}/${chid}/lesson" title="${esc(tip)}">${esc(text)}</a>`
+        : `<span class="need-chip" title="${esc(tip)}">${esc(text)}</span>`;
+    }).join('');
+    return items ? `<span class="ch-needs"><span class="needs-label">Needs</span>${items}</span>` : '';
   }
 
   /* optional course.target = { score, outOf, text, points: [..] }: the big "aim for" card on the course page */
@@ -234,6 +311,7 @@
         <span class="cc-text"><span class="cc-label">Continue where you left off</span>
           <span class="cc-title">${esc(last.title)}</span><span class="cc-sub">${esc(last.course)}${last.tab ? ` · ${esc(last.tab)}` : ''}</span></span>
         <span class="cc-go">Resume →</span></a>` : ''}
+      ${weightageHTML(catalog.school?.schedule, 'home-schedule')}
       <section class="stat-tiles">
         ${tiles.map(([i, n, l]) => `<div class="stat-tile"><span class="st-icon" aria-hidden="true">${i}</span><span class="st-num">${n}</span><span class="st-label">${l}</span></div>`).join('')}
       </section>
@@ -256,6 +334,12 @@
             }).join('')}
           </div>
         </section>`).join('')}`;
+    /* optional catalog.school.schedule (same shape as course.weightage): a study plan on the dashboard */
+    app.querySelector('details.weightage')?.addEventListener('toggle', (ev) => {
+      const all = store.get('classroom.wtOpen', {}) || {};
+      all[ev.target.dataset.course] = ev.target.open;
+      store.set('classroom.wtOpen', all);
+    });
     // warm the cache so the progress bars fill in
     catalog.semesters.forEach((s) => s.courses.forEach((c) => c.chapters.forEach((ch) => {
       if (ch.file && !ch.comingSoon && !chapterCache[ch.file]) loadChapter(ch).then(() => { if (location.hash.replace(/^#\/?/, '') === '') viewHome(); }).catch(() => {});
@@ -279,7 +363,37 @@
       ${w.footnote ? `<p class="wt-note">${md(w.footnote)}</p>` : ''}</details>`;
   }
 
+  /* Optional course.topics: [{ name, chapters: [ids], papers, note }]. Lecture cards stay one per
+     lecture, but sit under a topic header with the combined weightage and all lecture numbers. */
   function viewCourse(sem, course) {
+    const topics = course.topics || [];
+    const byId = Object.fromEntries(course.chapters.map((c) => [c.id, c]));
+    topicOf = (ch) => topics.find((t) => t.chapters.includes(ch.id));
+    topicLectures = (t) => 'L' + t.chapters.map((id) => byId[id]?.number).filter((n) => n != null).join(' · L');
+    topicSplit = (g) => {
+      if (g.name !== 'Chapters' || !topics.length) return [{ items: g.items }];
+      const out = topics.map((t) => {
+        const items = t.chapters.map((id) => g.items.find((x) => x.ch.id === id)).filter(Boolean);
+        const marks = items.reduce((a, x) => a + (x.ch.weight?.marks || 0), 0);
+        const outOf = items.find((x) => x.ch.weight?.outOf)?.ch.weight.outOf || 0;
+        return { topic: t, items, marks, outOf };
+      }).filter((t) => t.items.length).sort((a, b) => b.marks - a.marks);
+      const rest = g.items.filter((x) => !topicOf(x.ch));
+      if (rest.length) out.push({ topic: { name: 'Other lectures', chapters: [] }, items: rest, marks: 0, outOf: 0, other: true });
+      return out;
+    };
+    topicHeadHTML = (t) => {
+      const n = +(String(t.topic.papers || '').match(/of\s*(\d+)/)?.[1] || 0);
+      const per = n && t.outOf ? Math.round(t.marks / n * 10) / 10 : null;
+      return `<div class="topic-head"><h3><span class="th-name">${esc(t.topic.name)}</span><span class="th-lec">${t.other ? '' : esc(topicLectures(t.topic).replace(/^L/, 'Lectures ').replace(/ · L/g, ' · '))}</span></h3>
+        ${t.outOf ? `<p class="th-weight"><b>${t.marks} / ${t.outOf}</b> marks in the last 3 papers${per != null ? ` · <b>≈ ${per} of ${Math.round(t.outOf / n)}</b> per paper` : ''}${t.topic.papers ? ` · asked in ${esc(t.topic.papers)} papers` : ''}</p>` : ''}
+        ${t.topic.note ? `<p class="th-note">${md(t.topic.note)}</p>` : ''}</div>`;
+    };
+    return viewCourseInner(sem, course);
+  }
+  let topicOf = () => null, topicLectures = () => '', topicSplit = (g) => [{ items: g.items }], topicHeadHTML = () => '';
+
+  function viewCourseInner(sem, course) {
     setCrumbs([{ label: 'Dashboard', href: '#/' }, { label: course.title }]); setTitle(course.title);
     /* chapters can set "group" (e.g. "Exam hall"); groups appear in order of first use */
     const groups = [];
@@ -310,24 +424,27 @@
       ${groups.map((g) => `
       <section class="dash-section">
         <div class="section-head"><h2 class="cork-title">${esc(g.name === 'Chapters' ? 'Chapters' : g.name)}</h2>
-          <span class="muted">${g.items.length} ${g.name === 'Chapters' ? (g.items.length === 1 ? 'chapter' : 'chapters') : (g.items.length === 1 ? 'paper' : 'papers')}</span></div>
+          <span class="muted">${g.items.length} ${g.name === 'Chapters' ? (g.items.length === 1 ? 'chapter' : 'chapters') : /exam hall|try it|practice/i.test(g.name) ? (g.items.length === 1 ? 'paper' : 'papers') : (g.items.length === 1 ? 'page' : 'pages')}</span></div>
         ${g.intro ? `<p class="section-intro">${md(g.intro)}</p>` : ''}
+        ${topicSplit(g).map((t) => `${t.topic ? topicHeadHTML(t, winfo) : ''}
         <div class="chapter-grid">
-          ${g.items.map(({ ch, i }) => {
+          ${t.items.map(({ ch, i }) => {
             const ready = ch.file && !ch.comingSoon;
             const s = ready ? P.score(`${sem.id}/${course.id}/${ch.id}`, chapterCache[ch.file]) : 0;
             const inner = `
               <span class="ch-top"><span class="ch-num">${esc(ch.group ? '✎' : (ch.number ?? i + 1))}</span>${status(s, ready)}</span>
               ${weightHTML(ch.weight, winfo)}
-              ${ch.label ? `<span class="ch-label">${esc(ch.label)}</span>` : ''}
+              ${ch.label || ch.phase ? `<span class="ch-label-row">${ch.label ? `<span class="ch-label">${esc(ch.label)}</span>` : ''}${phaseHTML(ch.phase)}</span>` : ''}
+              ${(() => { const t = topicOf(ch); return t ? `<span class="ch-topic" title="Grouped topic: combined weightage is on the topic header">${esc(t.name)} · ${esc(topicLectures(t))}</span>` : ''; })()}
               <span class="ch-title">${esc(ch.title)}</span>
               ${ch.blurb ? `<span class="ch-blurb">${esc(ch.blurb)}</span>` : ''}
+              ${needsHTML(ch, sem, course, false)}
               ${ready ? `<span class="ch-foot"><span class="bar"><span style="width:${Math.round(s * 100)}%"></span></span>${stars(s)}</span>` : ''}`;
             return ready
               ? `<a class="chapter-card" style="--door:${courseColor(course)}" href="#/${sem.id}/${course.id}/${ch.id}/lesson">${inner}</a>`
               : `<div class="chapter-card soon">${inner}</div>`;
           }).join('')}
-        </div>
+        </div>`).join('')}
       </section>`).join('')}`;
     app.querySelector('details.weightage')?.addEventListener('toggle', (ev) => {
       const all = store.get('classroom.wtOpen', {}) || {};
@@ -342,6 +459,14 @@
     });
   }
 
+  /* Average marks per paper: weight.marks spread over the papers counted ("3 of 3" ⇒ 3). */
+  function perPaperHTML(w) {
+    const n = +(String(w.papers || '').match(/of\s*(\d+)/)?.[1] || 0);
+    if (!n || !w.outOf) return '';
+    const avg = Math.round(w.marks / n * 10) / 10;
+    return ` <span class="eyebrow-weight per-paper" title="${w.marks} marks over the last ${n} papers ÷ ${n}">≈ ${avg} of ${Math.round(w.outOf / n)} marks per paper</span>`;
+  }
+
   async function viewChapter(sem, course, meta, tab, sub) {
     const ch = await loadChapter(meta);
     const key = `${sem.id}/${course.id}/${meta.id}`;
@@ -349,7 +474,10 @@
     const tabs = TABS.filter((t) => t.has(ch));
     const fam = (ch.families || []).map((f) => ({ id: 'f-' + f.id, label: f.label, icon: f.icon || '◆' }));
     if (fam.length) tabs.splice(Math.max(1, tabs.findIndex((t) => t.id === 'lesson') + 1), 0, ...fam);
-    if (!tabs.find((t) => t.id === tab)) tab = tabs[0]?.id;
+    /* a red "Pending" tab first in the row while any problem is flagged `revisit` (not the default landing tab) */
+    const nPending = (ch.worked || []).filter((w) => w.revisit).length;
+    if (nPending) tabs.unshift({ id: 'pending', label: `Pending (${nPending})`, icon: '↻', cls: 'tab-pending' });
+    if (!tabs.find((t) => t.id === tab)) tab = tabs.find((t) => t.id !== 'pending')?.id;
     setCrumbs([{ label: 'Dashboard', href: '#/' }, { label: course.title, href: `#/${sem.id}/${course.id}` }, { label: meta.label ? meta.title : `Ch ${meta.number ?? ''} · ${ch.title || meta.title}` }]);
     setTitle(ch.title || meta.title);
     store.set('classroom.last', { href: `${base}/${tab}`, title: ch.title || meta.title, course: course.title, color: course.color, tab: tabs.find((t) => t.id === tab)?.label });
@@ -357,20 +485,21 @@
     app.innerHTML = `
       <section class="lesson-head">
         <div>
-          <p class="eyebrow"><a href="#/${sem.id}/${course.id}" style="--door:${courseColor(course)}" class="eyebrow-course">${esc(course.code || course.title)}</a> · ${esc(meta.label || `Chapter ${meta.number ?? ''}`)}${meta.weight?.outOf ? ` <span class="eyebrow-weight ${weightLevel(meta.weight).cls}">End-sem: ${meta.weight.marks}/${meta.weight.outOf} marks · ${Math.round(meta.weight.marks / meta.weight.outOf * 1000) / 10}%</span>` : ''}</p>
+          <p class="eyebrow"><a href="#/${sem.id}/${course.id}" style="--door:${courseColor(course)}" class="eyebrow-course">${esc(course.code || course.title)}</a> · ${esc(meta.label || `Chapter ${meta.number ?? ''}`)} ${phaseHTML(meta.phase)}${meta.weight?.outOf ? ` <span class="eyebrow-weight ${weightLevel(meta.weight).cls}">End-sem: ${meta.weight.marks}/${meta.weight.outOf} marks · ${Math.round(meta.weight.marks / meta.weight.outOf * 1000) / 10}%</span>${perPaperHTML(meta.weight)}` : ''}</p>
           <h1 class="room-title">${esc(ch.title || meta.title)}</h1>
-          ${ch.subtitle ? `<p class="room-sub">${md(ch.subtitle)}</p>` : ''}
+          ${ch.subtitle ? `<div class="room-sub">${md(ch.subtitle)}${ch.readme ? ' ' + infoHTML(readmeHTML(ch.readme), 'How to read this chapter: pages, symbols, sources') : ''}</div>` : ''}
+          ${needsHTML(meta, sem, course, true)}
         </div>
         <div class="report-card" title="Your progress on this chapter">${reportCard(P.score(key, ch))}</div>
       </section>
       <nav class="desk-tabs" role="tablist">
-        ${tabs.map((t) => `<a role="tab" class="desk-tab ${t.id === tab ? 'on' : ''}" aria-selected="${t.id === tab}" href="${base}/${t.id}"><span class="ti">${t.icon}</span>${t.label}</a>`).join('')}
+        ${tabs.map((t) => `<a role="tab" class="desk-tab ${t.cls || ''} ${t.id === tab ? 'on' : ''}" aria-selected="${t.id === tab}" href="${base}/${t.id}"><span class="ti">${t.icon}</span>${t.label}</a>`).join('')}
       </nav>
       <section id="tab-body" class="tab-body"></section>`;
     const body = document.getElementById('tab-body');
-    const ctx = { ch, key, base, body, sub };
+    const ctx = { ch, key, base, body, sub, course, meta };
     if (tab.startsWith('f-')) return tabFamily(ctx, ch.families.find((f) => 'f-' + f.id === tab));
-    ({ lesson: tabLesson, worked: tabWorked, lab: tabLab, cards: tabCards, quiz: tabQuiz, sheet: tabSheet })[tab](ctx);
+    ({ pending: tabPending, lesson: tabLesson, worked: tabWorked, lab: tabLab, cards: tabCards, quiz: tabQuiz, sheet: tabSheet })[tab](ctx);
   }
 
   const reportCard = (s) => `${ring(s, 'of this chapter done')}<span class="rc-text"><span class="rc-label">Your progress</span>${stars(s)}</span>`;
@@ -437,7 +566,7 @@
             <button class="mc-face" type="button" aria-expanded="false"><span class="mc-tag">${esc(f.tag || 'Question')}</span><span class="mc-front">${md(f.front)}</span><span class="mc-back">${md(f.back)}</span></button>
             <button class="linkish mc-know" type="button" data-know="${fi}">${known.includes(fi) ? '✓ Known' : 'Mark as known'}</button>
           </div>`; }).join('')}</div>` : ''}
-      ${qs.length ? `<h3 class="pc-h">? Pop quiz for this part <small>${plural(qs.length, 'question')}</small></h3>
+      ${qs.length ? `<h3 class="pc-h">? ${esc(sec.checkTitle || 'Pop quiz for this part')} <small>${plural(qs.length, 'question')}</small></h3>
         <div class="pc-quiz">${qs.map((qi, n) => { const q = ch.quiz[qi]; return `
           <div class="pq" data-qi="${qi}">
             <div class="pq-q"><span class="pq-n">Q${n + 1}</span> ${md(q.q)}</div>
@@ -517,39 +646,108 @@
     const rest = ch.worked.map((_, i) => i).filter((i) => !inFamily.has(i));
     const picker = fams.length ? `<p class="tab-intro">The problems are grouped by test. Pick one:</p>
       <div class="btn-row family-links">${fams.map((f) => `<a class="btn btn-chalk" href="${base}/f-${f.id}">${esc(f.icon || '◆')} ${esc(f.label)} (${familyProblems(ch, f).length})</a>`).join('')}</div>` : '';
-    ctx.body.innerHTML = `${t ? treeMap(t.board.title || 'Which test do I use?', t.tree, widgets) : ''}${picker}${rest.length ? '<div class="worked-list"></div>' : ''}`;
+    ctx.body.innerHTML = `${pendingHTML(ch, rest, (i) => `${base}/worked/${i + 1}`)}${t ? treeMap(t.board.title || 'Which test do I use?', t.tree, widgets) : ''}${picker}${rest.length ? '<div class="worked-list"></div>' : ''}`;
     if (rest.length) renderWorked(ctx, ctx.body.querySelector('.worked-list'), fams.length ? rest : null);
   }
+
+  /* One solution (flowchart + steps + answer + reveal buttons). A worked problem with
+     `methods` shows one of these per method, behind small Method tabs. */
+  function solutionHTML(m, k, answer) {
+    const lost = (s) => /^Where marks are lost/i.test(s.label || '') ? ' marks-lost' : '';
+    return `<div class="nb-method" data-k="${k}"${k ? ' hidden' : ''}>
+          ${m.intro ? `<div class="nb-mintro">${md(m.intro)}</div>` : ''}
+          <nav class="nb-flow" aria-label="Solution flowchart">
+            <span class="flow-title">Solution path</span>
+            <ol>
+              ${m.steps.map((s, j) => `<li><button class="fl-box${j === 0 ? ' next' : ''}${lost(s)}" data-act="upto" data-j="${j}" type="button" title="Reveal up to this step"><span class="fl-n">${j + 1}</span>${md(s.label || `Step ${j + 1}`)}</button></li>`).join('')}
+              ${answer ? '<li><span class="fl-box fl-end">Answer</span></li>' : ''}
+            </ol>
+          </nav>
+          <ol class="nb-steps">
+            ${m.steps.map((s, j) => `<li class="nb-step${lost(s)}" data-j="${j}" hidden><span class="step-label">${md(s.label || `Step ${j + 1}`)}${/^Notation/.test(s.label || '') && solutionHTML.readme ? ' ' + infoHTML(readmeHTML(solutionHTML.readme, /Symbols|Short names/), 'Symbols: how this paper\'s letters map to the lecture boards') : ''}</span><div>${md(s.text)}</div></li>`).join('')}
+          </ol>
+          ${answer ? `<div class="nb-answer" hidden><b>Answer:</b> ${md(answer)}</div>` : ''}
+          <div class="btn-row">
+            <button class="btn btn-chalk" data-act="next" type="button">Reveal next step</button>
+            <button class="btn" data-act="all" type="button">Show all</button>
+            <button class="btn" data-act="hide" type="button">Hide again</button>
+          </div>
+        </div>`;
+  }
+
+  /* Time budget beside a problem: marks from the title "(4 marks)", else the [4M]s in the
+     question, else an estimate in `w.marks`; minutes = marks × the course's minPerMark. */
+  function timeHTML(w, course) {
+    const rate = course?.minPerMark; if (!rate) return '';
+    const t = (w.title || '').match(/\((\d+(?:\.\d+)?)\s*marks?\)/i);
+    let marks = t ? +t[1] : 0, est = false;
+    if (!marks) marks = (JSON.stringify(w.problem || '').match(/\[(\d+(?:\.\d+)?)\s*M\]/g) || []).reduce((a, x) => a + parseFloat(x.slice(1)), 0);
+    if (!marks && w.marks) { marks = w.marks; est = true; }
+    if (!marks) return '';
+    const min = Math.round(marks * rate);
+    return `<span class="tag tag-time" title="${est ? `Not an exam question: treated as about ${marks} marks. ` : ''}${marks} marks × ${rate} min per mark (150 min, 40 marks, 15 min kept for reading and checking)">⏱ ~${min} min${est ? ' (est.)' : ''}</span>`;
+  }
+
+  /* Priority badge: `priority: 'must'` (recent papers, one problem per question type) or
+     'optional' (extra practice, only if there is time). The "Must do only" switch hides the rest. */
+  function prioHTML(w) {
+    if (w.priority === 'must') return `<span class="tag tag-must" title="${esc(w.priorityWhy || 'Recent-paper question, or the one problem to do for this question type')}">★ Must do</span>`;
+    if (w.priority === 'optional') return `<span class="tag tag-optional" title="${esc(w.priorityWhy || 'Extra practice of a type already covered by a must-do problem: only if you have time')}">If time</span>`;
+    return '';
+  }
+
+  /* Pre-mid / post-mid of one problem: from the lecture numbers in its tags ("Lecture 4–5",
+     "Lecture 6, 8 · 9", "Part pre-mid (L8)"); lectures 1–8 are the mid-sem syllabus. With no
+     lecture tag, the chapter's own phase is used. Returns 'pre', 'post', 'mixed' or ''. */
+  function phaseOf(w, chPhase) {
+    const nums = [];
+    (w.tags || []).filter((t) => /lecture|\bL\d/i.test(t)).forEach((t) => {
+      t.replace(/(\d+)\s*[–-]\s*(\d+)|(\d+)/g, (m, a, b, c) => {
+        if (a) for (let k = +a; k <= +b; k++) nums.push(k); else nums.push(+c);
+        return m;
+      });
+    });
+    if (!nums.length) return typeof chPhase === 'string' ? chPhase : (chPhase?.kind === 'mixed' ? 'mixed' : '');
+    const pre = nums.some((n) => n <= 8), post = nums.some((n) => n >= 9);
+    return pre && post ? 'mixed' : pre ? 'pre' : 'post';
+  }
+  const PHASE_TAG = { pre: ['Pre-mid', 'Lectures 1–8: the mid-sem syllabus'], post: ['Post-mid', 'Lectures 9–16: after the mid-sem'], mixed: ['Pre + post-mid', 'Some parts from lectures 1–8, some from 9–16'] };
+  const isPhaseTag = (t) => /^(pre-mid|part pre-mid)/i.test(t);
 
   function renderWorked(ctx, body, only) {
     const { ch, key } = ctx;
     const done = P.of(key).worked;
     const widgets = [];
     const idx = only || ch.worked.map((_, i) => i);
+    solutionHTML.readme = ch.readme;
+    const nMust = idx.filter((i) => ch.worked[i].priority === 'must').length;
+    const nOpt = idx.filter((i) => ch.worked[i].priority === 'optional').length;
+    const mustOnly = nMust && localStorage.getItem('classroom.mustOnly') === '1';
+    const phases = Object.fromEntries(idx.map((i) => [i, phaseOf(ch.worked[i], ctx.meta?.phase)]));
+    const nPre = idx.filter((i) => phases[i] === 'pre' || phases[i] === 'mixed').length;
+    const nPost = idx.filter((i) => phases[i] === 'post' || phases[i] === 'mixed').length;
+    const showPhase = idx.some((i) => phases[i] === 'pre' || phases[i] === 'mixed') && idx.some((i) => phases[i] === 'post' || phases[i] === 'mixed') && idx.some((i) => phases[i] !== 'mixed');
+    let phaseSel = showPhase ? (localStorage.getItem('classroom.phase') || 'all') : 'all';
+    const visible = (i) => (!mustOnly || ch.worked[i].priority !== 'optional') && (phaseSel === 'all' || phases[i] === phaseSel || phases[i] === 'mixed');
     body.innerHTML = `<p class="tab-intro">Try each step on paper first, then reveal it. A problem counts as done once every step is revealed.</p>
-      <div class="notebooks">
+      ${nMust ? `<div class="prio-bar"><span class="tag tag-must">★ Must do</span> ${nMust} &nbsp;·&nbsp; <span class="tag tag-optional">If time</span> ${nOpt}
+        <span class="prio-btns"><button class="btn${mustOnly ? '' : ' btn-chalk'}" type="button" data-prio="all">Show all</button><button class="btn${mustOnly ? ' btn-chalk' : ''}" type="button" data-prio="must">Must do only</button></span>
+        <p class="prio-def"><b>★ Must do</b> = a question from a recent paper (2025–2026) or Saurabh sir's Practice Paper, a question asked more than once, or the one problem picked to cover a question type. <b>If time</b> = extra practice of a type a must-do problem already covers, an older one-off question, or a sister-course paper. Hover a badge to see why that problem got it.</p></div>` : ''}
+      ${showPhase ? `<div class="phase-bar"><span class="pb-label">Syllabus:</span>
+        <button class="btn${phaseSel === 'all' ? ' btn-chalk' : ''}" type="button" data-phase="all">All</button>
+        <button class="btn${phaseSel === 'pre' ? ' btn-chalk' : ''}" type="button" data-phase="pre">Pre-mid (L1–8) · ${nPre}</button>
+        <button class="btn${phaseSel === 'post' ? ' btn-chalk' : ''}" type="button" data-phase="post">Post-mid (L9–16) · ${nPost}</button>
+        <span class="pb-note">A question with parts from both halves shows under both.</span></div>` : ''}
+      <div class="notebooks${mustOnly ? ' must-only' : ''}">
       ${idx.map((i) => [ch.worked[i], i]).map(([w, i]) => `
-        <article class="notebook" data-i="${i}">
-          <header><span class="nb-num">Problem ${i + 1}</span>${done.includes(i) ? '<span class="tick">✓ done</span>' : ''}
-            ${(w.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</header>
+        <article class="notebook${w.revisit ? ' nb-revisit' : ''}${w.priority === 'optional' ? ' nb-optional' : ''}" data-i="${i}" data-phase="${phases[i]}"${visible(i) ? '' : ' hidden'}>
+          <header><span class="nb-num">Problem ${i + 1}</span>${prioHTML(w)}${phases[i] ? `<span class="tag tag-phase ph-${phases[i]}" title="${PHASE_TAG[phases[i]][1]}">${PHASE_TAG[phases[i]][0]}</span>` : ''}${timeHTML(w, ctx.course)}${w.revisit ? '<span class="tag tag-revisit">↻ Revisit</span>' : ''}${done.includes(i) ? '<span class="tick">✓ done</span>' : ''}
+            ${(w.tags || []).filter((t) => !isPhaseTag(t)).map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</header>
           <h3>${md(w.title)}</h3>
+          ${w.revisit?.note ? `<p class="revisit-note"><b>Revisit:</b> ${md(w.revisit.note)}</p>` : ''}
           <div class="nb-problem">${renderBlocks(w.problem, widgets)}</div>
-          <nav class="nb-flow" aria-label="Solution flowchart">
-            <span class="flow-title">Solution path</span>
-            <ol>
-              ${w.steps.map((s, j) => `<li><button class="fl-box${j === 0 ? ' next' : ''}" data-act="upto" data-j="${j}" type="button" title="Reveal up to this step"><span class="fl-n">${j + 1}</span>${md(s.label || `Step ${j + 1}`)}</button></li>`).join('')}
-              ${w.answer ? '<li><span class="fl-box fl-end">Answer</span></li>' : ''}
-            </ol>
-          </nav>
-          <ol class="nb-steps">
-            ${w.steps.map((s, j) => `<li class="nb-step" data-j="${j}" hidden><span class="step-label">${md(s.label || `Step ${j + 1}`)}</span><div>${md(s.text)}</div></li>`).join('')}
-          </ol>
-          ${w.answer ? `<div class="nb-answer" hidden><b>Answer:</b> ${md(w.answer)}</div>` : ''}
-          <div class="btn-row">
-            <button class="btn btn-chalk" data-act="next" type="button">Reveal next step</button>
-            <button class="btn" data-act="all" type="button">Show all</button>
-            <button class="btn" data-act="hide" type="button">Hide again</button>
-          </div>
+          ${w.methods ? `<div class="nb-mtabs" role="tablist">${w.methods.map((m, k) => `<button class="nb-mtab${k === 0 ? ' on' : ''}" role="tab" aria-selected="${k === 0}" data-act="method" data-k="${k}" type="button">${md(m.name)}</button>`).join('')}</div>` : ''}
+          ${(w.methods || [{ steps: w.steps, answer: w.answer }]).map((m, k) => solutionHTML(m, k, w.methods ? m.answer : w.answer)).join('')}
         </article>`).join('')}
       </div>`;
     mountWidgets(body, widgets);
@@ -561,8 +759,35 @@
       setTimeout(() => hit.scrollIntoView({ behavior: 'instant', block: 'start' }), 150);
     }
     body.addEventListener('click', (ev) => {
+      const pb = ev.target.closest('[data-prio]');
+      const ph = ev.target.closest('[data-phase]');
+      if (pb || ph) {
+        if (pb) {
+          const on = pb.dataset.prio === 'must';
+          localStorage.setItem('classroom.mustOnly', on ? '1' : '0');
+          body.querySelector('.notebooks').classList.toggle('must-only', on);
+          body.querySelectorAll('[data-prio]').forEach((b) => b.classList.toggle('btn-chalk', b === pb));
+        }
+        if (ph) {
+          phaseSel = ph.dataset.phase;
+          localStorage.setItem('classroom.phase', phaseSel);
+          body.querySelectorAll('[data-phase]').forEach((b) => { if (b.tagName === 'BUTTON') b.classList.toggle('btn-chalk', b === ph); });
+        }
+        const must = body.querySelector('.notebooks').classList.contains('must-only');
+        body.querySelectorAll('.notebook').forEach((n) => {
+          const i = +n.dataset.i;
+          n.hidden = (must && ch.worked[i].priority === 'optional') || !(phaseSel === 'all' || phases[i] === phaseSel || phases[i] === 'mixed');
+        });
+        return;
+      }
       const btn = ev.target.closest('[data-act]'); if (!btn) return;
-      const nb = btn.closest('.notebook'); const i = +nb.dataset.i;
+      const card = btn.closest('.notebook'); const i = +card.dataset.i;
+      if (btn.dataset.act === 'method') {
+        card.querySelectorAll('.nb-mtab').forEach((b) => { const on = b === btn; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+        card.querySelectorAll('.nb-method').forEach((m) => { m.hidden = m.dataset.k !== btn.dataset.k; });
+        return;
+      }
+      const nb = btn.closest('.nb-method');
       const steps = [...nb.querySelectorAll('.nb-step')]; const ans = nb.querySelector('.nb-answer');
       if (btn.dataset.act === 'next') { const s = steps.find((x) => x.hidden); if (s) { s.hidden = false; s.classList.add('chalk-in'); } }
       if (btn.dataset.act === 'all') steps.forEach((s) => { s.hidden = false; });
@@ -581,12 +806,30 @@
       nb.querySelector('.btn-row [data-act="next"]').disabled = all;
       if (all && !P.of(key).worked.includes(i)) {
         P.mark(key, 'worked', i); refreshReportCard(ctx);
-        nb.querySelector('header').insertAdjacentHTML('beforeend', '<span class="tick">✓ done</span>');
+        card.querySelector('header').insertAdjacentHTML('beforeend', '<span class="tick">✓ done</span>');
       }
     });
   }
 
   /* --- Family tab: intuition + steps + the problems of one test type --- */
+  /* Problems flagged `revisit` in the chapter JSON: a red "Pending" list at the top of the tab. */
+  function pendingHTML(ch, idx, href) {
+    const list = idx.filter((i) => ch.worked[i].revisit);
+    if (!list.length) return '';
+    return `<section class="pending-box" aria-label="Pending: problems to revisit">
+        <h3>Pending · revisit (${list.length})</h3>
+        <ul>${list.map((i) => { const w = ch.worked[i]; return `<li><a href="${href(i)}">Problem ${i + 1} · ${md(w.title)}</a>${w.revisit.note ? `<span class="pending-why">${md(w.revisit.note)}</span>` : ''}</li>`; }).join('')}</ul>
+      </section>`;
+  }
+
+  /* --- Pending tab: every problem flagged to revisit, with its full solution --- */
+  function tabPending(ctx) {
+    const { ch, body } = ctx;
+    const idx = ch.worked.map((w, i) => (w.revisit ? i : -1)).filter((i) => i >= 0);
+    body.innerHTML = `${pendingHTML(ch, idx, (i) => `${ctx.base}/pending/${i + 1}`)}<div class="family-worked"></div>`;
+    renderWorked(ctx, body.querySelector('.family-worked'), idx);
+  }
+
   function tabFamily(ctx, f) {
     const { ch, body } = ctx;
     const widgets = [];
@@ -594,6 +837,7 @@
     const t = f.treeBranch && chapterTree(ch);
     const branch = t && findNode(t.tree.root, f.treeBranch);
     body.innerHTML = `
+      ${pendingHTML(ch, idx, (i) => `${ctx.base}/f-${f.id}/${i + 1}`)}
       ${branch ? treeMap(`Where ${esc(f.label)} sit in the tree`, { type: 'tree', root: { ...branch, kind: 'root' }, caption: t.tree.caption }, widgets) : ''}
       <article class="board big-board">
         <div class="board-inner">
@@ -602,9 +846,11 @@
           <div class="board-content">${renderBlocks(f.blocks, widgets)}</div>
         </div>
       </article>
-      ${idx.length ? `<h3 class="tab-subhead">Practice problems for this test (${idx.length})</h3><div class="family-worked"></div>` : ''}`;
+      ${idx.length ? `<h3 class="tab-subhead">Practice problems for this test (${idx.length})</h3><div class="family-worked"></div>` : ''}
+      ${f.check ? `<div class="family-check">${partCheckHTML(ch, f, ctx.base, P.of(ctx.key).known)}</div>` : ''}`;
     mountWidgets(body, widgets);
     if (idx.length) renderWorked(ctx, body.querySelector('.family-worked'), idx);
+    wirePartCheck(ctx, body.querySelector('.family-check .part-check'));
   }
 
   /* --- Lab bench --- */
@@ -758,7 +1004,7 @@
       <div class="cheat-sheet">
         <div class="cs-head"><b>Cheat sheet</b> · ${esc(ch.title)} <button class="btn small-btn" type="button" onclick="window.print()">Print</button></div>
         <table class="cs-table"><tbody>
-        ${ch.formulas.map((f) => `<tr><th>${md(f.name)}</th><td><div class="cs-f">${md(f.formula)}</div>${f.note ? `<div class="cs-note">${md(f.note)}</div>` : ''}</td></tr>`).join('')}
+        ${ch.formulas.map((f) => `<tr><th>${md(f.name)}</th><td><div class="cs-f">${alignedFormula(f.formula)}</div>${f.note ? `<div class="cs-note">${md(f.note)}</div>` : ''}</td></tr>`).join('')}
         </tbody></table>
       </div>`;
   }
@@ -792,6 +1038,31 @@
   window.matchMedia('(min-width: 1100px)').addEventListener('change', () => setNav(isWide() && store.get(NAV_KEY, true)));
   setNav(isWide() && store.get(NAV_KEY, true));
 
+  /* Side-nav order: pages with a `group` (exam day, papers) first, as in the catalog; then the
+     lectures under the course's topic headers (biggest combined weightage first), like the course page. */
+  function sideNavOrder(c) {
+    const topics = c.topics || [];
+    if (!topics.length) return c.chapters;
+    const byId = Object.fromEntries(c.chapters.map((x) => [x.id, x]));
+    const out = c.chapters.filter((x) => x.group);
+    const groups = topics.map((t) => {
+      const chs = t.chapters.map((id) => byId[id]).filter(Boolean);
+      const marks = chs.reduce((a, x) => a + (x.weight?.marks || 0), 0);
+      const outOf = chs.find((x) => x.weight?.outOf)?.weight.outOf || 0;
+      return { t, chs, marks, outOf };
+    }).filter((g) => g.chs.length).sort((a, b) => b.marks - a.marks);
+    groups.forEach((g) => {
+      const nums = g.chs.map((x) => x.number).filter((n) => n != null);
+      const range = nums.length > 1 && nums[nums.length - 1] - nums[0] === nums.length - 1 ? `L${nums[0]}–${nums[nums.length - 1]}` : 'L' + nums.join(', ');
+      out.push({ topicHead: g.t.name, meta: `${range}${g.outOf ? ` · ${g.marks}/${g.outOf}` : ''}`,
+        tip: `${g.t.name}: Lectures ${nums.join(', ')}${g.outOf ? ` · ${g.marks} of ${g.outOf} marks in the last 3 papers` : ''}` });
+      out.push(...g.chs);
+    });
+    const inTopic = new Set(topics.flatMap((t) => t.chapters));
+    out.push(...c.chapters.filter((x) => !x.group && !inTopic.has(x.id)));
+    return out;
+  }
+
   function renderSideNav(parts) {
     if (!catalog) return;
     const [semId, courseId, chId] = parts;
@@ -803,9 +1074,11 @@
           return `<details class="sn-course"${here || !courseId ? ' open' : ''}>
             <summary title="Show or hide the chapters"><span class="sn-dot" style="--door:${esc(c.color || '#4318FF')}"></span>
               <span class="sn-name${here ? ' here' : ''}">${esc(c.title)}</span><span class="sn-caret" aria-hidden="true">▾</span></summary>
-            <ol><li><a href="#/${sem.id}/${c.id}" class="sn-overview${here && !chId ? ' on' : ''}"${here && !chId ? ' aria-current="page"' : ''}><span class="sn-num">⌂</span><span>Course overview</span></a></li>${c.chapters.map((ch) => {
+            <ol><li><a href="#/${sem.id}/${c.id}" class="sn-overview${here && !chId ? ' on' : ''}"${here && !chId ? ' aria-current="page"' : ''}><span class="sn-num">⌂</span><span>Course overview</span></a></li>${sideNavOrder(c).map((ch) => {
+              if (ch.topicHead) return `<li class="sn-topic" title="${esc(ch.tip)}"><span class="sn-topic-name">${esc(ch.topicHead)}</span><span class="sn-topic-meta">${esc(ch.meta)}</span></li>`;
               const ready = ch.file && !ch.comingSoon;
-              const label = ch.label || (ch.number != null ? `${ch.number}` : '');
+              /* side nav shows just the number: "Lecture 11" → "11" */
+              const label = (ch.label || (ch.number != null ? `${ch.number}` : '')).replace(/^Lecture\s+/, '');
               const inner = `<span class="sn-num">${esc(ch.group ? '✎' : label)}</span><span>${esc(ch.group ? `${ch.label || ''} ${ch.title}`.trim() : ch.title)}</span>`;
               return `<li>${ready
                 ? `<a href="#/${sem.id}/${c.id}/${ch.id}/lesson" class="${here && ch.id === chId ? 'on' : ''}"${here && ch.id === chId ? ' aria-current="page"' : ''}>${inner}</a>`

@@ -1,0 +1,892 @@
+{
+  "id": "ch15",
+  "title": "Lecture 15 · Solving the SVM: Dual & Soft Margin",
+  "subtitle": "Lecture 15 · `Lecture_15.pdf` · handout: primal/dual perspective for linear SVM, T1 §12.1–12.4",
+  "lesson": [
+    {
+      "title": "Where the marks are: Lecture 15",
+      "lead": "The soft-margin hinge-loss question was in 2 of the last 3 papers: this is the lecture to do first after Lecture 14.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Paper",
+            "Question",
+            "Question model",
+            "Marks",
+            "Solution"
+          ],
+          "rows": [
+            [
+              "Mar 2026 makeup",
+              "Q6",
+              "M4 Soft margin: slacks, hinge form, hinge loss per point, total objective",
+              "7",
+              "[Open →](#/sem1/aiml-zc416/ch15/f-soft/4)"
+            ],
+            [
+              "Sep 2025 regular",
+              "Q5",
+              "M4 Hinge loss of two models, total objective, margin errors",
+              "7",
+              "[Open →](#/sem1/aiml-zc416/ch15/f-soft/5)"
+            ],
+            [
+              "Sep 2024 regular",
+              "Q(A)",
+              "M3 Dual: adding a point never lowers the optimum",
+              "3",
+              "[Open →](#/sem1/aiml-zc416/ch15/f-dual/3)"
+            ],
+            [
+              "Sep 2024 makeup",
+              "Q(A)",
+              "M5 Small vs large C, which mislabelled point matters",
+              "5",
+              "[Open →](#/sem1/aiml-zc416/ch15/f-soft/7)"
+            ],
+            [
+              "2023 regular (Apr 2024)",
+              "Q2C",
+              "M4 hinge loss of two samples",
+              "2",
+              "[Open →](#/sem1/aiml-zc416/ch15/f-soft/6)"
+            ],
+            [
+              "2023 DS makeup ¹",
+              "Q2A, Q2C",
+              "M2 support vectors and boundary (5) · M4 the same hinge loss (2)",
+              "7",
+              "[Q2A →](#/sem1/aiml-zc416/ch15/f-hard/1) [Q2C →](#/sem1/aiml-zc416/ch15/f-soft/6)"
+            ],
+            [
+              "2022 regular",
+              "Q1c",
+              "M3 Lagrangian dual in two variables, hyperplane",
+              "8",
+              "[Open →](#/sem1/aiml-zc416/ch15/f-dual/2)"
+            ],
+            [
+              "Total",
+              "",
+              "**39 / 400** in 10 papers · **14 / 120** in the last three",
+              "",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "¹ Sister course",
+          "color": "blue",
+          "text": "DSECL ZC416 (*Mathematical Foundations for Data Science*) shares its SVM questions with MFML."
+        }
+      ]
+    },
+    {
+      "title": "Before this lecture",
+      "lead": "Lecture 15 solves the problem Lecture 14 set up. Do these from Lecture 14 first.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Model here",
+            "Needs from Lecture 14"
+          ],
+          "rows": [
+            [
+              "M4 Soft margin",
+              "M1: the constraint yᵢ(wᵀxᵢ + b) ≥ 1, reading the sign of wᵀx + b"
+            ],
+            [
+              "M5 Effect of C",
+              "M4 (this lecture) and what a support vector is"
+            ],
+            [
+              "M2 Support vectors",
+              "M1; P2 (KKT) only for proofs"
+            ],
+            [
+              "M3 Dual",
+              "M1 and P2 (Lagrangian, KKT), plus partial derivatives"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Open",
+          "color": "blue",
+          "text": "[Lecture 14 → P1, P2, M1](#/sem1/aiml-zc416/ch14/lesson)"
+        }
+      ]
+    },
+    {
+      "title": "M4 · Soft margin: hinge loss and objective",
+      "lead": "Priority 1. 18 marks: Sep 2025 Q5 (7), Mar 2026 Q6 (7), 2023 regular Q2C (2), 2023 DS makeup Q2C (2).",
+      "blocks": [
+        {
+          "type": "note",
+          "label": "Before this",
+          "color": "blue",
+          "text": "P1 and M1 only: the constraint yᵢ(wᵀxᵢ + b) ≥ 1 and reading the sign of wᵀx + b. No dual or kernels."
+        },
+        {
+          "type": "p",
+          "text": "**They give:** 4 labelled points, C, and one or two proposed (w, b). **They ask:** the soft-margin problem with slacks, its unconstrained hinge form, yᵢ(wᵀxᵢ + b) for each point, the hinge loss per point, the total objective, which model is better, and which points are margin errors."
+        },
+        {
+          "type": "formula",
+          "text": "min ½‖w‖² + C·Σ ξᵢ   s.t.  yᵢ(wᵀxᵢ + b) ≥ 1 − ξᵢ,  ξᵢ ≥ 0",
+          "caption": "Soft-margin primal: one constraint pair per point"
+        },
+        {
+          "type": "formula",
+          "text": "ξᵢ = max(0, 1 − yᵢ(wᵀxᵢ + b))  ⇒  min ½‖w‖² + C·Σ max(0, 1 − yᵢ(wᵀxᵢ + b))",
+          "caption": "Why the two forms are the same (Mar 2026 Q6b, 2 marks): at the optimum each slack is as small as both constraints allow"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Make a table: point, yᵢ, wᵀxᵢ + b, yᵢ(wᵀxᵢ + b), hinge loss.",
+            "Margin term: ½‖w‖² (e.g. w = (1, 1) gives 1).",
+            "Total = ½‖w‖² + C × (sum of hinge losses). The smaller total is the better model.",
+            "Read each point: yf ≥ 1 is correct and outside the margin (loss 0); 0 < yf < 1 is correct but inside the margin (a **margin error**); yf ≤ 0 is misclassified (loss ≥ 1)."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "The repeated 2-mark part",
+          "text": "Given (y, y′) = (0.5, 1) and (1, −1): hinge = max(0, 1 − y·y′) = 0.5 and 2. The second has y·y′ < 0, so it is the misclassified sample."
+        },
+        {
+          "type": "trap",
+          "label": "Exam trap",
+          "text": "A point with loss 0.5 is **correctly classified**. Only yᵢ(wᵀxᵢ + b) ≤ 0 means misclassified."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Saurabh sir: **P48** (slacks, hinge, effect of C), **Companion Q11** (slacks and a failed candidate), **Lecture 15** slide example (4 points, C = 0.5)."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 60 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** `Lecture_15.pdf` p. 23–26 (worked soft-margin problem, C = 0.5); SVM Companion §10.1–10.3 and §10.5 (slack, the C penalty, hinge loss falls out of the slack).",
+            "**Do:** P48, Companion Q11, then Mar 2026 Q6 and Sep 2025 Q5 timed.",
+            "**Video, only if stuck:** [Soft margin SVMs: the loss-function approach](https://www.youtube.com/watch?v=28rKRHNAhvM), only if ξᵢ = max(0, 1 − yᵢf(xᵢ)) doesn't click."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "M5 · Effect of C, reading a soft-margin model",
+      "lead": "Priority 8. Sep 2024 makeup Q(A) (5 × 1 mark). Short answers with a sketch.",
+      "blocks": [
+        {
+          "type": "note",
+          "label": "Before this",
+          "color": "blue",
+          "text": "M4 (hinge loss, slacks) and the idea of a support vector from M2."
+        },
+        {
+          "type": "table",
+          "head": [
+            "",
+            "Small C",
+            "Large C"
+          ],
+          "rows": [
+            [
+              "Margin",
+              "Wide",
+              "Narrow"
+            ],
+            [
+              "Violations allowed",
+              "Many",
+              "Few (close to hard margin)"
+            ],
+            [
+              "Noisy data",
+              "**Preferred**",
+              "Overfits the noise"
+            ]
+          ]
+        },
+        {
+          "type": "list",
+          "items": [
+            "A mislabelled point that is not a support vector does not move the boundary. A mislabelled support vector does.",
+            "αᵢ = 0: not a support vector. 0 < αᵢ < C: free support vector on the margin (use it to compute b). αᵢ = C: bounded support vector, inside the margin or misclassified."
+          ]
+        },
+        {
+          "type": "list",
+          "items": [
+            "Saurabh sir: **Companion Q16** (read a trained model from its α's), plus the C part of **P48**."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 20 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** SVM Companion §9.1 (the three regions: α = 0, 0 < α < C, α = C) and §10.4 (reading C: big fine vs small fine).",
+            "**Do:** Companion Q16, then Sep 2024 makeup Q(A).",
+            "**Video, only if stuck:** No video: the slides and the companion cover it."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "M2 · Support vectors and boundary from tiny data",
+      "lead": "Priority 7. 2023 DS makeup Q2A (5 marks). Saurabh sir has 6 problems on it.",
+      "blocks": [
+        {
+          "type": "note",
+          "label": "Before this",
+          "color": "blue",
+          "text": "M1. P2 only if the question asks you to prove the answer with KKT."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Plot the points. Guess the support vectors: the closest points of opposite classes.",
+            "The boundary is halfway between them, perpendicular to the line joining them (for one pair).",
+            "Prove the guess with KKT: the support vectors satisfy yᵢ(wᵀxᵢ + b) = 1, every other point gives > 1, and all α ≥ 0.",
+            "Removing a point that is not a support vector does not change the boundary. Removing a support vector can."
+          ]
+        },
+        {
+          "type": "trap",
+          "label": "Companion Q10 trap",
+          "text": "A point lying exactly on a margin line can still have α = 0, so it is **not** necessarily a support vector."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Saurabh sir: **P45** (1-D hard margin via KKT), **Companion Q6** (1-D, adding a point), **Q8** (two points from scratch), **Q9** (five points on a line), **Q10** (the trap), **KKT set P15** (capstone)."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 40 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** SVM Companion §9 (the three regions, sparsity, the prediction rule).",
+            "**Do:** P45, Companion Q8, Q9, Q10 (the trap), then 2023 DS makeup Q2A.",
+            "**Video, only if stuck:** No video: the slides and the companion cover it. Needs P2 only for KKT proofs."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "M3 · Solve or reason with the dual",
+      "lead": "Priority 6. 11 marks: 2022 regular Q1c (8), Sep 2024 regular Q(A) (3). Not in the last three papers, but 8 marks when it comes.",
+      "blocks": [
+        {
+          "type": "note",
+          "label": "Before this",
+          "color": "blue",
+          "text": "M1 (the primal) and P2 (Lagrangian, KKT), plus partial derivatives."
+        },
+        {
+          "type": "formula",
+          "text": "max Σ αᵢ − ½ ΣΣ αᵢαⱼ yᵢyⱼ (xᵢᵀxⱼ)   s.t.  Σ αᵢyᵢ = 0,  αᵢ ≥ 0",
+          "caption": "With a kernel, replace xᵢᵀxⱼ by k(xᵢ, xⱼ)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Use Σ αᵢyᵢ = 0 to remove one α, so the dual has the fewest variables (2022 asks exactly this).",
+            "Set the partial derivatives to 0 and solve for the α's.",
+            "Check every αᵢ ≥ 0. If one is negative, that point is not a support vector: set its α to 0 and solve again.",
+            "w = Σ αᵢyᵢxᵢ, then b from any support vector: yₛ(wᵀxₛ + b) = 1."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Sep 2024 theory part (3 marks)",
+          "color": "blue",
+          "text": "Adding a point: the old optimal α's with αₙ₊₁ = 0 are still feasible for the new problem, so the new optimum is at least the old one."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Saurabh sir: **P47** (solve the dual for three points), **Companion Q3** (full dual solve, b ≠ 0), **Q4** (solver-given α's), **Q14** (work backwards from the α's)."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 60 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** SVM Companion §7–8 (differentiate L with respect to w and b, strong duality as a free check); `Lecture_15.pdf` p. 3–16 (primal to dual).",
+            "**Do:** P47, Companion Q3 and Q14, then 2022 regular Q1c (8 marks).",
+            "**Video, only if stuck:** [SVMs: solving using Lagrange](https://www.youtube.com/watch?v=PGYnwSwKuRo), only if the step from the primal to Σα − ½ΣΣ… is unclear."
+          ]
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Hard margin · 2023 DS makeup Q2A: support vectors from seven points (5 marks)",
+      "tags": [
+        "Past paper",
+        "M2",
+        "Sister course"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Positive: (2, 2), (4, 3), (5, 3), (5, 6). Negative: (−1, −1), (−3, −3), (−4, −2). (i) Find the support vectors. Is the data linearly separable? [1M] (ii) Find the decision boundary. [3M] (iii) What happens to the boundary if (2, 2) is removed? [1M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(i) Closest pair",
+          "text": "The nearest positive–negative pair is (2, 2) and (−1, −1) (distance √18). Every other pair is farther. So the support vectors are **(2, 2) and (−1, −1)**, and the data is linearly separable (the line below separates it)."
+        },
+        {
+          "label": "(ii) Geometry",
+          "text": "With one support vector per class, the boundary is the perpendicular bisector of the segment joining them. Midpoint (0.5, 0.5), direction (1, 1) ⇒ **x₁ + x₂ = 1**."
+        },
+        {
+          "label": "(ii) Canonical w, b",
+          "text": "Scale so the support vectors give ±1: f(x) = (x₁ + x₂ − 1)/3, so w = (⅓, ⅓), b = −⅓. Check: (2, 2) → 1, (−1, −1) → −1. Margin 1/‖w‖ = 3/√2 ≈ 2.12."
+        },
+        {
+          "label": "(ii) Check the rest",
+          "text": "(4, 3): 2, (5, 3): 2.33, (5, 6): 3.33 (all > 1); (−3, −3): −2.33, (−4, −2): −2.33 (all < −1). No other point is inside the margin, so this is the SVM boundary."
+        },
+        {
+          "label": "(iii) Remove (2, 2)",
+          "text": "(2, 2) is a support vector, so removing it **changes the boundary**: it moves towards the positive class and the margin gets wider. Removing a non-support vector (e.g. (5, 6)) would change nothing."
+        }
+      ],
+      "answer": "Support vectors (2, 2) and (−1, −1); boundary x₁ + x₂ = 1 (w = (⅓, ⅓), b = −⅓); removing (2, 2) moves the boundary.",
+      "priority": "optional"
+    },
+    {
+      "title": "Dual · 2022 regular Q1c: the dual in two variables (8 marks)",
+      "tags": [
+        "Past paper",
+        "M3"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Points (x, y, class): (−1, 3, +), (1, 3, −), (−1, 1, −). With multipliers α₁, α₂, α₃, set up the Lagrangian dual in the fewest variables and terms, and find the optimal hyperplane by calculus."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Dual objective",
+          "text": "L = Σαᵢ − ½ΣΣ αᵢαⱼyᵢyⱼ(xᵢ·xⱼ). Dot products: x₁·x₁ = 10, x₂·x₂ = 10, x₃·x₃ = 2, x₁·x₂ = 8, x₁·x₃ = 4, x₂·x₃ = 2. y = (+1, −1, −1).\nL = α₁ + α₂ + α₃ − ½(10α₁² + 10α₂² + 2α₃² − 16α₁α₂ − 8α₁α₃ + 4α₂α₃). [3M]"
+        },
+        {
+          "label": "Remove α₁",
+          "text": "Σαᵢyᵢ = 0 ⇒ α₁ = α₂ + α₃. Substituting and simplifying gives **L = −2α₂² − 2α₃² + 2α₂ + 2α₃** (two variables, four terms). [2M]"
+        },
+        {
+          "label": "Calculus",
+          "text": "∂L/∂α₂ = 2 − 4α₂ = 0 ⇒ α₂ = 0.5. ∂L/∂α₃ = 2 − 4α₃ = 0 ⇒ α₃ = 0.5. Then α₁ = 1. All α ≥ 0 ✓."
+        },
+        {
+          "label": "w and b",
+          "text": "w = Σαᵢyᵢxᵢ = 1(−1, 3) − 0.5(1, 3) − 0.5(−1, 1) = **(−1, 1)**. From wᵀx₁ + b = 1 at (−1, 3): 1 + 3 + b = 1 ⇒ **b = −3**."
+        },
+        {
+          "label": "Check",
+          "text": "(1, 3): −1 + 3 − 3 = −1 ✓. (−1, 1): 1 + 1 − 3 = −1 ✓. All three are support vectors."
+        }
+      ],
+      "answer": "α = (1, 0.5, 0.5), w = (−1, 1), b = −3: hyperplane −x₁ + x₂ − 3 = 0.",
+      "priority": "must",
+      "priorityWhy": "The one full SVM-dual computation"
+    },
+    {
+      "title": "Dual · Sep 2024 regular Q(A): adding a point can't lower the optimum (3 marks)",
+      "tags": [
+        "Past paper",
+        "M3",
+        "Theory"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Problem (A) is the usual hard-margin dual on n points. Problem (B) adds a point xₙ₊₁ = ½(xᵢ + xⱼ) for two points of the same class, with yₙ₊₁ = yᵢ. Show the optimal value of (B) is ≥ the optimal value of (A)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Feasible point for (B)",
+          "text": "Take the optimum of (A), (α₁*, …, αₙ*), and set αₙ₊₁ = 0. Both constraints of (B) hold: Σαᵢyᵢ = 0 (the new term is 0) and every α ≥ 0."
+        },
+        {
+          "label": "Same value",
+          "text": "Every term in (B)'s objective that is new contains αₙ₊₁ = 0, so this feasible point gives exactly O_A."
+        },
+        {
+          "label": "Conclude",
+          "text": "The optimum of a maximisation problem is ≥ the value at any feasible point, so **O_B ≥ O_A**."
+        }
+      ],
+      "answer": "(α*, 0) is feasible for (B) with value O_A, so the maximum of (B) is at least O_A.",
+      "priority": "must",
+      "priorityWhy": "Asked twice: previous batch (Apr 2023) Q1 and Sep 2024 regular Q(A)"
+    },
+    {
+      "title": "Soft margin · Mar 2026 Q6: hinge form and total objective (7 marks)",
+      "tags": [
+        "Past paper",
+        "M4",
+        "Newest paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "X1 (3, 3) +1, X2 (5, 5) +1, X3 (3, 0) −1, X4 (5, 0) −1. (a) Soft-margin primal with slacks ξᵢ and C. [1M] (b) Show it equals min ½‖w‖² + CΣmax(0, 1 − yᵢ(wᵀxᵢ + b)). [2M] (c) For w = (1, −1), b = 0: yᵢ(wᵀxᵢ + b) for each point [2M], hinge loss of each [1M], total objective for C = 1 [1M]."
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Primal",
+          "text": "min ½(w₁² + w₂²) + C(ξ₁ + ξ₂ + ξ₃ + ξ₄) s.t. 3w₁ + 3w₂ + b ≥ 1 − ξ₁, 5w₁ + 5w₂ + b ≥ 1 − ξ₂, −(3w₁ + b) ≥ 1 − ξ₃, −(5w₁ + b) ≥ 1 − ξ₄, ξᵢ ≥ 0."
+        },
+        {
+          "label": "(b) Hinge form",
+          "text": "The constraint gives ξᵢ ≥ 1 − yᵢ(wᵀxᵢ + b), and also ξᵢ ≥ 0 [1M]. The objective wants ξᵢ as small as possible, so ξᵢ = max(0, 1 − yᵢ(wᵀxᵢ + b)): the hinge loss. Substituting gives the unconstrained form [1M]."
+        },
+        {
+          "label": "(c) Scores",
+          "text": "wᵀx = x₁ − x₂. X1: 1·0 = 0. X2: 1·0 = 0. X3: −1·3 = −3. X4: −1·5 = −5."
+        },
+        {
+          "label": "(c) Hinge losses",
+          "text": "max(0, 1 − score): 1, 1, 4, 6."
+        },
+        {
+          "label": "(c) Total",
+          "text": "½‖w‖² = ½(1 + 1) = 1. Total = 1 + 1·(1 + 1 + 4 + 6) = **13**."
+        }
+      ],
+      "answer": "Scores 0, 0, −3, −5; hinge losses 1, 1, 4, 6; total objective 13.",
+      "priority": "must",
+      "priorityWhy": "Newest paper (Mar 2026)"
+    },
+    {
+      "title": "Soft margin · Sep 2025 Q5: which of two models is better (7 marks)",
+      "tags": [
+        "Past paper",
+        "M4"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x₁ (0, 0) −1, x₂ (2, 2) +1, x₃ (2, 0) −1, x₄ (0, 2) +1; C = 1. Model A: w = (1, 1), b = −1.5. Model B: w = (1, −1), b = 0. (a) ½‖w‖² for each. [1M] (b) Hinge loss of each point and the sum. [3M] (c) Total objective; which model is better? [1M] (d) For the better model: margin errors and correctly classified points. [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "A: ½(1 + 1) = 1. B: ½(1 + 1) = 1."
+        },
+        {
+          "label": "(b) Model A",
+          "text": "wᵀx + b = x₁ + x₂ − 1.5: −1.5, 2.5, 0.5, 0.5. Times y: 1.5, 2.5, −0.5, 0.5. Hinge: 0, 0, 1.5, 0.5. Sum **2**."
+        },
+        {
+          "label": "(b) Model B",
+          "text": "wᵀx + b = x₁ − x₂: 0, 0, 2, −2. Times y: 0, 0, −2, −2. Hinge: 1, 1, 3, 3. Sum **8**."
+        },
+        {
+          "label": "(c)",
+          "text": "A: 1 + 2 = **3**. B: 1 + 8 = **9**. Model A is better (smaller objective)."
+        },
+        {
+          "label": "(d) Read model A",
+          "text": "x₁ (yf = 1.5) and x₂ (2.5): correct and outside the margin. x₄ (0.5): correct but **inside the margin**, a margin error. x₃ (−0.5): **misclassified** (also a margin error). Correctly classified: x₁, x₂, x₄."
+        }
+      ],
+      "answer": "Objectives A = 3, B = 9, so A is better; in A, x₃ is misclassified and x₄ is a margin error; x₁, x₂, x₄ are correctly classified.",
+      "priority": "must",
+      "priorityWhy": "Recent paper (Sep 2025)"
+    },
+    {
+      "title": "Soft margin · 2023 Q2C: hinge loss of two samples (2 marks)",
+      "tags": [
+        "Past paper",
+        "M4",
+        "Repeated"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Samples (y, y′): (0.5, 1) and (1, −1), where y′ is the prediction. Find the hinge loss of each and say which is misclassified."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Formula",
+          "text": "Hinge loss = max(0, 1 − y·y′)."
+        },
+        {
+          "label": "Sample 1",
+          "text": "max(0, 1 − 0.5) = **0.5** [1M]."
+        },
+        {
+          "label": "Sample 2",
+          "text": "max(0, 1 + 1) = **2** [1M]."
+        },
+        {
+          "label": "Misclassified",
+          "text": "Sample 2: y·y′ = −1 < 0 (opposite signs). Sample 1 has a non-zero loss but y·y′ > 0, so it is correct, just inside the margin."
+        }
+      ],
+      "answer": "0.5 and 2; the second sample is misclassified.",
+      "priority": "must",
+      "priorityWhy": "Asked more than once"
+    },
+    {
+      "title": "Soft margin · Sep 2024 makeup Q(A): small C versus large C (5 marks)",
+      "tags": [
+        "Past paper",
+        "M5",
+        "Theory"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Noisy-sensor data in two classes, SVM with a quadratic kernel and parameter C. (a) Sketch a boundary for small C. (b) For large C. (c) Mark a point whose wrong label would not affect the boundary. (d) One whose wrong label would. (e) High or low C for this data? [1M each]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Small C",
+          "text": "Violations are cheap: a smooth boundary with a wide margin that lets a few points sit inside it or on the wrong side."
+        },
+        {
+          "label": "(b) Large C",
+          "text": "Violations are expensive: a tighter, wigglier boundary that tries to classify every point correctly, with a narrow margin. Mark some support vectors."
+        },
+        {
+          "label": "(c)",
+          "text": "Any point that is **not** a support vector (far from the boundary, α = 0). Its label does not enter w."
+        },
+        {
+          "label": "(d)",
+          "text": "Any **support vector** (on or inside the margin). Changing its label changes the solution."
+        },
+        {
+          "label": "(e)",
+          "text": "The data is noisy, so allow some misclassification: **low C**."
+        }
+      ],
+      "answer": "Small C: wide, smooth margin; large C: narrow, tight fit; non-support vectors don't matter, support vectors do; choose low C for noisy data.",
+      "priority": "optional"
+    }
+  ],
+  "families": [
+    {
+      "id": "hard",
+      "label": "Support vectors",
+      "icon": "●",
+      "title": "Support vectors and the boundary from tiny data",
+      "lead": "Model M2. 2023 DS makeup Q2A (5 marks).",
+      "problems": [
+        "Hard margin ·"
+      ],
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "Guess the support vectors: closest points of opposite classes.",
+            "Boundary halfway between them, perpendicular to the joining segment.",
+            "Prove it with KKT: support vectors give yᵢ(wᵀxᵢ + b) = 1, all others > 1, all α ≥ 0."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dual",
+      "label": "Dual",
+      "icon": "α",
+      "title": "Dual: solve for the α's",
+      "lead": "Model M3. 2022 regular Q1c (8 marks) and Sep 2024 Q(A) (3 marks).",
+      "problems": [
+        "Dual ·"
+      ],
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "max Σαᵢ − ½ΣΣ αᵢαⱼyᵢyⱼ(xᵢ·xⱼ)  s.t.  Σαᵢyᵢ = 0, αᵢ ≥ 0"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Compute every dot product xᵢ·xⱼ (or kernel value).",
+            "Use Σαᵢyᵢ = 0 to remove one α.",
+            "Set the derivatives to 0; check all α ≥ 0.",
+            "w = Σαᵢyᵢxᵢ; b from a support vector."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "soft",
+      "label": "Soft margin",
+      "icon": "ξ",
+      "title": "Soft margin: slacks, hinge loss and C",
+      "lead": "Models M4 and M5: 23 past-paper marks, in 2 of the last 3 papers.",
+      "problems": [
+        "Soft margin ·"
+      ],
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "min ½‖w‖² + C·Σ max(0, 1 − yᵢ(wᵀxᵢ + b))"
+        },
+        {
+          "type": "table",
+          "head": [
+            "yᵢf(xᵢ)",
+            "Point is",
+            "Hinge loss"
+          ],
+          "rows": [
+            [
+              "≥ 1",
+              "correct, outside the margin",
+              "0"
+            ],
+            [
+              "between 0 and 1",
+              "correct, inside the margin (margin error)",
+              "between 0 and 1"
+            ],
+            [
+              "≤ 0",
+              "misclassified",
+              "≥ 1"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Definition",
+      "front": "What is a support vector?",
+      "back": "A training point with αᵢ > 0. For hard margin it lies on a margin line, yᵢ(wᵀxᵢ + b) = 1. Removing it can move the boundary."
+    },
+    {
+      "tag": "Trap",
+      "front": "Is every point on the margin line a support vector?",
+      "back": "No. A point can sit exactly on the margin line with α = 0 (Companion Q10)."
+    },
+    {
+      "tag": "Formula",
+      "front": "Hinge loss of one point",
+      "back": "max(0, 1 − yᵢ(wᵀxᵢ + b))"
+    },
+    {
+      "tag": "Reading",
+      "front": "yᵢf(xᵢ) = 0.5. Correct or misclassified?",
+      "back": "Correct, but inside the margin (a margin error). Hinge loss 0.5."
+    },
+    {
+      "tag": "Reading",
+      "front": "yᵢf(xᵢ) = −0.5. What does it mean?",
+      "back": "Misclassified. Hinge loss 1.5."
+    },
+    {
+      "tag": "Concept",
+      "front": "Noisy data: small or large C?",
+      "back": "Small C: wider margin, tolerates a few violations."
+    },
+    {
+      "tag": "Formula",
+      "front": "w and b from the α's",
+      "back": "w = Σαᵢyᵢxᵢ; b from any support vector: yₛ(wᵀxₛ + b) = 1."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "numeric",
+      "q": "w = (1, 1), b = −1.5. Hinge loss of x = (2, 0) with y = −1?",
+      "answer": 1.5,
+      "tolerance": 0.001,
+      "explain": "f = 2 − 1.5 = 0.5; yf = −0.5; loss = 1 − (−0.5) = 1.5.",
+      "set": "Numericals"
+    },
+    {
+      "type": "mcq",
+      "q": "A point has yᵢ(wᵀxᵢ + b) = 0.3. It is…",
+      "options": [
+        "Misclassified",
+        "Correct, outside the margin",
+        "Correct, inside the margin",
+        "A non-support vector"
+      ],
+      "answer": 2,
+      "explain": "Positive means correct; below 1 means inside the margin.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "Which points determine w in an SVM?",
+      "options": [
+        "All points",
+        "Only support vectors (α > 0)",
+        "Only misclassified points",
+        "The class means"
+      ],
+      "answer": 1,
+      "explain": "w = Σαᵢyᵢxᵢ and α = 0 for every other point.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "Data from a noisy sensor. Preferred C?",
+      "options": [
+        "Very large C",
+        "Low C",
+        "C = 0",
+        "C doesn't matter"
+      ],
+      "answer": 1,
+      "explain": "Low C tolerates a few wrong labels instead of overfitting them.",
+      "set": "Concepts"
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Soft-margin primal",
+      "formula": "min ½‖w‖² + C·Σξᵢ  s.t.  yᵢ(wᵀxᵢ + b) ≥ 1 − ξᵢ, ξᵢ ≥ 0"
+    },
+    {
+      "name": "Hinge form",
+      "formula": "min ½‖w‖² + C·Σ max(0, 1 − yᵢ(wᵀxᵢ + b))"
+    },
+    {
+      "name": "Hinge loss of one point",
+      "formula": "lᵢ = max(0, 1 − yᵢ·f(xᵢ))",
+      "note": "0 outside the margin, between 0 and 1 inside it, ≥ 1 when misclassified"
+    },
+    {
+      "name": "Dual",
+      "formula": "max Σαᵢ − ½ΣΣ αᵢαⱼyᵢyⱼ k(xᵢ, xⱼ)  s.t.  Σαᵢyᵢ = 0, 0 ≤ αᵢ (≤ C for soft margin)"
+    },
+    {
+      "name": "From α to w and b",
+      "formula": "w = Σ αᵢyᵢxᵢ,  b = yₛ − wᵀxₛ for a support vector xₛ"
+    }
+  ],
+  "readme": {
+    "summary": "**p. N** = PDF page of `Lecture_15.pdf` (a scanned deck with no slide numbers). **M1–M8** = the 8 SVM question models.",
+    "sections": [
+      {
+        "title": "Page numbers",
+        "items": [
+          "`Lecture_15.pdf` is scanned images with no slide numbers, so **p. N** is the page your PDF viewer shows. The worked soft-margin example is on p. 23–26."
+        ]
+      },
+      {
+        "title": "Symbols",
+        "head": [
+          "Here",
+          "Also written as",
+          "Meaning"
+        ],
+        "rows": [
+          [
+            "w, b",
+            "",
+            "normal vector and bias of the line wᵀx + b = 0"
+          ],
+          [
+            "yᵢ",
+            "label +1 / −1",
+            "class of point xᵢ"
+          ],
+          [
+            "f(x)",
+            "wᵀx + b",
+            "decision value; its sign is the prediction"
+          ],
+          [
+            "yf",
+            "yᵢf(xᵢ) = yᵢ(wᵀxᵢ + b)",
+            "shorthand used in the tables"
+          ],
+          [
+            "αᵢ",
+            "λᵢ (board P2, general Lagrangian)",
+            "dual multiplier of point i"
+          ],
+          [
+            "ξᵢ",
+            "slack",
+            "how far point i breaks the margin"
+          ],
+          [
+            "C",
+            "",
+            "penalty on slack (soft margin)"
+          ],
+          [
+            "margin",
+            "1/‖w‖ (each side), 2/‖w‖ (full width, 'street width' in the SVM Companion)",
+            "say which one you give"
+          ],
+          [
+            "φ(x)",
+            "feature map",
+            "x mapped to the bigger space"
+          ],
+          [
+            "k(x, z)",
+            "K(x, z)",
+            "kernel value = φ(x)ᵀφ(z)"
+          ],
+          [
+            "K",
+            "Gram matrix",
+            "kernel matrix, Kᵢⱼ = k(xᵢ, xⱼ)"
+          ],
+          [
+            "M1–M8",
+            "question models",
+            "the 8 kinds of SVM question (board 'The 8 question models', Lecture 14)"
+          ]
+        ]
+      },
+      {
+        "title": "Sources and short names",
+        "items": [
+          "**P31** = Problem 31 of Sourabh sir's Solved Practice Set (`MFML_ZC416_Solved_Practice_Set.pdf`, Prof Saurabh materials → Practice materials → Endsem Practice materials).",
+          "**Practice Paper Q4** = question 4 of `MFML_ZC416_Practice_Paper.pdf` (same folder).",
+          "**Companion §3** = section 3 of the companion PDF named on that board (Prof. Saurabh → Companion_Doc or practice_problems).",
+          "**KKT set P15** = problem 15 of `Lagrange-KKT-Duality-Practice-Set.pdf` (Prof. Saurabh → practice_problems).",
+          "**[1M]** = the marks the official answer key gives for that step.",
+          "**Feb 2026 / Mar 2026 / Sep 2025** = the end-sem (EC-3) papers in the Exam hall. **Mar 2026 makeup** and anything marked **DS** were set for the sister course DSECL ZC416 (same syllabus).",
+          "**Lecture N** or **LN** = `Lecture_N.pdf` = contact session N in the handout."
+        ]
+      }
+    ]
+  }
+}

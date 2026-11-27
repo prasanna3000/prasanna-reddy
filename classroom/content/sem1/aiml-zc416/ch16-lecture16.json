@@ -1,0 +1,360 @@
+{
+  "id": "ch16",
+  "title": "Lecture 16 · Nonlinear SVM: the Kernel Trick",
+  "subtitle": "Lecture 16 · expert lecture, no slides · handout: nonlinear SVM, kernels, examples",
+  "lesson": [
+    {
+      "title": "Where the marks are: Lecture 16",
+      "lead": "Not in the last three papers, but 5 marks in Sourabh sir's Practice Paper and 10 in the 2023 papers.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Paper",
+            "Question",
+            "Question model",
+            "Marks",
+            "Solution"
+          ],
+          "rows": [
+            [
+              "2023 regular (Apr 2024)",
+              "Q2A",
+              "M8 1-D kernel trick (x mod 2), boundary",
+              "5",
+              "[Open →](#/sem1/aiml-zc416/ch16/worked/1)"
+            ],
+            [
+              "2023 DS regular ¹",
+              "Q3B",
+              "M8 XOR with (4 + xᵀz)²: kernel matrix, dual, boundary x₁x₂ = 0",
+              "5",
+              "[Open →](#/sem1/aiml-zc416/ch16/worked/2)"
+            ],
+            [
+              "Practice Paper (Sourabh sir)",
+              "Q7",
+              "M8 kernel SVM on a line, thresholds ±√2",
+              "5",
+              "[Open →](#/sem1/aiml-zc416/ch16/worked/3)"
+            ],
+            [
+              "Total",
+              "",
+              "**10 / 400** in 10 papers · **0 / 120** in the last three",
+              "",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "¹ Sister course",
+          "color": "blue",
+          "text": "DSECL ZC416 (*Mathematical Foundations for Data Science*) shares its SVM questions with MFML."
+        }
+      ]
+    },
+    {
+      "title": "Before this lecture",
+      "lead": "Lecture 16 is an expert lecture with no slides. It puts the kernel from Lecture 14 into the dual from Lecture 15.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Needs",
+            "From"
+          ],
+          "rows": [
+            [
+              "M6 kernel matrix, M7 feature map",
+              "[Lecture 14](#/sem1/aiml-zc416/ch14/lesson)"
+            ],
+            [
+              "M3 dual and f(x) = Σαᵢyᵢk(xᵢ, x) + b",
+              "[Lecture 15](#/sem1/aiml-zc416/ch15/lesson)"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Read instead of slides",
+          "text": "SVM Companion §11.3–11.4 and §11.8–11.9 (the exam recipe), Practice Set P49–P52."
+        }
+      ]
+    },
+    {
+      "title": "M8 · Kernel SVM on non-separable data",
+      "lead": "Priority 4. 10 marks: 2023 regular Q2A (1-D data, 5), 2023 DS regular Q3B (XOR, 5). Saurabh sir's biggest group: 8 problems.",
+      "blocks": [
+        {
+          "type": "note",
+          "label": "Before this",
+          "color": "blue",
+          "text": "M6 and M7 (kernels), and M3 (the dual and f(x) = Σαᵢyᵢk(xᵢ, x) + b)."
+        },
+        {
+          "type": "p",
+          "text": "**They give:** data that no straight line separates (alternating points on a line, XOR corners, inner and outer rings). **They ask:** show it is not linearly separable, pick a kernel or φ, find the boundary, and map it back to the original space."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Show no line works (e.g. XOR: each class sits on a diagonal).",
+            "Choose φ: x → (x, x²) for 1-D data; x₁x₂ for XOR; (xᵀz + 1)² for rings.",
+            "Solve the SVM in feature space (often by symmetry, or with the dual).",
+            "Write f(x) = Σ αᵢ yᵢ k(xᵢ, x) + b and set f(x) = 0 to get the boundary in the original space: two thresholds, the axes, a circle or a hyperbola.",
+            "Classify new points by the sign of f(x)."
+          ]
+        },
+        {
+          "type": "list",
+          "items": [
+            "Saurabh sir: **P49** (axis-pattern data, homogeneous quadratic kernel), **P50** (bias and boundary, non-homogeneous kernel), **P52** (XOR), **Practice Paper Q7** (kernel SVM on a line, 5M), **Companion Q1** (XNOR), **Q2** (inner/outer rings), **Q5** (1-D, two thresholds), **Q17** (choose the kernel)."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 60 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** SVM Companion §11.3–11.4 and §11.8–11.9 (no straight line, the kernel trick, putting the kernel in the SVM, **the exam recipe**).",
+            "**Do:** Practice Paper Q7, P52 (XOR), Companion Q1, Q2, Q5, then 2023 Q2A and 2023 DS Q3B.",
+            "**Video, only if stuck:** Reuse StatQuest Part 2 from M7 if needed. Skip Part 3 (RBF): never asked in an MFML paper."
+          ]
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Kernels · 2023 Q2A: the kernel trick on 1-D data (5 marks)",
+      "tags": [
+        "Past paper",
+        "M8"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Positive class: (7, 0), (9, 0). Negative class: (8, 0), (10, 0). Use the kernel trick: find a suitable φ(x) and the decision boundary."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Why a line fails",
+          "text": "On the x-axis the labels alternate +, −, +, − (7, 8, 9, 10). No single threshold separates them."
+        },
+        {
+          "label": "Choose φ",
+          "text": "φ(x) = x mod 2 [1M]: φ(7) = φ(9) = 1 [1M]; φ(8) = φ(10) = 0 [1M]."
+        },
+        {
+          "label": "Boundary",
+          "text": "In feature space the classes sit at 1 and 0, so the boundary is **φ = 0.5** (midway) [2M]."
+        },
+        {
+          "label": "Alternative",
+          "text": "φ(x) = cos(πx) also works: −1 for odd x, +1 for even x, boundary cos(πx) = 0. Any φ that separates the parities gets the marks if justified."
+        }
+      ],
+      "answer": "φ(x) = x mod 2; boundary at 0.5 in feature space (odd x → +, even x → −).",
+      "priority": "must",
+      "priorityWhy": "The basic kernel-trick question"
+    },
+    {
+      "title": "Kernels · 2023 DS regular Q3B: XOR data with (4 + xᵀz)² (5 marks)",
+      "tags": [
+        "Past paper",
+        "M8",
+        "Sister course"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(2, 2) +, (−2, −2) +, (2, −2) −, (−2, 2) −. (i) Is it linearly separable? [1M] (ii) Derive a suitable kernel matrix. [1.5M] (iii) Derive the SVM decision boundary. [2.5M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(i)",
+          "text": "No: each class sits on one diagonal of the square (XOR pattern), so no straight line separates them."
+        },
+        {
+          "label": "(ii) Kernel",
+          "text": "Use K(x, z) = (4 + xᵀz)². xᵀz = 8 for a point with itself, −8 for the opposite corner of the same class, 0 for the other class ⇒ K = 144 on the diagonal, 16 everywhere else."
+        },
+        {
+          "label": "(iii) Dual",
+          "text": "Maximise Σαᵢ − ½ΣΣαᵢαⱼyᵢyⱼKᵢⱼ. Setting the derivatives to 0 gives four equations such as 144α₁ + 16α₂ − 16α₃ − 16α₄ = 1. By symmetry all αᵢ are equal: **αᵢ = 1/128**."
+        },
+        {
+          "label": "(iii) Boundary",
+          "text": "The x₁x₂ feature carries all the weight (w = (0, 0, 22.6, 0, 0, 0) in the key's feature order), b = 0. So the boundary is **x₁x₂ = 0**: the two axes. Points with x₁x₂ > 0 are +, x₁x₂ < 0 are −."
+        }
+      ],
+      "answer": "Not linearly separable; K = 144 diagonal, 16 elsewhere; αᵢ = 1/128; boundary x₁x₂ = 0.",
+      "priority": "optional"
+    },
+    {
+      "title": "Kernels · Practice Paper Q7: kernel SVM on a line (5 marks)",
+      "tags": [
+        "Sourabh sir",
+        "M8",
+        "M6",
+        "Practice Paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x = −2 (+1), x = 0 (−1), x = 2 (+1); K(x, z) = (xz + 1)². (a) Kernel matrix. [1M] (b) With α₁ = α₃ = a, use Σαᵢyᵢ = 0 and yᵢf(xᵢ) = 1 to find a, α₂ and b. [2M] (c) Show f(x) = ½x² − 1 and give the thresholds. [1M] (d) Classify x = 1 and x = −3. [1M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "K = [[25, 1, 9], [1, 1, 1], [9, 1, 25]] (careful: K(−2, 2) = (−4 + 1)² = 9, not −9)."
+        },
+        {
+          "label": "(b)",
+          "text": "Σαᵢyᵢ = 0 ⇒ α₂ = 2a. f(0) = a(1) − 2a(1) + a(1) + b = b = −1. f(2) = 9a − 2a + 25a − 1 = 32a − 1 = 1 ⇒ **a = 1/16, α₂ = 1/8, b = −1**."
+        },
+        {
+          "label": "(c)",
+          "text": "f(x) = (1/16)[(1 − 2x)² + (1 + 2x)²] − (1/8) − 1 = ½x² − 1. f = 0 at **x = ±√2 ≈ ±1.4142**."
+        },
+        {
+          "label": "(d)",
+          "text": "x = 1: −0.5 ⇒ **−1**. x = −3: 3.5 ⇒ **+1**."
+        }
+      ],
+      "answer": "a = 1/16, α₂ = 1/8, b = −1; f(x) = ½x² − 1, thresholds ±√2; x = 1 → −1, x = −3 → +1.",
+      "priority": "must",
+      "priorityWhy": "Saurabh sir's Practice Paper"
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Concept",
+      "front": "Kernel SVM decision function",
+      "back": "f(x) = Σαᵢyᵢk(xᵢ, x) + b; classify by its sign."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "numeric",
+      "q": "K(−2, 2) for K(x, z) = (xz + 1)²?",
+      "answer": 9,
+      "tolerance": 0,
+      "explain": "(−4 + 1)² = 9. Squaring makes it positive.",
+      "set": "Numericals"
+    },
+    {
+      "type": "mcq",
+      "q": "Labels on a line alternate +, −, +, − at x = 7, 8, 9, 10. A suitable φ?",
+      "options": [
+        "φ(x) = x",
+        "φ(x) = x²",
+        "φ(x) = x mod 2",
+        "φ(x) = 2x"
+      ],
+      "answer": 2,
+      "explain": "x mod 2 sends odd x to 1 and even x to 0; x and x² keep the order, so they still alternate.",
+      "set": "Concepts"
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Kernel decision function",
+      "formula": "f(x) = Σ αᵢyᵢ k(xᵢ, x) + b"
+    }
+  ],
+  "readme": {
+    "summary": "Lecture 16 has **no slides**: references are to the SVM Companion (§ = section) and the Practice Set (P49–P52).",
+    "sections": [
+      {
+        "title": "Symbols",
+        "head": [
+          "Here",
+          "Also written as",
+          "Meaning"
+        ],
+        "rows": [
+          [
+            "w, b",
+            "",
+            "normal vector and bias of the line wᵀx + b = 0"
+          ],
+          [
+            "yᵢ",
+            "label +1 / −1",
+            "class of point xᵢ"
+          ],
+          [
+            "f(x)",
+            "wᵀx + b",
+            "decision value; its sign is the prediction"
+          ],
+          [
+            "yf",
+            "yᵢf(xᵢ) = yᵢ(wᵀxᵢ + b)",
+            "shorthand used in the tables"
+          ],
+          [
+            "αᵢ",
+            "λᵢ (board P2, general Lagrangian)",
+            "dual multiplier of point i"
+          ],
+          [
+            "ξᵢ",
+            "slack",
+            "how far point i breaks the margin"
+          ],
+          [
+            "C",
+            "",
+            "penalty on slack (soft margin)"
+          ],
+          [
+            "margin",
+            "1/‖w‖ (each side), 2/‖w‖ (full width, 'street width' in the SVM Companion)",
+            "say which one you give"
+          ],
+          [
+            "φ(x)",
+            "feature map",
+            "x mapped to the bigger space"
+          ],
+          [
+            "k(x, z)",
+            "K(x, z)",
+            "kernel value = φ(x)ᵀφ(z)"
+          ],
+          [
+            "K",
+            "Gram matrix",
+            "kernel matrix, Kᵢⱼ = k(xᵢ, xⱼ)"
+          ],
+          [
+            "M1–M8",
+            "question models",
+            "the 8 kinds of SVM question (board 'The 8 question models', Lecture 14)"
+          ]
+        ]
+      },
+      {
+        "title": "Sources and short names",
+        "items": [
+          "**P31** = Problem 31 of Sourabh sir's Solved Practice Set (`MFML_ZC416_Solved_Practice_Set.pdf`, Prof Saurabh materials → Practice materials → Endsem Practice materials).",
+          "**Practice Paper Q4** = question 4 of `MFML_ZC416_Practice_Paper.pdf` (same folder).",
+          "**Companion §3** = section 3 of the companion PDF named on that board (Prof. Saurabh → Companion_Doc or practice_problems).",
+          "**KKT set P15** = problem 15 of `Lagrange-KKT-Duality-Practice-Set.pdf` (Prof. Saurabh → practice_problems).",
+          "**[1M]** = the marks the official answer key gives for that step.",
+          "**Feb 2026 / Mar 2026 / Sep 2025** = the end-sem (EC-3) papers in the Exam hall. **Mar 2026 makeup** and anything marked **DS** were set for the sister course DSECL ZC416 (same syllabus).",
+          "**Lecture N** or **LN** = `Lecture_N.pdf` = contact session N in the handout."
+        ]
+      }
+    ]
+  }
+}

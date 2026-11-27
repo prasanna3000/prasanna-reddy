@@ -1,1032 +1,1476 @@
 {
- "id": "ch09",
- "title": "Gradient Descent",
- "subtitle": "Lecture 9 slides · loss, zero gradient, the GD rule, step size, decay, line search, SGD",
- "lesson": [
-  {
-   "title": "PENDING in this chapter: read these in revision",
-   "lead": "Lecture 9 slides not yet walked through step by step. Do them in this order.",
-   "blocks": [
+  "id": "ch09",
+  "title": "Gradient Descent",
+  "subtitle": "Lecture 9 slides · loss, zero gradient, the GD rule, step size, decay, line search, SGD",
+  "lesson": [
     {
-     "type": "note",
-     "label": "PENDING: still to write into this chapter and revise",
-     "text": "A. Taught in chat, not yet written up here:\n1. Choosing the step size (slides 11-12) and Sourabh sir's Problem 27 (recover the learning rate from one step: gradient (4, 4), η = 0.2, next point (0.72, 0.04), f = 6, 1.52, 0.5216, stable 0 < η < 0.5).\n2. Gradient correctness (slide 13): the finite-difference check; companion section 7 has the example J = w1² + 3·w1·w2 at (1, 2).\n3. Learning-rate decay and the bold driver (slides 14-17).\n4. Line search theory (slides 18-26): αt = min J(wt + α·gt), h(α) along the direction, perpendicular property, unimodal, binary, golden-section, Armijo, when it is used.\n5. Worked line-search problems: 2023 makeup Q1(C) (α = (1 + β²) / (2(1 + β³)), β = 1), Sourabh sir's P28 (d = (-6, -6), α* = 0.25, w1 = (1.5, -0.5), f = 3), Mar 2026 Q3 binary search ([0, 2] → [0, 1] → [0.5, 1], α* ≈ 0.63).\nB. Not yet worked:\n6. 2022 makeup Q4(3), matrix form: g(z) = ½‖Az − b‖² + ½‖z‖² + ‖b‖²; d = Ab − (A² + I)z; α* = dᵀd / dᵀ(A² + I)d.\n7. 2022 makeup Q4(1): f(x) = ax² + bx + c; is xn+k = xn·Pᵏ + Q possible, and for which learning rates λ does GD converge.\n8. Sourabh sir's P29 is solved in chat (d = (-4, -4), φ′ = -16·s·(s² + 1), intervals [0, 0.3], [0.15, 0.3], [0.225, 0.3], α* = 0.25); write it up here.\n9. Golden-section search (slides 24-25): theory only; the companion has a two-round worked example on h(γ).\n10. The 1-D family: 2022 makeup Q3 (stationary points, which start reaches the global minimum), 2024 makeup (zone of attraction), and 2022 Q4(1) above.\n11. Sourabh sir's P30 (regression with inverse decay, same pattern as Feb 2026 Q4(c)), P23 (least-squares gradient, Hessian, convexity) and P24 (gradient of xᵀAx + bᵀx).\n12. His Lecture 9 companion worked examples: binary search (four rounds) and golden-section (two rounds) on h(γ), six bold-driver iterations, the decay table (α0 = 0.5, k = 0.5), the exact step on x² + 3y² from (2, 2).\n13. Stochastic and mini-batch GD (slides 27-30): theory only, no past-paper numerical.\n14. Momentum (Lecture 11): Mar 2026 Q4, 2024 Q4 comparison, 2023 makeup find β. Seen in three papers, so do it next.\n15. Lectures 10 to 15, and L1/L2 regularisation under Optimisation II.",
-     "color": "red"
-    },
-    {
-     "type": "note",
-     "label": "Already taught step by step",
-     "text": "Why optimise and the loss (slides 1-4), the zero-gradient method and the second-derivative test (5-7), the gradient descent rule and its example (8-10), plain GD numericals, the Hessian and convexity check, a learning-rate schedule, and the stable step size.",
-     "color": "blue"
-    }
-   ]
-  },
-  {
-   "title": "Watch first: videos",
-   "lead": "Watch one GD video before the calculations. The letters differ from the slides; the numbers come out the same.",
-   "blocks": [
-    {
-     "type": "list",
-     "items": [
-      "[Gradient Descent, Step-by-Step](https://www.youtube.com/watch?v=sDv4f4s2SB8): StatQuest, about 24 minutes. The algorithm, two or more variables, and a short stochastic GD part.",
-      "[Stochastic Gradient Descent, Clearly Explained](https://www.youtube.com/watch?v=vMh0zPT0tLI): StatQuest, for slides 27-30.",
-      "[Deep Learning: All Optimizers in One Video](https://classcentral.com/course/youtube-deep-learning-all-optimizers-in-one-video-sgd-with-momentum-adagrad-adadelta-rmsprop-adam-optimizers-120966): Krish Naik. Covers GD, SGD, momentum, Adagrad, RMSprop and Adam; best kept for Lecture 11."
-     ]
-    },
-    {
-     "type": "note",
-     "label": "Check against the slides",
-     "text": "StatQuest uses a different loss and the word 'learning rate'. The slides use γ for the step size on the GD rule (slide 9) and αt in the decay slides (15-16). Same idea.",
-     "color": "blue"
-    }
-   ]
-  },
-  {
-   "title": "What this chapter is trying to do",
-   "lead": "Sourabh sir's framing: every supervised model has parameters, and learning means finding the best ones.",
-   "blocks": [
-    {
-     "type": "p",
-     "text": "A regression or neural-network model has parameters, for example a and b in y = ax + b. 'Learning' means finding the parameter values that fit the data best. To say 'best' you need a score for how wrong the model is: the loss. The best parameters sit at the bottom of the loss. Lecture 9 is about how to walk down to that bottom when you cannot solve for it by hand."
-    },
-    {
-     "type": "table",
-     "head": [
-      "Slides",
-      "Topic"
-     ],
-     "rows": [
-      [
-       "1-4",
-       "Why optimise: the loss"
-      ],
-      [
-       "5-7",
-       "Zero gradient and the second-derivative test"
-      ],
-      [
-       "8-10",
-       "The gradient descent rule and its example"
-      ],
-      [
-       "11-12",
-       "Choosing the step size"
-      ],
-      [
-       "13",
-       "Gradient check"
-      ],
-      [
-       "14-16",
-       "Learning-rate decay"
-      ],
-      [
-       "17",
-       "Bold driver"
-      ],
-      [
-       "18-25",
-       "Line search: exact, binary, golden-section"
-      ],
-      [
-       "26",
-       "When line search is used"
-      ],
-      [
-       "27-30",
-       "Stochastic gradient descent"
+      "title": "PENDING in this chapter: read these in revision",
+      "lead": "Lecture 9 slides not yet walked through step by step. Do them in this order.",
+      "blocks": [
+        {
+          "type": "note",
+          "label": "PENDING: still to write into this chapter and revise",
+          "text": "A. Taught in chat, not yet written up here:\n1. Choosing the step size (slides 11-12) and Sourabh sir's Problem 27 (recover the learning rate from one step: gradient (4, 4), η = 0.2, next point (0.72, 0.04), f = 6, 1.52, 0.5216, stable 0 < η < 0.5).\n2. Gradient correctness (slide 13): the finite-difference check; companion section 7 has the example J = w1² + 3·w1·w2 at (1, 2).\n3. Learning-rate decay and the bold driver (slides 14-17).\n4. Line search theory (slides 18-26): ηₜ = the η that minimises J(wₜ + η·dₜ), i.e. minimise φ(η) along the direction, perpendicular property, unimodal, binary, golden-section, Armijo, when it is used.\n5. Worked line-search problems: 2023 makeup Q1(C) (η = (1 + β²) / (2(1 + β³)), β = 1), Sourabh sir's P28 (d = (-6, -6), η* = 0.25, w1 = (1.5, -0.5), f = 3), Mar 2026 Q3 binary search ([0, 2] → [0, 1] → [0.5, 1], α* ≈ 0.63).\nB. Not yet worked:\n6. 2022 makeup Q4(3), matrix form: g(z) = ½‖Az − b‖² + ½‖z‖² + ‖b‖²; d = Ab − (A² + I)z; η* = dᵀd / dᵀ(A² + I)d.\n7. 2022 makeup Q4(1): f(x) = ax² + bx + c; is xn+k = xn·Pᵏ + Q possible, and for which learning rates λ does GD converge.\n8. Sourabh sir's P29 is solved in chat (d = (-4, -4), φ′ = -16·s·(s² + 1), intervals [0, 0.3], [0.15, 0.3], [0.225, 0.3], η* = 0.25); write it up here.\n9. Golden-section search (slides 24-25): theory only; the companion has a two-round worked example on φ(η).\n10. The 1-D family: 2022 makeup Q3 (stationary points, which start reaches the global minimum), 2024 makeup (zone of attraction), and 2022 Q4(1) above.\n11. Sourabh sir's P30 (regression with inverse decay, same pattern as Feb 2026 Q4(c)), P23 (least-squares gradient, Hessian, convexity) and P24 (gradient of xᵀAx + bᵀx).\n12. His Lecture 9 companion worked examples: binary search (four rounds) and golden-section (two rounds) on φ(η), six bold-driver iterations, the decay table (η₀ = 0.5, k = 0.5), the exact step on x² + 3y² from (2, 2).\n13. Stochastic and mini-batch GD (slides 27-30): theory only, no past-paper numerical.\n14. Momentum (Lecture 11): Mar 2026 Q4, 2024 Q4 comparison, 2023 makeup find β. Seen in three papers, so do it next.\n15. Lectures 10 to 15, and L1/L2 regularisation under Optimisation II.",
+          "color": "red"
+        },
+        {
+          "type": "note",
+          "label": "Already taught step by step",
+          "text": "Why optimise and the loss (slides 1-4), the zero-gradient method and the second-derivative test (5-7), the gradient descent rule and its example (8-10), plain GD numericals, the Hessian and convexity check, a learning-rate schedule, and the stable step size.",
+          "color": "blue"
+        }
       ]
-     ]
     },
     {
-     "type": "note",
-     "label": "Weightage",
-     "text": "MFML's comprehensive exam (open book, 6 Dec) is mostly after the mid-sem: Sourabh sir said lectures 9 onwards carry about 70-75% and lectures 1-8 about 25-30%. Gradient-descent numericals are in every end-sem paper I read: Feb 2026 Q4 (8 marks), Mar 2026 Q3 (7) and Q4 (4), 2024 Q4 (7). So this block is roughly 8 to 11 marks, from a few question types.",
-     "color": "pink"
+      "title": "Prerequisites and videos",
+      "lead": "Read the slides and Sourabh sir's companions first. Use a video only for the item you are stuck on.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Topic in this chapter",
+            "Needs first (real prerequisite)",
+            "Where"
+          ],
+          "rows": [
+            [
+              "GD step, inverse decay",
+              "Partial derivatives and the gradient ∇J",
+              "L6 (vector calculus)"
+            ],
+            [
+              "Convexity of a loss (Feb 2026 Q4a)",
+              "Hessian and positive-definite test (leading minors > 0)",
+              "L6–8; minors also in L3–4"
+            ],
+            [
+              "Exact and binary-search line search",
+              "1-D derivative of φ(η) and the second-derivative test",
+              "school calculus, L8"
+            ],
+            [
+              "Momentum, AdaGrad, RMSProp, Adam",
+              "The plain GD step (this chapter)",
+              "L9 → L11"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Topic",
+            "Read first",
+            "Do",
+            "Video, only if stuck"
+          ],
+          "rows": [
+            [
+              "Gradient, Hessian (prerequisite)",
+              "`Lecture_6.pdf`, `Lecture_8.pdf` (Hessian, Taylor)",
+              "P23 (least-squares gradient, Hessian, convexity)",
+              "[Khan · Gradient](https://www.youtube.com/watch?v=U7HQ_G_N6vo)"
+            ],
+            [
+              "GD rule, step size, decay",
+              "`Lecture_9.pdf` slides 8–17; `Lecture_9_Companion.pdf`",
+              "P26, P27, P30, then Feb 2026 Q4",
+              "[StatQuest · Gradient Descent, Step-by-Step](https://www.youtube.com/watch?v=sDv4f4s2SB8): only if GD is new to you"
+            ],
+            [
+              "Line search (exact, binary)",
+              "`Lecture_9.pdf` slides 18–26",
+              "P28, P29, then Mar 2026 Q3",
+              "No video: the slides are enough"
+            ],
+            [
+              "Momentum",
+              "`Lecture_11.pdf` p. 8–13; `Lecture_11_Companion_Part1.pdf`",
+              "P31, then Sep 2025 Q4 and Mar 2026 Q4",
+              "[Gradient Descent With Momentum](https://www.youtube.com/watch?v=Q_sHSpRBbtw)"
+            ],
+            [
+              "AdaGrad, RMSProp, Adam",
+              "`Lecture_11.pdf` p. 14–19",
+              "P32–P34 (one step each)",
+              "Skip: never asked in an MFML end-sem. Keep the formulas in your notes"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Skip",
+          "text": "Stochastic GD and the long 'all optimizers' videos: not asked in the last three papers. Watch them only after every chapter is done.",
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "title": "What this chapter is trying to do",
+      "lead": "Sourabh sir's framing: every supervised model has parameters, and learning means finding the best ones.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "A regression or neural-network model has parameters, for example a and b in y = ax + b. 'Learning' means finding the parameter values that fit the data best. To say 'best' you need a score for how wrong the model is: the loss. The best parameters sit at the bottom of the loss. Lecture 9 is about how to walk down to that bottom when you cannot solve for it by hand."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Slides",
+            "Topic"
+          ],
+          "rows": [
+            [
+              "1-4",
+              "Why optimise: the loss"
+            ],
+            [
+              "5-7",
+              "Zero gradient and the second-derivative test"
+            ],
+            [
+              "8-10",
+              "The gradient descent rule and its example"
+            ],
+            [
+              "11-12",
+              "Choosing the step size"
+            ],
+            [
+              "13",
+              "Gradient check"
+            ],
+            [
+              "14-16",
+              "Learning-rate decay"
+            ],
+            [
+              "17",
+              "Bold driver"
+            ],
+            [
+              "18-25",
+              "Line search: exact, binary, golden-section"
+            ],
+            [
+              "26",
+              "When line search is used"
+            ],
+            [
+              "27-30",
+              "Stochastic gradient descent"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Weightage",
+          "text": "MFML's comprehensive exam (open book, 6 Dec) is mostly after the mid-sem: Sourabh sir said lectures 9 onwards carry about 70-75% and lectures 1-8 about 25-30%. Gradient-descent numericals are in every end-sem paper I read: Feb 2026 Q4 (8 marks), Mar 2026 Q3 (7) and Q4 (4), 2024 Q4 (7). So this block is roughly 8 to 11 marks, from a few question types.",
+          "color": "pink"
+        }
+      ]
+    },
+    {
+      "title": "Topic 1: Why optimise? The loss (slides 1-4)",
+      "lead": "Turn 'find the best line' into 'find the lowest point of a score'.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Slide 3 gives data: x = 1, 2, 3, 4 and y = 3.1, 4.9, 7.3, 9.1, with the model ŷ = ax + b (ŷ is the predicted y, a the slope, b the intercept)."
+        },
+        {
+          "type": "formula",
+          "text": "L(a, b) = Σ (y − ŷ)² = Σ (y − (a·x + b))²",
+          "caption": "slide 4: each term is a squared gap, so positive and negative gaps do not cancel"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Guess",
+            "Predictions ŷ",
+            "Gaps y − ŷ",
+            "Loss"
+          ],
+          "rows": [
+            [
+              "a = 1, b = 1",
+              "2, 3, 4, 5",
+              "1.1, 1.9, 3.3, 4.1",
+              "1.21 + 3.61 + 10.89 + 16.81 = 32.52"
+            ],
+            [
+              "a = 2, b = 1",
+              "3, 5, 7, 9",
+              "0.1, −0.1, 0.3, 0.1",
+              "0.01 + 0.01 + 0.09 + 0.01 = 0.12"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The second line hugs the points, and its loss is far smaller. All of ML training is this: try parameters, and prefer the ones with the smaller loss. Finding a and b that make L smallest is an optimisation problem."
+        },
+        {
+          "type": "note",
+          "label": "Add-on from Sourabh sir's companion",
+          "text": "The companion (Lecture 9) works the same two guesses. The exam writes the loss with a half in front and the error as ŷ − y: J = ½ Σ (ŷ − y)². Squaring makes the order irrelevant, and the ½ only cancels the 2 when you differentiate.",
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "title": "Topic 2: Zero gradient and the second-derivative test (slides 5-7)",
+      "lead": "At the bottom of a valley the ground is flat. For easy functions you can solve for that spot.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Slide 5: we move along the negative gradient until the gradient is zero. That point is a valley, a local minimum. Zero gradient only says 'flat', so slide 7 adds the second-derivative test: positive means a minimum, negative means a maximum."
+        },
+        {
+          "type": "formula",
+          "text": "l(x) = x⁴ + 7x³ + 5x² − 17x + 3\ndl/dx = 4x³ + 21x² + 10x − 17        second derivative = 12x² + 42x + 10",
+          "caption": "slide 7"
+        },
+        {
+          "type": "table",
+          "head": [
+            "x (gradient = 0)",
+            "Second derivative",
+            "Verdict",
+            "l(x)"
+          ],
+          "rows": [
+            [
+              "−4.480",
+              "+62.7",
+              "minimum",
+              "−47.08"
+            ],
+            [
+              "−1.432",
+              "−25.5",
+              "maximum",
+              "21.25"
+            ],
+            [
+              "0.662",
+              "+43.1",
+              "minimum",
+              "−3.84"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The deepest valley (global minimum) is x = −4.48. This worked because a cubic is easy to solve. Real loss functions cannot be solved by hand, so slide 8 says we follow the negative gradient instead."
+        },
+        {
+          "type": "note",
+          "label": "How to spot it",
+          "text": "'Find the critical points and classify them': set the gradient to zero, then use the second derivative (or the Hessian in two variables, Lecture 8).",
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "title": "Topic 3: The gradient descent rule (slides 8-10)",
+      "lead": "Walk downhill: feel the tilt, step against it, repeat.",
+      "blocks": [
+        {
+          "type": "h",
+          "text": "The picture"
+        },
+        {
+          "type": "p",
+          "text": "You are blindfolded on a hill. You feel which way the ground tilts under your feet, take a small step downhill, and feel again. You stop when the ground is flat."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Word",
+            "Meaning"
+          ],
+          "rows": [
+            [
+              "Valley",
+              "The low part of the loss: the minimum. Where the parameters are best."
+            ],
+            [
+              "Height",
+              "The value of the function, for example f(x) = 4."
+            ],
+            [
+              "Tilt (slope, gradient)",
+              "How fast the height changes as you move, and in which direction. Positive tilt: the ground rises to the right, so downhill is left. Negative: downhill is right. Zero: flat."
+            ],
+            [
+              "Steep",
+              "A big gradient number: the height changes quickly. Gentle means a small number."
+            ],
+            [
+              "Step size η",
+              "How far you move for each unit of tilt (called the learning rate elsewhere)."
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "The rule (slide 9)"
+        },
+        {
+          "type": "formula",
+          "text": "wₜ₊₁ = wₜ − η∇f(wₜ)",
+          "caption": "Slide 9 writes x(i+1) = x(i) − γᵢ((∇f)(x(i)))ᵀ: its γ is our η and its x is our w. Step against the gradient; for small enough η, f(wₜ₊₁) ≤ f(wₜ)."
+        },
+        {
+          "type": "list",
+          "items": [
+            "The slides write the gradient ∇f as a row of slopes and the point as a column, so they add ᵀ to turn the row into a column. The numbers are the same either way: take each partial derivative, scale it by η, subtract it from the matching coordinate.",
+            "Steep ground gives a big step. As the ground flattens near the bottom, the step shrinks by itself."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "What the step size does"
+        },
+        {
+          "type": "p",
+          "text": "Take f(x) = (x − 3)², minimum at 3, gradient 2(x − 3), start at 0. Each step multiplies the gap to 3 by (1 − 2η)."
+        },
+        {
+          "type": "table",
+          "head": [
+            "η",
+            "x: 0 → ?",
+            "What happens"
+          ],
+          "rows": [
+            [
+              "0.1",
+              "0 → 0.6 → 1.08 → 1.46",
+              "creeps toward 3, slowly"
+            ],
+            [
+              "0.5",
+              "0 → 3",
+              "lands on 3 in one step"
+            ],
+            [
+              "1.0",
+              "0 → 6 → 0 → 6",
+              "bounces forever"
+            ],
+            [
+              "1.1",
+              "0 → 6.6 → −1.32 → ...",
+              "each jump is bigger: blows up"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Too small is slow; too large overshoots or diverges (slide 11). That is why decay, bold driver and line search exist: they are ways of choosing η."
+        },
+        {
+          "type": "h",
+          "text": "Slide 10 example, worked by hand"
+        },
+        {
+          "type": "p",
+          "text": "f(x) = ½ xᵀAx + bᵀx with A = [[2, 1], [1, 20]], b = (−5, −3), start (−3, −1). The slide gives no step size (it runs MATLAB code), so I use η = 0.05 for the demonstration. The column form of the slide's gradient is A·x + b."
+        },
+        {
+          "type": "table",
+          "head": [
+            "i",
+            "Point",
+            "Gradient A·x + b",
+            "f"
+          ],
+          "rows": [
+            [
+              "0",
+              "(−3, −1)",
+              "(−12, −26)",
+              "40"
+            ],
+            [
+              "1",
+              "(−2.4, 0.3)",
+              "(−9.5, 0.6)",
+              "17.04"
+            ],
+            [
+              "2",
+              "(−1.925, 0.27)",
+              "(−8.58, 0.475)",
+              "12.73"
+            ],
+            [
+              "3",
+              "(−1.496, 0.246)",
+              "(−7.75, 0.429)",
+              "9.22"
+            ],
+            [
+              "4",
+              "(−1.109, 0.225)",
+              "",
+              "6.35"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Step 1 by hand: A·x0 = (2(−3) + 1(−1), 1(−3) + 20(−1)) = (−7, −23); gradient = (−7, −23) + (−5, −3) = (−12, −26); x1 = (−3, −1) − 0.05·(−12, −26) = (−2.4, 0.3). f decreases every step. The true minimum is (2.487, 0.026). The y-gradient is 20 times steeper than the x-gradient: this mismatch is why plain GD zig-zags, and the reason for momentum in Lecture 11."
+        },
+        {
+          "type": "trap",
+          "label": "Slide 10's step size",
+          "text": "The slide does not state η. The 0.05 and the table are my illustration, not the slide's numbers."
+        }
+      ]
+    },
+    {
+      "title": "GD problem types and the approach",
+      "lead": "Slope, scale, subtract.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Type",
+            "What you do",
+            "Seen in"
+          ],
+          "rows": [
+            [
+              "a. k iterations, fixed η",
+              "gradient, scale, subtract, repeat",
+              "2024 Q4 (plain part), practice"
+            ],
+            [
+              "b. with a decay schedule",
+              "compute ηₜ first, then as (a)",
+              "Feb 2026 Q4 (4 marks)"
+            ],
+            [
+              "c. convexity first",
+              "Hessian and Sylvester's criterion (Lecture 8, slides 16-17)",
+              "Feb 2026 Q4(a), 3 marks"
+            ],
+            [
+              "d. one step, two η / recover η",
+              "same gradient, different scaling; read the update backwards",
+              "Sourabh sir's Problems 26, 27"
+            ],
+            [
+              "e. 1-D theory",
+              "which start reaches the global minimum; zone of attraction",
+              "2022 makeup, 2024 makeup"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "The approach"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Write f and find the gradient: one partial derivative per variable.",
+            "Note η (work out ηₜ first if a schedule is given).",
+            "Put the current point into the gradient.",
+            "Subtract: new = old − η × gradient, coordinate by coordinate.",
+            "Repeat for each iteration and show every line.",
+            "Check: f should decrease."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Marks",
+          "text": "Show the gradient formula, the gradient value at each point, η, and the update. The commonest slip is dropping a term when differentiating.",
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "title": "How do I decide η in a problem?",
+      "lead": "Usually you do not decide it. Read the verb in the question.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "The question says",
+            "What to do",
+            "Where"
+          ],
+          "rows": [
+            [
+              "'with step size / learning rate = …'",
+              "Use the value given",
+              "Feb 2026 Q4, 2024 Q4, P26"
+            ],
+            [
+              "'stable', 'converges', 'does not diverge', 'largest learning rate'",
+              "Hessian, eigenvalues, then 0 < η < 2/λmax (all four mean the same)",
+              "P26(d), P27 (add-on)"
+            ],
+            [
+              "'oscillates' or 'explodes'",
+              "η > 2/λmax",
+              "add-on"
+            ],
+            [
+              "'optimal / exact step size', 'line search'",
+              "Minimise φ(η) = f(x − η·gradient) over η",
+              "slides 18-25, Mar 2026 Q3, P28, P29 (pending)"
+            ],
+            [
+              "one step is given, 'find the learning rate'",
+              "Read the update backwards: η = (old − new) / gradient",
+              "P27 (pending)"
+            ],
+            [
+              "nothing given, must choose",
+              "Start small; if f rises, halve it (slide 12)",
+              "heuristic, rarely marked"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "At exactly 2/λmax",
+          "text": "The error bounces with the same size forever, so 'largest stable' is 'just below 2/λmax'.",
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "title": "Important: the stable step size (add-on)",
+      "lead": "Not on the slides. It is in Sourabh sir's Lecture 10 companion and Problems 26 and 27.",
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "GD on a quadratic converges for 0 < η < 2 / λmax(H)",
+          "caption": "λmax = the largest eigenvalue of the Hessian H"
+        },
+        {
+          "type": "p",
+          "text": "Carry this line on your formula sheet. Cues in a question: 'stable', 'converges', 'oscillates', 'explodes', 'largest learning rate'."
+        },
+        {
+          "type": "h",
+          "text": "Sample calculation (Problem 26's function)"
+        },
+        {
+          "type": "p",
+          "text": "f(x, y) = x² + y² + xy − 3x. First derivatives: 2x + y − 3 and 2y + x. Differentiate again for the Hessian (Lecture 8, slide 16), then take its eigenvalues."
+        },
+        {
+          "type": "formula",
+          "text": "H = [ 2  1 ]\n    [ 1  2 ]\ndet(H − λI) = (2 − λ)² − 1 = 0  →  λ = 1 or 3\nstable for 0 < η < 2/3",
+          "caption": "check: 1 + 3 = trace 4 and 1 × 3 = determinant 3"
+        },
+        {
+          "type": "p",
+          "text": "What you write in the exam: the Hessian, its eigenvalues, and the line 'stable for 0 < η < 2/λmax = 2/3'. Nothing more."
+        },
+        {
+          "type": "h",
+          "text": "Where 2/λ comes from (to understand it, not to write)"
+        },
+        {
+          "type": "p",
+          "text": "On a bowl of steepness λ, one step multiplies the gap to the minimum by (1 − ηλ). The gap shrinks only if that multiplier lies between −1 and 1, which means 0 < ηλ < 2, so 0 < η < 2/λ. With two directions the step must suit both, so the steepest direction (λmax) sets the limit."
+        },
+        {
+          "type": "table",
+          "head": [
+            "η",
+            "multiplier (1 − ηλ) with λ = 3",
+            "Effect"
+          ],
+          "rows": [
+            [
+              "0.1",
+              "0.7",
+              "shrinks: fine"
+            ],
+            [
+              "0.5",
+              "−0.5",
+              "flips sign but shrinks"
+            ],
+            [
+              "2/3",
+              "−1",
+              "bounces forever"
+            ],
+            [
+              "1",
+              "−2",
+              "error doubles each step: overshoots"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Step-size behaviour: monotone, oscillating, divergent (background and recipe)",
+      "lead": "How to work out, for any new function, whether gradient descent crawls in, zigzags in, or blows up, and which η is safe. Saurabh sir writes α for the step size; here it is η.",
+      "blocks": [
+        {
+          "type": "h",
+          "text": "Idea 1 · Measure the distance to the answer"
+        },
+        {
+          "type": "p",
+          "text": "Let x* be the minimum. What matters is the **error e = x − x***. If e shrinks to 0, gradient descent **converges**."
+        },
+        {
+          "type": "h",
+          "text": "Idea 2 · On a bowl, one step multiplies the error by a fixed number"
+        },
+        {
+          "type": "p",
+          "text": "Take any parabola f(x) = a(x − c)² + k, whose minimum is at c."
+        },
+        {
+          "type": "eqs",
+          "groups": [
+            {
+              "label": "Derivation",
+              "lines": [
+                [
+                  "f′(x)",
+                  "=",
+                  "2a(x − c)"
+                ],
+                [
+                  "x_{new}",
+                  "=",
+                  "x − η · 2a(x − c)"
+                ],
+                [
+                  "x_{new} − c",
+                  "=",
+                  "(x − c) − 2aη(x − c)"
+                ],
+                [
+                  "e_{new}",
+                  "=",
+                  "(1 − 2aη) · e"
+                ],
+                [
+                  "r",
+                  "=",
+                  "1 − η · f″   (since f″ = 2a)"
+                ]
+              ],
+              "note": "Every step multiplies the error by the same number r. After t steps, e_{t} = rᵗ · e₀."
+            }
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Idea 3 · What multiplying by r again and again does"
+        },
+        {
+          "type": "table",
+          "head": [
+            "r",
+            "Sequence (start 1)",
+            "Size",
+            "Sign",
+            "Name"
+          ],
+          "rows": [
+            [
+              "0 < r < 1, e.g. 0.5",
+              "1, 0.5, 0.25, …",
+              "shrinks",
+              "same",
+              "**monotone convergence**"
+            ],
+            [
+              "r = 0",
+              "1, 0, 0, …",
+              "gone in one step",
+              "—",
+              "**converges in one step**"
+            ],
+            [
+              "−1 < r < 0, e.g. −0.5",
+              "1, −0.5, 0.25, …",
+              "shrinks",
+              "flips",
+              "**oscillating convergence**"
+            ],
+            [
+              "r = −1",
+              "1, −1, 1, …",
+              "stays",
+              "flips",
+              "**stuck bouncing forever**"
+            ],
+            [
+              "r < −1, e.g. −2",
+              "1, −2, 4, …",
+              "grows",
+              "flips",
+              "**divergence**"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "color": "blue",
+          "label": "Read r in two looks",
+          "text": "The **sign** of r says whether x flips side each step. The **size** of r (|r| < 1 or not) says whether the error shrinks or grows."
+        },
+        {
+          "type": "h",
+          "text": "Idea 4 · Turn the r ranges into η ranges"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Condition on r = 1 − ηf″",
+            "Solve for η",
+            "Behaviour"
+          ],
+          "rows": [
+            [
+              "0 < 1 − ηf″ < 1",
+              "0 < η < **1/f″**",
+              "monotone"
+            ],
+            [
+              "1 − ηf″ = 0",
+              "η = **1/f″**",
+              "one step"
+            ],
+            [
+              "−1 < 1 − ηf″ < 0",
+              "**1/f″** < η < **2/f″**",
+              "oscillating"
+            ],
+            [
+              "1 − ηf″ < −1",
+              "η > **2/f″**",
+              "diverges"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "**Picture:** η is a jump size. A small jump stops before the bottom; the perfect jump lands on it; a medium jump goes past but lands closer; a huge jump lands higher up the other side than where it started."
+        },
+        {
+          "type": "p",
+          "text": "Try it: set the curvature c (= f″) and drag η. The presets show each case."
+        },
+        {
+          "type": "widget",
+          "widget": "lr-bowl",
+          "config": {
+            "c": 8,
+            "wstar": 2,
+            "w0": 3,
+            "eta": 0.05,
+            "steps": 8
+          }
+        },
+        {
+          "type": "h",
+          "text": "More than one variable"
+        },
+        {
+          "type": "list",
+          "items": [
+            "If f splits into separate squares (f = 3x² + 5y²), each coordinate has its own r: r_{x} = 1 − 6η, r_{y} = 1 − 10η.",
+            "All coordinates must converge, so the **steepest direction (largest f″) sets the limit: η < 2/f″_{max}**. That is why [Sourabh P33](#/sem1/aiml-zc416/ch11/f-adaptive/8) diverges in w₂ (f″ = 20) while w₁ (f″ = 2) is fine.",
+            "With cross terms (like 2xy), use the **eigenvalues of the Hessian** in place of f″: η < 2/λmax (the board above, and [Optimizers Set Q5](#/sem1/aiml-zc416/ch11/f-adaptive/28))."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "The recipe for any new problem"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Question type",
+            "Steps"
+          ],
+          "rows": [
+            [
+              "A · \"Given η, what happens?\"",
+              "1. f″ for each variable (or Hessian eigenvalues). 2. r = 1 − ηf″ for each. 3. Read r off the Idea 3 table. 4. Verdict = the worst one: any |r| > 1 ⇒ diverges."
+            ],
+            [
+              "B · \"Here is a run of numbers: find η and classify\"",
+              "1. Subtract x* to get errors. 2. Divide each error by the previous ⇒ r; it must be the **same** every time (if not, it is not plain GD: try momentum, [Sourabh Optimizers Set Q7](#/sem1/aiml-zc416/ch11/f-momentum/22)(b)). 3. η = (1 − r)/f″. 4. Classify from r."
+            ],
+            [
+              "C · \"For which η does it converge?\"",
+              "1. f″_{max} (or λmax). 2. 0 < η < 2/f″_{max}; monotone below 1/f″_{max}, oscillating between 1/f″_{max} and 2/f″_{max}."
+            ],
+            [
+              "D · \"Which η reaches the minimum in one step?\"",
+              "η = 1/f″ (one direction at a time)."
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "color": "red",
+          "label": "What to write in the exam",
+          "text": "GD on f gives e_{t+1} = (1 − ηf″)e_{t} with f″ = __, so r = __.\nSince __ < r < __, the iterates [converge monotonically / oscillate but converge / diverge].\nConvergence needs |1 − ηf″| < 1 ⇔ 0 < η < 2/f″ = __.\nThen check one step by hand (x₁ = x₀ − ηf′(x₀))."
+        },
+        {
+          "type": "p",
+          "text": "Practise: [the worked example](#/sem1/aiml-zc416/ch09/f-gd/5) (a new function, all four types), then [Sourabh Optimizers Set Q7](#/sem1/aiml-zc416/ch11/f-momentum/22) (Type B from data) and [Sourabh P33](#/sem1/aiml-zc416/ch11/f-adaptive/8) (two variables)."
+        },
+        {
+          "type": "note",
+          "label": "Remember",
+          "text": "**On a bowl, every GD step multiplies the distance to the bottom by r = 1 − η·f″.** Read the sign of r for flipping and its size for shrinking."
+        }
+      ]
     }
-   ]
-  },
-  {
-   "title": "Topic 1: Why optimise? The loss (slides 1-4)",
-   "lead": "Turn 'find the best line' into 'find the lowest point of a score'.",
-   "blocks": [
+  ],
+  "worked": [
     {
-     "type": "p",
-     "text": "Slide 3 gives data: x = 1, 2, 3, 4 and y = 3.1, 4.9, 7.3, 9.1, with the model ŷ = ax + b (ŷ is the predicted y, a the slope, b the intercept)."
-    },
-    {
-     "type": "formula",
-     "text": "L(a, b) = Σ (y − ŷ)² = Σ (y − (a·x + b))²",
-     "caption": "slide 4: each term is a squared gap, so positive and negative gaps do not cancel"
-    },
-    {
-     "type": "table",
-     "head": [
-      "Guess",
-      "Predictions ŷ",
-      "Gaps y − ŷ",
-      "Loss"
-     ],
-     "rows": [
-      [
-       "a = 1, b = 1",
-       "2, 3, 4, 5",
-       "1.1, 1.9, 3.3, 4.1",
-       "1.21 + 3.61 + 10.89 + 16.81 = 32.52"
+      "title": "GD · Practice (type a): f = w1² + w2² from (4, 2)",
+      "tags": [
+        "Practice",
+        "Plain GD"
       ],
-      [
-       "a = 2, b = 1",
-       "3, 5, 7, 9",
-       "0.1, −0.1, 0.3, 0.1",
-       "0.01 + 0.01 + 0.09 + 0.01 = 0.12"
-      ]
-     ]
+      "problem": [
+        {
+          "type": "p",
+          "text": "My own practice question, built on the function Sourabh sir uses in class."
+        },
+        {
+          "type": "p",
+          "text": "Consider f(w1, w2) = w1² + w2². Using gradient descent with step size η = 0.1 and starting point (w1, w2) = (4, 2), compute the point after two iterations."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Formula (slide 9)",
+          "text": "wₜ₊₁ = wₜ − η∇f(wₜ). Apply it to each coordinate."
+        },
+        {
+          "label": "Gradient",
+          "text": "∂f/∂w1 = 2·w1 and ∂f/∂w2 = 2·w2, so (∇f)(x) = [2·w1, 2·w2]."
+        },
+        {
+          "label": "Iteration 1",
+          "text": "At (4, 2) the gradient is [8, 4]. η × gradient = (0.8, 0.4). New point: (4 − 0.8, 2 − 0.4) = **(3.2, 1.6)**. f = 3.2² + 1.6² = 12.8 (it was 20)."
+        },
+        {
+          "label": "Iteration 2",
+          "text": "At (3.2, 1.6) the gradient is [6.4, 3.2]. η × gradient = (0.64, 0.32). New point: (3.2 − 0.64, 1.6 − 0.32) = **(2.56, 1.28)**. f = 8.192."
+        },
+        {
+          "label": "Check",
+          "text": "f decreases: 20, 12.8, 8.192. Each step multiplies both coordinates by 0.8, so after n steps you are at (4, 2) × 0.8ⁿ; for n = 2 that is (2.56, 1.28)."
+        },
+        {
+          "label": "Step-size lesson",
+          "text": "With η = 0.5 the first step is (4 − 4, 2 − 2) = (0, 0): the minimum in one step. That best η is what line search finds."
+        }
+      ],
+      "answer": "After two iterations the point is (2.56, 1.28), with f = 8.192.",
+      "marks": 3,
+      "priority": "optional"
     },
     {
-     "type": "p",
-     "text": "The second line hugs the points, and its loss is far smaller. All of ML training is this: try parameters, and prefer the ones with the smaller loss. Finding a and b that make L smallest is an optimisation problem."
+      "title": "GD · Sourabh sir Problem 26: one step, two learning rates",
+      "tags": [
+        "Sourabh sir",
+        "Plain GD",
+        "Hessian"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Minimise f(x, y) = x² + y² + xy − 3x by gradient descent from (0, 0). (a) Write the update equations for x and y. (b) Do one step with η = 0.1 and, separately, one step with η = 1. (c) Compute f at the start and after each step. (d) Find the true minimiser and the largest stable learning rate."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Formulas",
+          "text": "Slide 9: wₜ₊₁ = wₜ − η∇f(wₜ). Hessian: slide 16 of Lecture 8. Eigenvalues: det(H − λI) = 0. Stable step: 0 < η < 2/λmax (add-on)."
+        },
+        {
+          "label": "(a) Update equations",
+          "text": "∂f/∂x = 2x + y − 3 and ∂f/∂y = 2y + x. So x(new) = x − η(2x + y − 3) and y(new) = y − η(2y + x)."
+        },
+        {
+          "label": "(b) One step from (0, 0)",
+          "text": "The gradient at (0, 0) is [−3, 0] for both rates. η = 0.1: (0 + 0.3, 0) = **(0.3, 0)**. η = 1: (0 + 3, 0) = **(3, 0)**."
+        },
+        {
+          "label": "(c) f at each point",
+          "text": "f(0, 0) = 0. f(0.3, 0) = 0.09 − 0.9 = **−0.81**. f(3, 0) = 9 − 9 = **0**. The big step went far but ended at the same height: it overshot. Judge a step by f, not by distance."
+        },
+        {
+          "label": "(d) Minimiser",
+          "text": "Set the gradient to zero: 2x + y = 3 and x + 2y = 0. Then x = −2y, so −4y + y = 3, y = −1, x = 2. **Minimiser (2, −1), f = −3.**"
+        },
+        {
+          "label": "(d) Hessian and eigenvalues",
+          "text": "fxx = 2, fxy = 1, fyy = 2, so H = [[2, 1], [1, 2]]. det(H − λI) = (2 − λ)² − 1 = 0, so λ = 1 or 3. Check: sum 4 = trace, product 3 = determinant."
+        },
+        {
+          "label": "(d) Stable step",
+          "text": "**0 < η < 2/λmax = 2/3.** So η = 0.1 is fine and η = 1 is too big, which is why it overshot."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Dropping the −3 in ∂f/∂x; judging a step only by how far it moved."
+        }
+      ],
+      "answer": "(0.3, 0) and (3, 0); f = 0, −0.81, 0; minimiser (2, −1), stable for η < 2/3.",
+      "marks": 2,
+      "priority": "must",
+      "priorityWhy": "Sourabh sir's one-step GD with two learning rates"
     },
     {
-     "type": "note",
-     "label": "Add-on from Sourabh sir's companion",
-     "text": "The companion (Lecture 9) works the same two guesses. The exam writes the loss with a half in front and the error as ŷ − y: J = ½ Σ (ŷ − y)². Squaring makes the order irrelevant, and the ½ only cancels the 2 when you differentiate.",
-     "color": "blue"
+      "title": "GD · Feb 2026 end-sem Q4: regression loss, Hessian, decay schedule (8 marks)",
+      "tags": [
+        "Past paper",
+        "Plain GD",
+        "Decay",
+        "Hessian"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A retail shop wants to predict their sales corresponding to the money they spent on advertisement using the following data. A linear regression model with bias is assumed: ŷi = w0 + w1·xi. [8 marks]"
+        },
+        {
+          "type": "table",
+          "head": [
+            "Money spent for advertisement in ten thousands (x)",
+            "Sales in lacs (y)"
+          ],
+          "rows": [
+            [
+              "5",
+              "3"
+            ],
+            [
+              "6",
+              "5"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The model parameters are learned by minimizing the Squared Error loss function J(w0, w1) = ½ Σ (ŷi − yi)², sum over i = 1 to 2, using gradient descent."
+        },
+        {
+          "type": "p",
+          "text": "(a) Formulate the Squared Error loss function J(w0, w1) explicitly for the given dataset. Compute the Hessian matrix of J with respect to w0 and w1, and use it to prove that J is a convex function of the parameters (w0, w1). [3M]"
+        },
+        {
+          "type": "p",
+          "text": "(b) Compute the gradient of the Squared Error loss function: ∇J. [1M]"
+        },
+        {
+          "type": "p",
+          "text": "(c) Taking the initial parameter values w0 = 0, w1 = 0, perform two iterations of gradient descent using the inverse decaying learning rate schedule with initial learning rate η0 = 0.1, k = 0.4, where t = 1, 2, .. denote the iteration index. Show the updated parameter values after each iteration. [4M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Symbols",
+          "text": "Slide letters: loss L(a, b) on slide 4 (b is the intercept, a the slope), so w0 is b and w1 is a. The decayed rate is ηₜ (slide 16); the exam calls it η. In the Hessian slide (Lecture 8, slide 16) the variables are x, y, so here x is w0 and y is w1."
+        },
+        {
+          "label": "Formulas",
+          "text": "Slide 15: wₜ₊₁ = wₜ − ηₜ∇J. Slide 16: inverse decay ηₜ = {{ η₀ // 1 + k·t }}. Lecture 8 slides 16-17: Hessian [[fxx, fxy], [fxy, fyy]]; Sylvester's criterion: fxx > 0 and fxx·fyy − fxy² > 0 means positive definite. 'Positive definite means convex' is the exam key's reason and is an add-on."
+        },
+        {
+          "label": "(a) Build J",
+          "text": "ŷ = w0 + w1·x. J = ½ [(w0 + 5w1 − 3)² + (w0 + 6w1 − 5)²]. The slide writes the gap as y − ŷ; squaring makes the order irrelevant."
+        },
+        {
+          "label": "(a) First derivatives",
+          "text": "∂J/∂w0 = (w0 + 5w1 − 3) + (w0 + 6w1 − 5) = 2w0 + 11w1 − 8. ∂J/∂w1 = 5(w0 + 5w1 − 3) + 6(w0 + 6w1 − 5) = 11w0 + 61w1 − 45."
+        },
+        {
+          "label": "(a) Hessian",
+          "text": "fxx = 2, fxy = 11, fyy = 61. H = [[2, 11], [11, 61]]."
+        },
+        {
+          "label": "(a) Sylvester",
+          "text": "fxx = 2 > 0. fxx·fyy − fxy² = 2 × 61 − 11² = 122 − 121 = 1 > 0. So H is positive definite and **J is convex**."
+        },
+        {
+          "label": "(b) Gradient",
+          "text": "**∇J = [2w0 + 11w1 − 8, 11w0 + 61w1 − 45]**, found in step (a)."
+        },
+        {
+          "label": "(c) Step sizes",
+          "text": "η₁ = 0.1 / (1 + 0.4 × 1) = **0.07143**. η₂ = 0.1 / (1 + 0.4 × 2) = **0.05556**."
+        },
+        {
+          "label": "(c) Iteration 1, t = 1",
+          "text": "At (0, 0): ∇J = [−8, −45]. w0 = 0 − 0.07143 × (−8) = **0.5714**. w1 = 0 − 0.07143 × (−45) = **3.2144**."
+        },
+        {
+          "label": "(c) Iteration 2, t = 2",
+          "text": "At (0.5714, 3.2144): ∂J/∂w0 = 1.1428 + 35.3584 − 8 = 28.5012; ∂J/∂w1 = 6.2854 + 196.0784 − 45 = 157.3638. w0 = 0.5714 − 0.05556 × 28.5012 = **−1.0121**. w1 = 3.2144 − 0.05556 × 157.3638 = **−5.5287**."
+        },
+        {
+          "label": "Why step 2 jumps back",
+          "text": "Step 1 overshot (w1 went far past the valley bottom), so the gradient at the new point is large and positive, and step 2 pulls back. The decay only shrinks ηₜ from 0.0714 to 0.0556. That is normal here, not an error."
+        },
+        {
+          "label": "Rounding",
+          "text": "Keeping η₁, η₂ as fractions gives (−1.0119, −5.5278). Both are acceptable."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Forgetting to prove convexity; computing ηₜ after the update instead of before; using the old gradient in iteration 2."
+        }
+      ],
+      "answer": "J is convex (H = [[2, 11], [11, 61]], minors 2 and 1). ∇J = [2w0 + 11w1 − 8, 11w0 + 61w1 − 45]. w(1) = (0.5714, 3.2144) and w(2) = (−1.0121, −5.5287).",
+      "priority": "must",
+      "priorityWhy": "Recent paper (Feb 2026), 8 marks"
+    },
+    {
+      "title": "GD · 2024 end-sem Q4: the plain-GD part (momentum part to come)",
+      "tags": [
+        "Past paper",
+        "Plain GD"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Consider the function of two variables f(x, y) = (x − 1)² + (y − 1)². Suppose you apply gradient descent algorithm with momentum with initial values x0 = 1.5, y0 = 1.5, the learning parameter α = 0.05 and the momentum parameter β = 0.8 to find the point at which f(x, y) attains its global minimum. Find (x1, y1), (x2, y2) using first two iterations of gradient descent algorithm with momentum. Also find (a1, b1), (a2, b2) using first two iterations of gradient descent algorithm using the same initial values x0 = 1.5, y0 = 1.5 and the learning parameter α = 0.05. Conclude whether there is any advantage of using the gradient descent algorithm with momentum instead of just using the gradient descent algorithm? [7 marks]"
+        },
+        {
+          "type": "note",
+          "label": "Status",
+          "text": "This entry does only the plain-GD half, (a1, b1) and (a2, b2). The momentum half and the comparison come with Lecture 11.",
+          "color": "red"
+        }
+      ],
+      "steps": [
+        {
+          "label": "Formula (slide 9)",
+          "text": "Notation: this paper's symbol is kept, **α = 0.05 is the step size** (η on the lecture boards). Plain GD: xₜ₊₁ = xₜ − α∇f(xₜ), applied to each coordinate."
+        },
+        {
+          "label": "Gradient",
+          "text": "∂f/∂x = 2(x − 1) and ∂f/∂y = 2(y − 1)."
+        },
+        {
+          "label": "Iteration 1",
+          "text": "At (1.5, 1.5): gradient [1, 1]. α × gradient = (0.05, 0.05). **(a1, b1) = (1.45, 1.45).**"
+        },
+        {
+          "label": "Iteration 2",
+          "text": "At (1.45, 1.45): gradient [0.9, 0.9]. α × gradient = (0.045, 0.045). **(a2, b2) = (1.405, 1.405).**"
+        },
+        {
+          "label": "Check",
+          "text": "The minimum is (1, 1). The gap shrinks by a factor 0.9 each step (0.5, 0.45, 0.405). Keep these two points for the comparison with momentum."
+        }
+      ],
+      "answer": "Plain GD: (a1, b1) = (1.45, 1.45) and (a2, b2) = (1.405, 1.405).",
+      "marks": 3,
+      "priority": "optional"
+    },
+    {
+      "title": "GD · Step-size behaviour: classify three learning rates on 4(x − 2)² + 1",
+      "tags": [
+        "Practice",
+        "Recipe"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "f(x) = 4(x − 2)² + 1, start x₀ = 3. (a) Classify gradient descent for η = 0.05, 0.2 and 0.3, and give x₁, x₂ for each. (b) Give the range of η for which GD converges, and where it is monotone or oscillating. (c) Which η reaches the minimum in one step?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The step-size recipe: r = 1 − ηf″ decides monotone, oscillating or divergent; the cut-offs are 1/f″ and 2/f″."
+        },
+        {
+          "label": "Plan of attack",
+          "text": "1. f′, f″ and the minimum x*.\n2. Multiplier r = 1 − ηf″.\n3. (a) r for each η, classify, and write the first iterates.\n4. (b) 0 < η < 2/f″, split at 1/f″.\n5. (c) η = 1/f″.\n6. Check one step by hand."
+        },
+        {
+          "label": "Notation",
+          "text": "η = step size (Saurabh sir writes α). e = x − x* = error. r = the number each step multiplies e by."
+        },
+        {
+          "label": "STEP 1 · Slope, curvature, minimum",
+          "text": "f′(x) = 8(x − 2)\nf″(x) = **8**\nf′ = 0 ⇒ x* = **2** (f″ > 0, so a minimum)"
+        },
+        {
+          "label": "STEP 2 · The multiplier",
+          "text": "e_new = (1 − ηf″) · e = **(1 − 8η) · e**\nStart error e₀ = x₀ − x* = 3 − 2 = 1"
+        },
+        {
+          "label": "STEP 3 · (a) η = 0.05",
+          "text": "r = 1 − 8 × 0.05 = 1 − 0.4 = **0.6**\n0 < r < 1 ⇒ **monotone convergence**\nErrors: 1, 0.6, 0.36 ⇒ x = 3, **2.6**, **2.36**"
+        },
+        {
+          "label": "STEP 4 · (a) η = 0.2",
+          "text": "r = 1 − 8 × 0.2 = 1 − 1.6 = **−0.6**\n−1 < r < 0 ⇒ **oscillating convergence**\nErrors: 1, −0.6, 0.36 ⇒ x = 3, **1.4**, **2.36** (jumps over 2, lands closer)"
+        },
+        {
+          "label": "STEP 5 · (a) η = 0.3",
+          "text": "r = 1 − 8 × 0.3 = 1 − 2.4 = **−1.4**\nr < −1 ⇒ **diverges**\nErrors: 1, −1.4, 1.96 ⇒ x = 3, **0.6**, **3.96** (each jump lands further away)"
+        },
+        {
+          "label": "STEP 6 · (b) Safe range",
+          "text": "Need |1 − 8η| < 1 ⇒ −1 < 1 − 8η < 1\nRight half: η > 0\nLeft half: 8η < 2 ⇒ η < 2/8 = **0.25**\nConverges for **0 < η < 0.25**: monotone for η < 1/8 = 0.125, oscillating for 0.125 < η < 0.25."
+        },
+        {
+          "label": "STEP 7 · (c) One step",
+          "text": "r = 0 ⇒ 1 − 8η = 0 ⇒ **η = 1/8 = 0.125**\nCheck: x₁ = 3 − 0.125 × 8(3 − 2) = 3 − 1 = **2** = x* ✓"
+        },
+        {
+          "label": "STEP 8 · Check one step by hand",
+          "text": "η = 0.2: x₁ = x₀ − ηf′(x₀) = 3 − 0.2 × 8(3 − 2) = 3 − 1.6 = **1.4** ✓ (same as STEP 4)"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(a) η = 0.05: r = 0.6, monotone (2.6, 2.36). η = 0.2: r = −0.6, oscillating (1.4, 2.36). η = 0.3: r = −1.4, diverges (0.6, 3.96). (b) 0 < η < 0.25; monotone below 0.125, oscillating above. (c) η = 0.125."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Using f′ instead of f″ for the curvature.\n• Forgetting to measure from x* = 2 (the error, not x).\n• Saying \"diverges\" for −1 < r < 0: it zigzags but converges.\n• Reading η off r directly instead of η = (1 − r)/f″."
+        }
+      ],
+      "answer": "r = 1 − 8η: η = 0.05 monotone, 0.2 oscillating, 0.3 diverges; converges for 0 < η < 0.25; one step at η = 0.125.",
+      "marks": 5,
+      "priority": "must",
+      "priorityWhy": "Step-size behaviour: the recipe for every 'which α' question"
     }
-   ]
-  },
-  {
-   "title": "Topic 2: Zero gradient and the second-derivative test (slides 5-7)",
-   "lead": "At the bottom of a valley the ground is flat. For easy functions you can solve for that spot.",
-   "blocks": [
+  ],
+  "labs": [],
+  "flashcards": [
     {
-     "type": "p",
-     "text": "Slide 5: we move along the negative gradient until the gradient is zero. That point is a valley, a local minimum. Zero gradient only says 'flat', so slide 7 adds the second-derivative test: positive means a minimum, negative means a maximum."
+      "tag": "Formula",
+      "front": "The gradient descent rule (slide 9)",
+      "back": "wₜ₊₁ = wₜ − η∇f(wₜ). Step against the gradient; the ᵀ turns the slide's row gradient into a column."
     },
     {
-     "type": "formula",
-     "text": "l(x) = x⁴ + 7x³ + 5x² − 17x + 3\ndl/dx = 4x³ + 21x² + 10x − 17        second derivative = 12x² + 42x + 10",
-     "caption": "slide 7"
+      "tag": "Concept",
+      "front": "Why do we subtract the gradient?",
+      "back": "The gradient points uphill (direction of steepest increase). We want the minimum, so we step the opposite way."
     },
     {
-     "type": "table",
-     "head": [
-      "x (gradient = 0)",
-      "Second derivative",
-      "Verdict",
-      "l(x)"
-     ],
-     "rows": [
-      [
-       "−4.480",
-       "+62.7",
-       "minimum",
-       "−47.08"
-      ],
-      [
-       "−1.432",
-       "−25.5",
-       "maximum",
-       "21.25"
-      ],
-      [
-       "0.662",
-       "+43.1",
-       "minimum",
-       "−3.84"
-      ]
-     ]
+      "tag": "Concept",
+      "front": "What does the step size η do, and what goes wrong if it is too small or too large? (slide 11)",
+      "back": "It scales each step. Too small: very slow. Too large: overshoots, may fail to converge or diverge."
     },
     {
-     "type": "p",
-     "text": "The deepest valley (global minimum) is x = −4.48. This worked because a cubic is easy to solve. Real loss functions cannot be solved by hand, so slide 8 says we follow the negative gradient instead."
+      "tag": "Formula",
+      "front": "Update with a time-dependent rate (slide 15)",
+      "back": "wₜ₊₁ = wₜ − ηₜ∇J, where ηₜ gets smaller with time."
     },
     {
-     "type": "note",
-     "label": "How to spot it",
-     "text": "'Find the critical points and classify them': set the gradient to zero, then use the second derivative (or the Hessian in two variables, Lecture 8).",
-     "color": "blue"
+      "tag": "Formula",
+      "front": "Exponential and inverse decay (slide 16)",
+      "back": "Exponential: ηₜ = η₀·e^(−kt). Inverse: ηₜ = η₀ / (1 + k·t). k controls the rate of decay."
+    },
+    {
+      "tag": "Concept",
+      "front": "Gradient is zero. How do you tell minimum from maximum? (slide 7)",
+      "back": "Second derivative: positive means a local minimum, negative means a local maximum."
+    },
+    {
+      "tag": "Formula",
+      "front": "Hessian test for a minimum in two variables (Lecture 8, slides 16-17)",
+      "back": "fxx > 0 and fxx·fyy − fxy² > 0 (Sylvester): the Hessian is positive definite, so a minimum. For convexity the exam key uses the same test."
+    },
+    {
+      "tag": "Formula",
+      "front": "Stable step size on a quadratic (add-on)",
+      "back": "0 < η < 2/λmax(H), the largest eigenvalue of the Hessian."
+    },
+    {
+      "tag": "Method",
+      "front": "'Perform k iterations of gradient descent': the steps",
+      "back": "Slope, scale, subtract: gradient at the current point, multiply by η (ηₜ if a schedule), subtract from each coordinate. Repeat."
+    },
+    {
+      "tag": "Trap",
+      "front": "A step went far but f did not fall. What happened?",
+      "back": "The step overshot the valley (η too big). Judge a step by f, not by how far it moved."
     }
-   ]
-  },
-  {
-   "title": "Topic 3: The gradient descent rule (slides 8-10)",
-   "lead": "Walk downhill: feel the tilt, step against it, repeat.",
-   "blocks": [
+  ],
+  "quiz": [
     {
-     "type": "h",
-     "text": "The picture"
-    },
-    {
-     "type": "p",
-     "text": "You are blindfolded on a hill. You feel which way the ground tilts under your feet, take a small step downhill, and feel again. You stop when the ground is flat."
-    },
-    {
-     "type": "table",
-     "head": [
-      "Word",
-      "Meaning"
-     ],
-     "rows": [
-      [
-       "Valley",
-       "The low part of the loss: the minimum. Where the parameters are best."
+      "type": "mcq",
+      "q": "In wₜ₊₁ = wₜ − η∇f(wₜ), why is there a minus sign?",
+      "options": [
+        "The gradient points uphill, so we go the other way",
+        "To make the step smaller",
+        "Because f is negative",
+        "To keep x positive"
       ],
-      [
-       "Height",
-       "The value of the function, for example f(x) = 4."
+      "answer": 0,
+      "explain": "The gradient points to steepest increase; the minimum is downhill.",
+      "set": "GD"
+    },
+    {
+      "type": "mcq",
+      "q": "The gradient is zero and the second derivative is negative. The point is…",
+      "options": [
+        "a local maximum",
+        "a local minimum",
+        "a saddle",
+        "not a stationary point"
       ],
-      [
-       "Tilt (slope, gradient)",
-       "How fast the height changes as you move, and in which direction. Positive tilt: the ground rises to the right, so downhill is left. Negative: downhill is right. Zero: flat."
+      "answer": 0,
+      "explain": "Negative second derivative means a maximum (slide 7).",
+      "set": "GD"
+    },
+    {
+      "type": "mcq",
+      "q": "The step size is far too large. What may happen?",
+      "options": [
+        "It overshoots and may diverge",
+        "It converges faster",
+        "The gradient becomes zero",
+        "Nothing"
       ],
-      [
-       "Steep",
-       "A big gradient number: the height changes quickly. Gentle means a small number."
+      "answer": 0,
+      "explain": "Slide 11: too large a step overshoots the target, fails to converge, or diverges.",
+      "set": "GD"
+    },
+    {
+      "type": "mcq",
+      "q": "Inverse decay (slide 16) is…",
+      "options": [
+        "η₀ / (1 + k·t)",
+        "η₀ · e^(−kt)",
+        "η₀ + k·t",
+        "η₀ / k"
       ],
-      [
-       "Step size γ",
-       "How far you move for each unit of tilt (called the learning rate elsewhere)."
-      ]
-     ]
+      "answer": 0,
+      "explain": "Exponential decay is η₀·e^(−kt); inverse is η₀/(1 + kt).",
+      "set": "GD"
     },
     {
-     "type": "h",
-     "text": "The rule (slide 9)"
+      "type": "numeric",
+      "q": "f = w1² + w2², start (4, 2), η = 0.1. What is w1 after two iterations?",
+      "answer": 2.56,
+      "tolerance": 0.001,
+      "unit": "",
+      "explain": "Each step multiplies by 0.8: 4 → 3.2 → 2.56.",
+      "set": "GD"
     },
     {
-     "type": "formula",
-     "text": "x(i+1) = x(i) − γi · ((∇f)(x(i)))ᵀ",
-     "caption": "slide 9: step against the gradient; for small enough γ, f(x(i+1)) ≤ f(x(i))"
+      "type": "numeric",
+      "q": "Feb 2026 Q4: η₀ = 0.1, k = 0.4. What is η₂ (t = 2)?",
+      "answer": 0.05556,
+      "tolerance": 0.0005,
+      "unit": "",
+      "explain": "0.1 / (1 + 0.4 × 2) = 0.1/1.8.",
+      "set": "GD"
     },
     {
-     "type": "list",
-     "items": [
-      "The slides write the gradient ∇f as a row of slopes. x is a column, so the ᵀ turns the row into a column. The numbers are the same either way: take each partial derivative, scale it by γ, subtract it from the matching coordinate.",
-      "Steep ground gives a big step. As the ground flattens near the bottom, the step shrinks by itself."
-     ]
+      "type": "numeric",
+      "q": "Problem 26: f = x² + y² + xy − 3x from (0, 0), η = 0.1. What is f after one step?",
+      "answer": -0.81,
+      "tolerance": 0.005,
+      "unit": "",
+      "explain": "The step is (0.3, 0): f = 0.09 − 0.9 = −0.81.",
+      "set": "GD"
     },
     {
-     "type": "h",
-     "text": "What the step size does"
+      "type": "numeric",
+      "q": "Problem 26: the largest eigenvalue of the Hessian [[2, 1], [1, 2]]?",
+      "answer": 3,
+      "tolerance": 0.001,
+      "unit": "",
+      "explain": "(2 − λ)² = 1, so λ = 1 or 3.",
+      "set": "GD"
     },
     {
-     "type": "p",
-     "text": "Take f(x) = (x − 3)², minimum at 3, gradient 2(x − 3), start at 0. Each step multiplies the gap to 3 by (1 − 2γ)."
+      "type": "numeric",
+      "q": "Problem 26: the largest stable step size is 2/λmax. What is the number?",
+      "answer": 0.6667,
+      "tolerance": 0.005,
+      "unit": "",
+      "explain": "2/3.",
+      "set": "GD"
     },
     {
-     "type": "table",
-     "head": [
-      "γ",
-      "x: 0 → ?",
-      "What happens"
-     ],
-     "rows": [
-      [
-       "0.1",
-       "0 → 0.6 → 1.08 → 1.46",
-       "creeps toward 3, slowly"
-      ],
-      [
-       "0.5",
-       "0 → 3",
-       "lands on 3 in one step"
-      ],
-      [
-       "1.0",
-       "0 → 6 → 0 → 6",
-       "bounces forever"
-      ],
-      [
-       "1.1",
-       "0 → 6.6 → −1.32 → ...",
-       "each jump is bigger: blows up"
-      ]
-     ]
-    },
-    {
-     "type": "p",
-     "text": "Too small is slow; too large overshoots or diverges (slide 11). That is why decay, bold driver and line search exist: they are ways of choosing γ."
-    },
-    {
-     "type": "h",
-     "text": "Slide 10 example, worked by hand"
-    },
-    {
-     "type": "p",
-     "text": "f(x) = ½ xᵀAx + bᵀx with A = [[2, 1], [1, 20]], b = (−5, −3), start (−3, −1). The slide gives no step size (it runs MATLAB code), so I use γ = 0.05 for the demonstration. The column form of the slide's gradient is A·x + b."
-    },
-    {
-     "type": "table",
-     "head": [
-      "i",
-      "Point",
-      "Gradient A·x + b",
-      "f"
-     ],
-     "rows": [
-      [
-       "0",
-       "(−3, −1)",
-       "(−12, −26)",
-       "40"
-      ],
-      [
-       "1",
-       "(−2.4, 0.3)",
-       "(−9.5, 0.6)",
-       "17.04"
-      ],
-      [
-       "2",
-       "(−1.925, 0.27)",
-       "(−8.58, 0.475)",
-       "12.73"
-      ],
-      [
-       "3",
-       "(−1.496, 0.246)",
-       "(−7.75, 0.429)",
-       "9.22"
-      ],
-      [
-       "4",
-       "(−1.109, 0.225)",
-       "",
-       "6.35"
-      ]
-     ]
-    },
-    {
-     "type": "p",
-     "text": "Step 1 by hand: A·x0 = (2(−3) + 1(−1), 1(−3) + 20(−1)) = (−7, −23); gradient = (−7, −23) + (−5, −3) = (−12, −26); x1 = (−3, −1) − 0.05·(−12, −26) = (−2.4, 0.3). f decreases every step. The true minimum is (2.487, 0.026). The y-gradient is 20 times steeper than the x-gradient: this mismatch is why plain GD zig-zags, and the reason for momentum in Lecture 11."
-    },
-    {
-     "type": "trap",
-     "label": "Slide 10's step size",
-     "text": "The slide does not state γ. The 0.05 and the table are my illustration, not the slide's numbers."
+      "type": "numeric",
+      "q": "2024 Q4 plain GD: f = (x − 1)² + (y − 1)², start (1.5, 1.5), α = 0.05. What is x after two iterations?",
+      "answer": 1.405,
+      "tolerance": 0.0005,
+      "unit": "",
+      "explain": "1.5 → 1.45 → 1.405.",
+      "set": "GD"
     }
-   ]
-  },
-  {
-   "title": "GD problem types and the approach",
-   "lead": "Slope, scale, subtract.",
-   "blocks": [
+  ],
+  "formulas": [
     {
-     "type": "table",
-     "head": [
-      "Type",
-      "What you do",
-      "Seen in"
-     ],
-     "rows": [
-      [
-       "a. k iterations, fixed γ",
-       "gradient, scale, subtract, repeat",
-       "2024 Q4 (plain part), practice"
-      ],
-      [
-       "b. with a decay schedule",
-       "compute αt first, then as (a)",
-       "Feb 2026 Q4 (4 marks)"
-      ],
-      [
-       "c. convexity first",
-       "Hessian and Sylvester's criterion (Lecture 8, slides 16-17)",
-       "Feb 2026 Q4(a), 3 marks"
-      ],
-      [
-       "d. one step, two γ / recover γ",
-       "same gradient, different scaling; read the update backwards",
-       "Sourabh sir's Problems 26, 27"
-      ],
-      [
-       "e. 1-D theory",
-       "which start reaches the global minimum; zone of attraction",
-       "2022 makeup, 2024 makeup"
-      ]
-     ]
+      "name": "Gradient descent rule",
+      "formula": "wₜ₊₁ = wₜ − η∇f(wₜ)",
+      "note": "Slide 9 (the slide writes x(i+1) = x(i) − γᵢ((∇f)(x(i)))ᵀ). η is the step size."
     },
     {
-     "type": "h",
-     "text": "The approach"
+      "name": "Learning rate decay",
+      "formula": "wₜ₊₁ = wₜ − ηₜ∇J\nexponential: ηₜ = η₀·e^(−kt)\ninverse: ηₜ = {{ η₀ // 1 + k·t }}",
+      "note": "Slides 15-16."
     },
     {
-     "type": "steps",
-     "items": [
-      "Write f and find the gradient: one partial derivative per variable.",
-      "Note γ (work out αt first if a schedule is given).",
-      "Put the current point into the gradient.",
-      "Subtract: new = old − γ × gradient, coordinate by coordinate.",
-      "Repeat for each iteration and show every line.",
-      "Check: f should decrease."
-     ]
+      "name": "Loss for a line (slide 4)",
+      "formula": "L(a, b) = Σ (y − (a·x + b))²\nexam form: J = ½ Σ (ŷ − y)²",
+      "note": "a is the slope and b the intercept; the exam uses w1 and w0."
     },
     {
-     "type": "note",
-     "label": "Marks",
-     "text": "Show the gradient formula, the gradient value at each point, γ, and the update. The commonest slip is dropping a term when differentiating.",
-     "color": "blue"
+      "name": "Second-derivative / Hessian test",
+      "formula": "one variable: second derivative > 0 means minimum\ntwo variables: fxx > 0 and fxx·fyy − fxy² > 0",
+      "note": "Slide 7 and Lecture 8 slides 16-17."
+    },
+    {
+      "name": "Stable step size (add-on)",
+      "formula": "0 < η < 2 / λmax(H)",
+      "note": "Sourabh sir's Lecture 10 companion and Problems 26-27."
     }
-   ]
-  },
-  {
-   "title": "How do I decide η (γ) in a problem?",
-   "lead": "Usually you do not decide it. Read the verb in the question.",
-   "blocks": [
+  ],
+  "families": [
     {
-     "type": "table",
-     "head": [
-      "The question says",
-      "What to do",
-      "Where"
-     ],
-     "rows": [
-      [
-       "'with step size / learning rate = …'",
-       "Use the value given",
-       "Feb 2026 Q4, 2024 Q4, P26"
+      "id": "gd",
+      "label": "GD",
+      "icon": "G",
+      "title": "Gradient descent iterations",
+      "lead": "In every end-sem. Plug-and-play: slope, scale, subtract.",
+      "problems": [
+        "GD ·"
       ],
-      [
-       "'stable', 'converges', 'does not diverge', 'largest learning rate'",
-       "Hessian, eigenvalues, then 0 < η < 2/λmax (all four mean the same)",
-       "P26(d), P27 (add-on)"
-      ],
-      [
-       "'oscillates' or 'explodes'",
-       "η > 2/λmax",
-       "add-on"
-      ],
-      [
-       "'optimal / exact step size', 'line search'",
-       "Minimise φ(η) = f(x − η·gradient) over η",
-       "slides 18-25, Mar 2026 Q3, P28, P29 (pending)"
-      ],
-      [
-       "one step is given, 'find the learning rate'",
-       "Read the update backwards: η = (old − new) / gradient",
-       "P27 (pending)"
-      ],
-      [
-       "nothing given, must choose",
-       "Start small; if f rises, halve it (slide 12)",
-       "heuristic, rarely marked"
+      "blocks": [
+        {
+          "type": "h",
+          "text": "How to recognise it"
+        },
+        {
+          "type": "list",
+          "items": [
+            "'Perform two iterations of gradient descent', 'starting from', 'learning rate', 'step size', sometimes 'schedule'.",
+            "A simple function (a quadratic or a squared-error loss) and a starting point."
+          ]
+        },
+        {
+          "type": "formula",
+          "text": "wₜ₊₁ = wₜ − η∇f(wₜ)        ηₜ = η₀ / (1 + k·t)"
+        },
+        {
+          "type": "h",
+          "text": "Standard steps"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Find the gradient: one partial derivative per variable.",
+            "Work out the step size (ηₜ if there is a schedule).",
+            "Put the current point into the gradient.",
+            "Subtract η × gradient from each coordinate.",
+            "Repeat, showing each line.",
+            "If asked for convexity, add the Hessian and Sylvester's criterion."
+          ]
+        },
+        {
+          "type": "trap",
+          "label": "Remember",
+          "text": "Judge progress by f, not by distance moved. Too large a step overshoots."
+        }
       ]
-     ]
-    },
-    {
-     "type": "note",
-     "label": "At exactly 2/λmax",
-     "text": "The error bounces with the same size forever, so 'largest stable' is 'just below 2/λmax'.",
-     "color": "blue"
     }
-   ]
-  },
-  {
-   "title": "Important: the stable step size (add-on)",
-   "lead": "Not on the slides. It is in Sourabh sir's Lecture 10 companion and Problems 26 and 27.",
-   "blocks": [
-    {
-     "type": "formula",
-     "text": "GD on a quadratic converges for 0 < γ < 2 / λmax(H)",
-     "caption": "λmax = the largest eigenvalue of the Hessian H"
-    },
-    {
-     "type": "p",
-     "text": "Carry this line on your formula sheet. Cues in a question: 'stable', 'converges', 'oscillates', 'explodes', 'largest learning rate'."
-    },
-    {
-     "type": "h",
-     "text": "Sample calculation (Problem 26's function)"
-    },
-    {
-     "type": "p",
-     "text": "f(x, y) = x² + y² + xy − 3x. First derivatives: 2x + y − 3 and 2y + x. Differentiate again for the Hessian (Lecture 8, slide 16), then take its eigenvalues."
-    },
-    {
-     "type": "formula",
-     "text": "H = [ 2  1 ]\n    [ 1  2 ]\ndet(H − λI) = (2 − λ)² − 1 = 0  →  λ = 1 or 3\nstable for 0 < γ < 2/3",
-     "caption": "check: 1 + 3 = trace 4 and 1 × 3 = determinant 3"
-    },
-    {
-     "type": "p",
-     "text": "What you write in the exam: the Hessian, its eigenvalues, and the line 'stable for 0 < η < 2/λmax = 2/3'. Nothing more."
-    },
-    {
-     "type": "h",
-     "text": "Where 2/λ comes from (to understand it, not to write)"
-    },
-    {
-     "type": "p",
-     "text": "On a bowl of steepness λ, one step multiplies the gap to the minimum by (1 − γλ). The gap shrinks only if that multiplier lies between −1 and 1, which means 0 < γλ < 2, so 0 < γ < 2/λ. With two directions the step must suit both, so the steepest direction (λmax) sets the limit."
-    },
-    {
-     "type": "table",
-     "head": [
-      "γ",
-      "multiplier (1 − γλ) with λ = 3",
-      "Effect"
-     ],
-     "rows": [
-      [
-       "0.1",
-       "0.7",
-       "shrinks: fine"
-      ],
-      [
-       "0.5",
-       "−0.5",
-       "flips sign but shrinks"
-      ],
-      [
-       "2/3",
-       "−1",
-       "bounces forever"
-      ],
-      [
-       "1",
-       "−2",
-       "error doubles each step: overshoots"
-      ]
-     ]
-    }
-   ]
+  ],
+  "readme": {
+    "summary": "**slide N** = the number in the slide's footer (\"N / 31\"); your PDF viewer shows it as page **N + 1**. **Lecture boards use one notation:** η = step size (the slides write γ, the decay slides α), ηₜ = decayed step size, φ(η) = line search. Past-paper solutions keep the paper's own symbols, with a Notation line.",
+    "sections": [
+      {
+        "title": "Page numbers",
+        "items": [
+          "`Lecture_9.pdf` prints \"N / 31\" in each footer. This chapter quotes that **slide number N**. Your PDF viewer shows the same slide as page N + 1 (slide 8 = PDF page 9)."
+        ]
+      },
+      {
+        "title": "Symbols on the lecture boards (past-paper solutions keep the paper's own)",
+        "head": [
+          "We write",
+          "Slides / papers may write",
+          "Meaning"
+        ],
+        "rows": [
+          [
+            "w",
+            "x (slides), (x, y) for two coordinates",
+            "the point / weights being optimised"
+          ],
+          [
+            "η",
+            "γ (slide 9), α (Sep 2025, Mar 2026 line search)",
+            "step size / learning rate"
+          ],
+          [
+            "ηₜ, η₀",
+            "αt, α0 (decay slides 14–17)",
+            "step size at iteration t, starting step size"
+          ],
+          [
+            "f, J, L",
+            "",
+            "the function being minimised: we keep the name the question gives it"
+          ],
+          [
+            "∇f(wₜ)",
+            "g (Sourabh sir's sets), ∂J/∂w",
+            "gradient"
+          ],
+          [
+            "H",
+            "∇²f",
+            "Hessian"
+          ],
+          [
+            "d",
+            "−∇f",
+            "descent direction"
+          ],
+          [
+            "φ(η)",
+            "h(α) (slides), φ(α) (Mar 2026)",
+            "loss along the line w + ηd (line search)"
+          ]
+        ]
+      },
+      {
+        "title": "Sources and short names",
+        "items": [
+          "**P31** = Problem 31 of Sourabh sir's Solved Practice Set (`MFML_ZC416_Solved_Practice_Set.pdf`, Prof Saurabh materials → Practice materials → Endsem Practice materials).",
+          "**Practice Paper Q4** = question 4 of `MFML_ZC416_Practice_Paper.pdf` (same folder).",
+          "**Companion §3** = section 3 of the companion PDF named on that board (Prof. Saurabh → Companion_Doc or practice_problems).",
+          "**KKT set P15** = problem 15 of `Lagrange-KKT-Duality-Practice-Set.pdf` (Prof. Saurabh → practice_problems).",
+          "**[1M]** = the marks the official answer key gives for that step.",
+          "**Feb 2026 / Mar 2026 / Sep 2025** = the end-sem (EC-3) papers in the Exam hall. **Mar 2026 makeup** and anything marked **DS** were set for the sister course DSECL ZC416 (same syllabus).",
+          "**Lecture N** or **LN** = `Lecture_N.pdf` = contact session N in the handout."
+        ]
+      }
+    ]
   }
- ],
- "worked": [
-  {
-   "title": "GD · Practice (type a): f = w1² + w2² from (4, 2)",
-   "tags": [
-    "Practice",
-    "Plain GD"
-   ],
-   "problem": [
-    {
-     "type": "p",
-     "text": "My own practice question, built on the function Sourabh sir uses in class."
-    },
-    {
-     "type": "p",
-     "text": "Consider f(w1, w2) = w1² + w2². Using gradient descent with step size γ = 0.1 and starting point (w1, w2) = (4, 2), compute the point after two iterations."
-    }
-   ],
-   "steps": [
-    {
-     "label": "Formula (slide 9)",
-     "text": "x(i+1) = x(i) − γ·((∇f)(x(i)))ᵀ. Apply it to each coordinate."
-    },
-    {
-     "label": "Gradient",
-     "text": "∂f/∂w1 = 2·w1 and ∂f/∂w2 = 2·w2, so (∇f)(x) = [2·w1, 2·w2]."
-    },
-    {
-     "label": "Iteration 1",
-     "text": "At (4, 2) the gradient is [8, 4]. γ × gradient = (0.8, 0.4). New point: (4 − 0.8, 2 − 0.4) = **(3.2, 1.6)**. f = 3.2² + 1.6² = 12.8 (it was 20)."
-    },
-    {
-     "label": "Iteration 2",
-     "text": "At (3.2, 1.6) the gradient is [6.4, 3.2]. γ × gradient = (0.64, 0.32). New point: (3.2 − 0.64, 1.6 − 0.32) = **(2.56, 1.28)**. f = 8.192."
-    },
-    {
-     "label": "Check",
-     "text": "f decreases: 20, 12.8, 8.192. Each step multiplies both coordinates by 0.8, so after n steps you are at (4, 2) × 0.8ⁿ; for n = 2 that is (2.56, 1.28)."
-    },
-    {
-     "label": "Step-size lesson",
-     "text": "With γ = 0.5 the first step is (4 − 4, 2 − 2) = (0, 0): the minimum in one step. That best γ is what line search finds."
-    }
-   ],
-   "answer": "After two iterations the point is (2.56, 1.28), with f = 8.192."
-  },
-  {
-   "title": "GD · Sourabh sir Problem 26: one step, two learning rates",
-   "tags": [
-    "Sourabh sir",
-    "Plain GD",
-    "Hessian"
-   ],
-   "problem": [
-    {
-     "type": "p",
-     "text": "Minimise f(x, y) = x² + y² + xy − 3x by gradient descent from (0, 0). (a) Write the update equations for x and y. (b) Do one step with η = 0.1 and, separately, one step with η = 1. (c) Compute f at the start and after each step. (d) Find the true minimiser and the largest stable learning rate. His η is the slide's γ."
-    }
-   ],
-   "steps": [
-    {
-     "label": "Formulas",
-     "text": "Slide 9: x(i+1) = x(i) − γ·((∇f)(x(i)))ᵀ. Hessian: slide 16 of Lecture 8. Eigenvalues: det(H − λI) = 0. Stable step: 0 < γ < 2/λmax (add-on)."
-    },
-    {
-     "label": "(a) Update equations",
-     "text": "∂f/∂x = 2x + y − 3 and ∂f/∂y = 2y + x. So x(new) = x − η(2x + y − 3) and y(new) = y − η(2y + x)."
-    },
-    {
-     "label": "(b) One step from (0, 0)",
-     "text": "The gradient at (0, 0) is [−3, 0] for both rates. η = 0.1: (0 + 0.3, 0) = **(0.3, 0)**. η = 1: (0 + 3, 0) = **(3, 0)**."
-    },
-    {
-     "label": "(c) f at each point",
-     "text": "f(0, 0) = 0. f(0.3, 0) = 0.09 − 0.9 = **−0.81**. f(3, 0) = 9 − 9 = **0**. The big step went far but ended at the same height: it overshot. Judge a step by f, not by distance."
-    },
-    {
-     "label": "(d) Minimiser",
-     "text": "Set the gradient to zero: 2x + y = 3 and x + 2y = 0. Then x = −2y, so −4y + y = 3, y = −1, x = 2. **Minimiser (2, −1), f = −3.**"
-    },
-    {
-     "label": "(d) Hessian and eigenvalues",
-     "text": "fxx = 2, fxy = 1, fyy = 2, so H = [[2, 1], [1, 2]]. det(H − λI) = (2 − λ)² − 1 = 0, so λ = 1 or 3. Check: sum 4 = trace, product 3 = determinant."
-    },
-    {
-     "label": "(d) Stable step",
-     "text": "**0 < η < 2/λmax = 2/3.** So η = 0.1 is fine and η = 1 is too big, which is why it overshot."
-    },
-    {
-     "label": "Where marks are lost",
-     "text": "Dropping the −3 in ∂f/∂x; judging a step only by how far it moved."
-    }
-   ],
-   "answer": "(0.3, 0) and (3, 0); f = 0, −0.81, 0; minimiser (2, −1), stable for η < 2/3."
-  },
-  {
-   "title": "GD · Feb 2026 end-sem Q4: regression loss, Hessian, decay schedule (8 marks)",
-   "tags": [
-    "Past paper",
-    "Plain GD",
-    "Decay",
-    "Hessian"
-   ],
-   "problem": [
-    {
-     "type": "p",
-     "text": "A retail shop wants to predict their sales corresponding to the money they spent on advertisement using the following data. A linear regression model with bias is assumed: ŷi = w0 + w1·xi. [8 marks]"
-    },
-    {
-     "type": "table",
-     "head": [
-      "Money spent for advertisement in ten thousands (x)",
-      "Sales in lacs (y)"
-     ],
-     "rows": [
-      [
-       "5",
-       "3"
-      ],
-      [
-       "6",
-       "5"
-      ]
-     ]
-    },
-    {
-     "type": "p",
-     "text": "The model parameters are learned by minimizing the Squared Error loss function J(w0, w1) = ½ Σ (ŷi − yi)², sum over i = 1 to 2, using gradient descent."
-    },
-    {
-     "type": "p",
-     "text": "(a) Formulate the Squared Error loss function J(w0, w1) explicitly for the given dataset. Compute the Hessian matrix of J with respect to w0 and w1, and use it to prove that J is a convex function of the parameters (w0, w1). [3M]"
-    },
-    {
-     "type": "p",
-     "text": "(b) Compute the gradient of the Squared Error loss function: ∇J. [1M]"
-    },
-    {
-     "type": "p",
-     "text": "(c) Taking the initial parameter values w0 = 0, w1 = 0, perform two iterations of gradient descent using the inverse decaying learning rate schedule with initial learning rate η0 = 0.1, k = 0.4, where t = 1, 2, .. denote the iteration index. Show the updated parameter values after each iteration. [4M]"
-    }
-   ],
-   "steps": [
-    {
-     "label": "Symbols",
-     "text": "Slide letters: loss L(a, b) on slide 4 (b is the intercept, a the slope), so w0 is b and w1 is a. The decayed rate is αt (slide 16); the exam calls it η. In the Hessian slide (Lecture 8, slide 16) the variables are x, y, so here x is w0 and y is w1."
-    },
-    {
-     "label": "Formulas",
-     "text": "Slide 15: w(n+1) = w(n) − αt·∇J. Slide 16: inverse decay αt = {{ α0 // 1 + k·t }}. Lecture 8 slides 16-17: Hessian [[fxx, fxy], [fxy, fyy]]; Sylvester's criterion: fxx > 0 and fxx·fyy − fxy² > 0 means positive definite. 'Positive definite means convex' is the exam key's reason and is an add-on."
-    },
-    {
-     "label": "(a) Build J",
-     "text": "ŷ = w0 + w1·x. J = ½ [(w0 + 5w1 − 3)² + (w0 + 6w1 − 5)²]. The slide writes the gap as y − ŷ; squaring makes the order irrelevant."
-    },
-    {
-     "label": "(a) First derivatives",
-     "text": "∂J/∂w0 = (w0 + 5w1 − 3) + (w0 + 6w1 − 5) = 2w0 + 11w1 − 8. ∂J/∂w1 = 5(w0 + 5w1 − 3) + 6(w0 + 6w1 − 5) = 11w0 + 61w1 − 45."
-    },
-    {
-     "label": "(a) Hessian",
-     "text": "fxx = 2, fxy = 11, fyy = 61. H = [[2, 11], [11, 61]]."
-    },
-    {
-     "label": "(a) Sylvester",
-     "text": "fxx = 2 > 0. fxx·fyy − fxy² = 2 × 61 − 11² = 122 − 121 = 1 > 0. So H is positive definite and **J is convex**."
-    },
-    {
-     "label": "(b) Gradient",
-     "text": "**∇J = [2w0 + 11w1 − 8, 11w0 + 61w1 − 45]**, found in step (a)."
-    },
-    {
-     "label": "(c) Step sizes",
-     "text": "α1 = 0.1 / (1 + 0.4 × 1) = **0.07143**. α2 = 0.1 / (1 + 0.4 × 2) = **0.05556**."
-    },
-    {
-     "label": "(c) Iteration 1, t = 1",
-     "text": "At (0, 0): ∇J = [−8, −45]. w0 = 0 − 0.07143 × (−8) = **0.5714**. w1 = 0 − 0.07143 × (−45) = **3.2144**."
-    },
-    {
-     "label": "(c) Iteration 2, t = 2",
-     "text": "At (0.5714, 3.2144): ∂J/∂w0 = 1.1428 + 35.3584 − 8 = 28.5012; ∂J/∂w1 = 6.2854 + 196.0784 − 45 = 157.3638. w0 = 0.5714 − 0.05556 × 28.5012 = **−1.0121**. w1 = 3.2144 − 0.05556 × 157.3638 = **−5.5287**."
-    },
-    {
-     "label": "Why step 2 jumps back",
-     "text": "Step 1 overshot (w1 went far past the valley bottom), so the gradient at the new point is large and positive, and step 2 pulls back. The decay only shrinks αt from 0.0714 to 0.0556. That is normal here, not an error."
-    },
-    {
-     "label": "Rounding",
-     "text": "Keeping α as a fraction gives (−1.0119, −5.5278). Both are acceptable."
-    },
-    {
-     "label": "Where marks are lost",
-     "text": "Forgetting to prove convexity; computing αt after the update instead of before; using the old gradient in iteration 2."
-    }
-   ],
-   "answer": "J is convex (H = [[2, 11], [11, 61]], minors 2 and 1). ∇J = [2w0 + 11w1 − 8, 11w0 + 61w1 − 45]. w(1) = (0.5714, 3.2144) and w(2) = (−1.0121, −5.5287)."
-  },
-  {
-   "title": "GD · 2024 end-sem Q4: the plain-GD part (momentum part to come)",
-   "tags": [
-    "Past paper",
-    "Plain GD"
-   ],
-   "problem": [
-    {
-     "type": "p",
-     "text": "Consider the function of two variables f(x, y) = (x − 1)² + (y − 1)². Suppose you apply gradient descent algorithm with momentum with initial values x0 = 1.5, y0 = 1.5, the learning parameter α = 0.05 and the momentum parameter β = 0.8 to find the point at which f(x, y) attains its global minimum. Find (x1, y1), (x2, y2) using first two iterations of gradient descent algorithm with momentum. Also find (a1, b1), (a2, b2) using first two iterations of gradient descent algorithm using the same initial values x0 = 1.5, y0 = 1.5 and the learning parameter α = 0.05. Conclude whether there is any advantage of using the gradient descent algorithm with momentum instead of just using the gradient descent algorithm? [7 marks]"
-    },
-    {
-     "type": "note",
-     "label": "Status",
-     "text": "This entry does only the plain-GD half, (a1, b1) and (a2, b2). The momentum half and the comparison come with Lecture 11.",
-     "color": "red"
-    }
-   ],
-   "steps": [
-    {
-     "label": "Formula (slide 9)",
-     "text": "x(i+1) = x(i) − γ·((∇f)(x(i)))ᵀ with γ = 0.05 (the exam's α)."
-    },
-    {
-     "label": "Gradient",
-     "text": "∂f/∂x = 2(x − 1) and ∂f/∂y = 2(y − 1)."
-    },
-    {
-     "label": "Iteration 1",
-     "text": "At (1.5, 1.5): gradient [1, 1]. γ × gradient = (0.05, 0.05). **(a1, b1) = (1.45, 1.45).**"
-    },
-    {
-     "label": "Iteration 2",
-     "text": "At (1.45, 1.45): gradient [0.9, 0.9]. γ × gradient = (0.045, 0.045). **(a2, b2) = (1.405, 1.405).**"
-    },
-    {
-     "label": "Check",
-     "text": "The minimum is (1, 1). The gap shrinks by a factor 0.9 each step (0.5, 0.45, 0.405). Keep these two points for the comparison with momentum."
-    }
-   ],
-   "answer": "Plain GD: (a1, b1) = (1.45, 1.45) and (a2, b2) = (1.405, 1.405)."
-  }
- ],
- "labs": [],
- "flashcards": [
-  {
-   "tag": "Formula",
-   "front": "The gradient descent rule (slide 9)",
-   "back": "x(i+1) = x(i) − γ·((∇f)(x(i)))ᵀ. Step against the gradient; the ᵀ turns the slide's row gradient into a column."
-  },
-  {
-   "tag": "Concept",
-   "front": "Why do we subtract the gradient?",
-   "back": "The gradient points uphill (direction of steepest increase). We want the minimum, so we step the opposite way."
-  },
-  {
-   "tag": "Concept",
-   "front": "What does the step size γ do, and what goes wrong if it is too small or too large? (slide 11)",
-   "back": "It scales each step. Too small: very slow. Too large: overshoots, may fail to converge or diverge."
-  },
-  {
-   "tag": "Formula",
-   "front": "Update with a time-dependent rate (slide 15)",
-   "back": "w(n+1) = w(n) − αt·∇J, where αt gets smaller with time."
-  },
-  {
-   "tag": "Formula",
-   "front": "Exponential and inverse decay (slide 16)",
-   "back": "Exponential: αt = α0·e^(−kt). Inverse: αt = α0 / (1 + k·t). k controls the rate of decay."
-  },
-  {
-   "tag": "Concept",
-   "front": "Gradient is zero. How do you tell minimum from maximum? (slide 7)",
-   "back": "Second derivative: positive means a local minimum, negative means a local maximum."
-  },
-  {
-   "tag": "Formula",
-   "front": "Hessian test for a minimum in two variables (Lecture 8, slides 16-17)",
-   "back": "fxx > 0 and fxx·fyy − fxy² > 0 (Sylvester): the Hessian is positive definite, so a minimum. For convexity the exam key uses the same test."
-  },
-  {
-   "tag": "Formula",
-   "front": "Stable step size on a quadratic (add-on)",
-   "back": "0 < γ < 2/λmax(H), the largest eigenvalue of the Hessian."
-  },
-  {
-   "tag": "Method",
-   "front": "'Perform k iterations of gradient descent': the steps",
-   "back": "Slope, scale, subtract: gradient at the current point, multiply by γ (αt if a schedule), subtract from each coordinate. Repeat."
-  },
-  {
-   "tag": "Trap",
-   "front": "A step went far but f did not fall. What happened?",
-   "back": "The step overshot the valley (γ too big). Judge a step by f, not by how far it moved."
-  }
- ],
- "quiz": [
-  {
-   "type": "mcq",
-   "q": "In x(i+1) = x(i) − γ·(∇f)ᵀ, why is there a minus sign?",
-   "options": [
-    "The gradient points uphill, so we go the other way",
-    "To make the step smaller",
-    "Because f is negative",
-    "To keep x positive"
-   ],
-   "answer": 0,
-   "explain": "The gradient points to steepest increase; the minimum is downhill.",
-   "set": "GD"
-  },
-  {
-   "type": "mcq",
-   "q": "The gradient is zero and the second derivative is negative. The point is…",
-   "options": [
-    "a local maximum",
-    "a local minimum",
-    "a saddle",
-    "not a stationary point"
-   ],
-   "answer": 0,
-   "explain": "Negative second derivative means a maximum (slide 7).",
-   "set": "GD"
-  },
-  {
-   "type": "mcq",
-   "q": "The step size is far too large. What may happen?",
-   "options": [
-    "It overshoots and may diverge",
-    "It converges faster",
-    "The gradient becomes zero",
-    "Nothing"
-   ],
-   "answer": 0,
-   "explain": "Slide 11: too large a step overshoots the target, fails to converge, or diverges.",
-   "set": "GD"
-  },
-  {
-   "type": "mcq",
-   "q": "Inverse decay (slide 16) is…",
-   "options": [
-    "α0 / (1 + k·t)",
-    "α0 · e^(−kt)",
-    "α0 + k·t",
-    "α0 / k"
-   ],
-   "answer": 0,
-   "explain": "Exponential decay is α0·e^(−kt); inverse is α0/(1 + kt).",
-   "set": "GD"
-  },
-  {
-   "type": "numeric",
-   "q": "f = w1² + w2², start (4, 2), γ = 0.1. What is w1 after two iterations?",
-   "answer": 2.56,
-   "tolerance": 0.001,
-   "unit": "",
-   "explain": "Each step multiplies by 0.8: 4 → 3.2 → 2.56.",
-   "set": "GD"
-  },
-  {
-   "type": "numeric",
-   "q": "Feb 2026 Q4: α0 = 0.1, k = 0.4. What is α2 (t = 2)?",
-   "answer": 0.05556,
-   "tolerance": 0.0005,
-   "unit": "",
-   "explain": "0.1 / (1 + 0.4 × 2) = 0.1/1.8.",
-   "set": "GD"
-  },
-  {
-   "type": "numeric",
-   "q": "Problem 26: f = x² + y² + xy − 3x from (0, 0), η = 0.1. What is f after one step?",
-   "answer": -0.81,
-   "tolerance": 0.005,
-   "unit": "",
-   "explain": "The step is (0.3, 0): f = 0.09 − 0.9 = −0.81.",
-   "set": "GD"
-  },
-  {
-   "type": "numeric",
-   "q": "Problem 26: the largest eigenvalue of the Hessian [[2, 1], [1, 2]]?",
-   "answer": 3,
-   "tolerance": 0.001,
-   "unit": "",
-   "explain": "(2 − λ)² = 1, so λ = 1 or 3.",
-   "set": "GD"
-  },
-  {
-   "type": "numeric",
-   "q": "Problem 26: the largest stable step size is 2/λmax. What is the number?",
-   "answer": 0.6667,
-   "tolerance": 0.005,
-   "unit": "",
-   "explain": "2/3.",
-   "set": "GD"
-  },
-  {
-   "type": "numeric",
-   "q": "2024 Q4 plain GD: f = (x − 1)² + (y − 1)², start (1.5, 1.5), γ = 0.05. What is x after two iterations?",
-   "answer": 1.405,
-   "tolerance": 0.0005,
-   "unit": "",
-   "explain": "1.5 → 1.45 → 1.405.",
-   "set": "GD"
-  }
- ],
- "formulas": [
-  {
-   "name": "Gradient descent rule",
-   "formula": "x(i+1) = x(i) − γi·((∇f)(x(i)))ᵀ",
-   "note": "Slide 9. γ is the step size."
-  },
-  {
-   "name": "Learning rate decay",
-   "formula": "w(n+1) = w(n) − αt·∇J\nexponential: αt = α0·e^(−kt)\ninverse: αt = {{ α0 // 1 + k·t }}",
-   "note": "Slides 15-16."
-  },
-  {
-   "name": "Loss for a line (slide 4)",
-   "formula": "L(a, b) = Σ (y − (a·x + b))²\nexam form: J = ½ Σ (ŷ − y)²",
-   "note": "a is the slope and b the intercept; the exam uses w1 and w0."
-  },
-  {
-   "name": "Second-derivative / Hessian test",
-   "formula": "one variable: second derivative > 0 means minimum\ntwo variables: fxx > 0 and fxx·fyy − fxy² > 0",
-   "note": "Slide 7 and Lecture 8 slides 16-17."
-  },
-  {
-   "name": "Stable step size (add-on)",
-   "formula": "0 < γ < 2 / λmax(H)",
-   "note": "Sourabh sir's Lecture 10 companion and Problems 26-27."
-  }
- ],
- "families": [
-  {
-   "id": "gd",
-   "label": "GD",
-   "icon": "G",
-   "title": "Gradient descent iterations",
-   "lead": "In every end-sem. Plug-and-play: slope, scale, subtract.",
-   "problems": [
-    "GD ·"
-   ],
-   "blocks": [
-    {
-     "type": "h",
-     "text": "How to recognise it"
-    },
-    {
-     "type": "list",
-     "items": [
-      "'Perform two iterations of gradient descent', 'starting from', 'learning rate', 'step size', sometimes 'schedule'.",
-      "A simple function (a quadratic or a squared-error loss) and a starting point."
-     ]
-    },
-    {
-     "type": "formula",
-     "text": "x(i+1) = x(i) − γ·((∇f)(x(i)))ᵀ        αt = α0 / (1 + k·t)"
-    },
-    {
-     "type": "h",
-     "text": "Standard steps"
-    },
-    {
-     "type": "steps",
-     "items": [
-      "Find the gradient: one partial derivative per variable.",
-      "Work out the step size (αt if there is a schedule).",
-      "Put the current point into the gradient.",
-      "Subtract γ × gradient from each coordinate.",
-      "Repeat, showing each line.",
-      "If asked for convexity, add the Hessian and Sylvester's criterion."
-     ]
-    },
-    {
-     "type": "trap",
-     "label": "Remember",
-     "text": "Judge progress by f, not by distance moved. Too large a step overshoots."
-    }
-   ]
-  }
- ]
 }

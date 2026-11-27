@@ -1,0 +1,1191 @@
+{
+  "id": "ch13",
+  "title": "Lecture 13 · PCA in Practice",
+  "subtitle": "Lecture 13 · `Lecture_13.pdf` (25 pages) · SVD and low-rank approximation (p. 5–9), practical aspects and power iteration (p. 10–13), PCA in high dimension (p. 14–16), the key steps in practice (p. 17–25)",
+  "lesson": [
+    {
+      "title": "Where the marks are: Lecture 13",
+      "lead": "Lecture 13 turns the Lecture 12 recipe into practice: reduce, rebuild, wide data, the SVD route. The full table for both lectures is on [Lecture 12, board 1](#/sem1/aiml-zc416/ch12/lesson/0).",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Paper",
+            "Question",
+            "Type",
+            "Marks",
+            "Solution"
+          ],
+          "rows": [
+            [
+              "Mar 2026 makeup",
+              "Q5",
+              "1 · Full PCA, principal subspace (key steps, p. 17–23)",
+              "7",
+              "[Open →](#/sem1/aiml-zc416/ch12/f-full/1)"
+            ],
+            [
+              "Sep 2024 regular",
+              "Q3(A)(iii), Q3(B)",
+              "3 · rank-1 reconstruction · 6 · power method",
+              "3",
+              "[(B) →](#/sem1/aiml-zc416/ch13/f-reason/12)"
+            ],
+            [
+              "Previous batch (Apr 2023)",
+              "Q5",
+              "6 · y = Qx + μ",
+              "~5",
+              "[Open →](#/sem1/aiml-zc416/ch13/f-reason/9)"
+            ],
+            [
+              "2022 makeup",
+              "Q3(2)",
+              "4 · XᵀX instead of XXᵀ",
+              "3",
+              "[Open →](#/sem1/aiml-zc416/ch13/f-wide/7)"
+            ],
+            [
+              "2022 regular",
+              "Q1(a, b)",
+              "6 · scaling the features",
+              "8",
+              "[Open →](#/sem1/aiml-zc416/ch13/f-reason/10)"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "What to expect",
+          "color": "blue",
+          "text": "Recent papers ask type 1 (the recipe) and sometimes a reconstruction or % variance part. Types 4–6 appeared in the older papers: know the one-line idea of each."
+        }
+      ]
+    },
+    {
+      "title": "Before this lecture",
+      "lead": "Lecture 12's recipe, plus the SVD from Lecture 5 for one board.",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "**Lecture 12, type 1:** centre → S → eigen → unit PCs → scores. Do Practice Paper Q5 first if it is not automatic.",
+            "**SVD (Lecture 5):** A = UΣVᵀ, σ² = eigenvalues of AᵀA. Needed only for the SVD board."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Quick check (2 minutes)"
+        },
+        {
+          "type": "list",
+          "items": [
+            "λ = 4, 2, 1. Share of the top two? → *Answer:* 6/7 ≈ 85.71%.",
+            "Unit PC q₁ = (1, 1)/√2, centred point (2, 0). Its code z? → *Answer:* 2/√2 = √2.",
+            "Rebuild from that one code? → *Answer:* √2 · (1, 1)/√2 = (1, 1)."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Type 3 · Reduce and reconstruct: the key steps in practice",
+      "lead": "`Lecture_13.pdf` p. 17–25 (key steps) and Companion §10–§11.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "**Mean subtraction** (p. 18): centre each column.",
+            "**Standardisation** (p. 19): divide each column by its standard deviation σ_d, when columns are in different units (see the slide example in Lecture 12: x₂ swamps x₁).",
+            "**Eigendecomposition** (p. 21): S, its eigenvalues and orthonormal eigenvectors; sort by λ.",
+            "**Projection** (p. 22–23): a new point x* is standardised with the **training** μ and σ, then z* = Bᵀx*, x̃* = BBᵀx*."
+          ]
+        },
+        {
+          "type": "eqs",
+          "groups": [
+            {
+              "label": "Code and rebuild",
+              "ref": "p. 22–23",
+              "lines": [
+                [
+                  "z",
+                  "=",
+                  "Bᵀ(x − μ)"
+                ],
+                [
+                  "x̃",
+                  "=",
+                  "μ + Bz"
+                ]
+              ],
+              "note": "B = [b₁ … b_M]: the M top eigenvectors as columns. BᵀB = I, but BBᵀ ≠ I (it is the projector)."
+            },
+            {
+              "label": "How much is kept",
+              "lines": [
+                [
+                  "share of M PCs",
+                  "=",
+                  "(λ₁ + … + λ_M) / (λ₁ + … + λ_D)"
+                ],
+                [
+                  "λ₁ + … + λ_D",
+                  "=",
+                  "tr S"
+                ]
+              ],
+              "note": "Choose the smallest M that reaches the target (90%, 95%)."
+            },
+            {
+              "label": "How much is lost",
+              "lines": [
+                [
+                  "average ‖x − x̃‖²",
+                  "=",
+                  "λ_{M+1} + … + λ_D"
+                ],
+                [
+                  "one point",
+                  ":",
+                  "‖x − x̃‖² = sum of its squared scores on the dropped PCs"
+                ]
+              ]
+            },
+            {
+              "label": "Components are uncorrelated",
+              "lines": [
+                [
+                  "Cov(Z)",
+                  "=",
+                  "WᵀSW = Λ"
+                ]
+              ],
+              "note": "Off-diagonal 0: the new features carry no repeated information."
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "color": "red",
+          "label": "Where marks are lost",
+          "text": "Keeping PCs in the order they appear in S instead of by λ · standardising a test point with its own statistics · forgetting to add μ back · expecting BBᵀ = I."
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 45 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** `Lecture_13.pdf` p. 17–25; Companion §10–§11.",
+            "**Do:** P42, Companion Q3, Companion Q6."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Type 4 · Wide data: when D ≫ N",
+      "lead": "`Lecture_13.pdf` p. 14–16 and Companion §9. Asked in 2022 makeup Q3(2).",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "**The problem:** S is D × D. With 12,000 features that is a 1 GB matrix and about D³ work, for only a few dozen points. **The trick:** the small N × N matrix has the same non-zero eigenvalues."
+        },
+        {
+          "type": "eqs",
+          "groups": [
+            {
+              "label": "Points as columns (slides)",
+              "ref": "p. 14–16",
+              "lines": [
+                [
+                  "S",
+                  "=",
+                  "(1/N)XXᵀ   (D × D, big)"
+                ],
+                [
+                  "(1/N)XᵀX cₘ",
+                  "=",
+                  "λₘcₘ   (N × N, small)"
+                ],
+                [
+                  "S(Xcₘ)",
+                  "=",
+                  "λₘ(Xcₘ)"
+                ]
+              ],
+              "note": "Find cₘ from the small matrix, then bₘ = Xcₘ/‖Xcₘ‖."
+            },
+            {
+              "label": "Points as rows (P43, Companion)",
+              "lines": [
+                [
+                  "K",
+                  "=",
+                  "(1/N)XXᵀ   (N × N)"
+                ],
+                [
+                  "w",
+                  "=",
+                  "Xᵀu/‖Xᵀu‖"
+                ]
+              ],
+              "note": "Same idea, X transposed. Check the shapes: the small matrix is always N × N."
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "items": [
+            "At most N − 1 eigenvalues are non-zero (centring removes one degree of freedom).",
+            "Always **normalise** Xc (or Xᵀu).",
+            "To turn an eigenvalue of XXᵀ (without 1/N) into a variance, divide by N."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 30 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** `Lecture_13.pdf` p. 14–16; Companion §9.",
+            "**Do:** P43, then 2022 makeup Q3(2)."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Type 5 · The SVD route and low-rank approximation",
+      "lead": "`Lecture_13.pdf` p. 5–9 and Companion §6–§7.",
+      "blocks": [
+        {
+          "type": "eqs",
+          "groups": [
+            {
+              "label": "Eigenvalues from singular values",
+              "ref": "p. 6–7",
+              "lines": [
+                [
+                  "X",
+                  "=",
+                  "UΣVᵀ"
+                ],
+                [
+                  "S = (1/N)XXᵀ",
+                  "=",
+                  "(1/N)UΣΣᵀUᵀ"
+                ],
+                [
+                  "λ_d",
+                  "=",
+                  "σ_d² / N"
+                ]
+              ],
+              "note": "Slides store points as columns: the PCs are the columns of **U**. With points as rows (Companion Q7) they are the columns of **V**. Pick the factor whose vectors have D entries."
+            },
+            {
+              "label": "Best rank-M approximation (Eckart–Young)",
+              "ref": "p. 8–9",
+              "lines": [
+                [
+                  "X̃_M",
+                  "=",
+                  "U_M Σ_M V_Mᵀ   (keep the M largest σ)"
+                ],
+                [
+                  "‖X − X̃_M‖₂",
+                  "=",
+                  "σ_{M+1}"
+                ],
+                [
+                  "‖X − X̃_M‖_F",
+                  "=",
+                  "√(σ²_{M+1} + … )"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "**Why software uses the SVD:** forming XᵀX squares the numbers and loses precision; the SVD of X gives the same PCs without it."
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 20 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** `Lecture_13.pdf` p. 5–9.",
+            "**Do:** Companion Q7; then look again at Sep 2025 Q2 (SVD + covariance)."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Type 6 · Practical aspects and reasoning questions",
+      "lead": "`Lecture_13.pdf` p. 10–13 and Companion §13. Short \"justify\" questions in the older papers.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Question",
+            "One-line answer",
+            "Asked in"
+          ],
+          "rows": [
+            [
+              "Why not solve det(S − λI) = 0 for big S?",
+              "No formula for polynomial roots of degree ≥ 5 (Abel–Ruffini, p. 11): software iterates.",
+              "slides"
+            ],
+            [
+              "Only PC1 is needed: how?",
+              "Power iteration xₖ₊₁ = Sxₖ/‖Sxₖ‖ converges to the top eigenvector (p. 13).",
+              "Sep 2024 reg Q3(B)"
+            ],
+            [
+              "Data rotated and shifted (y = Qx + μ)?",
+              "PCs become Qbⱼ, same λ, same shares; μ has no effect.",
+              "prev batch Q5, 2023 Q4(D)"
+            ],
+            [
+              "Features scaled by αᵢ?",
+              "PCs change: RS is not orthogonal, so Rbᵢ are not the new PCs.",
+              "2022 reg Q1(a)"
+            ],
+            [
+              "Can PC1 always separate two classes?",
+              "No: PCA ignores labels (thin gap along the small direction).",
+              "Sep 2024 mkp Q3(B)"
+            ],
+            [
+              "Sign of a PC?",
+              "Arbitrary: v and −v are both unit eigenvectors; scores flip sign.",
+              "Companion §13"
+            ],
+            [
+              "Units differ (cm vs kg)?",
+              "Standardise first, or the large-unit feature becomes PC1.",
+              "slides p. 19"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 20 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** `Lecture_13.pdf` p. 10–13; Companion §13.",
+            "**Do:** previous batch Q5, then skim the three older reasoning questions."
+          ]
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Reduce · Sourabh P42: keeping two of three components",
+      "tags": [
+        "Sourabh sir",
+        "P42"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Centred 3-feature data have covariance S = [[3, 1, 0], [1, 3, 0], [0, 0, 1]]. A centred point is x = (2, 0, 1). (a) Eigenvalues and unit eigenvectors of S. (b) Fraction of total variance kept by the top two PCs. (c) The 2-D code z and the reconstruction x̃. (d) The reconstruction error ‖x − x̃‖ and the average squared error over the data. (Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "Codes z = Bᵀx, rebuilds x̃ = Bz, and \"average error = sum of the dropped eigenvalues\"."
+        },
+        {
+          "label": "Plan of attack",
+          "text": "S is block-diagonal: do the 2 × 2 block and the lone 1 separately. Sort by λ. Code, rebuild, subtract."
+        },
+        {
+          "label": "Notation",
+          "text": "Saurabh sir's symbols: qᵢ = unit eigenvectors, Q_k = [q₁ … q_k], z = code, x̃ = reconstruction."
+        },
+        {
+          "label": "STEP 1 · (a) Eigen",
+          "text": "Block [[3, 1], [1, 3]]: λ = 3 ± 1 = 4, 2 with (1, 1)/√2 and (1, −1)/√2\nLone entry: λ = 1 with (0, 0, 1)\nSorted: **λ = 4, 2, 1**; q₁ = (1, 1, 0)/√2, q₂ = (1, −1, 0)/√2, q₃ = (0, 0, 1)"
+        },
+        {
+          "label": "STEP 2 · (b) Fraction kept",
+          "text": "(4 + 2)/(4 + 2 + 1) = 6/7 ≈ **85.71%**"
+        },
+        {
+          "label": "STEP 3 · (c) Code",
+          "text": "z₁ = q₁ᵀx = (2 + 0)/√2 = √2\nz₂ = q₂ᵀx = (2 − 0)/√2 = √2\n**z = (√2, √2)**"
+        },
+        {
+          "label": "STEP 4 · (c) Rebuild",
+          "text": "x̃ = z₁q₁ + z₂q₂ = (1, 1, 0) + (1, −1, 0) = **(2, 0, 0)**"
+        },
+        {
+          "label": "STEP 5 · (d) Error",
+          "text": "x − x̃ = (0, 0, 1) ⇒ ‖x − x̃‖ = **1**\nAverage squared error over the data = dropped eigenvalue λ₃ = **1**"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "λ = 4, 2, 1; 6/7 ≈ 85.71%; z = (√2, √2); x̃ = (2, 0, 0); error 1; average 1."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Keeping the PCs in the order they appear in S instead of by eigenvalue.\n• Forgetting to multiply back by Q_k for the reconstruction."
+        }
+      ],
+      "answer": "λ = 4, 2, 1; keep 6/7; z = (√2, √2), x̃ = (2, 0, 0), error 1.",
+      "priority": "must",
+      "priorityWhy": "The one Saurabh sir problem for codes and reconstruction"
+    },
+    {
+      "title": "Reduce · Companion Q3: projecting a new observation (5 marks)",
+      "tags": [
+        "Sourabh sir",
+        "Companion"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Training means μ = (4, 10), standard deviations σ = (2, 5). On standardised data the kept component is α₁ = (3/5, 4/5) and the dropped one α₂ = (−4/5, 3/5). New point x* = (6, 20). (a) Standardise x*, saying which μ, σ you use. [1M] (b) Score z* = α₁ᵀx* and reconstruction x̃* = α₁α₁ᵀx* (standardised scale). [2M] (c) Squared reconstruction error; check it equals the squared score on α₂. [2M] (Companion §15, Question 3)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The slides' last two steps (`Lecture_13.pdf` p. 22–23): standardise with the **training** statistics, then project."
+        },
+        {
+          "label": "Notation",
+          "text": "Companion symbols: α₁, α₂ = unit PCs, z* = score, x̃* = reconstruction."
+        },
+        {
+          "label": "STEP 1 · (a) Standardise  [1M]",
+          "text": "Use the training μ and σ (a single new point has no mean of its own):\nx*(std) = ((6 − 4)/2, (20 − 10)/5) = **(1, 2)**"
+        },
+        {
+          "label": "STEP 2 · (b) Score  [1M]",
+          "text": "z* = (3/5)(1) + (4/5)(2) = 3/5 + 8/5 = **2.2**"
+        },
+        {
+          "label": "STEP 3 · (b) Reconstruction  [1M]",
+          "text": "x̃* = z*α₁ = 2.2 × (0.6, 0.8) = **(1.32, 1.76)**"
+        },
+        {
+          "label": "STEP 4 · (c) Error  [2M]",
+          "text": "r = (1 − 1.32, 2 − 1.76) = (−0.32, 0.24)\n‖r‖² = 0.1024 + 0.0576 = **0.16**\nScore on α₂: −4/5 + 6/5 = 2/5 = 0.4 ⇒ 0.4² = 0.16 ✓ (Pythagoras: what is dropped is exactly the error)"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(1, 2); z* = 2.2; x̃* = (1.32, 1.76); error 0.16 = 0.4²."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Standardising the new point with its own values or with test statistics.\n• Forgetting that x̃* is on the standardised scale (undo with σ and μ only if asked)."
+        }
+      ],
+      "answer": "x* → (1, 2); z* = 2.2; x̃* = (1.32, 1.76); error 0.16.",
+      "priority": "must",
+      "priorityWhy": "The one problem for a new point (slides p. 22–23)"
+    },
+    {
+      "title": "Reduce · Companion Q6: how many components, and why they are uncorrelated (5 marks)",
+      "tags": [
+        "Sourabh sir",
+        "Companion"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Σ has eigenvalues 4.5, 2.1, 0.9, 0.4, 0.1. (a) Total variance and tr Σ. [1M] (b) Share of the first two PCs; the fewest PCs for at least 90%. [2M] (c) With W = all five unit eigenvectors and Z = XW, show Cov(Z) is diagonal; what are its entries? [2M] (Companion §15, Question 6)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "Eigenvalues as a variance budget; choosing M; decorrelation."
+        },
+        {
+          "label": "STEP 1 · (a)",
+          "text": "Total = tr Σ = 4.5 + 2.1 + 0.9 + 0.4 + 0.1 = **8.0**"
+        },
+        {
+          "label": "STEP 2 · (b) Cumulative shares",
+          "text": "56.25%, 82.50%, 93.75%, 98.75%, 100%\nFirst two: 6.6/8 = **82.5%**; fewest for ≥ 90%: **M = 3** (93.75%)"
+        },
+        {
+          "label": "STEP 3 · (c) Cov(Z)",
+          "text": "Cov(Z) = (1/N)(XW)ᵀ(XW) = WᵀΣW\nΣW = WΛ and WᵀW = I ⇒ Cov(Z) = WᵀWΛ = **Λ = diag(4.5, 2.1, 0.9, 0.4, 0.1)**\nOff-diagonal zeros ⇒ the components are **uncorrelated**; each variance is its λ."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "8.0; 82.5%, M = 3; Cov(Z) = diag(λ): uncorrelated components."
+        }
+      ],
+      "answer": "Total 8.0; 82.5%; M = 3; Cov(Z) = diag(λ).",
+      "priority": "must",
+      "priorityWhy": "The one problem for choosing M and % variance"
+    },
+    {
+      "title": "Reduce · Companion Q4: three variables, reading the structure first (6 marks)",
+      "tags": [
+        "Sourabh sir",
+        "Companion"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Σ = [[4, 2, 0], [2, 4, 0], [0, 0, 3]]. (a) Without the full cubic, find all eigenvalues; check with tr and det. [2M] (b) The three unit eigenvectors; check they are orthogonal. [2M] (c) Y₁ and Var(Y₁); keeping Y₁ and Y₂, which variable is rebuilt exactly and what is lost? [2M] (Companion §15, Question 4)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "Using zeros in Σ: a variable uncorrelated with the rest gives its own eigenvalue."
+        },
+        {
+          "label": "STEP 1 · (a) Eigenvalues",
+          "text": "X₃ is uncorrelated with X₁, X₂ ⇒ λ = 3 directly.\nBlock [[4, 2], [2, 4]]: λ = 4 ± 2 = 6, 2\nSorted **6, 3, 2**; 6 + 3 + 2 = 11 = tr ✓; 6·3·2 = 36 = 3·(16 − 4) = det ✓"
+        },
+        {
+          "label": "STEP 2 · (b) Eigenvectors",
+          "text": "α₁ = (1, 1, 0)/√2 (λ = 6), α₂ = (0, 0, 1) (λ = 3), α₃ = (1, −1, 0)/√2 (λ = 2); all dot products 0 ✓"
+        },
+        {
+          "label": "STEP 3 · (c)",
+          "text": "Y₁ = (X₁ + X₂)/√2, Var = 6\nKeep α₁, α₂: x̃ = ((x₁ + x₂)/2, (x₁ + x₂)/2, x₃) ⇒ x₃ rebuilt exactly; x₁, x₂ replaced by their average.\nLost: (X₁ − X₂)/√2 with variance (4 + 4 − 2·2)/2 = 2 = λ₃ ✓"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "λ = 6, 3, 2; α₁ = (1, 1, 0)/√2, α₂ = (0, 0, 1), α₃ = (1, −1, 0)/√2; the difference X₁ − X₂ is lost (variance 2)."
+        }
+      ],
+      "answer": "λ = 6, 3, 2; the lost part is (X₁ − X₂)/√2 with variance 2.",
+      "priority": "optional",
+      "priorityWhy": "Extra practice of a type a must-do problem already covers"
+    },
+    {
+      "title": "Wide data · Sourabh P43: PCA through the N × N Gram matrix",
+      "tags": [
+        "Sourabh sir",
+        "P43"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Three centred observations in ℝ⁴ are the rows of X = [[1, 1, 0, 2], [1, −1, 2, 0], [−2, 0, −2, −2]]. Avoid the 4 × 4 covariance. (a) Check the data are centred; K = XXᵀ. (b) Verify (1, 1, −2), (1, −1, 0), (1, 1, 1) are eigenvectors of K; eigenvalues? (c) First principal direction u₁ = Xᵀv₁/‖Xᵀv₁‖. (d) Variance along u₁ (S = (1/N)XᵀX) and the rank of S. (Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "XXᵀ and XᵀX share their non-zero eigenvalues (`Lecture_13.pdf` p. 14–16)."
+        },
+        {
+          "label": "Plan of attack",
+          "text": "Build the small K → test the given vectors → Xᵀv → normalise → divide λ by N."
+        },
+        {
+          "label": "Notation",
+          "text": "Saurabh sir stores points as **rows** here, so K = XXᵀ is N × N (3 × 3) and S = (1/N)XᵀX is D × D (4 × 4)."
+        },
+        {
+          "label": "STEP 1 · (a) Centred, K",
+          "text": "Column sums: 1 + 1 − 2 = 0, 1 − 1 + 0 = 0, 0 + 2 − 2 = 0, 2 + 0 − 2 = 0 ✓\nK = row dot products: **[[6, 0, −6], [0, 6, −6], [−6, −6, 12]]**"
+        },
+        {
+          "label": "STEP 2 · (b) Eigenvalues",
+          "text": "K(1, 1, −2) = (6 + 0 + 12, 0 + 6 + 12, −6 − 6 − 24) = (18, 18, −36) = 18(1, 1, −2)\nK(1, −1, 0) = (6, −6, 0) = 6(1, −1, 0)\nK(1, 1, 1) = (0, 0, 0) = 0\n**λ = 18, 6, 0**"
+        },
+        {
+          "label": "STEP 3 · (c) u₁",
+          "text": "Xᵀ(1, 1, −2) = 1·r₁ + 1·r₂ − 2·r₃ = (1 + 1 + 4, 1 − 1 + 0, 0 + 2 + 4, 2 + 0 + 4) = (6, 0, 6, 6)\n‖(6, 0, 6, 6)‖ = √108 = 6√3 ⇒ **u₁ = (1, 0, 1, 1)/√3**"
+        },
+        {
+          "label": "STEP 4 · (d)",
+          "text": "Variance along u₁ = λ/N = 18/3 = **6**\nS has non-zero eigenvalues 18/3 = 6 and 6/3 = 2 ⇒ **rank 2**"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "K = [[6, 0, −6], [0, 6, −6], [−6, −6, 12]]; λ = 18, 6, 0; u₁ = (1, 0, 1, 1)/√3; variance 6; rank 2."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Using Xᵀv without normalising.\n• Forgetting to divide by N to turn an eigenvalue of K into a variance."
+        }
+      ],
+      "answer": "λ(K) = 18, 6, 0; u₁ = (1, 0, 1, 1)/√3; variance 6; rank 2.",
+      "priority": "must",
+      "priorityWhy": "The one Saurabh sir problem for wide data"
+    },
+    {
+      "title": "Wide data · Companion Q5: 12,000 genes, 40 samples (6 marks)",
+      "tags": [
+        "Sourabh sir",
+        "Companion"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "D = 12,000 genes, N = 40 samples; centred X is 40 × 12,000 (rows = samples), Σ = (1/N)XᵀX. (a) Size and memory of Σ (8-byte doubles); why not eigendecompose it directly? [2M] (b) Show that if Σw = λw then u = Xw satisfies Ku = λu with K = (1/N)XXᵀ; size of K? [2M] (c) Recover w from u; the largest possible number of non-zero eigenvalues of Σ? [2M] (Companion §15, Question 5)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The size argument and the two-line proof of the trick."
+        },
+        {
+          "label": "STEP 1 · (a)",
+          "text": "Σ is 12,000 × 12,000 = 1.44 × 10⁸ entries × 8 bytes ≈ **1.15 GB**; eigendecomposition costs about D³ ≈ 1.7 × 10¹² operations."
+        },
+        {
+          "label": "STEP 2 · (b)",
+          "text": "(1/N)XᵀXw = λw ⇒ multiply by X: (1/N)XXᵀ(Xw) = λ(Xw) ⇒ **Ku = λu**, K is **40 × 40**, same λ."
+        },
+        {
+          "label": "STEP 3 · (c)",
+          "text": "Multiply Ku = λu by Xᵀ: Σ(Xᵀu) = λ(Xᵀu) ⇒ **w = Xᵀu/‖Xᵀu‖**\nrank ≤ N − 1 = **39** (centring removes one degree of freedom) ⇒ at most 39 non-zero eigenvalues."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "1.15 GB; Ku = λu with K 40 × 40; w = Xᵀu/‖Xᵀu‖; at most 39 non-zero λ."
+        }
+      ],
+      "answer": "K = (1/N)XXᵀ is 40 × 40 with the same λ; w = Xᵀu/‖Xᵀu‖; ≤ 39 non-zero.",
+      "priority": "optional",
+      "priorityWhy": "Extra practice of a type a must-do problem already covers"
+    },
+    {
+      "title": "Wide data · 2022 makeup Q3(2): eig() only works below 32 rows (3 marks)",
+      "tags": [
+        "Past paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x₁, …, x₂₀ ∈ ℝ¹⁰²⁴ and S = Σxᵢxᵢᵀ (1024 × 1024). A function eig() only handles symmetric matrices with fewer than 32 rows. (a) How do you get the eigenvalues of S? [1.5M] (b) The eigenvectors? [1.5M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The same trick with points as columns."
+        },
+        {
+          "label": "Notation",
+          "text": "Here X = [x₁ … x₂₀] has the points as **columns** (1024 × 20), so S = XXᵀ and the small matrix is XᵀX (20 × 20)."
+        },
+        {
+          "label": "STEP 1 · Use the small matrix  [0.5M]",
+          "text": "XᵀX is 20 × 20 < 32 rows ⇒ eig() can handle it."
+        },
+        {
+          "label": "STEP 2 · (a) Eigenvalues  [1M]",
+          "text": "XᵀXc = λc ⇒ multiply by X: XXᵀ(Xc) = λ(Xc). So the eigenvalues of XᵀX are the non-zero eigenvalues of S; the other 1004 are 0."
+        },
+        {
+          "label": "STEP 3 · (b) Eigenvectors  [1.5M]",
+          "text": "[P, D] = eig(XᵀX); for each column c of P, **d = Xc** (normalised d/‖d‖) is an eigenvector of S with the same λ."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "eig(XᵀX): same non-zero eigenvalues; eigenvectors Xc/‖Xc‖."
+        },
+        {
+          "label": "More",
+          "text": "Whole paper: [Exam hall · 2022 makeup Q3](#/sem1/aiml-zc416/p-es-mkp-2022/worked/3)."
+        }
+      ],
+      "answer": "Use eig(XᵀX): same λ, eigenvectors Xc/‖Xc‖.",
+      "priority": "optional",
+      "priorityWhy": "Older paper: the same recipe as the must-do problems"
+    },
+    {
+      "title": "SVD · Companion Q7: from singular values to components (6 marks)",
+      "tags": [
+        "Sourabh sir",
+        "Companion"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Centred X has N = 100 rows, D = 4 columns, singular values 20, 10, 5, 1. (a) Eigenvalues of Σ = (1/N)XᵀX; where are the principal directions in X = UΣₛVᵀ? [2M] (b) Share of the first two PCs; the fewest PCs for at least 95%. [2M] (c) Best rank-2 approximation; its error in the spectral and Frobenius norms. [2M] (Companion §15, Question 7)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "λ = σ²/N (`Lecture_13.pdf` p. 6–7) and Eckart–Young (p. 8–9)."
+        },
+        {
+          "label": "Notation",
+          "text": "Σₛ = the diagonal matrix of singular values (to keep it apart from the covariance Σ). Points are rows here, so the directions are the columns of **V**. (The slides store points as columns and find them in U.)"
+        },
+        {
+          "label": "STEP 1 · (a) λ = σ²/N",
+          "text": "λ = 400/100, 100/100, 25/100, 1/100 = **4, 1, 0.25, 0.01**\nPrincipal directions = columns of V (they live in feature space, D = 4 entries)."
+        },
+        {
+          "label": "STEP 2 · (b)",
+          "text": "Total = 5.26; first two (4 + 1)/5.26 = **95.06%**; PC1 alone 76.05% < 95% ⇒ **M = 2**"
+        },
+        {
+          "label": "STEP 3 · (c) Eckart–Young",
+          "text": "X̃₂ = σ₁u₁v₁ᵀ + σ₂u₂v₂ᵀ (truncate the SVD)\nSpectral error = σ₃ = **5**; Frobenius error = √(σ₃² + σ₄²) = √26 ≈ **5.10**"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "λ = 4, 1, 0.25, 0.01 (columns of V); 95.06%, M = 2; X̃₂ = U₂Σ₂V₂ᵀ, errors 5 and √26."
+        }
+      ],
+      "answer": "λ = σ²/N = 4, 1, 0.25, 0.01; M = 2; errors 5 and √26.",
+      "priority": "must",
+      "priorityWhy": "The one problem for the SVD route"
+    },
+    {
+      "title": "Reasoning · Previous batch Q5: PCA after a rotation and a shift",
+      "tags": [
+        "Past paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "PCA on x₁, …, x_N gives directions b₁, …, b_D. The data become yᵢ = Qxᵢ + μ with QᵀQ = I and μ constant. Find the new principal components in terms of the old ones. How much variance does the first PC capture compared with before?"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "How the covariance and its eigenvectors change under y = Qx + μ. The same idea answers 2023 Q4(D) (rotating the points)."
+        },
+        {
+          "label": "STEP 1 · The shift disappears",
+          "text": "ȳ = Qx̄ + μ ⇒ yᵢ − ȳ = Q(xᵢ − x̄): μ has no effect."
+        },
+        {
+          "label": "STEP 2 · New covariance",
+          "text": "S_y = (1/N)Σ Q(xᵢ − x̄)(xᵢ − x̄)ᵀQᵀ = **QS_xQᵀ**"
+        },
+        {
+          "label": "STEP 3 · New eigenvectors",
+          "text": "S_y(Qbⱼ) = QS_xQᵀQbⱼ = QS_xbⱼ = λⱼ(Qbⱼ) ⇒ new PCs are **Qbⱼ**, same eigenvalues."
+        },
+        {
+          "label": "STEP 4 · Variance",
+          "text": "λ₁ unchanged and tr S_y = tr S_x ⇒ PC1 captures **the same amount and the same share**."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "PCs Qbⱼ, eigenvalues unchanged, μ irrelevant, same variance for PC1."
+        },
+        {
+          "label": "More",
+          "text": "Whole paper: [Exam hall · previous batch](#/sem1/aiml-zc416/p-es-prev-2023/worked/4)."
+        }
+      ],
+      "answer": "New PCs Qbⱼ; same eigenvalues; same share.",
+      "priority": "must",
+      "priorityWhy": "The one problem for how a change of the data moves the PCs"
+    },
+    {
+      "title": "Reasoning · 2022 regular Q1(a–b): what scaling the features does (8 marks)",
+      "tags": [
+        "Past paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(a) Every point (x₁, …, x_D) becomes (α₁x₁, …, α_Dx_D). Is it enough to scale each old eigenvector the same way? [5M] (b) Given the old covariance, can the new one be computed in O(D²)? [3M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "Scaling is **not** a rotation: the PCs really change."
+        },
+        {
+          "label": "Notation",
+          "text": "R = diag(α₁, …, α_D); points as columns of X; SΛSᵀ = old covariance's eigendecomposition. Here αᵢ are scaling constants."
+        },
+        {
+          "label": "STEP 1 · (a) New covariance  [3M]",
+          "text": "X ↦ RX ⇒ new covariance R XXᵀ R = RSΛSᵀR"
+        },
+        {
+          "label": "STEP 2 · (a) Why it fails  [2M]",
+          "text": "(RS)(RS)ᵀ = R² ≠ I (unless every αᵢ = ±1) ⇒ RS is not orthogonal, so Rbᵢ are not the new PCs.\nCheck: PCs (1, 1), (1, −1) of [[2, 1], [1, 2]] scaled by diag(1, 2) give (1, 2) and (1, −2), whose dot product is −3 ≠ 0: they are not even perpendicular. **He is wrong.**"
+        },
+        {
+          "label": "STEP 3 · (b) O(D²)  [3M]",
+          "text": "(RSR)ᵢⱼ = αᵢSᵢⱼαⱼ: D² entries, 2 multiplications each ⇒ **O(D²), yes**."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(a) No: RS is not orthogonal. (b) Yes: αᵢSᵢⱼαⱼ in O(D²)."
+        },
+        {
+          "label": "More",
+          "text": "Whole paper: [Exam hall · 2022 regular Q1](#/sem1/aiml-zc416/p-es-reg-2022/worked/1)."
+        }
+      ],
+      "answer": "(a) No. (b) Yes, O(D²).",
+      "priority": "optional",
+      "priorityWhy": "Older paper: the same recipe as the must-do problems"
+    },
+    {
+      "title": "Reasoning · Sep 2024 makeup Q3(B): can PC1 always separate two classes? (2 marks)",
+      "tags": [
+        "Past paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Data points belong to two classes. Is it always true that, after projecting onto PC1, the classes can be separated by a threshold? [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "PCA never looks at the labels."
+        },
+        {
+          "label": "STEP 1 · Answer",
+          "text": "**No.** PC1 follows the largest variance, not the class split."
+        },
+        {
+          "label": "STEP 2 · Counter-example",
+          "text": "Class A at (x, +0.1), class B at (x, −0.1) for x from −10 to 10. PC1 is the x-axis; both classes project onto the same range −10 … 10, so no threshold separates them, though the line y = 0 does."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "No; a wide cloud split by a thin gap along the small-variance direction."
+        },
+        {
+          "label": "More",
+          "text": "Whole question: [Exam hall · Sep 2024 makeup Q3](#/sem1/aiml-zc416/p-es-mkp-2024/worked/3)."
+        }
+      ],
+      "answer": "No: PC1 ignores the labels.",
+      "priority": "optional",
+      "priorityWhy": "Older paper: the same recipe as the must-do problems"
+    },
+    {
+      "title": "Reasoning · Sep 2024 regular Q3(B): the power method (2 marks)",
+      "tags": [
+        "Past paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A = diag(2, 4, 4); power method from x = (0, 0.5, 1). Which eigenvalue and eigenvector does it converge to? [2M] (`Lecture_13.pdf` p. 13: xₖ₊₁ = Sxₖ/‖Sxₖ‖)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "Power iteration finds the eigenvector of the largest eigenvalue."
+        },
+        {
+          "label": "STEP 1 · One step",
+          "text": "Ax = (0, 2, 4) = 4(0, 0.5, 1): the start is already an eigenvector."
+        },
+        {
+          "label": "STEP 2 · Answer",
+          "text": "Converges at once to **λ = 4** with eigenvector (0, 0.5, 1) (normalised (0, 1, 2)/√5). λ = 4 is repeated, so any vector of span{(0, 1, 0), (0, 0, 1)} is an eigenvector too."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "λ = 4, eigenvector (0, 0.5, 1)."
+        },
+        {
+          "label": "More",
+          "text": "Whole question: [Exam hall · Sep 2024 regular Q3](#/sem1/aiml-zc416/p-es-reg-2024/worked/3)."
+        }
+      ],
+      "answer": "λ = 4 with (0, 0.5, 1).",
+      "priority": "optional",
+      "priorityWhy": "Older paper: the same recipe as the must-do problems"
+    }
+  ],
+  "families": [
+    {
+      "id": "reduce",
+      "label": "Reduce",
+      "icon": "↧",
+      "title": "Type 3 · Reduce and reconstruct",
+      "lead": "z = Bᵀ(x − μ), x̃ = μ + Bz, error = dropped λ, choose M by cumulative share.",
+      "problems": [
+        "Reduce ·"
+      ],
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "z = Bᵀ(x − μ);   x̃ = μ + Bz;   kept = Σ_{m≤M} λₘ / tr S;   average error = Σ_{m>M} λₘ",
+          "caption": "New point: standardise with the training μ and σ"
+        }
+      ]
+    },
+    {
+      "id": "wide",
+      "label": "Wide data",
+      "icon": "⇔",
+      "title": "Type 4 · Wide data (D ≫ N): use the small matrix",
+      "lead": "XXᵀ and XᵀX share their non-zero eigenvalues; then map the eigenvector back and normalise.",
+      "problems": [
+        "Wide data ·"
+      ],
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "(1/N)XᵀXc = λc ⇒ S(Xc) = λ(Xc);   b = Xc/‖Xc‖",
+          "caption": "Points as columns (slides p. 14–16); with rows, swap X and Xᵀ"
+        }
+      ]
+    },
+    {
+      "id": "svd",
+      "label": "SVD",
+      "icon": "Σ",
+      "title": "Type 5 · SVD route and Eckart–Young",
+      "lead": "λ = σ²/N; best rank-M approximation = truncated SVD.",
+      "problems": [
+        "SVD ·"
+      ],
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "λ_d = σ_d²/N;   X̃_M = U_MΣ_MV_Mᵀ;   ‖X − X̃_M‖₂ = σ_{M+1}",
+          "caption": "`Lecture_13.pdf` p. 6–9"
+        }
+      ]
+    },
+    {
+      "id": "reason",
+      "label": "Reasoning",
+      "icon": "?",
+      "title": "Type 6 · Reasoning: what a change does to the PCs",
+      "lead": "Rotation/shift, scaling, class separation, power method. Short justification questions.",
+      "problems": [
+        "Reasoning ·"
+      ],
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "y = Qx + μ (QᵀQ = I) ⇒ S_y = QSQᵀ, PCs Qbⱼ, same λ;   scaling R ⇒ RSR, PCs change",
+          "caption": "Power iteration: xₖ₊₁ = Sxₖ/‖Sxₖ‖ → top eigenvector"
+        }
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Formula",
+      "front": "Code and reconstruction",
+      "back": "z = Bᵀ(x − μ), x̃ = μ + Bz"
+    },
+    {
+      "tag": "Formula",
+      "front": "Average reconstruction error of M components",
+      "back": "Sum of the dropped eigenvalues λ_{M+1} + … + λ_D"
+    },
+    {
+      "tag": "Trap",
+      "front": "Standardising a new point",
+      "back": "Use the training mean and standard deviation, never the point's own."
+    },
+    {
+      "tag": "Concept",
+      "front": "BᵀB vs BBᵀ",
+      "back": "BᵀB = I (orthonormal columns); BBᵀ is the projector onto the principal subspace, not I."
+    },
+    {
+      "tag": "Formula",
+      "front": "Eigenvalues from singular values",
+      "back": "λ_d = σ_d² / N"
+    },
+    {
+      "tag": "Formula",
+      "front": "Eckart–Young errors of the best rank-M approximation",
+      "back": "Spectral: σ_{M+1}; Frobenius: √(σ²_{M+1} + …)"
+    },
+    {
+      "tag": "Concept",
+      "front": "D ≫ N trick",
+      "back": "Eigen-decompose the N × N matrix, then map back: b = Xc/‖Xc‖ (same non-zero λ)."
+    },
+    {
+      "tag": "Formula",
+      "front": "Power iteration",
+      "back": "xₖ₊₁ = Sxₖ/‖Sxₖ‖ → eigenvector of the largest eigenvalue"
+    },
+    {
+      "tag": "Concept",
+      "front": "Rotate and shift the data (y = Qx + μ)",
+      "back": "PCs become Qbⱼ; eigenvalues and shares unchanged; μ irrelevant."
+    },
+    {
+      "tag": "Concept",
+      "front": "Can PC1 separate two classes?",
+      "back": "Not always: PCA never looks at the labels."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "numeric",
+      "q": "Eigenvalues 4, 2, 1. Percentage kept by the top two PCs (2 decimals)?",
+      "answer": 85.71,
+      "tolerance": 0.01,
+      "explain": "6/7 = 85.71%.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "Eigenvalues 4.5, 2.1, 0.9, 0.4, 0.1. Fewest PCs for at least 90%?",
+      "answer": 3,
+      "tolerance": 0,
+      "explain": "Cumulative 56.25, 82.5, 93.75 ⇒ 3.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "N = 100, singular values 20, 10, 5, 1. Largest eigenvalue of S = (1/N)XᵀX?",
+      "answer": 4,
+      "tolerance": 0,
+      "explain": "σ²/N = 400/100.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "Same data: Frobenius error of the best rank-2 approximation (2 decimals)?",
+      "answer": 5.1,
+      "tolerance": 0.01,
+      "explain": "√(5² + 1²) = √26 ≈ 5.10.",
+      "set": "Numericals"
+    },
+    {
+      "type": "mcq",
+      "q": "40 samples, 12,000 features. Which matrix do you eigendecompose?",
+      "options": [
+        "The 40 × 40 one",
+        "The 12,000 × 12,000 one",
+        "Either, same cost",
+        "Neither: PCA is impossible"
+      ],
+      "answer": 0,
+      "explain": "Same non-zero eigenvalues, far smaller.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "Every feature is multiplied by a different constant. The new PCs are…",
+      "options": [
+        "usually different directions",
+        "the old PCs scaled the same way",
+        "unchanged",
+        "the old PCs rotated by 90°"
+      ],
+      "answer": 0,
+      "explain": "R S R is not R(SΛSᵀ)R with an orthogonal RS, so the PCs really change.",
+      "set": "Concepts"
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Code and rebuild",
+      "formula": "z = Bᵀ(x − μ), x̃ = μ + Bz",
+      "note": "p. 22–23"
+    },
+    {
+      "name": "Variance kept / lost",
+      "formula": "kept Σ_{m≤M}λₘ/tr S; lost Σ_{m>M}λₘ",
+      "note": ""
+    },
+    {
+      "name": "Wide data",
+      "formula": "(1/N)XᵀXc = λc ⇒ b = Xc/‖Xc‖",
+      "note": "p. 14–16"
+    },
+    {
+      "name": "SVD link",
+      "formula": "λ_d = σ_d²/N",
+      "note": "p. 6"
+    },
+    {
+      "name": "Eckart–Young",
+      "formula": "X̃_M = U_MΣ_MV_Mᵀ; ‖X − X̃_M‖₂ = σ_{M+1}",
+      "note": "p. 8–9"
+    },
+    {
+      "name": "Power iteration",
+      "formula": "xₖ₊₁ = Sxₖ/‖Sxₖ‖",
+      "note": "p. 13"
+    }
+  ],
+  "readme": {
+    "summary": "**p. N** = PDF page of `Lecture_13.pdf`; the slide footer shows **N − 1**. **Type 1–6** = the PCA question types (Lecture 12, board 2).",
+    "sections": [
+      {
+        "title": "Page numbers",
+        "items": [
+          "**p. N** is the page your PDF viewer shows for `Lecture_13.pdf`; the footer is one less (PDF p. 13 shows \"12 / 24\")."
+        ]
+      },
+      {
+        "title": "Symbols",
+        "head": [
+          "Here",
+          "Also written as",
+          "Meaning"
+        ],
+        "rows": [
+          [
+            "S",
+            "Σ, C",
+            "covariance matrix"
+          ],
+          [
+            "B, W",
+            "Q_k, V_M",
+            "matrix of the kept unit eigenvectors (columns)"
+          ],
+          [
+            "z",
+            "code, score",
+            "coordinates in the principal subspace"
+          ],
+          [
+            "x̃",
+            "reconstruction",
+            "rebuilt point"
+          ],
+          [
+            "σ_d",
+            "singular value",
+            "of the data matrix X"
+          ],
+          [
+            "Σₛ",
+            "Σ (in the SVD)",
+            "diagonal matrix of singular values"
+          ]
+        ]
+      },
+      {
+        "title": "Sources and short names",
+        "items": [
+          "**P42, P43** = Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`.",
+          "**Companion Q N** = `Lecture_13_Companion.pdf` §15, the seven solved questions."
+        ]
+      }
+    ]
+  }
+}

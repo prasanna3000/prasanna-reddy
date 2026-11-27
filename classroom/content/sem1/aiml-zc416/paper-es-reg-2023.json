@@ -1,0 +1,294 @@
+{
+  "id": "p-es-reg-2023",
+  "title": "Comprehensive, 2023 (Regular, Apr 2024)",
+  "subtitle": "MFML end-sem (regular), I Sem 2023-24 · 20 Apr 2024 · file `2023 EndSem MFML.pdf` (no answer key) · open book · 120 minutes · 4 questions, 40 marks",
+  "readme": {
+    "summary": "**[1M]** = marks the answer key gives for that step. **LN** in the tables = `Lecture_N.pdf`.",
+    "sections": [
+      {
+        "title": "Short names",
+        "items": [
+          "**[1M]**, **[0.5M]** = marks the official key gives for that step.",
+          "**LN** = Lecture N (`Lecture_N.pdf`, contact session N).",
+          "**More** links to the lecture card where the same question is solved in full, with similar problems.",
+          "**Notation:** each question keeps the paper's own symbols; a **Notation** line maps them to the lecture boards (η step size, β momentum, λ inequality / μ equality multipliers) where they differ.",
+          "No answer key: worked here from the definitions; check the arithmetic."
+        ]
+      }
+    ]
+  },
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "Four 10-mark questions. Q1(A) find-β and Q2 kernels are solved in full in the lecture tabs; the rest are worked here.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Lecture",
+            "Marks"
+          ],
+          "rows": [
+            [
+              "Q1",
+              "Find β from momentum iterates (4) · Cholesky (3) · optimal GD step (3)",
+              "L11 · L4 · L9",
+              "10"
+            ],
+            [
+              "Q2",
+              "Kernel trick on 1-D data (5) · kernel matrix (3) · hinge loss (2)",
+              "L16 · L14 · L15",
+              "10"
+            ],
+            [
+              "Q3",
+              "Null space (4) · sigmoid, gradient, Taylor (6)",
+              "L2 · L6, L7",
+              "10"
+            ],
+            [
+              "Q4",
+              "PCA on four points from a figure",
+              "L12–13",
+              "10"
+            ],
+            [
+              "Total",
+              "",
+              "",
+              "40"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "No answer key",
+          "text": "There is no key for this paper in the folder. Q1(A) and Q2 match the worked lecture problems; the other parts are worked here from the definitions.",
+          "color": "blue"
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · Find β from momentum iterates; Cholesky; optimal GD step with an unknown β (10 marks)",
+      "tags": [
+        "Lecture 11",
+        "Lecture 4",
+        "Lecture 9"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(A) f(x, y) = 3x² + 2y², GD with momentum β, α = 0.5, start (2, 4), (x₃, y₃) = (−7.36, 1.12). Find β. [4M]  (B) A = [[4, 2, 6], [2, 17, 7], [6, 7, 35]]. (i) Lower-triangular L with A = LLᵀ. (ii) All eigenvalues of L. [3M]  (C) f(x, y) = x² + βy², β > 0, start (1, 1). (i) Closed form for the optimal first step α. (ii) If α = 0.5, find β. [3M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "(A) reverse momentum [4M]. (B) Cholesky by hand and eigenvalues of a triangular matrix [3M]. (C) exact line search on a quadratic [3M]."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are kept: α = step size (η on the boards), β = momentum in (A) but an **unknown constant of f** in (C)."
+        },
+        {
+          "label": "(A) STEP 1 · Answer",
+          "text": "Unroll three momentum steps in each coordinate and match x₃ and y₃: the only value that fits both is **β = 0.4** (worked line by line in Lecture 11)."
+        },
+        {
+          "label": "(B) STEP 2 · Cholesky",
+          "text": "l₁₁ = √4 = **2**\nl₂₁ = 2/2 = **1**, l₃₁ = 6/2 = **3**\nl₂₂ = √(17 − 1²) = √16 = **4**\nl₃₂ = (7 − 3·1)/4 = **1**\nl₃₃ = √(35 − 3² − 1²) = √25 = **5**\n**L = [[2, 0, 0], [1, 4, 0], [3, 1, 5]]**"
+        },
+        {
+          "label": "(B) STEP 3 · Eigenvalues of L",
+          "text": "L is triangular ⇒ its eigenvalues are its diagonal entries: **2, 4, 5**."
+        },
+        {
+          "label": "(C) STEP 4 · Optimal step formula",
+          "text": "g = ∇f(1, 1) = (2, 2β), H = diag(2, 2β)\nFor a quadratic the exact step is α = gᵀg / gᵀHg\n= (4 + 4β²)/(8 + 8β³) = **(1 + β²) / (2(1 + β³))**"
+        },
+        {
+          "label": "(C) STEP 5 · β from α = 0.5",
+          "text": "(1 + β²)/(2(1 + β³)) = ½ ⇒ 1 + β² = 1 + β³ ⇒ β²(β − 1) = 0\nβ > 0 ⇒ **β = 1**"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(A) β = 0.4. (B) L = [[2, 0, 0], [1, 4, 0], [3, 1, 5]]; eigenvalues 2, 4, 5. (C) α = (1 + β²)/(2(1 + β³)); β = 1."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• (B) Forgetting to subtract the earlier l² terms under each square root.\n• (C) Using α = 1/(largest eigenvalue) instead of the exact-line-search formula."
+        },
+        {
+          "label": "More",
+          "text": "(A) in full: [Lecture 11, Momentum tab](#/sem1/aiml-zc416/ch11/f-momentum/5)."
+        }
+      ],
+      "answer": "(A) β = 0.4. (B) L = [[2,0,0],[1,4,0],[3,1,5]], eigenvalues 2, 4, 5. (C) β = 1.",
+      "priority": "optional",
+      "priorityWhy": "Older paper (2022–2023): its question types are covered in the lectures"
+    },
+    {
+      "title": "Q2 · Kernel trick on 1-D data; kernel matrix; hinge loss (10 marks)",
+      "tags": [
+        "Lecture 16",
+        "Lecture 14",
+        "Lecture 15"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(A) Positive class {(7, 0), (9, 0)}, negative class {(8, 0), (10, 0)}. Using the kernel trick, find a suitable φ(x) and the decision boundary. [5M]  (B) X = [(4, −3), (0, 1)], φ(x) = [x₁, x₂, ‖x‖]ᵀ. Compute the kernel matrix K. [3M]  (C) Hinge loss of (y, y′) = (0.5, 1) and (1, −1); which sample is misclassified? [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "Choosing a feature map that separates the data [5M], K = φ(xᵢ)ᵀφ(xⱼ) [3M], hinge loss max(0, 1 − yy′) [2M]."
+        },
+        {
+          "label": "(A) STEP 1 · Feature and boundary",
+          "text": "Odd x (7, 9) are positive, even x (8, 10) negative: no single threshold on x works.\n**φ(x) = x mod 2** (1 for odd, 0 for even) separates them; boundary **φ = 0.5** in feature space (odd ⇒ +, even ⇒ −)."
+        },
+        {
+          "label": "(B) STEP 2 · Kernel matrix",
+          "text": "φ(4, −3) = (4, −3, 5), φ(0, 1) = (0, 1, 1)\nK₁₁ = 16 + 9 + 25 = 50, K₁₂ = 0 − 3 + 5 = 2, K₂₂ = 0 + 1 + 1 = 2\n**K = [[50, 2], [2, 2]]**"
+        },
+        {
+          "label": "(C) STEP 3 · Hinge loss",
+          "text": "max(0, 1 − 0.5·1) = **0.5** (correct side, inside the margin)\nmax(0, 1 − 1·(−1)) = **2** (wrong sign ⇒ **misclassified**)"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(A) φ(x) = x mod 2, boundary 0.5. (B) K = [[50, 2], [2, 2]]. (C) 0.5 and 2; the second is misclassified."
+        },
+        {
+          "label": "More",
+          "text": "(A) [Lecture 16](#/sem1/aiml-zc416/ch16/worked/1) · (B) [Lecture 14, Kernels tab](#/sem1/aiml-zc416/ch14/f-kernels/5) · (C) [Lecture 15, Soft margin tab](#/sem1/aiml-zc416/ch15/f-soft/6)."
+        }
+      ],
+      "answer": "(A) φ = x mod 2. (B) K = [[50, 2], [2, 2]]. (C) 0.5 and 2 (second misclassified).",
+      "priority": "optional",
+      "priorityWhy": "Older paper (2022–2023): its question types are covered in the lectures"
+    },
+    {
+      "title": "Q3 · Rows orthogonal to x (null space); sigmoid, log-loss gradient and Taylor (10 marks)",
+      "tags": [
+        "Lecture 2",
+        "Lecture 6, 7"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(A) Ax = b, A is m × m with rows Rᵢᵀ, and every Rᵢ is orthogonal to x. (i) Find b. [1M] (ii) S = {x : Rᵢ ⊥ x for all i}: prove S is a subspace. [2M] (iii) If rank A = m, find S and its dimension. [1M]  (B) σ(z) = (1 + e^{−z})^{−1}. (i) Prove σ′ = σ(1 − σ). [1M] (ii) For f(x, y) = α ln(1/σ(x + βy)) + (1 − α) ln(1/(1 − σ(x + βy))), prove f = (1 − α)(x + βy) − ln σ(x + βy). [2M] (iii) Prove ∂f/∂x = σ(x + βy) − α and ∂f/∂y = β(σ(x + βy) − α). [2M] (iv) Degree-1 Taylor polynomial of f at (0, 0). [1M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "(A) null space as a subspace [4M]. (B) sigmoid algebra, chain rule and a first-order Taylor polynomial [6M]."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are kept: α, β are constants in f (not a step size or momentum). u = x + βy."
+        },
+        {
+          "label": "(A)(i) STEP 1 · b",
+          "text": "Entry i of Ax = Rᵢᵀx = Rᵢ·x = 0 for every i ⇒ **b = 0**"
+        },
+        {
+          "label": "(A)(ii) STEP 2 · S is a subspace",
+          "text": "S = {x : Ax = 0} (the null space)\nContains 0: A0 = 0 ✓\nClosed under +: Ax = Ay = 0 ⇒ A(x + y) = 0 ✓\nClosed under scaling: A(cx) = cAx = 0 ✓ ⇒ **subspace**"
+        },
+        {
+          "label": "(A)(iii) STEP 3 · Full rank",
+          "text": "rank A = m ⇒ Ax = 0 only for x = 0 ⇒ **S = {0}, dimension 0**"
+        },
+        {
+          "label": "(B)(i) STEP 4 · σ′",
+          "text": "σ′(z) = e^{−z}/(1 + e^{−z})² = [1/(1 + e^{−z})]·[e^{−z}/(1 + e^{−z})] = **σ(1 − σ)**, since 1 − σ = e^{−z}/(1 + e^{−z})."
+        },
+        {
+          "label": "(B)(ii) STEP 5 · Simplify f",
+          "text": "1 − σ(u) = e^{−u}σ(u) ⇒ ln(1/(1 − σ)) = u − ln σ\nf = −α ln σ + (1 − α)(u − ln σ) = (1 − α)u − ln σ ✓"
+        },
+        {
+          "label": "(B)(iii) STEP 6 · Gradient",
+          "text": "∂f/∂x = (1 − α) − σ′/σ = (1 − α) − (1 − σ) = **σ(u) − α**\n∂f/∂y = β(1 − α) − β(1 − σ) = **β(σ(u) − α)**"
+        },
+        {
+          "label": "(B)(iv) STEP 7 · Taylor at (0, 0)",
+          "text": "σ(0) = ½ ⇒ f(0, 0) = −ln ½ = ln 2; ∇f(0, 0) = (½ − α, β(½ − α))\n**T₁ = ln 2 + (½ − α)(x + βy)**"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(A) b = 0; S = null space; S = {0}, dim 0. (B) σ′ = σ(1 − σ); ∂f/∂x = σ − α, ∂f/∂y = β(σ − α); T₁ = ln 2 + (½ − α)(x + βy)."
+        }
+      ],
+      "answer": "(A) b = 0, S = {0} when rank m. (B) T₁ = ln 2 + (½ − α)(x + βy).",
+      "priority": "optional",
+      "priorityWhy": "Older paper (2022–2023): its question types are covered in the lectures"
+    },
+    {
+      "title": "Q4 · PCA on four points from a figure (10 marks)",
+      "tags": [
+        "Lecture 12–13"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "The figure shows four points: (1, 0), (2, 3), (4, 1), (5, 4). Use cov(X) = (1/N)(X − μ)ᵀ(X − μ). (A) Principal components. [5M] (B) Components of the four points along PC1. [2M] (C) Percentage of variance captured by PC1. [1M] (D) If the points are rotated 90° anticlockwise, what are their components along their new PC1? [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The full PCA recipe on 2-D data, and what a rotation does to it."
+        },
+        {
+          "label": "Notation",
+          "text": "Points read from the figure: (1, 0), (2, 3), (4, 1), (5, 4). N = 4, 1/N covariance as the question says."
+        },
+        {
+          "label": "(A) STEP 1 · Mean and centre",
+          "text": "μ = ((1 + 2 + 4 + 5)/4, (0 + 3 + 1 + 4)/4) = (3, 2)\nCentred: (−2, −2), (−1, 1), (1, −1), (2, 2)"
+        },
+        {
+          "label": "(A) STEP 2 · Covariance",
+          "text": "s_xx = (4 + 1 + 1 + 4)/4 = 2.5\ns_yy = (4 + 1 + 1 + 4)/4 = 2.5\ns_xy = (4 − 1 − 1 + 4)/4 = 1.5\n**C = [[2.5, 1.5], [1.5, 2.5]]**"
+        },
+        {
+          "label": "(A) STEP 3 · Eigen",
+          "text": "λ² − 5λ + (6.25 − 2.25) = λ² − 5λ + 4 = 0 ⇒ **λ = 4, 1**\nλ = 4: (2.5 − 4)v₁ + 1.5v₂ = 0 ⇒ v₂ = v₁ ⇒ **PC1 = (1, 1)/√2**\nλ = 1: **PC2 = (1, −1)/√2**"
+        },
+        {
+          "label": "(B) STEP 4 · Components along PC1",
+          "text": "(centred point)·(1, 1)/√2:\n(−2, −2) → −4/√2 = **−2.83**; (−1, 1) → **0**; (1, −1) → **0**; (2, 2) → **2.83**\n(Without centring: 0.71, 3.54, 3.54, 6.36. State which you use.)"
+        },
+        {
+          "label": "(C) STEP 5 · Variance captured",
+          "text": "4/(4 + 1) = **80%**"
+        },
+        {
+          "label": "(D) STEP 6 · After rotating by 90°",
+          "text": "(x, y) ↦ (−y, x). The covariance becomes RCRᵀ = [[2.5, −1.5], [−1.5, 2.5]], PC1 = (−1, 1)/√2 (the old PC1 rotated).\nA rotation keeps every length and angle, so the components are **unchanged: −2.83, 0, 0, 2.83** (up to the sign of the PC)."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "PC1 = (1, 1)/√2 (λ = 4), PC2 = (1, −1)/√2 (λ = 1); components −2.83, 0, 0, 2.83; 80%; unchanged after rotation."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Using 1/(N − 1) when the question gives 1/N.\n• Projecting uncentred points without saying so.\n• (D) Recomputing everything instead of using \"rotation preserves projections\"."
+        }
+      ],
+      "answer": "PC1 = (1, 1)/√2, PC2 = (1, −1)/√2; components −2.83, 0, 0, 2.83; 80%; same after rotating.",
+      "priority": "optional",
+      "priorityWhy": "Older paper (2022–2023): its question types are covered in the lectures"
+    }
+  ]
+}

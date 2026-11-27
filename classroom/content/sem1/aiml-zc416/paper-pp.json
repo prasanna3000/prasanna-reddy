@@ -1,0 +1,407 @@
+{
+  "id": "p-pp",
+  "title": "Practice Paper · Sourabh sir",
+  "subtitle": "AIMLC ZC416 comprehensive (EC-3) practice · open book · 40 marks · 7 questions · fully solved",
+  "lesson": [
+    {
+      "title": "Try it on your own: how to use this paper",
+      "lead": "Sit it like the real exam first. Only then open the solutions.",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "150 minutes, open book: your notes and the Solved Practice Set only.",
+            "Answer all 7 questions in order, each on a fresh page.",
+            "Mark it with the steps here, question by question.",
+            "Copy every lost mark into your redo list."
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Lecture",
+            "Marks"
+          ],
+          "rows": [
+            [
+              "Q1",
+              "Eigen-structure of a symmetric matrix",
+              "L4–5",
+              "6"
+            ],
+            [
+              "Q2",
+              "A system with two parameters",
+              "L1",
+              "6"
+            ],
+            [
+              "Q3",
+              "Inner product and Gram–Schmidt",
+              "L3",
+              "6"
+            ],
+            [
+              "Q4",
+              "Convex loss and momentum updates",
+              "L11",
+              "6"
+            ],
+            [
+              "Q5",
+              "PCA: scores and explained variance",
+              "L13",
+              "6"
+            ],
+            [
+              "Q6",
+              "Hard-margin SVM: verify and use",
+              "L14",
+              "5"
+            ],
+            [
+              "Q7",
+              "Kernel SVM on a line",
+              "L16",
+              "5"
+            ],
+            [
+              "Total",
+              "",
+              "",
+              "40"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Source",
+          "text": "`Prof Saurabh materials/Practice materials/Endsem Practice materials/MFML_ZC416_Practice_Paper.pdf`. Section A is the paper, Section B the solutions."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · Eigen-structure of a symmetric matrix (6 marks)",
+      "tags": [
+        "Lecture 4–5"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A = [[4, 0, 2], [0, 3, 0], [2, 0, 1]]. (a) Eigenvalues and an eigenvector for each. [3M] (b) Orthogonal Q and diagonal Λ with A = QΛQᵀ. [1M] (c) rank(A) and a basis of Null(A). [1M] (d) Singular values and ‖A‖_F. [1M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "det(A − λI) = (3 − λ)[(4 − λ)(1 − λ) − 4] = (3 − λ)λ(λ − 5) ⇒ λ = 5, 3, 0. Eigenvectors (2, 0, 1), (0, 1, 0), (1, 0, −2)."
+        },
+        {
+          "label": "(b)",
+          "text": "Q = columns (2, 0, 1)/√5, (0, 1, 0), (1, 0, −2)/√5; Λ = diag(5, 3, 0)."
+        },
+        {
+          "label": "(c)",
+          "text": "Two non-zero eigenvalues ⇒ rank 2; Null(A) = span{(1, 0, −2)}."
+        },
+        {
+          "label": "(d)",
+          "text": "Symmetric ⇒ σᵢ = |λᵢ| = 5, 3, 0; ‖A‖_F = √(25 + 9) = √34 ≈ 5.831."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Missing λ = 0 after factoring λ² − 5λ; not normalising the columns of Q."
+        }
+      ],
+      "answer": "λ = 5, 3, 0; rank 2, Null = span{(1, 0, −2)}; σ = 5, 3, 0; ‖A‖_F = √34.",
+      "priority": "must",
+      "priorityWhy": "Saurabh sir's Practice Paper: closest to the real exam"
+    },
+    {
+      "title": "Q2 · A system with two parameters (6 marks)",
+      "tags": [
+        "Lecture 1"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x + 2y − z = 3, 2x + 5y + z = 8, x + 3y + λz = μ. (a) Echelon form. [2M] (b) Values of λ, μ for a unique solution, no solution, infinitely many. [2M] (c) In the infinite case: general solution and rank. [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "R2 − 2R1, R3 − R1, then R3 − R2 ⇒ last row [0 0 λ − 2 | μ − 5]."
+        },
+        {
+          "label": "(b)",
+          "text": "Unique: λ ≠ 2 (any μ). None: λ = 2, μ ≠ 5. Infinitely many: λ = 2, μ = 5."
+        },
+        {
+          "label": "(c)",
+          "text": "z = t, y = 2 − 3t, x = −1 + 7t ⇒ (−1, 2, 0) + t(7, −3, 1); rank 2."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Forgetting μ doesn't matter when λ ≠ 2; a sign slip in x = 3 − 2y + z."
+        }
+      ],
+      "answer": "Unique if λ ≠ 2; none if λ = 2, μ ≠ 5; infinite if λ = 2, μ = 5: (−1, 2, 0) + t(7, −3, 1), rank 2.",
+      "priority": "must",
+      "priorityWhy": "Saurabh sir's Practice Paper: closest to the real exam"
+    },
+    {
+      "title": "Q3 · Inner product and Gram–Schmidt (6 marks)",
+      "tags": [
+        "Lecture 3"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A = [[2, 1, 0], [1, 2, 0], [0, 0, 3]], ⟨x, y⟩ = xᵀAy, v₁ = (1, 0, 0), v₂ = (0, 1, 1). (a) Show it is an inner product. [2M] (b) Are v₁, v₂ orthogonal under the dot product? Under ⟨·,·⟩? [1M] (c) Gram–Schmidt under ⟨·,·⟩. [3M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "Symmetric; leading minors 2, 3, 9 > 0 ⇒ PD ⇒ inner product."
+        },
+        {
+          "label": "(b)",
+          "text": "Dot product 0 ⇒ orthogonal. Av₁ = (2, 1, 0), ⟨v₂, v₁⟩ = 1 ≠ 0 ⇒ not orthogonal under A."
+        },
+        {
+          "label": "(c)",
+          "text": "⟨v₁, v₁⟩ = 2 ⇒ e₁ = (1/√2, 0, 0). u₂ = v₂ − ½v₁ = (−½, 1, 1); ⟨u₂, u₂⟩ = 9/2 ⇒ e₂ = u₂ ÷ (3/√2) = (−√2/6, √2/3, √2/3)."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Concluding orthogonal under A because the dot product is 0."
+        }
+      ],
+      "answer": "Inner product (minors 2, 3, 9); orthogonal under dot product, not under A; e₁ = (1/√2, 0, 0), e₂ = (−√2/6, √2/3, √2/3).",
+      "priority": "must",
+      "priorityWhy": "Saurabh sir's Practice Paper: closest to the real exam"
+    },
+    {
+      "title": "Q4 · Convex loss and momentum updates (6 marks)",
+      "tags": [
+        "Lecture 11",
+        "Momentum"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Fit ŷ = w₀ + w₁x to (1, 1), (2, 3), J = ½Σ(ŷᵢ − yᵢ)². (a) J, ∇J, Hessian; show J is convex. [2M] (b) Two momentum iterations from (0, 0), η = 0.05, β = 0.5, v₀ = 0. [3M] (c) The exact minimiser. [1M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "Convexity from the Hessian, then the momentum recursion for two steps, then the exact minimiser. Marks: (a) 2, (b) 3, (c) 1."
+        },
+        {
+          "label": "Plan of attack",
+          "text": "1. Write J from the two residuals. 2. Differentiate each residual by the chain rule (don't expand the squares). 3. Hessian and leading minors. 4. Momentum table: gradient → velocity → weights. 5. Set ∇J = 0 for the exact answer."
+        },
+        {
+          "label": "Notation",
+          "text": "Sourabh sir's symbols (η, β, v) are the same as the board's. Update: vₜ₊₁ = βvₜ − η∇J(wₜ), wₜ₊₁ = wₜ + vₜ₊₁, v₀ = 0."
+        },
+        {
+          "label": "STEP 1 · (a) The data and the model",
+          "text": "Two data points (x, y): (x₁, y₁) = (1, 1) and (x₂, y₂) = (2, 3).\nModel: a straight line ŷ = w₀ + w₁x, where w₀ is the intercept and w₁ the slope. We want the w₀, w₁ that make ŷ close to y at both points."
+        },
+        {
+          "label": "STEP 1 · (a) Predictions",
+          "text": "Put each x into the model:\n• At x₁ = 1: ŷ₁ = w₀ + w₁ × 1 = **w₀ + w₁**\n• At x₂ = 2: ŷ₂ = w₀ + w₁ × 2 = **w₀ + 2w₁**"
+        },
+        {
+          "label": "STEP 1 · (a) Residuals",
+          "text": "A residual is prediction minus true value, rᵢ = ŷᵢ − yᵢ:\n• r₁ = ŷ₁ − y₁ = (w₀ + w₁) − 1 = **w₀ + w₁ − 1**\n• r₂ = ŷ₂ − y₂ = (w₀ + 2w₁) − 3 = **w₀ + 2w₁ − 3**"
+        },
+        {
+          "label": "STEP 1 · (a) J",
+          "text": "The question defines J = ½Σ(ŷᵢ − yᵢ)² = ½Σrᵢ²: half the sum of squared residuals (not a mean: there is no 1/n).\nJ = ½(r₁² + r₂²) = **½[(w₀ + w₁ − 1)² + (w₀ + 2w₁ − 3)²]**.\nThe ½ is there so that the 2 from differentiating a square cancels (STEP 2–3)."
+        },
+        {
+          "label": "STEP 1 · (a) J expanded (check)",
+          "text": "(w₀ + w₁ − 1)² = w₀² + w₁² + 1 + 2w₀w₁ − 2w₀ − 2w₁\n(w₀ + 2w₁ − 3)² = w₀² + 4w₁² + 9 + 4w₀w₁ − 6w₀ − 12w₁\nSum = 2w₀² + 5w₁² + 6w₀w₁ − 8w₀ − 14w₁ + 10\nJ = ½ × sum = **w₀² + 2.5w₁² + 3w₀w₁ − 4w₀ − 7w₁ + 5**.\nCheck: at the start (0, 0), J = 5 (= ½[1 + 9]). You don't need to expand in the exam; it only confirms the gradient in STEP 2–3."
+        },
+        {
+          "label": "STEP 2 · (a) ∂J/∂w₀",
+          "text": "∂J/∂w₀ = r₁ × ∂r₁/∂w₀ + r₂ × ∂r₂/∂w₀ = r₁ × 1 + r₂ × 1\n= (w₀ + w₁ − 1) + (w₀ + 2w₁ − 3) = **2w₀ + 3w₁ − 4**."
+        },
+        {
+          "label": "STEP 3 · (a) ∂J/∂w₁",
+          "text": "∂J/∂w₁ = r₁ × 1 + r₂ × 2 = (w₀ + w₁ − 1) + 2(w₀ + 2w₁ − 3)\n= w₀ + w₁ − 1 + 2w₀ + 4w₁ − 6 = **3w₀ + 5w₁ − 7**."
+        },
+        {
+          "label": "STEP 4 · (a) Hessian",
+          "text": "∂²J/∂w₀² = 2, ∂²J/∂w₀∂w₁ = 3, ∂²J/∂w₁² = 5 ⇒ H = [[2, 3], [3, 5]]."
+        },
+        {
+          "label": "STEP 5 · (a) Convex",
+          "text": "Leading minors: D₁ = 2 > 0; D₂ = 2 × 5 − 3 × 3 = 10 − 9 = 1 > 0 ⇒ H is positive definite ⇒ **J is convex** (any local minimum is the global one)."
+        },
+        {
+          "label": "STEP 6 · (b) Iteration 1: gradient",
+          "text": "∇J(0, 0) = (2(0) + 3(0) − 4, 3(0) + 5(0) − 7) = **(−4, −7)**."
+        },
+        {
+          "label": "STEP 7 · (b) Iteration 1: velocity",
+          "text": "v₁ = 0.5 × (0, 0) − 0.05 × (−4, −7) = (0, 0) + (0.2, 0.35) = **(0.2, 0.35)**."
+        },
+        {
+          "label": "STEP 8 · (b) Iteration 1: weights",
+          "text": "w₁ = (0, 0) + (0.2, 0.35) = **(0.2, 0.35)**."
+        },
+        {
+          "label": "STEP 9 · (b) Iteration 2: gradient",
+          "text": "∇J(0.2, 0.35) = (2(0.2) + 3(0.35) − 4, 3(0.2) + 5(0.35) − 7)\n= (0.4 + 1.05 − 4, 0.6 + 1.75 − 7)\n= **(−2.55, −4.65)**."
+        },
+        {
+          "label": "STEP 10 · (b) Iteration 2: velocity",
+          "text": "v₂ = 0.5 × (0.2, 0.35) − 0.05 × (−2.55, −4.65)\n= (0.1, 0.175) + (0.1275, 0.2325)\n= **(0.2275, 0.4075)**."
+        },
+        {
+          "label": "STEP 11 · (b) Iteration 2: weights",
+          "text": "w₂ = (0.2, 0.35) + (0.2275, 0.4075) = (0.2 + 0.2275, 0.35 + 0.4075) = **(0.4275, 0.7575)**."
+        },
+        {
+          "label": "STEP 12 · (b) Table",
+          "text": "t = 1: ∇J = (−4, −7), v = (0.2, 0.35), w = (0.2, 0.35).\nt = 2: ∇J = (−2.55, −4.65), v = (0.2275, 0.4075), w = (0.4275, 0.7575)."
+        },
+        {
+          "label": "Quick check · finding a minimiser",
+          "text": "**Always:** set the gradient to zero, **∇J = 0**, and solve the equations. Then confirm it is a minimum with the Hessian: H positive definite (leading minors > 0) ⇒ minimum.\nHere: ∇J = (2w₀ + 3w₁ − 4, 3w₀ + 5w₁ − 7) = (0, 0) ⇒ (w₀, w₁) = (−1, 2), and H = [[2, 3], [3, 5]] is positive definite (STEP 5) ⇒ minimum."
+        },
+        {
+          "label": "STEP 13 · (c) Exact minimiser",
+          "text": "Set ∇J = 0: 2w₀ + 3w₁ = 4 … (i), 3w₀ + 5w₁ = 7 … (ii).\n3 × (i): 6w₀ + 9w₁ = 12; 2 × (ii): 6w₀ + 10w₁ = 14. Subtract: w₁ = 2.\nPut into (i): 2w₀ + 6 = 4 ⇒ w₀ = −1."
+        },
+        {
+          "label": "STEP 14 · (c) Check",
+          "text": "ŷ = −1 + 2x gives ŷ(1) = 1 and ŷ(2) = 3: both points exactly, so J = 0, the minimum."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(a) ∇J = (2w₀ + 3w₁ − 4, 3w₀ + 5w₁ − 7), H = [[2, 3], [3, 5]] PD ⇒ convex. (b) (0.2, 0.35), (0.4275, 0.7575). (c) (−1, 2)."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Using +η∇J in the velocity.\n• Forgetting βv₁ in step 2.\n• Expanding the squares and making an algebra slip: differentiate the residuals instead."
+        },
+        {
+          "label": "More",
+          "text": "Method and similar problems: [Lecture 11 card](#/sem1/aiml-zc416/ch11/f-momentum/3)."
+        }
+      ],
+      "answer": "H PD; w = (0.2, 0.35) then (0.4275, 0.7575); minimiser (−1, 2).",
+      "priority": "must",
+      "priorityWhy": "Saurabh sir's Practice Paper: closest to the real exam"
+    },
+    {
+      "title": "Q5 · PCA: scores and explained variance (6 marks)",
+      "tags": [
+        "Lecture 13",
+        "PCA"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Points (2, 0), (0, 2), (3, 3), (−1, −1); S = (1/N)X_cᵀX_c. (a) Mean and X_c. [1M] (b) S. [1M] (c) Eigenvalues and unit eigenvectors. [2M] (d) First PC, the scores zₙ, fraction of variance. [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a)",
+          "text": "x̄ = (1, 1); X_c rows (1, −1), (−1, 1), (2, 2), (−2, −2)."
+        },
+        {
+          "label": "(b)",
+          "text": "S = ¼[[10, 6], [6, 10]] = [[5/2, 3/2], [3/2, 5/2]]."
+        },
+        {
+          "label": "(c)",
+          "text": "trace 5, det 4 ⇒ λ = 4, 1; q₁ = (1, 1)/√2, q₂ = (1, −1)/√2."
+        },
+        {
+          "label": "(d)",
+          "text": "PC1 = q₁; scores 0, 0, 2√2, −2√2; explained 4/5 = 80%."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "Building S from un-centred data; mixing 1/N and 1/(N − 1); a non-unit eigenvector."
+        }
+      ],
+      "answer": "λ = 4, 1; PC1 (1, 1)/√2; scores 0, 0, 2√2, −2√2; 80% of the variance.",
+      "priority": "must",
+      "priorityWhy": "Saurabh sir's Practice Paper: closest to the real exam"
+    },
+    {
+      "title": "Q6 · Hard-margin SVM: verify and use (5 marks)",
+      "tags": [
+        "Lecture 14",
+        "SVM"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(2, 2)+, (4, 3)+, (0, 0)−, (−1, 0)−; solver gives w = (½, ½), b = −1. (a) Primal. (b) Check constraints, support vectors, α's. (c) Margin. (d) Classify (3, 0) and (1, 0.5)."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Solution",
+          "text": "Support vectors (2, 2) and (0, 0); α = (¼, 0, ¼, 0); margin √2; (3, 0) → +1, (1, 0.5) → −1. Every step: [Lecture 14, Hard margin tab](#/sem1/aiml-zc416/ch14/f-hard/2)."
+        }
+      ],
+      "answer": "SVs (2, 2), (0, 0); α = (¼, 0, ¼, 0); margin √2; +1, −1.",
+      "priority": "must",
+      "priorityWhy": "Saurabh sir's Practice Paper: closest to the real exam"
+    },
+    {
+      "title": "Q7 · Kernel SVM on a line (5 marks)",
+      "tags": [
+        "Lecture 16",
+        "SVM",
+        "Kernels"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "x = −2 (+1), 0 (−1), 2 (+1); K(x, z) = (xz + 1)². (a) Kernel matrix. (b) a, α₂, b with α₁ = α₃ = a. (c) f(x) = ½x² − 1 and the thresholds. (d) Classify x = 1 and x = −3."
+        }
+      ],
+      "steps": [
+        {
+          "label": "Solution",
+          "text": "K = [[25, 1, 9], [1, 1, 1], [9, 1, 25]]; a = 1/16, α₂ = 1/8, b = −1; thresholds ±√2; x = 1 → −1, x = −3 → +1. Every step: [Lecture 16](#/sem1/aiml-zc416/ch16/worked/3)."
+        }
+      ],
+      "answer": "a = 1/16, α₂ = 1/8, b = −1; thresholds ±√2; −1, +1.",
+      "priority": "must",
+      "priorityWhy": "Saurabh sir's Practice Paper: closest to the real exam"
+    }
+  ],
+  "readme": {
+    "summary": "**[1M]** = marks the answer key gives for that step. **LN** in the tables = `Lecture_N.pdf`.",
+    "sections": [
+      {
+        "title": "Short names",
+        "items": [
+          "**[1M]**, **[0.5M]** = marks the official key gives for that step.",
+          "**LN** = Lecture N (`Lecture_N.pdf`, contact session N).",
+          "**More** steps link to the lecture card with the method and similar problems.",
+          "Sourabh sir's practice paper; solutions follow its Section B.",
+          "**Notation:** each question and its solution keep the paper's own symbols. Where they differ from the lecture boards (η step size, β momentum, v velocity, λ inequality / μ equality multipliers), the solution starts with a **Notation** line mapping them."
+        ]
+      }
+    ]
+  }
+}

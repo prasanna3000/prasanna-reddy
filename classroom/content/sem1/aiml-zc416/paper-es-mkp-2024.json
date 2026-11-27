@@ -1,0 +1,286 @@
+{
+  "id": "p-es-mkp-2024",
+  "title": "Comprehensive Makeup · Sep 2024",
+  "subtitle": "MFML / MFDS comprehensive (makeup) · file `20240905_mf_compre_makeup_sol.pdf` · open book · 40 marks · 4 questions of 10 marks",
+  "readme": {
+    "summary": "**[1M]** = marks the answer key gives for that step. **LN** in the tables = `Lecture_N.pdf`.",
+    "sections": [
+      {
+        "title": "Short names",
+        "items": [
+          "**[1M]**, **[0.5M]** = marks the official key gives for that step.",
+          "**LN** = Lecture N (`Lecture_N.pdf`, contact session N).",
+          "**More** steps link to the lecture card with the method and similar problems.",
+          "The key gives no worked answer for Q3 (PCA) and Q3(B): those solutions are worked here, so check the arithmetic.",
+          "**Notation:** each question and its solution keep the paper's own symbols. Where they differ from the lecture boards (η step size, β momentum, v velocity, λ inequality / μ equality multipliers), the solution starts with a **Notation** line mapping them."
+        ]
+      }
+    ]
+  },
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "The 10-mark KKT question (Q1) is the biggest single constrained-optimisation question in any MFML paper.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Lecture",
+            "Marks"
+          ],
+          "rows": [
+            [
+              "Q1",
+              "Signal tower: formulate, Lagrangian, KKT, solve",
+              "L11 · L14",
+              "10"
+            ],
+            [
+              "Q2",
+              "Cubic: critical points and GD zone of attraction (6) · linear objective on a plane (4)",
+              "L8 · L9 · L11",
+              "10"
+            ],
+            [
+              "Q3",
+              "PCA on four points (8) · can PC1 always separate two classes? (2)",
+              "L12–13",
+              "10"
+            ],
+            [
+              "Q4",
+              "Soft-margin C with a quadratic kernel (5) · echelon form, column space, null space, row rank (5)",
+              "L15 · L1, L2",
+              "10"
+            ],
+            [
+              "Total",
+              "",
+              "",
+              "40"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "No key for Q3",
+          "text": "The answer key leaves Q3 blank. The PCA working here is computed from the definitions (1/N covariance, as in the regular paper).",
+          "color": "blue"
+        },
+        {
+          "type": "note",
+          "label": "Pre-mid",
+          "color": "blue",
+          "text": "**Pre-mid in this paper: about 8 of 40 marks.** Q2(A)(a) critical points and the second-derivative test (Lecture 8, 3 marks) and Q4(B) echelon form, column space, null space (Lectures 1–2, 5 marks). Much less than the recent papers (about 15 of 40)."
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · Signal tower: Lagrangian and KKT (10 marks)",
+      "tags": [
+        "Lecture 11",
+        "Lecture 14"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Tower at (0, 0); cost = squared distance; region {7 − 2x + y ≤ 0, 0 ≤ x + y + 5}. (i) Formulate. [1.5M] (ii) Lagrangian. [0.5M] (iii) KKT conditions. [4M] (iv) Solve with KKT. [4M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The full KKT route on a two-constraint problem. Marks: (i) 1.5, (ii) 0.5, (iii) 4, (iv) 4."
+        },
+        {
+          "label": "Plan of attack",
+          "text": "1. Objective = squared distance; constraints in g ≤ 0 form. 2. Lagrangian. 3. List the KKT conditions. 4. Express x, y through λ, put into slackness, test the four cases, keep the one with λ ≥ 0 that is feasible."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are the board's: λ₁, λ₂ ≥ 0."
+        },
+        {
+          "label": "STEP 1 · (i) Problem",
+          "text": "min x² + y² [0.5M] s.t. 7 − 2x + y ≤ 0 and x + y + 5 ≥ 0, i.e. −5 − x − y ≤ 0 [1M]."
+        },
+        {
+          "label": "STEP 2 · (ii) Lagrangian",
+          "text": "L = x² + y² + λ₁(7 − 2x + y) + λ₂(−5 − x − y) [0.5M]."
+        },
+        {
+          "label": "STEP 3 · (iii) Feasibility",
+          "text": "7 − 2x + y ≤ 0 [0.5M]; −x − y − 5 ≤ 0 [0.5M]."
+        },
+        {
+          "label": "STEP 4 · (iii) Sign + slackness",
+          "text": "λ₁, λ₂ ≥ 0 [1M]; λ₁(7 − 2x + y) = 0 [0.5M]; λ₂(−5 − x − y) = 0 [0.5M]."
+        },
+        {
+          "label": "STEP 5 · (iii) Stationarity",
+          "text": "∂L/∂x = 2x − 2λ₁ − λ₂ = 0 ⇒ x = (2λ₁ + λ₂)/2 [0.5M]; ∂L/∂y = 2y + λ₁ − λ₂ = 0 ⇒ y = (λ₂ − λ₁)/2 [0.5M]."
+        },
+        {
+          "label": "STEP 6 · (iv) Substitute",
+          "text": "7 − 2x + y = 7 − (2λ₁ + λ₂) + (λ₂ − λ₁)/2 = 7 − 2.5λ₁ − 0.5λ₂.\n−5 − x − y = −5 − (2λ₁ + λ₂)/2 − (λ₂ − λ₁)/2 = −5 − 0.5λ₁ − λ₂.\nSo λ₁(7 − 2.5λ₁ − 0.5λ₂) = 0 and λ₂(5 + 0.5λ₁ + λ₂) = 0 [1M]."
+        },
+        {
+          "label": "STEP 7 · (iv) Case λ₁ = λ₂ = 0",
+          "text": "x = y = 0, but 7 − 0 + 0 = 7 > 0: infeasible ✗"
+        },
+        {
+          "label": "STEP 8 · (iv) Case λ₂ = 0, λ₁ > 0",
+          "text": "7 − 2.5λ₁ = 0 ⇒ λ₁ = 2.8 ⇒ x = 2.8, y = −1.4. Check: −5 − 2.8 + 1.4 = −6.4 ≤ 0 ✓, λ ≥ 0 ✓."
+        },
+        {
+          "label": "STEP 9 · (iv) Other cases",
+          "text": "λ₁ = 0, λ₂ > 0: 5 + λ₂ = 0 ⇒ λ₂ = −5 < 0 ✗. Both > 0: 2.5λ₁ + 0.5λ₂ = 7 and 0.5λ₁ + λ₂ = −5 ⇒ λ₁ ≈ 4.2, λ₂ ≈ −7.1 < 0 ✗ [1M for the list of cases]."
+        },
+        {
+          "label": "STEP 10 · (iv) Answer",
+          "text": "**(x, y) = (2.8, −1.4)** with λ = (2.8, 0) [2M]. Cost 2.8² + 1.4² = 7.84 + 1.96 = 9.8."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "Minimum at (2.8, −1.4), λ = (2.8, 0), cost 9.8."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Keeping a case with a negative λ.\n• Not checking the inactive constraint in the surviving case."
+        },
+        {
+          "label": "More",
+          "text": "[Lecture 11, Lagrangian tab](#/sem1/aiml-zc416/ch11/f-lagrange/12)."
+        }
+      ],
+      "answer": "Minimum at (2.8, −1.4) with λ = (2.8, 0).",
+      "priority": "optional",
+      "priorityWhy": "Older paper (Sep 2024): its question types are already covered in the lectures"
+    },
+    {
+      "title": "Q2 · Cubic critical points, zone of attraction; Lagrange on a plane (10 marks)",
+      "tags": [
+        "Lecture 8",
+        "Lecture 9",
+        "Lecture 11",
+        "Part pre-mid (L8)"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(A) f(x) = ax³ + bx² + cx + d, a > 0. (a) Condition for two distinct critical points; find them and classify. [3M] (b) The zone of attraction of each local minimum under gradient descent. [3M]  (B) min ax + by + cz s.t. px + qy + rz = 0: when is there a solution, how many, and the objective value there? [4M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(A)(a)",
+          "text": "f′ = 3ax² + 2bx + c = 0 ⇒ x₁,₂ = (−b ∓ √(b² − 3ac))/(3a); two distinct real roots iff **b² − 3ac > 0**. f″ = 6ax + 2b is negative at x₁ (maximum) and positive at x₂ (minimum) [3M]."
+        },
+        {
+          "label": "(A)(b)",
+          "text": "f′ < 0 between the roots and f′ > 0 to the right of x₂, so GD moves towards x₂ from both sides. Zone of attraction of the only minimum x₂: **x > (−b − √(b² − 3ac))/(3a)** [3M]."
+        },
+        {
+          "label": "(B)",
+          "text": "Notation (kept from the key): λ is the equality multiplier (μ on the lecture boards). L = ax + by + cz − λ(px + qy + rz) ⇒ a = λp, b = λq, c = λr. A solution exists iff (a, b, c) ∥ (p, q, r); then every point of the plane is a solution and the value is 0. Otherwise the objective is unbounded below: no solution [4M]."
+        },
+        {
+          "label": "More",
+          "text": "[Lecture 11, Lagrangian tab: Q(B)](#/sem1/aiml-zc416/ch11/f-lagrange/15)."
+        }
+      ],
+      "answer": "b² − 3ac > 0; x₂ = (−b + √(b² − 3ac))/(3a) is the minimum with zone x > x₁; (B) solvable iff (a, b, c) ∥ (p, q, r), then value 0 everywhere on the plane.",
+      "priority": "optional",
+      "priorityWhy": "Older paper (Sep 2024): its question types are already covered in the lectures"
+    },
+    {
+      "title": "Q3 · PCA on four points; PC1 and classification (10 marks)",
+      "tags": [
+        "Lecture 12–13",
+        "Worked here"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(A) X has rows (6, −4), (−3, 5), (−2, 6), (7, −3). (a) Covariance matrix, its unit eigenvectors and eigenvalues. [4M] (b) Project onto one dimension: which subspace, and each point's coordinate. [3M] (c) Sketch. [1M]  (B) Is it always true that two classes projected on PC1 can be separated by a threshold? [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(a) Centre",
+          "text": "Means (2, 1); centred rows (4, −5), (−5, 4), (−4, 5), (5, −4)."
+        },
+        {
+          "label": "(a) Covariance",
+          "text": "With 1/N: Sxx = Syy = 82/4 = 20.5, Sxy = −80/4 = −20 ⇒ S = [[20.5, −20], [−20, 20.5]]. (With 1/(N − 1): [[27.33, −26.67], [−26.67, 27.33]]; say which you use.)"
+        },
+        {
+          "label": "(a) Eigen",
+          "text": "λ = 20.5 ± 20 ⇒ **40.5** with e₁ = (1, −1)/√2, and **0.5** with e₂ = (1, 1)/√2."
+        },
+        {
+          "label": "(b)",
+          "text": "Project onto span{(1, −1)}: zₙ = e₁ᵀ(xₙ − x̄) ⇒ 9/√2 ≈ 6.36, −6.36, −6.36, 6.36. PC1 keeps 40.5/41 ≈ 98.8% of the variance."
+        },
+        {
+          "label": "(c)",
+          "text": "On the PC1 line the points fall in two pairs: (6, −4) and (7, −3) at +6.36, (−3, 5) and (−2, 6) at −6.36."
+        },
+        {
+          "label": "(B)",
+          "text": "**No.** PC1 follows the largest variance, not the class split. Counter-example: class A at (x, +0.1) and class B at (x, −0.1) for x from −10 to 10. PC1 is the x-axis, both classes project onto the same range, and no threshold separates them, even though y = 0 does."
+        }
+      ],
+      "answer": "S = [[20.5, −20], [−20, 20.5]]; λ = 40.5 (1, −1)/√2 and 0.5 (1, 1)/√2; coordinates ±6.36; PC1 need not separate classes.",
+      "priority": "optional",
+      "priorityWhy": "Older paper (Sep 2024): its question types are already covered in the lectures"
+    },
+    {
+      "title": "Q4 · Soft-margin C; echelon form and the four subspaces (10 marks)",
+      "tags": [
+        "Lecture 15",
+        "Lecture 1, 2",
+        "Part pre-mid (L1, L2)"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(A) Noisy-sensor data, quadratic-kernel SVM with parameter C. Sketch a boundary for small C and for large C; mark a point whose wrong label would not / would affect the boundary; high or low C? [5 × 1M]  (B) f(x₁, x₂, x₃) = (2x₁ + x₂, 3x₁ + 7x₂ + 3x₃, 3x₁ + x₂ + x₃). (A) Its matrix in row echelon form. [2M] (B) Basis of the column space. [1M] (C) Basis of the null space. [1M] (D) Independent rows. [1M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "(A)",
+          "text": "Small C: smooth boundary, wide margin, a few violations. Large C: tight boundary, narrow margin, few misclassifications. A non-support vector's label does not matter; a support vector's does. Noisy data ⇒ **low C** [1M each]."
+        },
+        {
+          "label": "(B)(A)",
+          "text": "A = [[2, 1, 0], [3, 7, 3], [3, 1, 1]]. R1/2; R2 − 3R1; R3 − 3R1; R2/(11/2); R3/(−1/2); R3 − R2 ⇒ rows (1, ½, 0), (0, 1, 6/11), (0, 0, −28/11). REF is not unique [2M]. (The key prints −17/11 in the last row; −2 − 6/11 = −28/11.)"
+        },
+        {
+          "label": "(B)(B)",
+          "text": "Every column has a pivot ⇒ the three columns are a basis of the column space; rank 3 [1M]. (det A = 14 ≠ 0.)"
+        },
+        {
+          "label": "(B)(C)",
+          "text": "Null space = {0}; its basis is empty, dimension 0 [1M]."
+        },
+        {
+          "label": "(B)(D)",
+          "text": "All three rows are independent (rank 3) [1M]."
+        },
+        {
+          "label": "More",
+          "text": "[Lecture 15, Soft margin tab: small vs large C](#/sem1/aiml-zc416/ch15/f-soft/7)."
+        }
+      ],
+      "answer": "Low C for noisy data; A has rank 3: columns are a basis, null space {0}, all rows independent.",
+      "priority": "optional",
+      "priorityWhy": "Older paper (Sep 2024): its question types are already covered in the lectures"
+    }
+  ]
+}

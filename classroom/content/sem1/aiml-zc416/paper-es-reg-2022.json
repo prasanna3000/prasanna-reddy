@@ -1,0 +1,268 @@
+{
+  "id": "p-es-reg-2022",
+  "title": "Comprehensive, 2022 (Regular)",
+  "subtitle": "MFML end-sem (regular) · 1 Oct 2022 · file `2022 EndSem Regular MFML.pdf` + answer key · open book · 120 minutes · 3 questions, 40 marks",
+  "readme": {
+    "summary": "**[1M]** = marks the answer key gives for that step. **LN** in the tables = `Lecture_N.pdf`.",
+    "sections": [
+      {
+        "title": "Short names",
+        "items": [
+          "**[1M]**, **[0.5M]** = marks the official key gives for that step.",
+          "**LN** = Lecture N (`Lecture_N.pdf`, contact session N).",
+          "**More** links to the lecture card where the same question is solved in full, with similar problems.",
+          "**Notation:** each question keeps the paper's own symbols; a **Notation** line maps them to the lecture boards (η step size, β momentum, λ inequality / μ equality multipliers) where they differ."
+        ]
+      }
+    ]
+  },
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "The oldest paper: 3 long questions, mostly proofs. Its PCA-scaling and SVD-trace parts have not come back since.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Lecture",
+            "Marks"
+          ],
+          "rows": [
+            [
+              "Q1",
+              "PCA after scaling features (5 + 3) · SVM dual in two variables (8)",
+              "L12–13 · L15",
+              "16"
+            ],
+            [
+              "Q2",
+              "Convexity proofs (4) · SVD and trace (4) · gradients of quadratic forms (4)",
+              "L11 · L5 · L6",
+              "12"
+            ],
+            [
+              "Q3",
+              "Inner product from a matrix (6) · Jacobian and linear approximation (3) · nearest zero-trace matrix (3)",
+              "L3 · L6, L8 · L11",
+              "12"
+            ],
+            [
+              "Total",
+              "",
+              "",
+              "40"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · PCA after scaling the features; SVM dual in two variables (16 marks)",
+      "tags": [
+        "Lecture 12–13",
+        "Lecture 15"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(a) PCA on N > 10000 mean-centred points in D > 100 dimensions gave the top 10 principal components. Every point (x₁, …, x_D) must now be changed to (α₁x₁, …, α_Dx_D) for fixed constants αᵢ. The data scientist says he can just change each eigenvector (b₁, …, b_D) to (α₁b₁, …, α_Db_D). Is he right? [5M]  (b) He has the old covariance matrix. Can he get the covariance matrix of the scaled data in O(D²) time? [3M]  (c) Points (x, y, class): (−1, 3, +), (1, 3, −), (−1, 1, −). With multipliers αᵢ, write the SVM dual objective as a polynomial in the fewest variables and terms, and find the optimal hyperplane wᵀx + b = 0 by calculus. [8M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "(a)–(b) how scaling the features changes the covariance matrix and its eigenvectors (PCA). (c) building and solving the hard-margin SVM dual by hand. Marks: 5 + 3 + 8."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols: **X** = D × N data matrix (one column per point), **R** = diag(α₁, …, α_D) = the scaling, **S Λ Sᵀ** = the old covariance's eigendecomposition. In (a)–(b) the αᵢ are **scaling constants**, not step sizes. In (c) the αᵢ are the **SVM dual multipliers** (one per point)."
+        },
+        {
+          "label": "(a) STEP 1 · Write the change as a matrix",
+          "text": "Scaling every point = multiplying by the diagonal matrix R:\nx ↦ Rx, so X ↦ RX"
+        },
+        {
+          "label": "(a) STEP 2 · New covariance  [3M]",
+          "text": "Old covariance (mean-centred): XXᵀ = SΛSᵀ (spectral theorem)\nNew covariance: (RX)(RX)ᵀ = R XXᵀ Rᵀ = R SΛSᵀ R\nIt looks like an eigendecomposition with eigenvector matrix RS …"
+        },
+        {
+          "label": "(a) STEP 3 · Why he is wrong  [2M]",
+          "text": "… but an eigenvector matrix must be **orthogonal**:\n(RS)(RS)ᵀ = R SSᵀ R = R² ≠ I (unless every αᵢ = ±1)\nSo RSΛSᵀR is **not** an eigendecomposition, and the columns Rbᵢ are not the new principal directions.\nSmall check: S = [[2, 1], [1, 2]] has PCs (1, 1) and (1, −1). Scale by R = diag(1, 2): his vectors are (1, 2) and (1, −2), whose dot product is 1 − 4 = −3 ≠ 0. Principal directions are always perpendicular, so these cannot be them.\n**He is wrong.**"
+        },
+        {
+          "label": "(b) STEP 4 · New covariance from the old one  [2M]",
+          "text": "New covariance = R(XXᵀ)R, and XXᵀ is already known.\nR is diagonal, so entry (i, j) is just\n(R XXᵀ R)ᵢⱼ = αᵢ (XXᵀ)ᵢⱼ αⱼ"
+        },
+        {
+          "label": "(b) STEP 5 · Count the work  [1M]",
+          "text": "D × D = D² entries, each needs 2 multiplications ⇒ **O(D²)** time.\n(The key says the same with columns: multiplying by a diagonal matrix scales each column or row, O(D) per column, O(D²) in total.)\n**Yes, he is justified.**"
+        },
+        {
+          "label": "(c) STEP 6 · Dot products",
+          "text": "x₁ = (−1, 3), y₁ = +1; x₂ = (1, 3), y₂ = −1; x₃ = (−1, 1), y₃ = −1\nx₁·x₁ = 10, x₂·x₂ = 10, x₃·x₃ = 2\nx₁·x₂ = −1 + 9 = 8, x₁·x₃ = 1 + 3 = 4, x₂·x₃ = −1 + 3 = 2"
+        },
+        {
+          "label": "(c) STEP 7 · Dual objective  [3M]",
+          "text": "L = α₁ + α₂ + α₃ − ½ΣᵢΣⱼ αᵢαⱼyᵢyⱼ xᵢ·xⱼ\n= α₁ + α₂ + α₃ − ½[10α₁² + 10α₂² + 2α₃² + 2α₁α₂(−1)(8) + 2α₁α₃(−1)(4) + 2α₂α₃(+1)(2)]\nsubject to α₁y₁ + α₂y₂ + α₃y₃ = 0 and αᵢ ≥ 0"
+        },
+        {
+          "label": "(c) STEP 8 · Fewest variables  [2M]",
+          "text": "Constraint: α₁ − α₂ − α₃ = 0 ⇒ α₁ = α₂ + α₃\nSubstitute and collect (the α₂α₃ terms cancel):\nL = **2α₂ + 2α₃ − 2α₂² − 2α₃²**\nTwo variables, four terms."
+        },
+        {
+          "label": "(c) STEP 9 · Calculus  [3M]",
+          "text": "∂L/∂α₂ = 2 − 4α₂ = 0 ⇒ α₂ = 0.5\n∂L/∂α₃ = 2 − 4α₃ = 0 ⇒ α₃ = 0.5\nα₁ = 0.5 + 0.5 = 1 (all ≥ 0 ✓)\nw = Σαᵢyᵢxᵢ = 1(−1, 3) − 0.5(1, 3) − 0.5(−1, 1) = **(−1, 1)**\nb from x₁ (support vector, y = +1): wᵀx₁ + b = 1 ⇒ 4 + b = 1 ⇒ **b = −3**\nCheck x₂: −1 + 3 − 3 = −1 ✓, x₃: 1 + 1 − 3 = −1 ✓\nHyperplane **−x₁ + x₂ − 3 = 0**"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(a) Wrong: RS is not orthogonal, so Rbᵢ are not the new PCs. (b) Yes: αᵢSᵢⱼαⱼ, O(D²). (c) L = 2α₂ + 2α₃ − 2α₂² − 2α₃²; α = (1, 0.5, 0.5); −x₁ + x₂ − 3 = 0."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• (a) Saying \"yes\" because R SΛSᵀ R looks like a decomposition, without checking orthogonality.\n• (c) Forgetting the yᵢyⱼ signs, or not using Σαᵢyᵢ = 0 to remove a variable.\n• (c) Finding b from a point that is not a support vector."
+        },
+        {
+          "label": "More",
+          "text": "(c) in full: [Lecture 15, Dual tab](#/sem1/aiml-zc416/ch15/f-dual/2)."
+        }
+      ],
+      "answer": "(a) No. (b) Yes, O(D²). (c) α = (1, 0.5, 0.5), w = (−1, 1), b = −3: −x₁ + x₂ − 3 = 0.",
+      "priority": "optional",
+      "priorityWhy": "Older paper (2022–2023): its question types are covered in the lectures"
+    },
+    {
+      "title": "Q2 · Convexity proofs; SVD and the trace; gradients of quadratic forms (12 marks)",
+      "tags": [
+        "Lecture 11",
+        "Lecture 5",
+        "Lecture 6"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(a) Prove or disprove: (i) f₁(x) = ‖x‖₁ is convex (norm properties); (ii) if g is convex, h(x) = g(Ax + b) is convex (definition). [4M]  (b) A = UΣVᵀ, ‖Σ‖²_F = γ, B = AᵀA, α = B₁₁ + … + Bₙₙ. Prove or disprove: (a) G1: α = γ; (b) G2: α = √γ; (c) with C = AAᵀ and β = its trace, β = γ². [4M]  (c) f(x) = ‖Ax − b‖²₂ + cᵀx + d and g(x) = ‖A₁ᵀA₁x‖²₂ + ‖A₂ᵀx‖²₂. Derive ∇f and ∇g. [4M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "(a) convexity from the definition [4M]. (b) trace and Frobenius norm through the SVD [4M]. (c) the rule ∇(xᵀMx) = (M + Mᵀ)x [4M]."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are kept: σᵢ = singular values (the diagonal of Σ), tr = trace (sum of the diagonal). In (a) the key's λ is the mixing weight (θ on the slides)."
+        },
+        {
+          "label": "(a) STEP 1 · Both convex",
+          "text": "(i) ‖λx + (1 − λ)y‖₁ ≤ ‖λx‖₁ + ‖(1 − λ)y‖₁ (triangle inequality) [1M] = λ‖x‖₁ + (1 − λ)‖y‖₁ (homogeneity, λ ≥ 0) [0.5M] ⇒ convex [0.5M].\n(ii) h(λx + (1 − λ)y) = g(λ(Ax + b) + (1 − λ)(Ay + b)) (write b = λb + (1 − λ)b) ≤ λg(Ax + b) + (1 − λ)g(Ay + b) = λh(x) + (1 − λ)h(y) ⇒ convex [2M]."
+        },
+        {
+          "label": "(b) STEP 2 · γ in terms of σ  [0.5M]",
+          "text": "‖Σ‖²_F = sum of squares of all entries = **σ₁² + σ₂² + … + σₙ² = γ**"
+        },
+        {
+          "label": "(b) STEP 3 · α = tr(AᵀA)  [0.5M]",
+          "text": "AᵀA = VΣᵀUᵀUΣVᵀ = VΣᵀΣVᵀ   (UᵀU = I)\ntr(AᵀA) = tr(VΣᵀΣVᵀ) = tr(ΣᵀΣVᵀV) = tr(ΣᵀΣ)   (tr(MN) = tr(NM), VᵀV = I)\n= σ₁² + … + σₙ² = **γ**"
+        },
+        {
+          "label": "(b) STEP 4 · Verdicts",
+          "text": "G1 (α = γ): **true** [1M].\nG2 (α = √γ): **false** in general, since α = γ (equal only when γ = 0 or 1) [1M].\nβ = tr(AAᵀ) = tr(UΣΣᵀUᵀ) = tr(ΣΣᵀ) = γ, so **β = γ² is false** (unless γ = 0 or 1) [1.5M]."
+        },
+        {
+          "label": "(c) STEP 5 · ∇f  [2M]",
+          "text": "‖Ax − b‖² = (Ax − b)ᵀ(Ax − b) = xᵀAᵀAx − 2bᵀAx + bᵀb [1M]\n∇(xᵀAᵀAx) = 2AᵀAx (AᵀA is symmetric), ∇(2bᵀAx) = 2Aᵀb [0.5M]\n∇(cᵀx + d) = c [0.5M]\n**∇f = 2AᵀAx − 2Aᵀb + c**"
+        },
+        {
+          "label": "(c) STEP 6 · ∇g  [2M]",
+          "text": "‖A₁ᵀA₁x‖² = xᵀ(A₁ᵀA₁)ᵀ(A₁ᵀA₁)x = xᵀA₁ᵀA₁A₁ᵀA₁x [0.5M] ⇒ gradient 2A₁ᵀA₁A₁ᵀA₁x [0.5M]\n‖A₂ᵀx‖² = xᵀA₂A₂ᵀx [0.5M] ⇒ gradient 2A₂A₂ᵀx [0.5M]\n**∇g = 2A₁ᵀA₁A₁ᵀA₁x + 2A₂A₂ᵀx**"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(a) Both convex. (b) G1 true; G2 false; β = γ, so β = γ² false. (c) ∇f = 2AᵀAx − 2Aᵀb + c; ∇g = 2A₁ᵀA₁A₁ᵀA₁x + 2A₂A₂ᵀx."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• (b) Forgetting tr(MN) = tr(NM), or that UᵀU = VᵀV = I.\n• (c) Writing 2Mx when M is not symmetric (here every M is symmetric, so 2Mx is fine; say so).\n• (c) Dropping the −2Aᵀb cross term."
+        },
+        {
+          "label": "More",
+          "text": "(a) in full: [Lecture 11, Convexity tab](#/sem1/aiml-zc416/ch11/f-convex/19)."
+        }
+      ],
+      "answer": "(a) Both convex. (b) α = γ (G1 right, G2 wrong), β = γ ≠ γ². (c) ∇f = 2AᵀAx − 2Aᵀb + c; ∇g = 2A₁ᵀA₁A₁ᵀA₁x + 2A₂A₂ᵀx.",
+      "priority": "optional",
+      "priorityWhy": "Older paper (2022–2023): its question types are covered in the lectures"
+    },
+    {
+      "title": "Q3 · Inner product from a matrix; linear approximation; nearest zero-trace matrix (12 marks)",
+      "tags": [
+        "Lecture 3",
+        "Lecture 6, 8",
+        "Lecture 11"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(a) A = [[1, 0, ρ], [0, 1, ρ], [ρ, ρ, 1]]. (i) For which ρ is ⟨x, y⟩_A = xᵀAy an inner product on ℝ³? [3M] (ii) Is x = (1, 0, 0) perpendicular to y = (0, 1, 0) under it? Find all z perpendicular to both. [3M]  (b) f(x) = [xᵀQx, bᵀx]ᵀ, Q 3 × 3 symmetric positive definite, x, b ∈ ℝ³. (i) ∇ₓf. [1M] (ii) Linear approximation of f about (0, 0, 0). [2M]  (c) Find a 2 × 2 matrix M with trace(M) = 0 minimising ‖M − A‖², A = [[1, 0], [0, 2]]. [3M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "(a) an inner product needs A symmetric positive definite [6M]. (b) the Jacobian of a vector function and the first-order Taylor approximation [3M]. (c) Lagrange with one equality constraint [3M]."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are kept: ρ = an unknown number in A (not a forgetting factor). In (a)(i) λ = eigenvalue; in (c) λ = the equality multiplier (μ on the boards)."
+        },
+        {
+          "label": "(a)(i) STEP 1 · Eigenvalues  [2M]",
+          "text": "A is symmetric, so it gives an inner product exactly when it is positive definite (all eigenvalues > 0).\ndet(A − λI) = (1 − λ)[(1 − λ)² − 2ρ²] = 0 [0.5M]\n⇒ λ = 1, 1 + ρ√2, 1 − ρ√2 [1.5M]"
+        },
+        {
+          "label": "(a)(i) STEP 2 · Condition  [1M]",
+          "text": "1 + ρ√2 > 0 and 1 − ρ√2 > 0 ⇒ **−1/√2 < ρ < 1/√2**\n(Quicker check with leading minors: D₁ = 1, D₂ = 1, D₃ = det A = 1 − 2ρ² > 0 gives the same.)"
+        },
+        {
+          "label": "(a)(ii) STEP 3 · x and y  [1M]",
+          "text": "⟨x, y⟩_A = xᵀAy = A₁₂ = **0** ⇒ yes, perpendicular."
+        },
+        {
+          "label": "(a)(ii) STEP 4 · All z  [2M]",
+          "text": "z = (z₁, z₂, z₃)\n⟨x, z⟩_A = row 1 of A · z = z₁ + ρz₃ = 0 [0.5M]\n⟨y, z⟩_A = row 2 of A · z = z₂ + ρz₃ = 0 [0.5M]\nPut z₃ = t ⇒ **z = t(−ρ, −ρ, 1), t ∈ ℝ** [1M]"
+        },
+        {
+          "label": "(b)(i) STEP 5 · Jacobian  [1M]",
+          "text": "f has two outputs, so ∇ₓf is a 2 × 3 matrix (one row per output):\nrow 1: ∇(xᵀQx)ᵀ = xᵀ(Q + Qᵀ) = **2xᵀQ** (Q symmetric)\nrow 2: ∇(bᵀx)ᵀ = **bᵀ**"
+        },
+        {
+          "label": "(b)(ii) STEP 6 · Linear approximation  [2M]",
+          "text": "f(0) = (0, 0) [0.5M]; ∇f(0) = [[0, 0, 0], [bᵀ]] [0.5M]\nT₁f(x) = f(0) + ∇f(0)x = **(0, bᵀx)** [1M]"
+        },
+        {
+          "label": "(c) STEP 7 · Nearest zero-trace matrix  [3M]",
+          "text": "M = [[a, b], [c, d]]: min (a − 1)² + b² + c² + (d − 2)² s.t. a + d = 0 [0.5M]\nL = (a − 1)² + b² + c² + (d − 2)² + λ(a + d) [0.5M]\n2(a − 1) + λ = 0, 2b = 0, 2c = 0, 2(d − 2) + λ = 0 ⇒ a = (2 − λ)/2, d = (4 − λ)/2, b = c = 0 [1M]\na + d = 0 ⇒ 3 − λ = 0 ⇒ λ = 3 [0.5M]\n**M = [[−½, 0], [0, ½]]** [0.5M]"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(a) −1/√2 < ρ < 1/√2; x ⊥ y; z = t(−ρ, −ρ, 1). (b) ∇f = [[2xᵀQ], [bᵀ]]; T₁f = (0, bᵀx). (c) M = [[−½, 0], [0, ½]]."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• (a) Forgetting that symmetric alone is not enough: positive definite is the condition.\n• (b) Writing ∇f as one vector: f has two outputs, so it is a 2 × 3 Jacobian.\n• (c) Forgetting b = c = 0."
+        },
+        {
+          "label": "More",
+          "text": "(c) in full: [Lecture 11, Lagrangian tab](#/sem1/aiml-zc416/ch11/f-lagrange/14)."
+        }
+      ],
+      "answer": "(a) |ρ| < 1/√2; x ⊥ y; z = t(−ρ, −ρ, 1). (b) [[2xᵀQ], [bᵀ]]; (0, bᵀx). (c) M = [[−½, 0], [0, ½]].",
+      "priority": "optional",
+      "priorityWhy": "Older paper (2022–2023): its question types are covered in the lectures"
+    }
+  ]
+}

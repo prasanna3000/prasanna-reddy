@@ -1,0 +1,316 @@
+{
+  "id": "p-es-mkp-2022",
+  "title": "Comprehensive, 2022 (Makeup)",
+  "subtitle": "MFML end-sem (makeup) · 2022 · file `2022 EndSem Makeup MFML.pdf` + answer key · open book · 120 minutes · 4 questions, 40 marks",
+  "readme": {
+    "summary": "**[1M]** = marks the answer key gives for that step. **LN** in the tables = `Lecture_N.pdf`.",
+    "sections": [
+      {
+        "title": "Short names",
+        "items": [
+          "**[1M]**, **[0.5M]** = marks the official key gives for that step.",
+          "**LN** = Lecture N (`Lecture_N.pdf`, contact session N).",
+          "**More** links to the lecture card where the same question is solved in full, with similar problems.",
+          "**Notation:** each question keeps the paper's own symbols; a **Notation** line maps them to the lecture boards (η step size, β momentum, λ inequality / μ equality multipliers) where they differ."
+        ]
+      }
+    ]
+  },
+  "lesson": [
+    {
+      "title": "Paper at a glance",
+      "lead": "Four 10-mark questions of short parts. The kernel part Q4(2) came back word for word in Sep 2024.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Q",
+            "Topic",
+            "Lecture",
+            "Marks"
+          ],
+          "rows": [
+            [
+              "Q1",
+              "Quartic minima and GD start (4) · PCA direction (2) · KKT at a given point (4)",
+              "L8 · L9 · L12 · L11",
+              "10"
+            ],
+            [
+              "Q2",
+              "Rank, field, span, RREF, eigenvalues: five 2-mark proofs",
+              "L1, L2 · L4",
+              "10"
+            ],
+            [
+              "Q3",
+              "ℓ₁ distance (2) · convex set (1) · XᵀX trick (3) · exact line search (4)",
+              "L3 · L11 · L12–13 · L9",
+              "10"
+            ],
+            [
+              "Q4",
+              "GD on a parabola (5) · kernel feature map (5)",
+              "L9 · L14",
+              "10"
+            ],
+            [
+              "Total",
+              "",
+              "",
+              "40"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Key slip in Q3(3)",
+          "text": "The printed key writes ∇g(z) = −AᵀAz + Aᵀb − z (every sign flipped). The correct gradient is (AᵀA + I)z − Aᵀb; the solution here uses it.",
+          "color": "blue"
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Q1 · Quartic minima and GD start; PCA direction; KKT at a given point (10 marks)",
+      "tags": [
+        "Lecture 8",
+        "Lecture 9",
+        "Lecture 12",
+        "Lecture 11"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(a) f(x) = 3x⁴ − 20x³ + 36x² + 10. (i) Stationary points, classify them, global minimum. [3M] (ii) Is x = 0.5 or x = 3.5 the better start for plain GD to reach the global minimum? [1M]  (b) X = [[2, −1, −2, 1], [−4, 2, 4, −2]] (columns are points). Student 1 says the direction of maximum variance is (1, 0), Student 2 says (0, 1), Student 3 says both are wrong. Find it. [2M]  (c) M = {(x, y): x² + y² ≤ 5, x + 2y = 4, x ≥ 0, y ≥ 0}. (i) Formulate: point of M nearest the origin. [1M] (ii) Lagrangian. [1M] (iii) Multipliers so that (4/5, 8/5) satisfies KKT. [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "(a) second-derivative test and where GD rolls to [4M]. (b) PC1 = top eigenvector of the covariance [2M]. (c) formulate, Lagrangian, KKT check [4M]."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are kept: in (c) α₁, α₂, α₃ = inequality multipliers (λ on the boards), γ = equality multiplier (μ on the boards)."
+        },
+        {
+          "label": "(a)(i) STEP 1 · Stationary points  [1M]",
+          "text": "f′(x) = 12x³ − 60x² + 72x = 12x(x − 2)(x − 3) = 0 ⇒ **x = 0, 2, 3**"
+        },
+        {
+          "label": "(a)(i) STEP 2 · Classify  [1.5M]",
+          "text": "f″(x) = 36x² − 120x + 72\nf″(0) = 72 > 0 ⇒ minimum\nf″(2) = 144 − 240 + 72 = −24 < 0 ⇒ maximum\nf″(3) = 324 − 360 + 72 = 36 > 0 ⇒ minimum"
+        },
+        {
+          "label": "(a)(i) STEP 3 · Global minimum  [0.5M]",
+          "text": "f(0) = 10, f(3) = 243 − 540 + 324 + 10 = 37\n**x = 0 is the global minimum** (f = 10); x = 3 is only a local minimum."
+        },
+        {
+          "label": "(a)(ii) STEP 4 · Better start  [1M]",
+          "text": "f′(0.5) = 12(0.5)(−1.5)(−2.5) = 22.5 > 0 ⇒ GD moves left, towards 0 ✓\nf′(3.5) = 12(3.5)(1.5)(0.5) = 31.5 > 0 ⇒ GD moves left, towards 3, and the hill at 2 stops it there ✗\n**x = 0.5** is better."
+        },
+        {
+          "label": "(b) STEP 5 · Covariance",
+          "text": "Mean of each row = 0, so S = XXᵀ/4 = [[2.5, −5], [−5, 10]]"
+        },
+        {
+          "label": "(b) STEP 6 · Top eigenvector  [2M]",
+          "text": "|S − λI| = λ² − 12.5λ = 0 ⇒ λ = 0, 12.5 [0.5M]\n(S − 12.5I)v = 0: −10v₁ − 5v₂ = 0 ⇒ v₂ = −2v₁\nv = (1, −2)/√5 (any multiple)\nAll four points lie on the line x₂ = −2x₁, so this is the only direction with variance.\n**Student 3 is right** [1.5M]."
+        },
+        {
+          "label": "(c) STEP 7 · Formulate and Lagrangian  [2M]",
+          "text": "min (x² + y²)^½ s.t. x² + y² − 5 ≤ 0, x + 2y − 4 = 0, −x ≤ 0, −y ≤ 0 [1M]\nL = (x² + y²)^½ + α₁(x² + y² − 5) − α₂x − α₃y + γ(x + 2y − 4) [1M]"
+        },
+        {
+          "label": "(c) STEP 8 · KKT at (4/5, 8/5)  [2M]",
+          "text": "Feasible: 16/25 + 64/25 − 5 = −1.8 ≤ 0 ✓, 4/5 + 16/5 = 4 ✓, x, y ≥ 0 ✓ [0.5M]\nAll three inequalities are inactive ⇒ α₁ = α₂ = α₃ = 0 [0.5M]\n√(x² + y²) = √(80/25) = 4/√5\n∂L/∂x = x/√(x² + y²) + γ = (4/5)/(4/√5) + γ = 1/√5 + γ = 0 ⇒ γ = −1/√5\n∂L/∂y: (8/5)/(4/√5) + 2γ = 2/√5 + 2γ = 0 ⇒ γ = −1/√5 ✓ (same value) [1M]"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(a) 0, 3 minima, 2 maximum; global min x = 0; start at 0.5. (b) v = (1, −2)/√5: Student 3. (c) (α₁, α₂, α₃, γ) = (0, 0, 0, −1/√5)."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• (a) Calling x = 3 the global minimum without comparing f values.\n• (b) Picking the eigenvector of the smaller eigenvalue.\n• (c) Not checking that both stationarity equations give the same γ."
+        },
+        {
+          "label": "More",
+          "text": "(c) in full: [Lecture 11, Lagrangian tab](#/sem1/aiml-zc416/ch11/f-lagrange/13)."
+        }
+      ],
+      "answer": "(a) Global min at 0; start at 0.5. (b) (1, −2)/√5: Student 3. (c) α = 0, γ = −1/√5.",
+      "priority": "optional",
+      "priorityWhy": "Older paper (2022–2023): its question types are covered in the lectures"
+    },
+    {
+      "title": "Q2 · Rank, dimension, span, RREF, eigenvalues: five short proofs (10 marks)",
+      "tags": [
+        "Lecture 1, 2",
+        "Lecture 4"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(i) Rank of the n × n matrix with entries a_jk = j + k − 1. Does it change for a_jk = j + k − α (α a positive integer)? [2M]  (ii) Prove or disprove: the dimension of a vector space does not depend on its field. [2M]  (iii) If v₁ + v₂ + v₃ = 0, prove {v₁, v₂} and {v₂, v₃} span the same subspace. [2M]  (iv) A and B get the same RREF X̃ of X. C: impossible. D: possible. E: possible, and X can be recovered from X̃ if no entry of X is 0. Who is right? [2M]  (v) Given distinct eigenvalues λ₁, …, λₙ, can you build an orthogonal matrix of order n? [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "Short justifications on rank, span, RREF and eigenvectors. 2 marks each."
+        },
+        {
+          "label": "(i) STEP 1 · Rank  [2M]",
+          "text": "Row j = (j, j + 1, …, j + n − 1) = j·(1, 1, …, 1) + (0, 1, …, n − 1)\nEvery row is a combination of the same two vectors ⇒ rank ≤ 2; rows 1 and 2 are not multiples ⇒ **rank 2** (n ≥ 2).\nWith −α instead of −1 the rows are (j + 1 − α)(1, …, 1) + (0, 1, …, n − 1): still **rank 2**. (Key: column 2 is a combination of columns 1 and 3.)"
+        },
+        {
+          "label": "(ii) STEP 2 · Dimension depends on the field  [2M]",
+          "text": "**False.** ℂ over ℝ: basis {1, i}, dimension 2. ℂ over ℂ: basis {1}, dimension 1."
+        },
+        {
+          "label": "(iii) STEP 3 · Same span  [2M]",
+          "text": "v₁ = −v₂ − v₃ [1M]\nAny a v₁ + b v₂ = a(−v₂ − v₃) + b v₂ = (b − a)v₂ − a v₃ ∈ span{v₂, v₃}; the reverse is the same with v₃ = −v₁ − v₂ [1M] ⇒ equal spans."
+        },
+        {
+          "label": "(iv) STEP 4 · RREF  [2M]",
+          "text": "The RREF of a matrix is **unique** ⇒ A and B must agree: **D is right, C is wrong** [1M].\n**E is wrong**: many matrices share one RREF, e.g. [[1, 2], [3, 4]] and [[2, 1], [1, 3]] both reduce to I, so X cannot be recovered from X̃ [1M]."
+        },
+        {
+          "label": "(v) STEP 5 · Orthogonal matrix  [2M]",
+          "text": "**Yes.** Distinct eigenvalues ⇒ the eigenvectors of any B = PΛP⁻¹ (Λ = diag(λᵢ)) are independent [1M]; Gram–Schmidt turns them into an orthonormal set, i.e. an orthogonal matrix Q [1M].\n(Simplest: take B = QΛQᵀ for any orthogonal Q; it is symmetric with exactly these eigenvalues.)"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(i) 2 in both cases. (ii) False (ℂ over ℝ vs ℂ). (iii) v₁ = −v₂ − v₃. (iv) D right; C and E wrong. (v) Yes, via Gram–Schmidt."
+        }
+      ],
+      "answer": "(i) Rank 2 both times. (ii) False. (iii) Proved. (iv) Only D. (v) Yes.",
+      "priority": "optional",
+      "priorityWhy": "Older paper (2022–2023): its question types are covered in the lectures"
+    },
+    {
+      "title": "Q3 · ℓ₁ distance; convex solution set; eigenvalues of XXᵀ via XᵀX; exact line search (10 marks)",
+      "tags": [
+        "Lecture 3",
+        "Lecture 11",
+        "Lecture 12–13",
+        "Lecture 9"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(1)(i) Prove or disprove that d(x, y) = Σ|xᵢ − yᵢ| is a distance. [2M] (ii) Is C = {x | Ax = b} convex? [1M]  (2) x₁, …, x₂₀ ∈ ℝ¹⁰²⁴, S = Σxᵢxᵢᵀ (1024 × 1024). eig() only works below 32 rows. (a) Eigenvalues of S? [1.5M] (b) Eigenvectors? [1.5M]  (3) g(z) = ½‖Az − b‖² + ½‖z‖² + ‖b‖², A symmetric positive definite. (a) For z_{k+1} = z_k + αd_k, derive d_k (gradient descent). [2M] (b) Closed form for the optimal α = argmin g(z_k + αd_k). [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "(1) metric axioms and the convex-set definition [3M]. (2) the XᵀX trick from PCA [3M]. (3) gradient and exact line search on a quadratic [4M]."
+        },
+        {
+          "label": "(1)(i) STEP 1 · Distance  [2M]",
+          "text": "Non-negative, and 0 only when every xᵢ = yᵢ, i.e. x = y [0.5M]\nSymmetric: |xᵢ − yᵢ| = |yᵢ − xᵢ| [0.5M]\nTriangle: |xᵢ − yᵢ| ≤ |xᵢ − zᵢ| + |zᵢ − yᵢ|, add over i ⇒ d(x, y) ≤ d(x, z) + d(z, y) [1M]\n**Yes, it is a distance.**"
+        },
+        {
+          "label": "(1)(ii) STEP 2 · Convex set  [1M]",
+          "text": "Az₁ = Az₂ = b ⇒ A(λz₁ + (1 − λ)z₂) = λb + (1 − λ)b = b ⇒ **convex**."
+        },
+        {
+          "label": "(2) STEP 3 · Use the small matrix  [0.5M]",
+          "text": "S = XXᵀ with X = [x₁ … x₂₀] (1024 × 20). XᵀX is only **20 × 20**, so eig() can handle it."
+        },
+        {
+          "label": "(2)(a) STEP 4 · Same eigenvalues  [1M]",
+          "text": "If XᵀXc = λc, multiply by X: XXᵀ(Xc) = λ(Xc).\nSo every eigenvalue of XᵀX is an eigenvalue of S; the other 1004 eigenvalues of S are 0 (rank ≤ 20)."
+        },
+        {
+          "label": "(2)(b) STEP 5 · Eigenvectors  [1.5M]",
+          "text": "Run [P, D] = eig(XᵀX). For each column c of P: **d = Xc** is an eigenvector of S with the same λ (normalise d/‖d‖)."
+        },
+        {
+          "label": "(3)(a) STEP 6 · Gradient and d_k  [2M]",
+          "text": "g = ½zᵀAᵀAz − zᵀAᵀb + ½bᵀb + ½zᵀz + bᵀb\n∇g = AᵀAz − Aᵀb + z = (AᵀA + I)z − Aᵀb\n**d_k = −∇g(z_k) = Aᵀb − (AᵀA + I)z_k**\n⚠ The printed key writes ∇g with every sign flipped; the line above is the correct one."
+        },
+        {
+          "label": "(3)(b) STEP 7 · Optimal step  [2M]",
+          "text": "φ(α) = g(z_k + αd_k). g is quadratic, so\nφ′(α) = ∇g(z_k + αd_k)ᵀd_k = (∇g(z_k) + α(AᵀA + I)d_k)ᵀd_k = −d_kᵀd_k + α d_kᵀ(AᵀA + I)d_k = 0\n**α = d_kᵀd_k / (d_kᵀ(AᵀA + I)d_k) = ‖d_k‖² / (‖Ad_k‖² + ‖d_k‖²)**"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(1) Yes, a distance; C convex. (2) eig(XᵀX): same nonzero λ, eigenvectors Xc. (3) d_k = Aᵀb − (AᵀA + I)z_k; α = ‖d_k‖²/(‖Ad_k‖² + ‖d_k‖²)."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• (2) Saying the eigenvalues are \"approximately\" equal: they are exactly equal (nonzero ones).\n• (3) Copying the key's sign slip in ∇g.\n• (3) Forgetting the +z from ½‖z‖²."
+        },
+        {
+          "label": "More",
+          "text": "(1)(ii) in full: [Lecture 11, Convexity tab](#/sem1/aiml-zc416/ch11/f-convex/20)."
+        }
+      ],
+      "answer": "(1) Distance ✓, C convex. (2) Use XᵀX (20 × 20): same λ, eigenvectors Xc. (3) d_k = −∇g(z_k), α = ‖d_k‖²/(‖Ad_k‖² + ‖d_k‖²).",
+      "priority": "optional",
+      "priorityWhy": "Older paper (2022–2023): its question types are covered in the lectures"
+    },
+    {
+      "title": "Q4 · GD on a parabola in closed form; feature map of a kernel sum (10 marks)",
+      "tags": [
+        "Lecture 9",
+        "Lecture 14"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "(1) f(x) = ax² + bx + c, a > 0, gradient descent with step λ. Can x_{n+k} be written as x_nP^k + Q? Find P and Q. For which λ does GD surely converge? [5M]  (2) K(x, z) = (xᵀz)² + 3(xᵀz + 2)². Find φ into ℝ^{n²+n+1} with K = φ(x)ᵀφ(z), or explain why not. [5M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "(1) the GD multiplier r = 1 − λf″ on a parabola [5M]. (2) building a feature map by expanding the kernel [5M]."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's **λ is the step size** (η on the boards), not a multiplier. f″ = 2a."
+        },
+        {
+          "label": "(1) STEP 1 · One step",
+          "text": "x_{n+1} = x_n − λ(2ax_n + b) = (1 − 2aλ)x_n − λb\nSo **P = 1 − 2aλ**"
+        },
+        {
+          "label": "(1) STEP 2 · k steps  [2M]",
+          "text": "x_{n+k} = P^k x_n − λb(1 + P + … + P^{k−1}) = P^k x_n − λb(1 − P^k)/(1 − P)\n1 − P = 2aλ ⇒ **Q = −(b/2a)(1 − P^k)**\n(Q depends on k but not on n; the key accepts this form.)\nNeat form: x_{n+k} + b/2a = P^k (x_n + b/2a): the distance to the minimum −b/2a is multiplied by P each step."
+        },
+        {
+          "label": "(1) STEP 3 · Convergence  [3M]",
+          "text": "P^k → 0 needs |1 − 2aλ| < 1 ⇒ **0 < λ < 1/a**\nThen x → −λb/(1 − P) = **−b/2a**, the minimum.\n(Same rule as the boards: r = 1 − ηf″ with f″ = 2a; monotone below 1/(2a), oscillating between 1/(2a) and 1/a.)"
+        },
+        {
+          "label": "(2) STEP 4 · Expand  [2M]",
+          "text": "K = (xᵀz)² + 3[(xᵀz)² + 4xᵀz + 4] = **4(xᵀz)² + 12xᵀz + 12**"
+        },
+        {
+          "label": "(2) STEP 5 · Match each term  [3M]",
+          "text": "4(xᵀz)² = ΣᵢΣⱼ (2xᵢxⱼ)(2zᵢzⱼ) ⇒ n² features 2xᵢxⱼ\n12xᵀz = Σᵢ (√12 xᵢ)(√12 zᵢ) ⇒ n features √12 xᵢ\n12 = √12 · √12 ⇒ 1 feature √12\n**φ(x) = [2xᵢxⱼ (all i, j), √12 xᵢ, √12]**, length n² + n + 1 ✓"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(1) P = 1 − 2aλ, Q = −(b/2a)(1 − P^k); converges for 0 < λ < 1/a to −b/2a. (2) φ = [2xᵢxⱼ, √12 xᵢ, √12]."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• (1) Writing the condition as λ < 1/(2a): that is only the no-oscillation limit.\n• (2) Forgetting to expand 3(xᵀz + 2)² fully (the 12 and the 12xᵀz)."
+        },
+        {
+          "label": "More",
+          "text": "(1) background: [Lecture 9, step-size behaviour](#/sem1/aiml-zc416/ch09/lesson/9). (2) in full: [Lecture 14, Kernels tab](#/sem1/aiml-zc416/ch14/f-kernels/4)."
+        }
+      ],
+      "answer": "(1) P = 1 − 2aλ, 0 < λ < 1/a. (2) φ(x) = [2xᵢxⱼ, √12 xᵢ, √12], dimension n² + n + 1.",
+      "priority": "must",
+      "priorityWhy": "Its kernel part (2) was asked again in Sep 2024"
+    }
+  ]
+}

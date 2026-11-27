@@ -1,0 +1,1513 @@
+{
+  "id": "ch12",
+  "title": "Lecture 12 · PCA: Maximum Variance",
+  "subtitle": "Lecture 12 · `Lecture_12.pdf` (29 pages) · problem setting (p. 5–8), direction of maximal variance and the Lagrangian (p. 9–15), the M-dimensional subspace (p. 16–23), a worked example (p. 25–27)",
+  "lesson": [
+    {
+      "title": "Where the marks are: PCA (Lectures 12 and 13)",
+      "lead": "PCA has been asked in 9 of the 11 papers. Almost every question is the same recipe on 3–5 small 2-D points.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Paper",
+            "Question",
+            "What was asked",
+            "Marks",
+            "Solution"
+          ],
+          "rows": [
+            [
+              "Mar 2026 makeup",
+              "Q5",
+              "Full PCA: S, eigen, principal subspace",
+              "7",
+              "[Open →](#/sem1/aiml-zc416/ch12/f-full/1)"
+            ],
+            [
+              "Sep 2025 regular",
+              "Q2(b)",
+              "Covariance of SVD data, direction of max variance",
+              "3",
+              "[Open →](#/sem1/aiml-zc416/ch12/f-full/3)"
+            ],
+            [
+              "Practice Paper",
+              "Q5",
+              "Full PCA, scores, explained variance",
+              "6",
+              "[Open →](#/sem1/aiml-zc416/ch12/f-full/2)"
+            ],
+            [
+              "Sep 2024 regular",
+              "Q3",
+              "PCA + rank-1 reconstruction (8) · power method (2)",
+              "10",
+              "[(A) →](#/sem1/aiml-zc416/ch12/f-full/8) [(B) →](#/sem1/aiml-zc416/ch13/f-reason/12)"
+            ],
+            [
+              "Sep 2024 makeup",
+              "Q3",
+              "PCA (8) · can PC1 separate classes? (2)",
+              "10",
+              "[(A) →](#/sem1/aiml-zc416/ch12/f-full/9) [(B) →](#/sem1/aiml-zc416/ch13/f-reason/11)"
+            ],
+            [
+              "2023 regular (Apr 2024)",
+              "Q4",
+              "PCA from a figure, rotate by 90°",
+              "10",
+              "[Open →](#/sem1/aiml-zc416/ch12/f-full/7)"
+            ],
+            [
+              "Previous batch (Apr 2023)",
+              "Q5",
+              "PCA after y = Qx + μ",
+              "~5",
+              "[Open →](#/sem1/aiml-zc416/ch13/f-reason/9)"
+            ],
+            [
+              "2022 makeup",
+              "Q1b, Q3(2)",
+              "Direction of max variance (2) · XXᵀ via XᵀX (3)",
+              "5",
+              "[Q1b →](#/sem1/aiml-zc416/ch12/f-full/10) [Q3(2) →](#/sem1/aiml-zc416/ch13/f-wide/7)"
+            ],
+            [
+              "2022 regular",
+              "Q1(a, b)",
+              "PCA after scaling the features",
+              "8",
+              "[Open →](#/sem1/aiml-zc416/ch13/f-reason/10)"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Last three papers",
+          "color": "blue",
+          "text": "Sep 2025: 3 · Feb 2026: 0 · Mar 2026: 7 = **10 / 120** (≈ 3.3 marks per paper). The older 4 × 10 papers gave PCA a full 10-mark question every time."
+        },
+        {
+          "type": "note",
+          "label": "Practise everything",
+          "color": "red",
+          "text": "Practise everything from Saurabh sir: P40–P43 and the seven Companion questions are all in the tabs here."
+        }
+      ]
+    },
+    {
+      "title": "PCA across Lectures 12 and 13: the 6 question types",
+      "lead": "Every PCA question so far is one of these. Type 1 is most of the marks.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Type",
+            "They give",
+            "They ask",
+            "Tab"
+          ],
+          "rows": [
+            [
+              "**1 · Full PCA by hand**",
+              "3–5 points in 2-D",
+              "mean, S, eigenvalues, unit PCs, scores, % variance, reconstruction",
+              "[Lecture 12 · Full PCA](#/sem1/aiml-zc416/ch12/f-full)"
+            ],
+            [
+              "**2 · Derive PCA**",
+              "a covariance matrix",
+              "write max bᵀSb s.t. ‖b‖ = 1, the Lagrangian, show Sb = λb and Var = λ",
+              "[Lecture 12 · Derive](#/sem1/aiml-zc416/ch12/f-derive)"
+            ],
+            [
+              "**3 · Reduce and reconstruct**",
+              "S or its eigenvalues, a point",
+              "how many PCs to keep, code z, reconstruction x̃, error, a new point",
+              "[Lecture 13 · Reduce](#/sem1/aiml-zc416/ch13/f-reduce)"
+            ],
+            [
+              "**4 · Wide data (D ≫ N)**",
+              "few points in many dimensions",
+              "use XᵀX (N × N) instead of XXᵀ",
+              "[Lecture 13 · Wide data](#/sem1/aiml-zc416/ch13/f-wide)"
+            ],
+            [
+              "**5 · SVD route**",
+              "singular values of X",
+              "λ = σ²/N, best rank-M approximation",
+              "[Lecture 13 · SVD](#/sem1/aiml-zc416/ch13/f-svd)"
+            ],
+            [
+              "**6 · Reasoning**",
+              "a change to the data",
+              "what happens to the PCs (scale, rotate, shift), power method, class separation",
+              "[Lecture 13 · Reasoning](#/sem1/aiml-zc416/ch13/f-reason)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Before this lecture",
+      "lead": "PCA is pre-mid eigenvalues used on data. Check these five things first.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "You need",
+            "What exactly",
+            "From"
+          ],
+          "rows": [
+            [
+              "Mean and centring",
+              "subtract each column's mean from every point",
+              "basic"
+            ],
+            [
+              "Eigenvalues of a 2 × 2",
+              "det(S − λI) = 0; for symmetric S: λ = tr/2 ± √((tr/2)² − det)",
+              "Lecture 4"
+            ],
+            [
+              "Eigenvectors",
+              "solve (S − λI)v = 0 (one equation is enough for 2 × 2)",
+              "Lecture 4"
+            ],
+            [
+              "Unit vectors",
+              "v/‖v‖, e.g. (1, 2)/√5",
+              "Lecture 3"
+            ],
+            [
+              "Dot product",
+              "score z = vᵀ(x − μ)",
+              "Lecture 3"
+            ],
+            [
+              "Lagrange (type 2 only)",
+              "max f s.t. g = 0 ⇒ ∇f = λ∇g",
+              "Lecture 11"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Quick check (2 minutes)"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Eigenvalues of [[2.5, 1.5], [1.5, 2.5]]? → *Answer:* tr 5, det 4 ⇒ 4 and 1.",
+            "Unit eigenvector for λ = 4? → *Answer:* −1.5a + 1.5b = 0 ⇒ (1, 1)/√2.",
+            "Score of the centred point (2, 2) on it? → *Answer:* 4/√2 = 2√2 ≈ 2.83."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "If eigenvalues are rusty",
+          "color": "blue",
+          "text": "Saurabh sir's `Practice_Problems_Lectur1_4_and_5.pdf`, or the eigen questions in the papers (Feb 2026 Q1, Mar 2026 Q1, Practice Paper Q1): use the **Pre-mid** filter in the Exam hall."
+        }
+      ]
+    },
+    {
+      "title": "The idea: why PCA chases variance",
+      "lead": "Explained as if you are 10, then on the slides' maths. `Lecture_12.pdf` p. 2–8.",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "**Picture it.** You have a cloud of dots on paper. You may keep only **one number** per dot instead of two. So you draw a line, drop each dot straight onto it (its **shadow**), and keep only where the shadow lands. Which line loses the least? The one where the shadows are **most spread out**, because spread-out shadows still tell the dots apart. Shadows bunched together lose almost everything."
+        },
+        {
+          "type": "p",
+          "text": "**Spread = variance.** So PCA's question is: which direction makes the shadows' variance as large as possible? That direction is the **first principal component (PC1)**. The second (PC2) is the best direction at right angles to PC1, and so on."
+        },
+        {
+          "type": "widget",
+          "widget": "pca-line",
+          "config": {
+            "data": "pp",
+            "theta": 20
+          }
+        },
+        {
+          "type": "list",
+          "items": [
+            "Turn the line: the spread V(θ) on the right goes up and down.",
+            "Its highest point is **λ₁** and happens exactly along the top eigenvector of S. Its lowest point is **λ₂**, exactly 90° away.",
+            "So \"the line with the biggest spread\" and \"the eigenvector of the biggest eigenvalue\" are the same thing. Lecture 12 proves this with a Lagrangian."
+          ]
+        },
+        {
+          "type": "eqs",
+          "groups": [
+            {
+              "label": "Compress and rebuild",
+              "ref": "p. 5–6",
+              "lines": [
+                [
+                  "z",
+                  "=",
+                  "Bᵀx   (code: M numbers)"
+                ],
+                [
+                  "x̃",
+                  "=",
+                  "Bz = BBᵀx   (rebuilt point)"
+                ]
+              ],
+              "note": "B = [b₁ … b_M] has orthonormal columns (bᵢᵀbⱼ = 0, bᵢᵀbᵢ = 1)."
+            },
+            {
+              "label": "Centre first",
+              "ref": "p. 8",
+              "lines": [
+                [
+                  "V(Bᵀ(x − μ))",
+                  "=",
+                  "V(Bᵀx)"
+                ]
+              ],
+              "note": "Shifting the data does not change any spread, so we work with x − μ (mean 0)."
+            },
+            {
+              "label": "Covariance",
+              "ref": "p. 5, 8",
+              "lines": [
+                [
+                  "S",
+                  "=",
+                  "(1/N) Σₙ xₙxₙᵀ   (centred xₙ)"
+                ]
+              ],
+              "note": "The slides divide by **N**. Some papers accept N − 1: always write which."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Type 1 · Full PCA by hand: the recipe",
+      "lead": "Mar 2026 Q5, Practice Paper Q5, Sep 2025 Q2(b), and every older paper. `Lecture_12.pdf` p. 25–27, `Lecture_13.pdf` p. 17–23.",
+      "blocks": [
+        {
+          "type": "eqs",
+          "groups": [
+            {
+              "label": "1 · Mean",
+              "lines": [
+                [
+                  "μ",
+                  "=",
+                  "(1/N) Σ xₙ"
+                ]
+              ]
+            },
+            {
+              "label": "2 · Centre",
+              "lines": [
+                [
+                  "x̂ₙ",
+                  "=",
+                  "xₙ − μ   (each column must now add to 0)"
+                ]
+              ]
+            },
+            {
+              "label": "3 · Covariance",
+              "lines": [
+                [
+                  "s₁₁",
+                  "=",
+                  "(1/N) Σ x̂₁²"
+                ],
+                [
+                  "s₂₂",
+                  "=",
+                  "(1/N) Σ x̂₂²"
+                ],
+                [
+                  "s₁₂",
+                  "=",
+                  "(1/N) Σ x̂₁x̂₂"
+                ]
+              ]
+            },
+            {
+              "label": "4 · Eigenvalues (2 × 2)",
+              "lines": [
+                [
+                  "λ² − (tr S)λ + det S",
+                  "=",
+                  "0"
+                ],
+                [
+                  "λ",
+                  "=",
+                  "tr/2 ± √((tr/2)² − det)"
+                ]
+              ],
+              "note": "Check: λ₁ + λ₂ = tr S, λ₁λ₂ = det S."
+            },
+            {
+              "label": "5 · Unit eigenvectors",
+              "lines": [
+                [
+                  "(s₁₁ − λ)a + s₁₂b",
+                  "=",
+                  "0"
+                ],
+                [
+                  "v",
+                  "=",
+                  "(a, b)/√(a² + b²)"
+                ]
+              ],
+              "note": "PC1 = v for the larger λ. PC2 is perpendicular: swap and change one sign."
+            },
+            {
+              "label": "6 · Scores and share",
+              "lines": [
+                [
+                  "zₙ",
+                  "=",
+                  "v₁ᵀ(xₙ − μ)"
+                ],
+                [
+                  "share",
+                  "=",
+                  "λ₁ / (λ₁ + λ₂)"
+                ]
+              ],
+              "note": "Check: mean of zₙ² = λ₁."
+            },
+            {
+              "label": "7 · Rebuild (if asked)",
+              "lines": [
+                [
+                  "x̃ₙ",
+                  "=",
+                  "μ + zₙv₁"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "color": "red",
+          "label": "Where marks are lost",
+          "text": "**Not centring** before S · mixing **1/N and 1/(N − 1)** (write which) · an eigenvector that is **not unit length** · picking the **smaller** λ · projecting raw points without saying so (centred and raw scores differ by a constant)."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Shortcut",
+            "When",
+            "Then"
+          ],
+          "rows": [
+            [
+              "s₁₁ = s₂₂",
+              "equal spreads",
+              "λ = s₁₁ ± s₁₂; PCs (1, 1)/√2 and (1, −1)/√2"
+            ],
+            [
+              "s₁₂ = 0",
+              "diagonal S",
+              "λ = the diagonal entries; PCs are the axes"
+            ],
+            [
+              "det S = 0",
+              "points on one line",
+              "λ₂ = 0; PC1 is that line, 100% of the variance"
+            ]
+          ]
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 60 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** `Lecture_12.pdf` p. 25–27; Companion `Lecture_13_Companion.pdf` §11–§12 (the recipe and the five-point example).",
+            "**Do:** Practice Paper Q5, P40, then Mar 2026 Q5 timed (7 marks, 24 min).",
+            "**Video, only if stuck:** [StatQuest · PCA, step by step](https://www.youtube.com/watch?v=FgakZw6K1QQ)."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Type 2 · Why PC1 is an eigenvector: the Lagrangian proof",
+      "lead": "`Lecture_12.pdf` p. 9–23. Same Lagrange method as Lecture 11.",
+      "blocks": [
+        {
+          "type": "eqs",
+          "groups": [
+            {
+              "label": "Variance of the shadows",
+              "ref": "p. 9–10",
+              "lines": [
+                [
+                  "V₁",
+                  "=",
+                  "(1/N) Σ (b₁ᵀxₙ)²"
+                ],
+                [
+                  "",
+                  "=",
+                  "b₁ᵀ((1/N) Σ xₙxₙᵀ)b₁ = b₁ᵀSb₁"
+                ]
+              ]
+            },
+            {
+              "label": "Constrained problem",
+              "ref": "p. 11",
+              "lines": [
+                [
+                  "max b₁ᵀSb₁",
+                  "s.t.",
+                  "‖b₁‖² = b₁ᵀb₁ = 1"
+                ]
+              ],
+              "note": "Without the constraint, a longer b₁ gives a bigger number forever: only the direction should count."
+            },
+            {
+              "label": "Lagrangian",
+              "ref": "p. 11–12",
+              "lines": [
+                [
+                  "L",
+                  "=",
+                  "b₁ᵀSb₁ + λ(1 − b₁ᵀb₁)"
+                ],
+                [
+                  "∂L/∂b₁ = 0",
+                  "⇒",
+                  "2Sb₁ − 2λb₁ = 0 ⇒ Sb₁ = λb₁"
+                ],
+                [
+                  "∂L/∂λ = 0",
+                  "⇒",
+                  "b₁ᵀb₁ = 1"
+                ]
+              ],
+              "note": "So b₁ must be an eigenvector of S, and λ (the multiplier) is its eigenvalue."
+            },
+            {
+              "label": "Which eigenvector",
+              "ref": "p. 13",
+              "lines": [
+                [
+                  "V₁ = b₁ᵀSb₁",
+                  "=",
+                  "b₁ᵀλb₁ = λ"
+                ]
+              ],
+              "note": "The variance along an eigenvector equals its eigenvalue, so take the **largest** λ."
+            },
+            {
+              "label": "M components",
+              "ref": "p. 16–23",
+              "lines": [
+                [
+                  "B",
+                  "=",
+                  "[b₁ … b_M]: eigenvectors of the M largest λ"
+                ],
+                [
+                  "V_m",
+                  "=",
+                  "λ_m"
+                ]
+              ],
+              "note": "Each next PC is the best direction perpendicular to the ones already chosen; S is symmetric, so its eigenvectors are perpendicular (spectral theorem)."
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "**Why ∇f = λ∇g (p. 14–15):** at the best point on the circle ‖b‖ = 1, moving along the circle cannot improve f, so ∇f has no part along the circle. ∇g is also perpendicular to the circle. Two vectors perpendicular to the same direction (in 2-D) are parallel: ∇f = λ∇g."
+        },
+        {
+          "type": "note",
+          "color": "red",
+          "label": "Where marks are lost",
+          "text": "Differentiating the constraint as λb instead of 2λb · forgetting ‖b‖ = 1 · saying Var = λ for a vector that is not unit length (then Var = λ‖b‖²)."
+        },
+        {
+          "type": "h",
+          "text": "Fastest path (about 30 min)"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Read:** `Lecture_12.pdf` p. 9–13; Companion §4 (the six-line derivation).",
+            "**Do:** P41, then Companion Q2 (mark the student's work)."
+          ]
+        }
+      ]
+    }
+  ],
+  "worked": [
+    {
+      "title": "Full PCA · Mar 2026 Q5: covariance, eigenvectors, principal subspace (7 marks)",
+      "tags": [
+        "Past paper",
+        "Newest paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Rows are observations: X = [[0, 3], [1, 5], [2, 7]]. (1) Compute the covariance matrix S. [2M] (2) Find the eigenvalues and eigenvectors of S. [3M] (3) Find the 1-dimensional principal subspace. [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The full PCA recipe on three 2-D points: centre → S → eigen → pick the largest. Marks 2 + 3 + 2."
+        },
+        {
+          "label": "Plan of attack",
+          "text": "1. Mean of each column, subtract it.\n2. S = (1/N)X_cᵀX_c.\n3. det(S − λI) = 0, then (S − λI)v = 0 for each λ.\n4. The eigenvector of the largest λ spans the principal subspace."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are kept. **S** (or **Σ**, **C**) = covariance matrix, **λ** = an eigenvalue of S (**not** a Lagrange multiplier here), **v**, **q**, **α**, **b**, **e** = a unit eigenvector = a principal direction, **z** = a point's score (its coordinate along the direction)."
+        },
+        {
+          "label": "STEP 1 · Mean",
+          "text": "μ₁ = (0 + 1 + 2)/3 = 1\nμ₂ = (3 + 5 + 7)/3 = 5\nμ = (1, 5)"
+        },
+        {
+          "label": "STEP 2 · Centre",
+          "text": "(0, 3) − (1, 5) = (−1, −2)\n(1, 5) − (1, 5) = (0, 0)\n(2, 7) − (1, 5) = (1, 2)\nCheck: each column sums to 0 ✓"
+        },
+        {
+          "label": "STEP 3 · Covariance  [2M]",
+          "text": "s₁₁ = (1 + 0 + 1)/3 = 2/3\ns₂₂ = (4 + 0 + 4)/3 = 8/3\ns₁₂ = (2 + 0 + 2)/3 = 4/3\n**S = [[2/3, 4/3], [4/3, 8/3]]**  (with 1/(N − 1) = 1/2: [[1, 2], [2, 4]]; also accepted)"
+        },
+        {
+          "label": "STEP 4 · Eigenvalues  [1M]",
+          "text": "tr S = 2/3 + 8/3 = 10/3, det S = 16/9 − 16/9 = 0\nλ² − (10/3)λ + 0 = 0 ⇒ **λ₁ = 10/3, λ₂ = 0**"
+        },
+        {
+          "label": "STEP 5 · Eigenvectors  [2M]",
+          "text": "λ = 10/3: (2/3 − 10/3)v₁ + (4/3)v₂ = 0 ⇒ −8v₁ + 4v₂ = 0 ⇒ v₂ = 2v₁ ⇒ **(1, 2)**, unit (1, 2)/√5\nλ = 0: (2/3)v₁ + (4/3)v₂ = 0 ⇒ v₁ = −2v₂ ⇒ **(−2, 1)**, unit (−2, 1)/√5\nCheck: (1)(−2) + (2)(1) = 0, perpendicular ✓"
+        },
+        {
+          "label": "STEP 6 · Principal subspace  [2M]",
+          "text": "Largest eigenvalue 10/3 ⇒ **span{(1, 2)}**, the line through the mean in direction (1, 2).\nλ₂ = 0: all three points lie exactly on that line, so PC1 keeps 100% of the variance.\nScores (centred) along (1, 2)/√5: −√5, 0, √5."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "S = [[2/3, 4/3], [4/3, 8/3]]; λ = 10/3 with (1, 2), λ = 0 with (−2, 1); principal subspace span{(1, 2)}."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Not centring before building S.\n• Picking the eigenvector of λ = 0.\n• Not saying which divisor (1/N or 1/(N − 1)) you used."
+        }
+      ],
+      "answer": "S = [[2/3, 4/3], [4/3, 8/3]]; λ = 10/3, 0; subspace span{(1, 2)}.",
+      "priority": "must",
+      "priorityWhy": "Recent paper (2025–2026)"
+    },
+    {
+      "title": "Full PCA · Practice Paper Q5: scores and explained variance (6 marks)",
+      "tags": [
+        "Sourabh sir",
+        "Practice Paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Points (2, 0), (0, 2), (3, 3), (−1, −1); use S = (1/N)X_cᵀX_c. (a) Mean and X_c. [1M] (b) S. [1M] (c) Eigenvalues and unit eigenvectors. [2M] (d) The first PC, the scores zₙ, and the fraction of variance it explains. [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The same recipe, plus scores and the explained share."
+        },
+        {
+          "label": "Plan of attack",
+          "text": "Centre → S → eigen (trace and determinant) → unit PC1 → scores zₙ = q₁ᵀ(xₙ − x̄) → λ₁/(λ₁ + λ₂)."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are kept. **S** (or **Σ**, **C**) = covariance matrix, **λ** = an eigenvalue of S (**not** a Lagrange multiplier here), **v**, **q**, **α**, **b**, **e** = a unit eigenvector = a principal direction, **z** = a point's score (its coordinate along the direction)."
+        },
+        {
+          "label": "STEP 1 · (a) Mean and centre  [1M]",
+          "text": "x̄ = ((2 + 0 + 3 − 1)/4, (0 + 2 + 3 − 1)/4) = (1, 1)\nX_c rows: (1, −1), (−1, 1), (2, 2), (−2, −2)"
+        },
+        {
+          "label": "STEP 2 · (b) S  [1M]",
+          "text": "s₁₁ = (1 + 1 + 4 + 4)/4 = 10/4\ns₂₂ = (1 + 1 + 4 + 4)/4 = 10/4\ns₁₂ = (−1 − 1 + 4 + 4)/4 = 6/4\n**S = [[5/2, 3/2], [3/2, 5/2]]**"
+        },
+        {
+          "label": "STEP 3 · (c) Eigenvalues  [1M]",
+          "text": "tr = 5, det = 25/4 − 9/4 = 4\nλ² − 5λ + 4 = 0 ⇒ **λ = 4, 1**"
+        },
+        {
+          "label": "STEP 4 · (c) Unit eigenvectors  [1M]",
+          "text": "λ = 4: (5/2 − 4)a + (3/2)b = 0 ⇒ a = b ⇒ **q₁ = (1, 1)/√2**\nλ = 1: (3/2)a + (3/2)b = 0 ⇒ b = −a ⇒ **q₂ = (1, −1)/√2**"
+        },
+        {
+          "label": "STEP 5 · (d) Scores  [1M]",
+          "text": "zₙ = q₁ᵀ(xₙ − x̄) = (a + b)/√2 for each centred row:\n(1, −1) → 0; (−1, 1) → 0; (2, 2) → 4/√2 = **2√2**; (−2, −2) → **−2√2**\nCheck: mean of z² = (0 + 0 + 8 + 8)/4 = 4 = λ₁ ✓"
+        },
+        {
+          "label": "STEP 6 · (d) Share  [1M]",
+          "text": "λ₁/(λ₁ + λ₂) = 4/5 = **80%**"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "x̄ = (1, 1); S = [[5/2, 3/2], [3/2, 5/2]]; λ = 4, 1; q₁ = (1, 1)/√2; scores 0, 0, 2√2, −2√2; 80%."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Building S from un-centred data.\n• Mixing 1/N and 1/(N − 1).\n• Giving (1, 1) instead of the unit vector (1, 1)/√2."
+        }
+      ],
+      "answer": "λ = 4, 1; PC1 (1, 1)/√2; scores 0, 0, 2√2, −2√2; 80%.",
+      "priority": "must",
+      "priorityWhy": "Saurabh sir's Practice Paper: closest to the real exam"
+    },
+    {
+      "title": "Full PCA · Sep 2025 Q2(b): covariance and the direction of maximum variance (3 marks)",
+      "tags": [
+        "Past paper",
+        "SVD link"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A = [[−2, 0], [1, 1], [1, −1]]. Treat the rows of A as sample data. Find the eigenvalues of the covariance matrix and the direction of maximum variance. [3M] (Part (a), the SVD of A, is Lecture 5.)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "Reading PCA off data that is already centred and gives a diagonal covariance."
+        },
+        {
+          "label": "Plan of attack",
+          "text": "Check the mean → AᵀA → divide → eigenvalues straight off the diagonal → the axis of the bigger one."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are kept. **S** (or **Σ**, **C**) = covariance matrix, **λ** = an eigenvalue of S (**not** a Lagrange multiplier here), **v**, **q**, **α**, **b**, **e** = a unit eigenvector = a principal direction, **z** = a point's score (its coordinate along the direction)."
+        },
+        {
+          "label": "STEP 1 · Mean",
+          "text": "Column 1: (−2 + 1 + 1)/3 = 0; column 2: (0 + 1 − 1)/3 = 0 ⇒ already centred."
+        },
+        {
+          "label": "STEP 2 · Covariance",
+          "text": "AᵀA = [[4 + 1 + 1, 0 + 1 − 1], [0, 0 + 1 + 1]] = [[6, 0], [0, 2]]\nSample covariance AᵀA/(N − 1) = AᵀA/2 = **[[3, 0], [0, 1]]**\n(With 1/N: [[2, 0], [0, 2/3]]. Say which one you use.)"
+        },
+        {
+          "label": "STEP 3 · Eigenvalues and direction",
+          "text": "Diagonal matrix ⇒ eigenvalues are the diagonal entries: **3 and 1** (or 2 and 2/3).\nLargest belongs to (1, 0) ⇒ maximum variance along the **x₁-axis, direction (1, 0)**."
+        },
+        {
+          "label": "STEP 4 · Link to part (a)",
+          "text": "The SVD of A has σ₁ = √6, σ₂ = √2 and V = I. The eigenvalues of AᵀA are σ² = 6, 2, and dividing by N − 1 gives 3, 1: the same numbers (Lecture 13, λ = σ²/N)."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "Covariance [[3, 0], [0, 1]] (1/(N − 1)); eigenvalues 3, 1; direction (1, 0)."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Forgetting to check (or state) that the mean is already 0.\n• Not saying which divisor you used."
+        },
+        {
+          "label": "More",
+          "text": "Full question with the SVD part: [Exam hall · Sep 2025 Q2](#/sem1/aiml-zc416/p-es-reg-2025/worked/2)."
+        }
+      ],
+      "answer": "Eigenvalues 3 and 1; maximum variance along (1, 0).",
+      "priority": "must",
+      "priorityWhy": "Recent paper (2025–2026)"
+    },
+    {
+      "title": "Full PCA · Sourabh P40: PCA by hand on four points",
+      "tags": [
+        "Sourabh sir",
+        "P40"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Points (1, 1), (2, 3), (3, 2), (4, 4); S = (1/N)X_cᵀX_c. (a) Mean and X_c. (b) S. (c) Eigenvalues and unit eigenvectors. (d) First PC, the 1-D scores, the fraction of variance. (Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The full pipeline: centre → covariance → eigen → project."
+        },
+        {
+          "label": "Plan of attack",
+          "text": "Same five moves every time. For a 2 × 2 symmetric S, use trace and determinant for λ."
+        },
+        {
+          "label": "Notation",
+          "text": "Saurabh sir's symbols: x̄ = mean, X_c = centred data, qᵢ = unit eigenvectors, zₙ = scores."
+        },
+        {
+          "label": "STEP 1 · (a)",
+          "text": "x̄ = ((1 + 2 + 3 + 4)/4, (1 + 3 + 2 + 4)/4) = (5/2, 5/2)\nX_c rows: (−3/2, −3/2), (−1/2, 1/2), (1/2, −1/2), (3/2, 3/2)"
+        },
+        {
+          "label": "STEP 2 · (b)",
+          "text": "s₁₁ = (9/4 + 1/4 + 1/4 + 9/4)/4 = 5/4\ns₂₂ = 5/4\ns₁₂ = (9/4 − 1/4 − 1/4 + 9/4)/4 = 1\n**S = [[5/4, 1], [1, 5/4]]**"
+        },
+        {
+          "label": "STEP 3 · (c)",
+          "text": "tr = 5/2, det = 25/16 − 1 = 9/16\nλ² − (5/2)λ + 9/16 = 0 ⇒ **λ₁ = 9/4, λ₂ = 1/4**\nq₁ = (1, 1)/√2, q₂ = (1, −1)/√2"
+        },
+        {
+          "label": "STEP 4 · (d)",
+          "text": "Scores zₙ = q₁ᵀ(xₙ − x̄): −3/√2 = −3√2/2, 0, 0, 3√2/2\nExplained: (9/4)/(5/2) = **0.9 = 90%** (check: mean of z² = (9/2 + 9/2)/4 = 9/4 = λ₁ ✓)"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "x̄ = (5/2, 5/2); S = [[5/4, 1], [1, 5/4]]; λ = 9/4, 1/4; PC1 (1, 1)/√2; 90%."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Building S from un-centred data.\n• Mixing 1/N and 1/(N − 1) (state which).\n• An eigenvector that is not unit length."
+        }
+      ],
+      "answer": "λ = 9/4, 1/4; PC1 (1, 1)/√2; scores ∓3√2/2, 0, 0; 90%.",
+      "priority": "must",
+      "priorityWhy": "The one Saurabh sir problem for the full recipe"
+    },
+    {
+      "title": "Full PCA · Companion §12: five points, start to finish, with three checks",
+      "tags": [
+        "Sourabh sir",
+        "Companion"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Five points (1, 2), (4, 5), (7, 8), (8, 4), (10, 6). Reduce them from 2-D to 1-D, check the answer three ways, and project a new point (12, 9). (Saurabh sir's `Lecture_13_Companion.pdf` §12)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The recipe with exact numbers, the checks Σλ = tr S and ∏λ = det S, and a new point."
+        },
+        {
+          "label": "Notation",
+          "text": "Companion symbols: C = covariance (S on the slides), w₁, w₂ = unit eigenvectors, z = score, x̃ = reconstruction."
+        },
+        {
+          "label": "STEP 1 · Centre",
+          "text": "μ = (30/5, 25/5) = (6, 5)\nCentred: (−5, −3), (−2, 0), (1, 3), (2, −1), (4, 1); columns sum to 0 ✓"
+        },
+        {
+          "label": "STEP 2 · Covariance",
+          "text": "Σx₁² = 25 + 4 + 1 + 4 + 16 = 50 ⇒ C₁₁ = 10\nΣx₂² = 9 + 0 + 9 + 1 + 1 = 20 ⇒ C₂₂ = 4\nΣx₁x₂ = 15 + 0 + 3 − 2 + 4 = 20 ⇒ C₁₂ = 4\n**C = [[10, 4], [4, 4]]**, total variance tr C = 14"
+        },
+        {
+          "label": "STEP 3 · Eigenvalues",
+          "text": "λ² − 14λ + 24 = 0 ⇒ λ = (14 ± 10)/2 ⇒ **12, 2**\nChecks: 12 + 2 = 14 = tr C ✓, 12 × 2 = 24 = det C ✓\nShares: 12/14 = 85.71%, 2/14 = 14.29%"
+        },
+        {
+          "label": "STEP 4 · Eigenvectors",
+          "text": "λ = 12: −2a + 4b = 0 ⇒ a = 2b ⇒ **w₁ = (2, 1)/√5**\nλ = 2: 8a + 4b = 0 ⇒ b = −2a ⇒ **w₂ = (1, −2)/√5**; w₁ᵀw₂ = 0 ✓"
+        },
+        {
+          "label": "STEP 5 · Scores",
+          "text": "z = w₁ᵀ(centred point) = (2a + b)/√5:\n−13/√5 ≈ −5.814, −4/√5 ≈ −1.789, 5/√5 ≈ 2.236, 3/√5 ≈ 1.342, 9/√5 ≈ 4.025"
+        },
+        {
+          "label": "STEP 6 · Three checks",
+          "text": "Scores add to 0 ✓\nVariance of scores = (169 + 16 + 25 + 9 + 81)/25 ÷ 5 = 300/25 = 12 = λ₁ ✓\nScores on w₂ have variance 2 = λ₂, and 12 + 2 = 14 = tr C ✓"
+        },
+        {
+          "label": "STEP 7 · New point (12, 9)",
+          "text": "Centre with the training mean: (6, 4)\nz* = (12 + 4)/√5 = 16/√5 ≈ 7.155\nRebuild: z*w₁ = (6.4, 3.2), add the mean ⇒ x̃* = (12.4, 8.2)\nError ‖(6, 4) − (6.4, 3.2)‖² = 0.16 + 0.64 = 0.80 = (score on w₂)² = ((6 − 8)/√5)² ✓"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "C = [[10, 4], [4, 4]]; λ = 12 (85.71%), 2; w₁ = (2, 1)/√5; scores −5.81, −1.79, 2.24, 1.34, 4.02; new point z* ≈ 7.155, x̃* = (12.4, 8.2)."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Dividing by N − 1 when the course divides by N.\n• Centring a new point with its own value instead of the training mean."
+        }
+      ],
+      "answer": "λ = 12, 2; PC1 (2, 1)/√5 keeps 85.71%; new point z* = 16/√5.",
+      "priority": "optional",
+      "priorityWhy": "Extra practice of a type a must-do problem already covers"
+    },
+    {
+      "title": "Full PCA · Companion Q1: from raw data to components (6 marks)",
+      "tags": [
+        "Sourabh sir",
+        "Companion"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Observations (2, 3), (4, 7), (6, 5), (8, 9). (a) Mean, centred data, Σ (divide by N). [2M] (b) Eigenvalues and normalised eigenvectors. [2M] (c) First PC score of each observation; verify Var(Y₁) = λ₁; share of total variance. [2M] (Companion §15, Question 1)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The five moves: mean → centre → (1/N)XᵀX → characteristic polynomial → normalise."
+        },
+        {
+          "label": "Notation",
+          "text": "Companion question-paper symbols: Σ = covariance, α = unit direction, Y₁ = α₁ᵀX = first PC score."
+        },
+        {
+          "label": "STEP 1 · (a)",
+          "text": "μ = (20/4, 24/4) = (5, 6)\nCentred: (−3, −3), (−1, 1), (1, −1), (3, 3)\nΣx₁² = 20, Σx₂² = 20, Σx₁x₂ = 9 − 1 − 1 + 9 = 16 ⇒ **Σ = [[5, 4], [4, 5]]**"
+        },
+        {
+          "label": "STEP 2 · (b)",
+          "text": "(5 − λ)² = 16 ⇒ 5 − λ = ±4 ⇒ **λ = 9, 1** (9 + 1 = 10 = tr ✓, 9 = det ✓)\nα₁ = (1, 1)/√2, α₂ = (1, −1)/√2"
+        },
+        {
+          "label": "STEP 3 · (c)",
+          "text": "Y₁ = (x₁ + x₂)/√2 on centred rows: −6/√2 = −3√2, 0, 0, 3√2\nVar(Y₁) = (18 + 0 + 0 + 18)/4 = 9 = λ₁ ✓\nShare = 9/10 = **90%**"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "Σ = [[5, 4], [4, 5]]; λ = 9, 1; α₁ = (1, 1)/√2; scores ±3√2, 0, 0; 90%."
+        }
+      ],
+      "answer": "λ = 9, 1; PC1 (1, 1)/√2; 90%.",
+      "priority": "optional",
+      "priorityWhy": "Extra practice of a type a must-do problem already covers"
+    },
+    {
+      "title": "Full PCA · 2023 regular Q4: four points from a figure (10 marks)",
+      "tags": [
+        "Past paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Points read from the figure: (1, 0), (2, 3), (4, 1), (5, 4). Use cov(X) = (1/N)(X − μ)ᵀ(X − μ). (A) Principal components. [5M] (B) Components of the four points along PC1. [2M] (C) Percentage of variance captured by PC1. [1M] (D) If the points are rotated 90° anticlockwise, what are their components along their new PC1? [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The recipe, plus what a rotation does (nothing to the projections)."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are kept. **S** (or **Σ**, **C**) = covariance matrix, **λ** = an eigenvalue of S (**not** a Lagrange multiplier here), **v**, **q**, **α**, **b**, **e** = a unit eigenvector = a principal direction, **z** = a point's score (its coordinate along the direction)."
+        },
+        {
+          "label": "STEP 1 · Centre",
+          "text": "μ = (12/4, 8/4) = (3, 2)\nCentred: (−2, −2), (−1, 1), (1, −1), (2, 2)"
+        },
+        {
+          "label": "STEP 2 · Covariance",
+          "text": "s₁₁ = (4 + 1 + 1 + 4)/4 = 2.5, s₂₂ = 2.5, s₁₂ = (4 − 1 − 1 + 4)/4 = 1.5\n**C = [[2.5, 1.5], [1.5, 2.5]]**"
+        },
+        {
+          "label": "STEP 3 · (A) Components",
+          "text": "λ² − 5λ + 4 = 0 ⇒ **λ = 4, 1**\nPC1 = (1, 1)/√2, PC2 = (1, −1)/√2"
+        },
+        {
+          "label": "STEP 4 · (B) Components along PC1",
+          "text": "(−2, −2) → −4/√2 = **−2.83**; (−1, 1) → **0**; (1, −1) → **0**; (2, 2) → **2.83**\n(Uncentred: 0.71, 3.54, 3.54, 6.36. Say which you give.)"
+        },
+        {
+          "label": "STEP 5 · (C)",
+          "text": "4/(4 + 1) = **80%**"
+        },
+        {
+          "label": "STEP 6 · (D) Rotation",
+          "text": "Rotating every point by 90° rotates the cloud, its covariance and its PC1 together (new PC1 = (−1, 1)/√2). Lengths and angles do not change, so the components stay **−2.83, 0, 0, 2.83** (up to the sign of the PC)."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "PC1 (1, 1)/√2 (λ = 4), PC2 (1, −1)/√2 (λ = 1); −2.83, 0, 0, 2.83; 80%; unchanged after the rotation."
+        },
+        {
+          "label": "More",
+          "text": "Whole paper: [Exam hall · 2023 regular](#/sem1/aiml-zc416/p-es-reg-2023/worked/4)."
+        }
+      ],
+      "answer": "λ = 4, 1; components ±2.83, 0, 0; 80%; same after rotating.",
+      "priority": "optional",
+      "priorityWhy": "Older paper: the same recipe as the must-do problems"
+    },
+    {
+      "title": "Full PCA · Sep 2024 regular Q3(A): projection and rank-1 reconstruction (8 marks)",
+      "tags": [
+        "Past paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "X has rows (4, 1), (2, 3), (5, 4), (1, 0). (i) Unit principal component directions; which one would you keep? [4M] (ii) Draw the principal direction and project the four points onto it. [3M] (iii) Rank-1 reconstruction. [1M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The recipe plus x̃ = μ + z·e₁ (the reconstruction)."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are kept. **S** (or **Σ**, **C**) = covariance matrix, **λ** = an eigenvalue of S (**not** a Lagrange multiplier here), **v**, **q**, **α**, **b**, **e** = a unit eigenvector = a principal direction, **z** = a point's score (its coordinate along the direction)."
+        },
+        {
+          "label": "STEP 1 · Centre  [1.5M]",
+          "text": "μ = (12/4, 8/4) = (3, 2)\nCentred: (1, −1), (−1, 1), (2, 2), (−2, −2)"
+        },
+        {
+          "label": "STEP 2 · Covariance  [0.5M]",
+          "text": "(1/4)[[10, 6], [6, 10]] = [[2.5, 1.5], [1.5, 2.5]]"
+        },
+        {
+          "label": "STEP 3 · Eigen  [2M]",
+          "text": "λ = 4, 1; e₁ = (1, 1)/√2, e₂ = (−1, 1)/√2. Keep **e₁** (4/5 = 80% of the variance)."
+        },
+        {
+          "label": "STEP 4 · Project  [3M]",
+          "text": "Centred scores: 0, 0, 2√2, −2√2.\nThe key projects the raw points: (4, 1) → 3.54, (2, 3) → 3.54, (5, 4) → 6.36, (1, 0) → 0.71. Sketch the line y = x − 1 through the mean with the four feet of the perpendiculars."
+        },
+        {
+          "label": "STEP 5 · Rank-1 reconstruction  [1M]",
+          "text": "x̃ = μ + z e₁:\nz = 0 ⇒ (3, 2); z = 0 ⇒ (3, 2); z = 2√2 ⇒ (3, 2) + (2, 2) = (5, 4); z = −2√2 ⇒ (1, 0)"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "e₁ = (1, 1)/√2 (keep), e₂ = (−1, 1)/√2; scores 0, 0, ±2√2; reconstruction (3, 2), (3, 2), (5, 4), (1, 0)."
+        },
+        {
+          "label": "More",
+          "text": "With part (B), the power method: [Exam hall · Sep 2024 regular Q3](#/sem1/aiml-zc416/p-es-reg-2024/worked/3)."
+        }
+      ],
+      "answer": "Keep e₁ = (1, 1)/√2; reconstruction (3, 2), (3, 2), (5, 4), (1, 0).",
+      "priority": "optional",
+      "priorityWhy": "Older paper: the same recipe as the must-do problems"
+    },
+    {
+      "title": "Full PCA · Sep 2024 makeup Q3(A): a negatively correlated cloud (8 marks)",
+      "tags": [
+        "Past paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "X has rows (6, −4), (−3, 5), (−2, 6), (7, −3). (a) Covariance matrix, its unit eigenvectors and eigenvalues. [4M] (b) Project onto one dimension: which subspace, and each point's coordinate. [3M] (c) Sketch. [1M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "The recipe when s₁₂ < 0: PC1 runs downhill."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper's symbols are kept. **S** (or **Σ**, **C**) = covariance matrix, **λ** = an eigenvalue of S (**not** a Lagrange multiplier here), **v**, **q**, **α**, **b**, **e** = a unit eigenvector = a principal direction, **z** = a point's score (its coordinate along the direction)."
+        },
+        {
+          "label": "STEP 1 · Centre",
+          "text": "μ = (8/4, 4/4) = (2, 1)\nCentred: (4, −5), (−5, 4), (−4, 5), (5, −4)"
+        },
+        {
+          "label": "STEP 2 · Covariance",
+          "text": "s₁₁ = (16 + 25 + 16 + 25)/4 = 20.5, s₂₂ = 20.5, s₁₂ = (−20 − 20 − 20 − 20)/4 = −20\n**S = [[20.5, −20], [−20, 20.5]]** (1/(N − 1): [[27.33, −26.67], [−26.67, 27.33]])"
+        },
+        {
+          "label": "STEP 3 · Eigen",
+          "text": "λ = 20.5 ± 20 ⇒ **40.5** with e₁ = (1, −1)/√2, **0.5** with e₂ = (1, 1)/√2"
+        },
+        {
+          "label": "STEP 4 · (b) Project",
+          "text": "Onto span{(1, −1)}: z = (a − b)/√2 ⇒ 9/√2 ≈ **6.36, −6.36, −6.36, 6.36**\nPC1 keeps 40.5/41 ≈ 98.8%."
+        },
+        {
+          "label": "STEP 5 · (c) Sketch",
+          "text": "Two pairs on the PC1 line: (6, −4) and (7, −3) at +6.36; (−3, 5) and (−2, 6) at −6.36."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "S = [[20.5, −20], [−20, 20.5]]; λ = 40.5 (1, −1)/√2, 0.5 (1, 1)/√2; coordinates ±6.36."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Sign slip in s₁₂ (it is negative here), which turns PC1 the wrong way."
+        }
+      ],
+      "answer": "λ = 40.5 with (1, −1)/√2; coordinates ±6.36.",
+      "priority": "optional",
+      "priorityWhy": "Older paper: the same recipe as the must-do problems"
+    },
+    {
+      "title": "Full PCA · 2022 makeup Q1b: which student is right? (2 marks)",
+      "tags": [
+        "Past paper"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "X = [[2, −1, −2, 1], [−4, 2, 4, −2]] (columns are points). Student 1: the direction of maximum variance is (1, 0). Student 2: (0, 1). Student 3: both are wrong. Find the direction and decide. [2M]"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "PC1 = top eigenvector; points stored as columns."
+        },
+        {
+          "label": "Notation",
+          "text": "This paper stores points as **columns**, so S = XXᵀ/N."
+        },
+        {
+          "label": "STEP 1 · Covariance",
+          "text": "Row means are 0 ⇒ centred.\nS = XXᵀ/4 = (1/4)[[10, −20], [−20, 40]] = **[[2.5, −5], [−5, 10]]**"
+        },
+        {
+          "label": "STEP 2 · Eigen  [0.5M]",
+          "text": "det = 25 − 25 = 0 ⇒ λ² − 12.5λ = 0 ⇒ λ = 12.5, 0"
+        },
+        {
+          "label": "STEP 3 · Direction  [1.5M]",
+          "text": "(S − 12.5I)v = 0: −10v₁ − 5v₂ = 0 ⇒ v₂ = −2v₁ ⇒ **v = (1, −2)/√5**\nAll points lie on x₂ = −2x₁. **Student 3 is right.**"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "(1, −2)/√5; Student 3."
+        },
+        {
+          "label": "More",
+          "text": "Whole paper: [Exam hall · 2022 makeup](#/sem1/aiml-zc416/p-es-mkp-2022/worked/1)."
+        }
+      ],
+      "answer": "(1, −2)/√5: Student 3.",
+      "priority": "optional",
+      "priorityWhy": "Older paper: the same recipe as the must-do problems"
+    },
+    {
+      "title": "Full PCA · Slides p. 25–27: nine points with very different scales",
+      "tags": [
+        "Slides"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "The slide example: x₁ = 1.11, 1.21, 1.36, 1.49, 1.63, 1.68, 1.83, 1.88, 1.95 and x₂ = 10, 12, 13, 15, 16, 17, 18, 19, 20. Find S (divide by 9), the first principal component, and the scores z = b₁ᵀ(x − μ). (`Lecture_12.pdf` p. 25–27)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "Reading the slide example, and seeing why units matter."
+        },
+        {
+          "label": "STEP 1 · Mean and S",
+          "text": "μ = (1.5711, 15.5556)\nS = (1/9)XXᵀ (centred) = [[0.0795, 0.8883], [0.8883, 10.0247]]"
+        },
+        {
+          "label": "STEP 2 · PC1",
+          "text": "Largest eigenvalue **10.103**, unit eigenvector **b₁ = (0.0883, 0.9961)**: almost the x₂-axis."
+        },
+        {
+          "label": "STEP 3 · Scores",
+          "text": "z = b₁ᵀ(x − μ): −5.57, −3.57, −2.56, −0.56, 0.45, 1.45, 2.46, 3.46, 4.46"
+        },
+        {
+          "label": "STEP 4 · Back to the original space",
+          "text": "x̃ = b₁z + μ (undo the centring)."
+        },
+        {
+          "label": "STEP 5 · The lesson",
+          "text": "x₂ is about 100× more spread than x₁ only because of its units, so PC1 just follows x₂. That is why Lecture 13 adds a **standardise** step (divide each column by its standard deviation) when columns have different units."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "λ₁ = 10.103, b₁ = (0.0883, 0.9961); PC1 is dominated by the large-scale feature."
+        }
+      ],
+      "answer": "λ₁ = 10.103, b₁ = (0.0883, 0.9961).",
+      "priority": "optional",
+      "priorityWhy": "Extra practice of a type a must-do problem already covers"
+    },
+    {
+      "title": "Derive · Sourabh P41: first principal component through a Lagrangian",
+      "tags": [
+        "Sourabh sir",
+        "P41"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "A 2-D random vector has covariance Σ = [[5, 2], [2, 2]]. The first PC is Y₁ = αᵀX with αᵀα = 1. (a) Write the constrained problem and its Lagrangian. (b) Show the stationarity condition is Σα = λα and that Var(Y₁) = λ there. (c) Find α for PC1 and PC2 and their variances. (d) The correlation between Y₁ and Y₂ and the share of variance of Y₁. (Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "PCA as a constrained maximum (Lagrange, Lecture 11) and solving it on numbers."
+        },
+        {
+          "label": "Plan of attack",
+          "text": "max αᵀΣα s.t. αᵀα = 1 → L → ∇L = 0 → eigen-equation → multiply by αᵀ to get the variance → pick the largest λ."
+        },
+        {
+          "label": "Notation",
+          "text": "Saurabh sir's symbols: **α** = unit direction (b₁ on the slides), **λ** = the Lagrange multiplier, which turns out to be the eigenvalue, Y = αᵀX = score."
+        },
+        {
+          "label": "STEP 1 · (a) Problem and L",
+          "text": "max αᵀΣα s.t. αᵀα = 1\nL = αᵀΣα − λ(αᵀα − 1)"
+        },
+        {
+          "label": "STEP 2 · (b) Stationarity",
+          "text": "∇(αᵀΣα) = 2Σα (Σ symmetric), ∇(αᵀα) = 2α\n∇L = 2Σα − 2λα = 0 ⇒ **Σα = λα**: α must be an eigenvector."
+        },
+        {
+          "label": "STEP 3 · (b) Variance = λ",
+          "text": "Var(Y₁) = αᵀΣα = αᵀ(λα) = λαᵀα = λ ⇒ to maximise, take the **largest** λ."
+        },
+        {
+          "label": "STEP 4 · (c) Eigenvalues",
+          "text": "tr = 7, det = 10 − 4 = 6 ⇒ λ² − 7λ + 6 = 0 ⇒ **λ = 6, 1**"
+        },
+        {
+          "label": "STEP 5 · (c) Directions",
+          "text": "λ = 6: (5 − 6)a + 2b = 0 ⇒ a = 2b ⇒ **α₁ = (2, 1)/√5**, Var = 6\nλ = 1: 4a + 2b = 0 ⇒ b = −2a ⇒ **α₂ = (1, −2)/√5**, Var = 1"
+        },
+        {
+          "label": "STEP 6 · (d)",
+          "text": "Cov(Y₁, Y₂) = α₁ᵀΣα₂ = 1·α₁ᵀα₂ = 0 ⇒ **correlation 0**\nShare = 6/7 ≈ **85.71%**"
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "L = αᵀΣα − λ(αᵀα − 1); Σα = λα, Var = λ; α₁ = (2, 1)/√5 (6), α₂ = (1, −2)/√5 (1); correlation 0; 85.71%."
+        },
+        {
+          "label": "Where marks are lost",
+          "text": "• Dropping the 2 on one term only (then the eigen-equation comes out wrong).\n• Choosing the smallest eigenvalue."
+        },
+        {
+          "label": "More",
+          "text": "Same Lagrange method: [Lecture 11, Lagrangian tab](#/sem1/aiml-zc416/ch11/f-lagrange/16)."
+        }
+      ],
+      "answer": "Σα = λα; α₁ = (2, 1)/√5 with variance 6; 85.71%.",
+      "priority": "must",
+      "priorityWhy": "The one problem for the derivation (slides p. 11–13)"
+    },
+    {
+      "title": "Derive · Companion Q2: find the three faults in a student's derivation (6 marks)",
+      "tags": [
+        "Sourabh sir",
+        "Companion"
+      ],
+      "problem": [
+        {
+          "type": "p",
+          "text": "Σ = [[5, 2], [2, 8]]. A student writes: (1) max αᵀΣα s.t. αᵀα = 1. (2) L = αᵀΣα − λ(αᵀα − 1). (3) ∂L/∂α = 2Σα − λα = 0, so Σα = ½λα. (4) det(Σ − λI) = λ² − 13λ + 36 ⇒ λ = 9, 4. (5) For λ = 9, α = (1, 2), so Y₁ = X₁ + 2X₂. (6) Var(Y₁) = 9. (a) Find the three faulty lines. [3M] (b) Correct them. [2M] (c) Compute Var(X₁ + 2X₂) directly. [1M] (Companion §15, Question 2)"
+        }
+      ],
+      "steps": [
+        {
+          "label": "What is tested",
+          "text": "Knowing the derivation well enough to mark it."
+        },
+        {
+          "label": "STEP 1 · (a) Faults",
+          "text": "**(3)** ∂(λαᵀα)/∂α = 2λα, not λα.\n**(5)** (1, 2) is not unit length (‖(1, 2)‖ = √5).\n**(6)** With the α of line (5), the variance is 45, not 9.\nLines (1), (2), (4) are correct."
+        },
+        {
+          "label": "STEP 2 · (b) Corrected",
+          "text": "2Σα − 2λα = 0 ⇒ Σα = λα; λ = 9, 4 (9 + 4 = 13 = tr ✓, 36 = det ✓)\nα₁ = (1, 2)/√5, Y₁ = (X₁ + 2X₂)/√5, **Var(Y₁) = 9**; share 9/13 = 69.2%"
+        },
+        {
+          "label": "STEP 3 · (c)",
+          "text": "Var(X₁ + 2X₂) = 5 + 4(8) + 4(2) = **45** = (1, 2)Σ(1, 2)ᵀ\nIn general Var(αᵀX) = λ‖α‖², so Var = λ only for a unit α (here ‖α‖² = 5, 5 × 9 = 45)."
+        },
+        {
+          "label": "Answers at a glance",
+          "text": "Faults in (3), (5), (6); Y₁ = (X₁ + 2X₂)/√5 with variance 9; Var(X₁ + 2X₂) = 45."
+        }
+      ],
+      "answer": "Faulty lines 3, 5, 6; correct Y₁ = (X₁ + 2X₂)/√5, Var 9.",
+      "priority": "optional",
+      "priorityWhy": "Extra practice of a type a must-do problem already covers"
+    }
+  ],
+  "families": [
+    {
+      "id": "full",
+      "label": "Full PCA",
+      "icon": "⇲",
+      "title": "Type 1 · Full PCA by hand",
+      "lead": "Mean → centre → S → eigen → unit PC1 → scores → share. Every recent PCA question is this.",
+      "problems": [
+        "Full PCA ·"
+      ],
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "S = (1/N)X̂ᵀX̂;   λ = tr/2 ± √((tr/2)² − det);   zₙ = v₁ᵀ(xₙ − μ);   share = λ₁/(λ₁ + λ₂)",
+          "caption": "Check: λ₁ + λ₂ = tr S, λ₁λ₂ = det S, mean of z² = λ₁"
+        },
+        {
+          "type": "note",
+          "label": "1/N or 1/(N − 1)?",
+          "color": "blue",
+          "text": "The slides and Saurabh sir divide by **N**. The papers accept either if you say which. The eigenvectors are the same; only the eigenvalues scale."
+        },
+        {
+          "type": "widget",
+          "widget": "pca-line",
+          "config": {
+            "data": "mar2026",
+            "theta": 30
+          }
+        }
+      ]
+    },
+    {
+      "id": "derive",
+      "label": "Derive",
+      "icon": "λ",
+      "title": "Type 2 · Derive PCA with a Lagrangian",
+      "lead": "max bᵀSb s.t. bᵀb = 1 ⇒ Sb = λb, Var = λ. Saurabh P41 and Companion Q2.",
+      "problems": [
+        "Derive ·"
+      ],
+      "blocks": [
+        {
+          "type": "formula",
+          "text": "L = bᵀSb − λ(bᵀb − 1);   ∇L = 2Sb − 2λb = 0 ⇒ Sb = λb;   bᵀSb = λ",
+          "caption": "`Lecture_12.pdf` p. 11–13"
+        }
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "tag": "Concept",
+      "front": "What does PC1 maximise?",
+      "back": "The variance of the data projected onto it (the spread of the shadows)."
+    },
+    {
+      "tag": "Formula",
+      "front": "Covariance of centred data (course convention)",
+      "back": "S = (1/N) Σ xₙxₙᵀ = (1/N)X̂ᵀX̂ (rows = points)"
+    },
+    {
+      "tag": "Formula",
+      "front": "PCA as a constrained problem",
+      "back": "max bᵀSb s.t. bᵀb = 1; L = bᵀSb + λ(1 − bᵀb) ⇒ Sb = λb"
+    },
+    {
+      "tag": "Concept",
+      "front": "Variance along a unit eigenvector",
+      "back": "Equals its eigenvalue: bᵀSb = λ."
+    },
+    {
+      "tag": "Formula",
+      "front": "Eigenvalues of a 2 × 2 symmetric S",
+      "back": "λ = tr/2 ± √((tr/2)² − det); check λ₁ + λ₂ = tr, λ₁λ₂ = det"
+    },
+    {
+      "tag": "Formula",
+      "front": "Score of a point",
+      "back": "z = v₁ᵀ(x − μ) (centre first)"
+    },
+    {
+      "tag": "Formula",
+      "front": "Share of variance of PC1",
+      "back": "λ₁ / Σλ = λ₁ / tr S"
+    },
+    {
+      "tag": "Trap",
+      "front": "Most common PCA slip",
+      "back": "Building S from un-centred data, or giving a non-unit eigenvector."
+    },
+    {
+      "tag": "Concept",
+      "front": "Why must ‖b‖ = 1?",
+      "back": "Otherwise bᵀSb grows without limit by making b longer: only the direction should count."
+    },
+    {
+      "tag": "Concept",
+      "front": "Why are the PCs perpendicular?",
+      "back": "S is symmetric, so its eigenvectors for different eigenvalues are orthogonal (spectral theorem)."
+    }
+  ],
+  "quiz": [
+    {
+      "type": "numeric",
+      "q": "Points (2, 0), (0, 2), (3, 3), (−1, −1), divide by N. Largest eigenvalue of S?",
+      "answer": 4,
+      "tolerance": 0.001,
+      "explain": "S = [[2.5, 1.5], [1.5, 2.5]], tr 5, det 4 ⇒ 4 and 1.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "Same data: percentage of variance on PC1?",
+      "answer": 80,
+      "tolerance": 0.01,
+      "explain": "4/(4 + 1) = 80%.",
+      "set": "Numericals"
+    },
+    {
+      "type": "numeric",
+      "q": "S = [[10, 4], [4, 4]]. Share of PC1 in %, to 2 decimals?",
+      "answer": 85.71,
+      "tolerance": 0.01,
+      "explain": "λ = 12, 2 ⇒ 12/14 = 85.71%.",
+      "set": "Numericals"
+    },
+    {
+      "type": "mcq",
+      "q": "In max bᵀSb s.t. bᵀb = 1, the Lagrange multiplier at the optimum is…",
+      "options": [
+        "the largest eigenvalue of S",
+        "always 1",
+        "the trace of S",
+        "the determinant of S"
+      ],
+      "answer": 0,
+      "explain": "Sb = λb and bᵀSb = λ, so λ is the eigenvalue, the largest one for PC1.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "Three points lie exactly on one line. The smaller eigenvalue of S is…",
+      "options": [
+        "0",
+        "1",
+        "equal to the larger one",
+        "negative"
+      ],
+      "answer": 0,
+      "explain": "No spread perpendicular to the line ⇒ λ₂ = 0, PC1 keeps 100%.",
+      "set": "Concepts"
+    },
+    {
+      "type": "mcq",
+      "q": "You give the eigenvector (1, 2) instead of (1, 2)/√5. Its 'variance' vᵀSv is…",
+      "options": [
+        "λ",
+        "5λ",
+        "λ/5",
+        "√5·λ"
+      ],
+      "answer": 1,
+      "explain": "vᵀSv = λ‖v‖² = 5λ: that is why it must be unit length.",
+      "set": "Concepts"
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Covariance (centred)",
+      "formula": "S = (1/N) Σ xₙxₙᵀ",
+      "note": "p. 5, 8 · say if you use N − 1"
+    },
+    {
+      "name": "PCA problem",
+      "formula": "max bᵀSb s.t. bᵀb = 1 ⇒ Sb = λb, Var = λ",
+      "note": "p. 11–13"
+    },
+    {
+      "name": "2 × 2 eigenvalues",
+      "formula": "λ = tr/2 ± √((tr/2)² − det)",
+      "note": "check sum = tr, product = det"
+    },
+    {
+      "name": "Score",
+      "formula": "z = v₁ᵀ(x − μ)",
+      "note": "mean of z² = λ₁"
+    },
+    {
+      "name": "Share of variance",
+      "formula": "λ₁ / Σλ",
+      "note": ""
+    },
+    {
+      "name": "Code and rebuild",
+      "formula": "z = Bᵀx, x̃ = Bz",
+      "note": "p. 6"
+    }
+  ],
+  "readme": {
+    "summary": "**p. N** = PDF page of `Lecture_12.pdf`; the slide footer shows **N − 1**. **Type 1–6** = the PCA question types (board 2).",
+    "sections": [
+      {
+        "title": "Page numbers",
+        "items": [
+          "**p. N** is the page your PDF viewer shows for `Lecture_12.pdf`. The footer printed on the slide is one less: PDF p. 10 shows \"9 / 28\"."
+        ]
+      },
+      {
+        "title": "Symbols (past-paper and Sourabh sir's solutions keep their own; each has a Notation line)",
+        "head": [
+          "Here",
+          "Also written as",
+          "Meaning"
+        ],
+        "rows": [
+          [
+            "S",
+            "Σ, C, cov(X)",
+            "covariance matrix of the centred data"
+          ],
+          [
+            "μ",
+            "x̄",
+            "mean of the data"
+          ],
+          [
+            "b₁, v₁",
+            "q₁, α₁, w₁, e₁, u₁",
+            "unit eigenvector = first principal direction"
+          ],
+          [
+            "λ",
+            "",
+            "eigenvalue of S = variance along its eigenvector (in type 2 it is also the Lagrange multiplier)"
+          ],
+          [
+            "z",
+            "Y, score, component",
+            "coordinate of a point along a PC"
+          ],
+          [
+            "N",
+            "n",
+            "number of points"
+          ]
+        ]
+      },
+      {
+        "title": "Sources and short names",
+        "items": [
+          "**P40–P43** = Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`.",
+          "**Companion §N / Q N** = `Lecture_13_Companion.pdf` (Prof Saurabh materials → Companion docs); the seven solved questions are in §15.",
+          "**Practice Paper Q5** = `MFML_ZC416_Practice_Paper.pdf`."
+        ]
+      }
+    ]
+  }
+}

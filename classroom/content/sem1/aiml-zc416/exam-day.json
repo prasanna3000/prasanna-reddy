@@ -1,0 +1,212 @@
+{
+  "id": "exam-day",
+  "title": "On the day of the exam",
+  "subtitle": "MFML comprehensive (EC-3) · 6 Dec 2026, morning · open book · 150 minutes · quick checks and rules collected while studying",
+  "lesson": [
+    {
+      "title": "Quick checks",
+      "lead": "Short rules to apply on the paper. Each one says where it came from, so you can open the full solution.",
+      "blocks": [
+        {
+          "type": "h",
+          "text": "1 · Finding a minimiser"
+        },
+        {
+          "type": "formula",
+          "text": "∇J = 0  ⇒  solve;   then  H positive definite (D₁ > 0, D₂ > 0, …)  ⇒  minimum",
+          "caption": "Always set the gradient to zero and solve the equations; confirm with the Hessian's leading minors"
+        },
+        {
+          "type": "p",
+          "text": "Example: [Practice Paper Q4(c)](#/sem1/aiml-zc416/p-pp/worked/4): ∇J = (2w₀ + 3w₁ − 4, 3w₀ + 5w₁ − 7) = 0 ⇒ (−1, 2); H = [[2, 3], [3, 5]], D₁ = 2, D₂ = 1 ⇒ minimum."
+        },
+        {
+          "type": "h",
+          "text": "2 · Momentum: the first step"
+        },
+        {
+          "type": "note",
+          "label": "Remember",
+          "text": "**The first momentum step is the same as plain GD, and the difference only starts at step 2** (because v₀ = 0)."
+        },
+        {
+          "type": "h",
+          "text": "3 · Momentum: which formula to write"
+        },
+        {
+          "type": "list",
+          "items": [
+            "If the question writes a formula or mentions a velocity v, use exactly that, and copy it onto your answer sheet first.",
+            "No formula given: use vₜ₊₁ = βvₜ − η∇f(wₜ), wₜ₊₁ = wₜ + vₜ₊₁, v₀ = 0.",
+            "Find-β questions: use the slide form wₜ₊₁ = wₜ − η∇f(wₜ) + β(wₜ − wₜ₋₁), or the v-form with v₀ = 0 (write \"assume v₀ = 0\"). Both give the same answer; see [2023 Q1A, Method 1 and Method 2](#/sem1/aiml-zc416/ch11/f-momentum/5)."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "4 · Check the sign before every number"
+        },
+        {
+          "type": "note",
+          "color": "red",
+          "label": "Double-check signs",
+          "text": "**While solving any numerical, check the sign in front of each number before you write it down.** One wrong sign carries through every step that follows, and you lose the marks for all of them."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Minus times minus: −η∇f with a negative gradient gives a **plus**. Example: −0.1 × (−2) = +0.2.",
+            "Brackets inside gradients: d/dw (w + 1)² = 2(w + 1), so at w = 0 it is **+2**, while d/dw (w − 1)² at w = 0 is **−2**.",
+            "Velocity: v is often negative, so wₜ + vₜ₊₁ means you **subtract**.",
+            "Squaring: (−0.46)² is positive, and so is (w − 1)² when w < 1.",
+            "Lagrange and KKT: copy the sign of each constraint term exactly as you set up L (+λg or −λg), and keep it the same everywhere.",
+            "Before moving to the next step, re-read the line you just wrote and check each sign against the line above it."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "5 · Time per question"
+        },
+        {
+          "type": "p",
+          "text": "Recent papers: 6 questions, 40 marks, 150 minutes. That is about **25 minutes per question** and **3.75 minutes per mark**. Keep 15 minutes aside (5 at the start to read the paper and choose your order, 10 at the end to check signs and answers). That leaves 135 minutes, about **3.4 minutes per mark**."
+        },
+        {
+          "type": "table",
+          "head": [
+            "Question worth",
+            "Time budget"
+          ],
+          "rows": [
+            [
+              "4 marks",
+              "~13–14 min"
+            ],
+            [
+              "6 marks",
+              "~20 min"
+            ],
+            [
+              "7 marks",
+              "~24 min"
+            ],
+            [
+              "8 marks",
+              "~27 min"
+            ]
+          ]
+        },
+        {
+          "type": "list",
+          "items": [
+            "Start with your strongest questions (momentum, GD steps, Lagrange). They are quick marks and build up spare time.",
+            "Stuck at about 1.5× the budget? Move on, leave space on the sheet, and come back later.",
+            "Open book only helps if you know where things are. Mark the formula pages beforehand so you don't lose minutes searching."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "6 · Momentum: starting velocity v₀"
+        },
+        {
+          "type": "formula",
+          "text": "w₀ = given starting point;   v₀ = (0, 0) unless the question gives it",
+          "caption": "Write \"assume v₀ = 0\" as the first line of the answer"
+        },
+        {
+          "type": "list",
+          "items": [
+            "w₀ (where you start) and v₀ (how fast you were already moving) are separate. Being given w₀ does not change v₀.",
+            "No step has been taken before the start, so nothing has built up yet: v₀ = 0. The first step is then the same as plain GD.",
+            "Use a non-zero v₀ only when the question gives one, or gives two starting points (w₋₁ and w₀).",
+            "**✓ Approved by Saurabh sir:** he confirmed v₀ = (0, 0) for [2023 Q1A (find β)](#/sem1/aiml-zc416/ch11/f-momentum/5)."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "7 · GD step size: monotone, oscillating or divergent"
+        },
+        {
+          "type": "formula",
+          "text": "xₜ₊₁ = (1 − αλ) xₜ,  λ = f″:   α < 1/λ monotone;   1/λ < α < 2/λ oscillating;   α > 2/λ divergent",
+          "caption": "For f = x² (λ = 2): cut-offs α = 0.5 and α = 1"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Find r from the data: divide each x by the one before it. The same r every time means plain GD.",
+            "Then α = (1 − r)/λ (for f = x²: α = (1 − r)/2).",
+            "0 < r < 1: same side, shrinking (monotone). −1 < r < 0: sign flips, shrinking (oscillating). r < −1: sign flips, growing (divergent).",
+            "Example: [Sourabh Optimizers Set Q7(a)](#/sem1/aiml-zc416/ch11/f-momentum/22). Runs A, B, C give r = 0.8, −0.5, −1.2, so α = 0.1, 0.75, 1.1.",
+            "Background and the full recipe (four question types): [Lecture 9 · Step-size behaviour](#/sem1/aiml-zc416/ch09/lesson/9)."
+          ]
+        },
+        {
+          "type": "h",
+          "text": "8 · Directional derivative: make the direction unit length"
+        },
+        {
+          "type": "formula",
+          "text": "D_u f = ∇f · u,   u = d/‖d‖",
+          "caption": "d is a direction (an arrow), not a second point"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Find ∇f at the point, then ‖d‖ = √(sum of squares), then u = d/‖d‖, then the dot product.",
+            "Skip dividing and the answer is ‖d‖ times too big. Example: d = (3, 4), ‖d‖ = 5, ∇f = (8, 0) gives 4.8, not 24.",
+            "Already length 1 (e.g. (0.6, 0.8), (1/√2, 1/√2))? Use it as it is.",
+            "Example: [Convexity · Sourabh P24 (c)](#/sem1/aiml-zc416/ch11/f-convex/4)."
+          ]
+        },
+        {
+          "type": "note",
+          "color": "red",
+          "label": "Keep adding",
+          "text": "New rules go at the end of this board as they come up while studying."
+        }
+      ]
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Finding a minimiser",
+      "formula": "∇J = 0, solve; then H positive definite (leading minors > 0) ⇒ minimum",
+      "note": "Practice Paper Q4(c)"
+    },
+    {
+      "name": "Momentum, first step",
+      "formula": "v₁ = −η∇f(w₀) ⇒ w₁ = w₀ − η∇f(w₀) (same as plain GD)",
+      "note": "The difference starts at step 2"
+    },
+    {
+      "name": "Momentum update",
+      "formula": "vₜ₊₁ = βvₜ − η∇f(wₜ),  wₜ₊₁ = wₜ + vₜ₊₁,  v₀ = 0",
+      "note": "Use the question's own form if it gives one"
+    },
+    {
+      "name": "Double-check signs",
+      "formula": "Check the sign before every number: −η × (−g) = +ηg;  w + v with v < 0 means subtract",
+      "note": "One wrong sign breaks every later step"
+    },
+    {
+      "name": "Time per question",
+      "formula": "150 min, 40 marks, 6 questions ⇒ ~25 min per question; keep 15 min aside ⇒ ~3.4 min per mark (4 m ≈ 14 min, 6 m ≈ 20, 7 m ≈ 24, 8 m ≈ 27)",
+      "note": "Stuck at 1.5× the budget? Move on and come back"
+    },
+    {
+      "name": "Momentum, starting velocity",
+      "formula": "v₀ = (0, 0) unless given; w₀ is the starting point (a different thing)",
+      "note": "Write \"assume v₀ = 0\" · ✓ confirmed by Saurabh sir (2023 Q1A)"
+    },
+    {
+      "name": "GD step-size behaviour",
+      "formula": "r = 1 − αλ (λ = f″): α < 1/λ monotone; 1/λ < α < 2/λ oscillating; α > 2/λ divergent",
+      "note": "f = x²: cut-offs 0.5 and 1 · α = (1 − r)/2"
+    },
+    {
+      "name": "Directional derivative",
+      "formula": "D_u f = ∇f · u,  u = d/‖d‖ (unit length first)",
+      "note": "d = (3, 4) ⇒ u = (3/5, 4/5); skipping it gives 5× too big"
+    }
+  ]
+}

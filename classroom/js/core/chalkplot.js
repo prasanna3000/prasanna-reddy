@@ -8,10 +8,31 @@
 (function () {
   'use strict';
 
-  const CHALK = {
+  const CHALK_DARK = {
     white: '#f4f1e8', yellow: '#f3e38a', pink: '#f5a8b8', blue: '#a9d4f5', green: '#b6e3a8', orange: '#f7c08a',
     faint: 'rgba(244,241,232,0.16)', axis: 'rgba(244,241,232,0.7)'
   };
+
+  /* Ink for light boards (the white-card theme): same names, dark enough to read on white. */
+  const INK_LIGHT = {
+    white: '#1B2559', yellow: '#C98A00', pink: '#D6336C', blue: '#4318FF', green: '#2F9E44', orange: '#DD6B20',
+    faint: 'rgba(27,37,89,0.10)', axis: 'rgba(27,37,89,0.55)'
+  };
+  let CHALK = CHALK_DARK;
+  /* pick chalk or ink from the canvas's nearest painted background */
+  function paletteFor(canvas) {
+    let el = canvas;
+    while (el && el.nodeType === 1) {
+      const bg = getComputedStyle(el).backgroundColor;
+      const m = bg && bg.match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?/);
+      if (m && (m[4] === undefined || +m[4] > 0.5)) {
+        const lum = (0.299 * m[1] + 0.587 * m[2] + 0.114 * m[3]) / 255;
+        return lum > 0.6 ? INK_LIGHT : CHALK_DARK;
+      }
+      el = el.parentElement;
+    }
+    return CHALK_DARK;
+  }
 
   function niceStep(range, target) {
     const raw = range / Math.max(1, target);
@@ -40,6 +61,7 @@
 
   function draw(canvas, opts) {
     const series = opts.series || [];
+    CHALK = paletteFor(canvas);
     const cssW = canvas.clientWidth || canvas.parentElement.clientWidth || 400;
     const cssH = opts.height || 260;
     const dpr = window.devicePixelRatio || 1;

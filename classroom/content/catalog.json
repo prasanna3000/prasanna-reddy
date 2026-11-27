@@ -3,7 +3,63 @@
     "name": "The Classroom",
     "tagline": "learn it, practise it, score it",
     "welcome": "Welcome to class!",
-    "intro": "Pick a course to start. Every chapter has a lesson, worked problems you reveal step by step, a lab bench to play with, flashcards, a pop quiz and a printable cheat sheet. Your stars are saved in this browser."
+    "intro": "Pick a course to start. Every chapter has a lesson, worked problems you reveal step by step, a lab bench to play with, flashcards, a pop quiz and a printable cheat sheet. Your stars are saved in this browser.",
+    "schedule": {
+      "title": "📅 MFML first pass: 25–29 Nov",
+      "intro": "Every MFML chapter by Sunday 29 Nov, about 25 hours. Time follows the end-sem marks. P-numbers are Sourabh sir's Solved Practice Set. Start each day with 20 minutes of redoing yesterday's mistakes.",
+      "open": true,
+      "tables": [
+        {
+          "title": "Day by day",
+          "head": [
+            "Day",
+            "Hours",
+            "Chapters (marks in last 3 papers /120)",
+            "Practice set",
+            "Past papers"
+          ],
+          "leftCols": 3,
+          "rows": [
+            [
+              "Wed 25 Nov",
+              "2",
+              "Linear systems, rank, basis, subspace (17)",
+              "P1–P6",
+              "Sep 2025 Q1, Feb 2026 Q2"
+            ],
+            [
+              "Thu 26 Nov (leave)",
+              "8",
+              "Eigen/SVD/Cholesky (17) · Inner products, Gram–Schmidt (10) · Vector calculus (7) · Gradient descent and line search (11)",
+              "P12–P18, P7–P11, P19–P25, P26–P30",
+              "Feb 2026 Q1, Mar 2026 Q1–Q3, Feb 2026 Q3a, Q4"
+            ],
+            [
+              "Fri 27 Nov",
+              "3",
+              "Momentum and optimisers (11)",
+              "P31–P34",
+              "Sep 2025 Q4, Mar 2026 Q4"
+            ],
+            [
+              "Sat 28 Nov",
+              "6",
+              "Lagrange, KKT, dual (9) · PCA (10) · Hard-margin SVM",
+              "P35–P47",
+              "Feb 2026 Q3b–d, Q5, Mar 2026 Q5, Sep 2025 Q2–Q3"
+            ],
+            [
+              "Sun 29 Nov",
+              "6",
+              "Soft margin and kernels (SVM total 28) · full 40-mark mock",
+              "P48–P52, Practice Paper",
+              "Sep 2025 Q5–Q6, Mar 2026 Q6"
+            ]
+          ],
+          "note": "After the 29th, use the Math slots already in your timetable for timed papers: 1 Dec Feb 2026, 2 Dec Mar 2026 and Sep 2025, 5 Dec formula pages only."
+        }
+      ]
+    }
   },
   "semesters": [
     {
@@ -18,77 +74,162 @@
           "title": "Deep Neural Networks",
           "room": "Room 511",
           "color": "#4318FF",
-          "description": "- **Textbook:** Zhang, Lipton, Li & Smola, *Dive into Deep Learning* (2023)\n- **Mid-sem:** EC-2, closed book (done)\n- **Exam:** EC-3 comprehensive, **5 Dec 2026**\n- **Format:** open book · all topics",
+          "description": "- **Textbook:** Zhang, Lipton, Li & Smola, *Dive into Deep Learning* (2023)\n- **Mid-sem syllabus:** up to CNN (chapters 1–6); EC-2, closed book (done)\n- **Exam:** EC-3 comprehensive, **5 Dec 2026**\n- **Format:** open book · all topics",
           "chapters": [
-            {
-              "id": "ch01",
-              "number": 1,
-              "title": "Introduction to Deep Learning",
-              "blurb": "What DL is, why now, and the four parts of every learning problem.",
-              "file": "content/sem1/aiml-zg511/ch01-introduction.json"
-            },
-            {
-              "id": "ch02",
-              "number": 2,
-              "title": "Artificial Neuron & Perceptron",
-              "blurb": "From biological neurons to the perceptron rule, logic gates and XOR.",
-              "file": "content/sem1/aiml-zg511/ch02-perceptron.json"
-            },
-            {
-              "id": "ch03",
-              "number": 3,
-              "title": "Linear Neural Networks for Regression",
-              "blurb": "One neuron that answers \"how much\": squared loss and batch gradient descent.",
-              "file": "content/sem1/aiml-zg511/ch03-linear-regression.json"
-            },
-            {
-              "id": "ch04",
-              "number": 4,
-              "title": "Linear Neural Networks for Classification",
-              "blurb": "Sigmoid + BCE with SGD, softmax + cross-entropy with mini-batches, metrics.",
-              "file": "content/sem1/aiml-zg511/ch04-classification.json"
-            },
-            {
-              "id": "ch05",
-              "number": 5,
-              "title": "Deep Feedforward Networks",
-              "blurb": "Hidden layers, activations, forward pass and backpropagation by hand.",
-              "file": "content/sem1/aiml-zg511/ch05-feedforward.json"
-            },
             {
               "id": "ch06",
               "number": 6,
               "title": "Convolutional Neural Networks",
               "blurb": "Convolution, padding, stride, pooling, parameters, ResNet and transfer learning.",
-              "file": "content/sem1/aiml-zg511/ch06-cnn.json"
-            },
-            {
-              "id": "ch07",
-              "number": 7,
-              "title": "Recurrent Neural Networks",
-              "blurb": "Sequences, BPTT, vanishing gradients, GRU and LSTM.",
-              "file": "content/sem1/aiml-zg511/ch07-rnn.json"
+              "file": "content/sem1/aiml-zg511/ch06-cnn.json",
+              "phase": "pre",
+              "weight": {
+                "marks": 29,
+                "outOf": 70,
+                "papers": "2 of 2"
+              },
+              "needs": [
+                "ch05"
+              ]
             },
             {
               "id": "ch08",
               "number": 8,
               "title": "Attention Mechanism",
               "blurb": "Context bottleneck, Q-K-V, scaled dot product, Bahdanau, self/cross/masked/multi-head, positional encoding.",
-              "file": "content/sem1/aiml-zg511/ch08-attention.json"
+              "file": "content/sem1/aiml-zg511/ch08-attention.json",
+              "phase": "post",
+              "weight": {
+                "marks": 11,
+                "outOf": 70,
+                "papers": "1 of 2"
+              },
+              "needs": [
+                "ch07"
+              ]
             },
             {
-              "id": "ch09",
-              "number": 9,
-              "title": "Transformers",
-              "blurb": "Encoder and decoder blocks, parameter counts, ViT, BERT/GPT/T5 families, fine-tuning.",
-              "file": "content/sem1/aiml-zg511/ch09-transformer.json"
+              "id": "ch07",
+              "number": 7,
+              "title": "Recurrent Neural Networks",
+              "blurb": "Sequences, BPTT, vanishing gradients, GRU and LSTM.",
+              "file": "content/sem1/aiml-zg511/ch07-rnn.json",
+              "phase": "post",
+              "weight": {
+                "marks": 9,
+                "outOf": 70,
+                "papers": "1 of 2"
+              },
+              "needs": [
+                "ch05"
+              ]
             },
             {
               "id": "ch10",
               "number": 10,
               "title": "Optimizers",
               "blurb": "Momentum, Nesterov, AdaGrad, RMSprop, Adam/AdamW, schedules, clipping and tuning.",
-              "file": "content/sem1/aiml-zg511/ch10-optimizers.json"
+              "file": "content/sem1/aiml-zg511/ch10-optimizers.json",
+              "phase": "post",
+              "weight": {
+                "marks": 9,
+                "outOf": 70,
+                "papers": "1 of 2"
+              },
+              "needs": [
+                "ch03"
+              ]
+            },
+            {
+              "id": "ch09",
+              "number": 9,
+              "title": "Transformers",
+              "blurb": "Encoder and decoder blocks, parameter counts, ViT, BERT/GPT/T5 families, fine-tuning.",
+              "file": "content/sem1/aiml-zg511/ch09-transformer.json",
+              "phase": "post",
+              "weight": {
+                "marks": 8,
+                "outOf": 70,
+                "papers": "2 of 2"
+              },
+              "needs": [
+                "ch08"
+              ]
+            },
+            {
+              "id": "ch05",
+              "number": 5,
+              "title": "Deep Feedforward Networks",
+              "blurb": "Hidden layers, activations, forward pass and backpropagation by hand.",
+              "file": "content/sem1/aiml-zg511/ch05-feedforward.json",
+              "phase": "pre",
+              "weight": {
+                "marks": 4,
+                "outOf": 70,
+                "papers": "1 of 2"
+              },
+              "needs": [
+                "ch02",
+                "ch04"
+              ]
+            },
+            {
+              "id": "ch01",
+              "number": 1,
+              "title": "Introduction to Deep Learning",
+              "blurb": "What DL is, why now, and the four parts of every learning problem.",
+              "file": "content/sem1/aiml-zg511/ch01-introduction.json",
+              "phase": "pre",
+              "weight": {
+                "marks": 0,
+                "outOf": 70,
+                "papers": "0 of 2"
+              }
+            },
+            {
+              "id": "ch02",
+              "number": 2,
+              "title": "Artificial Neuron & Perceptron",
+              "blurb": "From biological neurons to the perceptron rule, logic gates and XOR.",
+              "file": "content/sem1/aiml-zg511/ch02-perceptron.json",
+              "phase": "pre",
+              "weight": {
+                "marks": 0,
+                "outOf": 70,
+                "papers": "0 of 2"
+              }
+            },
+            {
+              "id": "ch03",
+              "number": 3,
+              "title": "Linear Neural Networks for Regression",
+              "blurb": "One neuron that answers \"how much\": squared loss and batch gradient descent.",
+              "file": "content/sem1/aiml-zg511/ch03-linear-regression.json",
+              "phase": "pre",
+              "weight": {
+                "marks": 0,
+                "outOf": 70,
+                "papers": "0 of 2"
+              },
+              "needs": [
+                "ch02"
+              ]
+            },
+            {
+              "id": "ch04",
+              "number": 4,
+              "title": "Linear Neural Networks for Classification",
+              "blurb": "Sigmoid + BCE with SGD, softmax + cross-entropy with mini-batches, metrics.",
+              "file": "content/sem1/aiml-zg511/ch04-classification.json",
+              "phase": "pre",
+              "weight": {
+                "marks": 0,
+                "outOf": 70,
+                "papers": "0 of 2"
+              },
+              "needs": [
+                "ch03"
+              ]
             },
             {
               "id": "p-ec2r-2026",
@@ -133,7 +274,102 @@
           ],
           "groupIntros": {
             "Exam hall": "Past papers, solved step by step. Your next exam: **EC-3 comprehensive, 5 Dec 2026** (open book)."
-          }
+          },
+          "weightage": {
+            "title": "Where the marks are: DNN end-sem",
+            "intro": "Counted question by question from the two end-sem papers in the Exam hall: May 2026 regular (40 marks, open book) and the 2023 makeup (30 marks, closed book), 70 marks in all. A question tagged with two chapters is split evenly between them.",
+            "tables": [
+              {
+                "title": "Marks per chapter",
+                "head": [
+                  "Rank",
+                  "Chapter",
+                  "May 2026",
+                  "2023 makeup",
+                  "Total /70",
+                  "Share",
+                  "Papers"
+                ],
+                "leftCols": 2,
+                "rows": [
+                  [
+                    "1",
+                    "6 · CNN (incl. deep CNNs, transfer learning)",
+                    "13 (Q2, Q5)",
+                    "16 (Q1 half, Q3, Q4)",
+                    "**29**",
+                    "41%",
+                    "2 of 2"
+                  ],
+                  [
+                    "2",
+                    "8 · Attention",
+                    "11 (Q3, Q4 half)",
+                    "·",
+                    "**11**",
+                    "16%",
+                    "1 of 2"
+                  ],
+                  [
+                    "3",
+                    "7 · RNN",
+                    "·",
+                    "9 (Q1 half, Q5)",
+                    "**9**",
+                    "13%",
+                    "1 of 2"
+                  ],
+                  [
+                    "3",
+                    "10 · Optimizers",
+                    "9 (Q1 half, Q6)",
+                    "·",
+                    "**9**",
+                    "13%",
+                    "1 of 2"
+                  ],
+                  [
+                    "5",
+                    "9 · Transformer",
+                    "3 (Q4 half)",
+                    "5 (Q2)",
+                    "**8**",
+                    "11%",
+                    "2 of 2"
+                  ],
+                  [
+                    "6",
+                    "5 · Deep feedforward networks",
+                    "4 (Q1 half)",
+                    "·",
+                    "**4**",
+                    "6%",
+                    "1 of 2"
+                  ],
+                  [
+                    "·",
+                    "1–4 · Intro, perceptron, linear networks",
+                    "·",
+                    "·",
+                    "**0**",
+                    "0%",
+                    "0 of 2"
+                  ],
+                  [
+                    "Total",
+                    "",
+                    "40",
+                    "30",
+                    "**70**",
+                    "100%",
+                    ""
+                  ]
+                ],
+                "note": "Only two end-sem papers so far, so treat this as a guide. Chapters 1–4 were tested in the mid-sem instead."
+              }
+            ]
+          },
+          "short": "DNN"
         },
         {
           "id": "aiml-zc418",
@@ -142,92 +378,8 @@
           "room": "Room 418",
           "color": "#7551FF",
           "teacher": "Prof. Srinath R Naidu",
-          "description": "- **Textbooks:** T1 Kaptein et al., *Statistics for Data Scientists*; T2 Devore, *Probability and Statistics for Engineering and the Sciences*; T3 Brockwell & Davis, *Introduction to Time Series and Forecasting*\n- **Exam:** EC-3 comprehensive\n- **Format:** open book · 40% of the course\n- **Pre-mid syllabus:** CS 1–7, roughly 10–15% of end-sem marks; the rest comes from CS 9 onwards",
+          "description": "- **Textbooks:** T1 Kaptein et al., *Statistics for Data Scientists*; T2 Devore, *Probability and Statistics for Engineering and the Sciences*; T3 Brockwell & Davis, *Introduction to Time Series and Forecasting*\n- **Exam:** EC-3 comprehensive\n- **Format:** open book · 40% of the course\n- **Pre-mid syllabus:** CS 1–7 (up to module 7; CS 8 is the review), roughly 10–15% of end-sem marks; the rest comes from CS 9 onwards",
           "chapters": [
-            {
-              "id": "ch01",
-              "number": 1,
-              "title": "Descriptive Statistics",
-              "blurb": "Central tendency, spread, skew, outliers, five-number summary.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 5,
-                "outOf": 280,
-                "papers": "1 of 7"
-              }
-            },
-            {
-              "id": "ch02",
-              "number": 2,
-              "title": "Probability Basics",
-              "blurb": "Axioms, addition rule, mutually exclusive vs independent events.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 3,
-                "outOf": 280,
-                "papers": "1 of 7"
-              }
-            },
-            {
-              "id": "ch03",
-              "number": 3,
-              "title": "Conditional & Total Probability",
-              "blurb": "Conditioning, independence, the law of total probability.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 13,
-                "outOf": 280,
-                "papers": "3 of 7"
-              }
-            },
-            {
-              "id": "ch04",
-              "number": 4,
-              "title": "Bayes' Theorem & Naïve Bayes",
-              "blurb": "Bayes with proof, Naïve Bayes classification, Laplace smoothing.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 4,
-                "outOf": 280,
-                "papers": "1 of 7"
-              }
-            },
-            {
-              "id": "ch05",
-              "number": 5,
-              "title": "Random Variables",
-              "blurb": "Discrete and continuous, expectation, variance, joint distributions.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 5,
-                "outOf": 280,
-                "papers": "1 of 7"
-              }
-            },
-            {
-              "id": "ch06",
-              "number": 6,
-              "title": "Probability Distributions",
-              "blurb": "Bernoulli, Binomial, Poisson, Normal; t, F and χ² introduced.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 2,
-                "outOf": 280,
-                "papers": "1 of 7"
-              }
-            },
-            {
-              "id": "ch07",
-              "number": 7,
-              "title": "Sampling & Estimation",
-              "blurb": "Sampling distributions, CLT, point and interval estimation.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 4,
-                "outOf": 280,
-                "papers": "2 of 7"
-              }
-            },
             {
               "id": "ch09",
               "number": 9,
@@ -238,19 +390,12 @@
                 "marks": 71,
                 "outOf": 280,
                 "papers": "7 of 7"
-              }
-            },
-            {
-              "id": "ch10",
-              "number": 10,
-              "title": "Maximum Likelihood & ANOVA",
-              "blurb": "MLE for Bernoulli, Binomial, Poisson and Normal, F-test for two variances, one-way and two-way ANOVA.",
-              "file": "content/sem1/aiml-zc418/ch10-mle-anova.json",
-              "weight": {
-                "marks": 34,
-                "outOf": 280,
-                "papers": "6 of 7"
-              }
+              },
+              "phase": "post",
+              "needs": [
+                "ch07",
+                "ch06"
+              ]
             },
             {
               "id": "ch11",
@@ -262,31 +407,11 @@
                 "marks": 59,
                 "outOf": 280,
                 "papers": "7 of 7"
-              }
-            },
-            {
-              "id": "ch12",
-              "number": 12,
-              "title": "Prediction & Forecasting",
-              "blurb": "Trend, seasonality, moving averages.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 15,
-                "outOf": 280,
-                "papers": "3 of 7"
-              }
-            },
-            {
-              "id": "ch13",
-              "number": 13,
-              "title": "Time Series Models",
-              "blurb": "AR, MA, ARMA, ARIMA.",
-              "comingSoon": true,
-              "weight": {
-                "marks": 0,
-                "outOf": 280,
-                "papers": "0 of 7"
-              }
+              },
+              "phase": "post",
+              "needs": [
+                "ch01"
+              ]
             },
             {
               "id": "ch14",
@@ -298,7 +423,57 @@
                 "marks": 57,
                 "outOf": 280,
                 "papers": "7 of 7"
-              }
+              },
+              "phase": "post",
+              "needs": [
+                "ch12"
+              ]
+            },
+            {
+              "id": "ch10",
+              "number": 10,
+              "title": "Maximum Likelihood & ANOVA",
+              "blurb": "MLE for Bernoulli, Binomial, Poisson and Normal, F-test for two variances, one-way and two-way ANOVA.",
+              "file": "content/sem1/aiml-zc418/ch10-mle-anova.json",
+              "weight": {
+                "marks": 34,
+                "outOf": 280,
+                "papers": "6 of 7"
+              },
+              "phase": "post",
+              "needs": [
+                "ch09",
+                "ch06"
+              ]
+            },
+            {
+              "id": "ch12",
+              "number": 12,
+              "title": "Prediction & Forecasting",
+              "blurb": "Trend, seasonality, moving averages.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 15,
+                "outOf": 280,
+                "papers": "3 of 7"
+              },
+              "phase": "post"
+            },
+            {
+              "id": "ch03",
+              "number": 3,
+              "title": "Conditional & Total Probability",
+              "blurb": "Conditioning, independence, the law of total probability.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 13,
+                "outOf": 280,
+                "papers": "3 of 7"
+              },
+              "phase": "pre",
+              "needs": [
+                "ch02"
+              ]
             },
             {
               "id": "ch15",
@@ -310,7 +485,119 @@
                 "marks": 8,
                 "outOf": 280,
                 "papers": "2 of 7"
-              }
+              },
+              "phase": "post",
+              "needs": [
+                "ch06",
+                "ch10"
+              ]
+            },
+            {
+              "id": "ch01",
+              "number": 1,
+              "title": "Descriptive Statistics",
+              "blurb": "Central tendency, spread, skew, outliers, five-number summary.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 5,
+                "outOf": 280,
+                "papers": "1 of 7"
+              },
+              "phase": "pre"
+            },
+            {
+              "id": "ch05",
+              "number": 5,
+              "title": "Random Variables",
+              "blurb": "Discrete and continuous, expectation, variance, joint distributions.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 5,
+                "outOf": 280,
+                "papers": "1 of 7"
+              },
+              "phase": "pre",
+              "needs": [
+                "ch02"
+              ]
+            },
+            {
+              "id": "ch07",
+              "number": 7,
+              "title": "Sampling & Estimation",
+              "blurb": "Sampling distributions, CLT, point and interval estimation.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 4,
+                "outOf": 280,
+                "papers": "2 of 7"
+              },
+              "phase": "pre",
+              "needs": [
+                "ch06"
+              ]
+            },
+            {
+              "id": "ch04",
+              "number": 4,
+              "title": "Bayes' Theorem & Naïve Bayes",
+              "blurb": "Bayes with proof, Naïve Bayes classification, Laplace smoothing.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 4,
+                "outOf": 280,
+                "papers": "1 of 7"
+              },
+              "phase": "pre",
+              "needs": [
+                "ch03"
+              ]
+            },
+            {
+              "id": "ch02",
+              "number": 2,
+              "title": "Probability Basics",
+              "blurb": "Axioms, addition rule, mutually exclusive vs independent events.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 3,
+                "outOf": 280,
+                "papers": "1 of 7"
+              },
+              "phase": "pre"
+            },
+            {
+              "id": "ch06",
+              "number": 6,
+              "title": "Probability Distributions",
+              "blurb": "Bernoulli, Binomial, Poisson, Normal; t, F and χ² introduced.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 2,
+                "outOf": 280,
+                "papers": "1 of 7"
+              },
+              "phase": "pre",
+              "needs": [
+                "ch05"
+              ]
+            },
+            {
+              "id": "ch13",
+              "number": 13,
+              "title": "Time Series Models",
+              "blurb": "AR, MA, ARMA, ARIMA.",
+              "comingSoon": true,
+              "weight": {
+                "marks": 0,
+                "outOf": 280,
+                "papers": "0 of 7"
+              },
+              "phase": "post",
+              "needs": [
+                "ch12",
+                "ch11"
+              ]
             }
           ],
           "weightage": {
@@ -635,7 +922,8 @@
               }
             ],
             "footnote": "Judgement calls: 2023 makeup Q3b (10) is split 5 and 5 between CS 12 and CS 14; previous-batch Q1b (7) is split 3 correlation and 4 regression; previous-batch Q2b (5) is taken as a chi-square test; autocorrelation and white noise are counted under CS 14."
-          }
+          },
+          "short": "ISM"
         },
         {
           "id": "aiml-zg565",
@@ -834,14 +1122,20 @@
               "number": 9,
               "label": "CS 9",
               "title": "Support Vector Machines",
-              "blurb": "Linear and non-linear SVM, kernels, support vectors. Before: dot product, ‖w‖, distance from a point to a line; Lagrange/KKT (MFML L14–15).",
+              "blurb": "Linear and non-linear SVM, kernels, support vectors. Before: dot product, ‖w‖, distance from a point to a line; Lagrange/KKT (MFML Lectures 11, 14).",
               "weight": {
                 "marks": 36,
                 "outOf": 160,
                 "papers": "4 of 4",
                 "pattern": "4–8"
               },
-              "file": "content/sem1/aiml-zg565/ch09-svm.json"
+              "file": "content/sem1/aiml-zg565/ch09-svm.json",
+              "phase": "post",
+              "needs": [
+                "ch04",
+                "aiml-zc416/ch11",
+                "aiml-zc416/ch14"
+              ]
             },
             {
               "id": "ch14",
@@ -855,7 +1149,11 @@
                 "outOf": 160,
                 "papers": "4 of 4",
                 "pattern": "4–8"
-              }
+              },
+              "phase": "post",
+              "needs": [
+                "ch10"
+              ]
             },
             {
               "id": "ch12",
@@ -869,7 +1167,12 @@
                 "outOf": 160,
                 "papers": "4 of 4",
                 "pattern": "4–8"
-              }
+              },
+              "phase": "post",
+              "needs": [
+                "ch06",
+                "ch03"
+              ]
             },
             {
               "id": "ch10",
@@ -883,7 +1186,13 @@
                 "outOf": 160,
                 "papers": "4 of 4",
                 "pattern": "4–8"
-              }
+              },
+              "phase": "post",
+              "needs": [
+                "ch02",
+                "aiml-zc418/ch04",
+                "aiml-zc418/ch06"
+              ]
             },
             {
               "id": "ch07",
@@ -897,7 +1206,11 @@
                 "outOf": 160,
                 "papers": "3 of 4",
                 "pattern": "4–8"
-              }
+              },
+              "phase": "post",
+              "needs": [
+                "ch03"
+              ]
             },
             {
               "id": "ch03",
@@ -911,7 +1224,11 @@
                 "outOf": 160,
                 "papers": "3 of 4",
                 "pattern": "5–10 for CS 1–6 together"
-              }
+              },
+              "phase": "pre",
+              "needs": [
+                "ch02"
+              ]
             },
             {
               "id": "ch06",
@@ -925,7 +1242,14 @@
                 "outOf": 160,
                 "papers": "2 of 4",
                 "pattern": "5–10 for CS 1–6 together"
-              }
+              },
+              "phase": {
+                "kind": "mixed",
+                "text": "Pre-mid up to information gain; overfitting, continuous and missing values are post-mid"
+              },
+              "needs": [
+                "ch02"
+              ]
             },
             {
               "id": "ch04",
@@ -939,7 +1263,11 @@
                 "outOf": 160,
                 "papers": "1 of 4",
                 "pattern": "5–10 for CS 1–6 together"
-              }
+              },
+              "phase": "pre",
+              "needs": [
+                "ch03"
+              ]
             },
             {
               "id": "ch15",
@@ -954,7 +1282,11 @@
                 "papers": "0 of 4",
                 "pattern": "4–8",
                 "note": "4 marks in Sourabh sir's Practice Paper 01"
-              }
+              },
+              "phase": "post",
+              "needs": [
+                "ch04"
+              ]
             },
             {
               "id": "ch01",
@@ -965,7 +1297,8 @@
               "comingSoon": true,
               "weight": {
                 "pattern": "5–10 for CS 1–6 together"
-              }
+              },
+              "phase": "pre"
             },
             {
               "id": "ch02",
@@ -976,7 +1309,8 @@
               "comingSoon": true,
               "weight": {
                 "pattern": "5–10 for CS 1–6 together"
-              }
+              },
+              "phase": "pre"
             },
             {
               "id": "p-es-reg-2026",
@@ -1036,7 +1370,8 @@
               "**kNN, LWR** (CS 7): 17/160"
             ]
           },
-          "exam": "📝 EC-3 comprehensive · **6 Dec 2026, afternoon** · open book · 2 hours · 40 marks · 40% of the course"
+          "exam": "📝 EC-3 comprehensive · **6 Dec 2026, afternoon** · open book · 2 hours · 40 marks · 40% of the course",
+          "short": "ML"
         },
         {
           "id": "aiml-zc416",
@@ -1045,69 +1380,611 @@
           "room": "Room 416",
           "color": "#E3478B",
           "teacher": "Prof. Saurabh",
-          "description": "- **Textbook:** T1 Deisenroth, Faisal & Ong, *Mathematics for Machine Learning*\n- **Exam:** EC-3 comprehensive, **6 Dec 2026 (morning)**\n- **Format:** open book · 150 minutes · 40% of the course\n- **Pre-mid syllabus:** lectures 1–8, which took 35–45% of the marks in the Feb and Mar 2026 end-sem papers",
+          "description": "- **Textbooks:** T1 Deisenroth, Faisal & Ong, *Mathematics for Machine Learning*; T2 Aggarwal, *Linear Algebra and Optimization*\n- **Reference books:** R1 Hoffman & Kunze, *Linear Algebra*; R2 Kreyszig, *Advanced Engineering Mathematics*\n- **Pre-mid syllabus:** lectures 1–8 (up to module 8) (linear algebra, decompositions, vector calculus): 35–45% of the end-sem marks. Do not skip them.\n- **Lectures not written yet: read first, video only if stuck** (Lectures 9, 11–16 have this inside the card):\n| Lectures | Needs first | Read first (slides + Sourabh sir) | One video, only if stuck |\n| L1–2 Linear systems, rank, basis | nothing | `Lecture_1.pdf`, `Lecture_2.pdf`; `Lecture_1_Companion`, `Lecture_2_Companion`; P1–P6 | [Column space and null space](https://www.youtube.com/watch?v=uQhTuRlWMxw) |\n| L4–5 Eigenvalues, SVD | Ax = 0 (L1–2) | `Lecture_4.pdf`, `Lecture_5.pdf`; `Lecture_4_Companion`, `Lecture_5_Companion`; P12–P18 | [Eigenvectors and eigenvalues](https://www.youtube.com/watch?v=PFDu9oVAE-g); SVD only if stuck: [SVD overview](https://www.youtube.com/watch?v=gXbThCXjZFM) |\n| L3 Inner products, Gram–Schmidt | leading minors (L4) | `Lecture_3.pdf` p. 4–9, 13–25; `Lecture_3_Companion`; P7–P11 | [Gram–Schmidt (Oxford)](https://www.youtube.com/watch?v=RoI0InFNVSs) |\n| L6–8 Vector calculus | school derivatives | `Lecture_6.pdf`–`Lecture_8.pdf`; `Lecture_6_Companion`, `Lecture_7_Companion`, `lecture_8_Companion`; P19–P25 | [Positive definite and minima](https://www.youtube.com/watch?v=cfn2ZUuWPd0) (the Hessian test) |\n| L11, L14 Lagrange, KKT | gradient (L6–8) | `Lecture_11.pdf` p. 20–34; `Lecture_14.pdf` p. 3–11; `Lagrange-KKT-Duality-Practice-Set`; P35–P39 | [Visualizing KKT](https://www.youtube.com/watch?v=yDMlNumgZ9E) |",
           "chapters": [
             {
-              "id": "ch09",
-              "number": 9,
-              "label": "L9",
-              "title": "Gradient Descent",
-              "blurb": "Loss, the GD rule, step size, decay, line search, SGD. Practice and past-paper problems.",
-              "file": "content/sem1/aiml-zc416/ch09-gradient-descent.json"
-            },
-            {
-              "id": "ch10",
-              "number": 10,
-              "label": "L10",
-              "title": "Optimisation I",
-              "blurb": "Initialisation, scaling, SGD in machine learning.",
-              "comingSoon": true
+              "id": "exam-day",
+              "group": "On the day of the exam",
+              "label": "Checklist + cheat sheet",
+              "title": "On the day of the exam",
+              "blurb": "Quick checks and rules collected while studying, plus a printable cheat sheet. Read it the evening before and once more before the paper.",
+              "file": "content/sem1/aiml-zc416/exam-day.json"
             },
             {
               "id": "ch11",
               "number": 11,
-              "label": "L11",
-              "title": "Optimisation II",
-              "blurb": "Momentum, AdaGrad, RMSProp, Adam; convex sets, LP and the Lagrangian.",
-              "comingSoon": true
+              "label": "Lecture 11",
+              "title": "Momentum, Adam & Constrained Optimisation",
+              "blurb": "Momentum, AdaGrad, RMSProp, Adam (p. 2–19); constrained optimisation, Lagrangian, primal and dual, convexity, LP, QP (p. 20–34). 20 solved problems. Before: gradient descent (Lecture 9).",
+              "weight": {
+                "marks": 17,
+                "outOf": 120,
+                "papers": "3 of 3",
+                "note": "Practice Paper Q4: 6 marks"
+              },
+              "phase": "post",
+              "file": "content/sem1/aiml-zc416/ch11-lecture11.json",
+              "needs": [
+                "ch09",
+                "ch06"
+              ]
             },
             {
-              "id": "ch12",
-              "number": 12,
-              "label": "L12",
-              "title": "PCA I",
-              "blurb": "Maximum variance and projection views.",
-              "comingSoon": true
-            },
-            {
-              "id": "ch13",
-              "number": 13,
-              "label": "L13",
-              "title": "PCA II",
-              "blurb": "Eigenvectors, low-rank approximation, steps in practice.",
-              "comingSoon": true
+              "id": "ch02",
+              "number": 2,
+              "label": "Lecture 2",
+              "title": "Vector Spaces, Independence, Basis & Rank",
+              "blurb": "Linear (in)dependence, span, basis, dimension, rank, subspaces. Before: Gaussian elimination (Lecture 1).",
+              "weight": {
+                "marks": 17,
+                "outOf": 120,
+                "papers": "3 of 3"
+              },
+              "comingSoon": true,
+              "phase": "pre",
+              "needs": [
+                "ch01"
+              ]
             },
             {
               "id": "ch14",
               "number": 14,
-              "label": "L14",
-              "title": "Constrained Optimisation, KKT and Linear Classifiers",
-              "blurb": "Primal and dual, KKT, kernels, the SVM setup.",
-              "comingSoon": true
+              "label": "Lecture 14",
+              "title": "KKT, Hyperplanes, Kernel Functions & the SVM Primal",
+              "blurb": "Lagrangian, duality, KKT conditions (p. 3–11); hyperplane, kernel functions, linear classifier, the hard-margin primal (p. 12–24). Question models M1, M6, M7. Before: dot product and norm (Lecture 3); Lagrangian (Lecture 11).",
+              "weight": {
+                "marks": 17,
+                "outOf": 120,
+                "papers": "2 of 3",
+                "note": "Practice Paper Q6: 5 marks"
+              },
+              "file": "content/sem1/aiml-zc416/ch14-lecture14.json",
+              "phase": "post",
+              "needs": [
+                "ch03",
+                "ch11"
+              ]
             },
             {
               "id": "ch15",
               "number": 15,
-              "label": "L15",
-              "title": "SVM",
-              "blurb": "Hard and soft margin, the dual, kernels.",
-              "comingSoon": true
+              "label": "Lecture 15",
+              "title": "Solving the SVM: Dual & Soft Margin",
+              "blurb": "The dual, support vectors, soft margin, slack, hinge loss, the effect of C. Question models M2–M5. Before: Lecture 14.",
+              "weight": {
+                "marks": 14,
+                "outOf": 120,
+                "papers": "2 of 3"
+              },
+              "file": "content/sem1/aiml-zc416/ch15-lecture15.json",
+              "phase": "post",
+              "needs": [
+                "ch14"
+              ]
+            },
+            {
+              "id": "ch09",
+              "number": 9,
+              "label": "Lecture 9",
+              "title": "Gradient Descent & Line Search",
+              "blurb": "Loss, the GD rule, step size, learning-rate decay, exact and golden-section / binary line search, SGD. Before: gradient (Lecture 6), Hessian (Lecture 8).",
+              "weight": {
+                "marks": 11,
+                "outOf": 120,
+                "papers": "2 of 3"
+              },
+              "file": "content/sem1/aiml-zc416/ch09-gradient-descent.json",
+              "phase": "post",
+              "needs": [
+                "ch06",
+                "ch08"
+              ]
+            },
+            {
+              "id": "ch03",
+              "number": 3,
+              "label": "Lecture 3",
+              "title": "Norms, Inner Products & Gram–Schmidt",
+              "blurb": "Norms, inner product from a symmetric positive-definite matrix, length, angle, orthogonality, orthonormal basis, Gram–Schmidt. Before: dot product; leading minors (Lecture 4).",
+              "weight": {
+                "marks": 10,
+                "outOf": 120,
+                "papers": "2 of 3",
+                "note": "Practice Paper Q3: 6 marks"
+              },
+              "comingSoon": true,
+              "phase": "pre",
+              "needs": [
+                "ch04"
+              ]
+            },
+            {
+              "id": "ch04",
+              "number": 4,
+              "label": "Lecture 4",
+              "title": "Determinant, Eigenvalues & Cholesky",
+              "blurb": "Determinant and trace, characteristic polynomial, eigenvalues and eigenvectors, spectral theorem, Cholesky. Before: solving Ax = 0 (Lectures 1–2).",
+              "weight": {
+                "marks": 10,
+                "outOf": 120,
+                "papers": "2 of 3",
+                "note": "Practice Paper Q1: 6 marks"
+              },
+              "comingSoon": true,
+              "phase": "pre",
+              "needs": [
+                "ch02"
+              ]
+            },
+            {
+              "id": "ch05",
+              "number": 5,
+              "label": "Lecture 5",
+              "title": "Eigendecomposition & SVD",
+              "blurb": "Diagonalisation, eigendecomposition, SVD, comparing SVD and EVD, rank-1 approximation. Before: eigenvalues (Lecture 4).",
+              "weight": {
+                "marks": 7,
+                "outOf": 120,
+                "papers": "2 of 3"
+              },
+              "comingSoon": true,
+              "phase": "pre",
+              "needs": [
+                "ch04"
+              ]
+            },
+            {
+              "id": "ch13",
+              "number": 13,
+              "label": "Lecture 13",
+              "title": "PCA in Practice",
+              "blurb": "Reduce and reconstruct, a new point, choosing M, wide data (D ≫ N), the SVD route and Eckart–Young, power iteration and reasoning questions. Types 3–6, 12 solved problems. Before: Lecture 12.",
+              "weight": {
+                "marks": 7,
+                "outOf": 120,
+                "papers": "1 of 3",
+                "note": "Practice Paper Q5: 6 marks"
+              },
+              "phase": "post",
+              "needs": [
+                "ch12",
+                "ch05"
+              ],
+              "file": "content/sem1/aiml-zc416/ch13-lecture13.json"
+            },
+            {
+              "id": "ch06",
+              "number": 6,
+              "label": "Lecture 6",
+              "title": "Partial Derivatives & Gradients",
+              "blurb": "Partial differentiation, gradients, gradients of vector-valued functions, chain rule.",
+              "weight": {
+                "marks": 4,
+                "outOf": 120,
+                "papers": "2 of 3"
+              },
+              "comingSoon": true,
+              "phase": "pre"
+            },
+            {
+              "id": "ch08",
+              "number": 8,
+              "label": "Lecture 8",
+              "title": "Hessian, Taylor Series & Extrema",
+              "blurb": "Hessian matrix, Taylor's series in two variables, mean-value theorem, maxima and minima. Before: gradients (Lecture 6).",
+              "weight": {
+                "marks": 3,
+                "outOf": 120,
+                "papers": "1 of 3"
+              },
+              "comingSoon": true,
+              "phase": "pre",
+              "needs": [
+                "ch06",
+                "ch04"
+              ]
+            },
+            {
+              "id": "ch12",
+              "number": 12,
+              "label": "Lecture 12",
+              "title": "PCA: Maximum Variance",
+              "blurb": "Why PCA chases variance (with an interactive line), the full PCA recipe by hand, and the Lagrangian proof that PC1 is the top eigenvector. Types 1–2, 13 solved problems. Before: eigenvalues (Lecture 4).",
+              "weight": {
+                "marks": 3,
+                "outOf": 120,
+                "papers": "1 of 3",
+                "note": "Practice Paper Q5: 6 marks; PCA got 10 marks in each older paper"
+              },
+              "phase": "post",
+              "needs": [
+                "ch03",
+                "ch04"
+              ],
+              "file": "content/sem1/aiml-zc416/ch12-lecture12.json"
+            },
+            {
+              "id": "ch01",
+              "number": 1,
+              "label": "Lecture 1",
+              "title": "Solution of Linear Systems",
+              "blurb": "Systems of equations, augmented matrix, Gaussian elimination, unique / infinite / no solution.",
+              "weight": {
+                "marks": 0,
+                "outOf": 120,
+                "papers": "0 of 3",
+                "note": "Practice Paper Q2: 6 marks"
+              },
+              "comingSoon": true,
+              "phase": "pre"
+            },
+            {
+              "id": "ch16",
+              "number": 16,
+              "label": "Lecture 16",
+              "title": "Nonlinear SVM: the Kernel Trick",
+              "blurb": "Expert lecture, no slides. Kernel SVM on data no line separates (model M8). Before: kernel functions (Lecture 14), the dual (Lecture 15).",
+              "weight": {
+                "marks": 0,
+                "outOf": 120,
+                "papers": "0 of 3",
+                "note": "Practice Paper Q7: 5 marks; 10 marks in the 2023 papers"
+              },
+              "file": "content/sem1/aiml-zc416/ch16-lecture16.json",
+              "phase": "post",
+              "needs": [
+                "ch14",
+                "ch15"
+              ]
+            },
+            {
+              "id": "ch07",
+              "number": 7,
+              "label": "Lecture 7",
+              "title": "Backpropagation & Automatic Differentiation",
+              "blurb": "Chain rule through a computation graph, backpropagation. Before: gradients (Lecture 6).",
+              "weight": {
+                "marks": 0,
+                "outOf": 120,
+                "papers": "0 of 3"
+              },
+              "comingSoon": true,
+              "phase": "pre",
+              "needs": [
+                "ch06"
+              ]
+            },
+            {
+              "id": "ch10",
+              "number": 10,
+              "label": "Lecture 10",
+              "title": "Optimisation in Practice",
+              "blurb": "Local optima and flat regions, differential curvature, feature normalisation, overfitting. Before: gradient descent (Lecture 9).",
+              "weight": {
+                "marks": 0,
+                "outOf": 120,
+                "papers": "0 of 3"
+              },
+              "comingSoon": true,
+              "phase": "post",
+              "needs": [
+                "ch09"
+              ]
+            },
+            {
+              "id": "p-es-reg-2026",
+              "group": "Exam hall",
+              "label": "End-sem · Feb 2026 regular",
+              "title": "Comprehensive, Feb 2026 (Regular)",
+              "blurb": "Eigenvalues and diagonalisation, rank and determinant, inner product + KKT, Hessian and GD with decay, hard-margin SVM.",
+              "file": "content/sem1/aiml-zc416/paper-es-reg-2026.json"
+            },
+            {
+              "id": "p-es-mkp-2026",
+              "group": "Exam hall",
+              "label": "End-sem · Mar 2026 makeup",
+              "title": "Comprehensive, Mar 2026 (Makeup)",
+              "blurb": "Eigenspace, Gram–Schmidt, binary-search line search, momentum, PCA, soft-margin hinge loss.",
+              "file": "content/sem1/aiml-zc416/paper-es-mkp-2026.json"
+            },
+            {
+              "id": "p-es-reg-2025",
+              "group": "Exam hall",
+              "label": "End-sem · Sep 2025 regular",
+              "title": "Comprehensive, Sep 2025 (Regular)",
+              "blurb": "Rank and column space, SVD and covariance, chain rule + dual, momentum vs GD, hinge loss of two models, (1 + xz)² kernel matrix.",
+              "file": "content/sem1/aiml-zc416/paper-es-reg-2025.json"
+            },
+            {
+              "id": "p-es-reg-2024",
+              "group": "Exam hall",
+              "label": "End-sem · Sep 2024 regular",
+              "title": "Comprehensive, Sep 2024 (Regular)",
+              "blurb": "Older 4 × 10 style. General solution and skew-symmetric matrices, SVM dual + kernel map + momentum average, PCA + power method, backprop graph.",
+              "file": "content/sem1/aiml-zc416/paper-es-reg-2024.json"
+            },
+            {
+              "id": "p-es-mkp-2024",
+              "group": "Exam hall",
+              "label": "End-sem · Sep 2024 makeup",
+              "title": "Comprehensive, Sep 2024 (Makeup)",
+              "blurb": "Older 4 × 10 style. 10-mark KKT signal tower, cubic + GD zone of attraction, PCA, soft-margin C, echelon form and subspaces.",
+              "file": "content/sem1/aiml-zc416/paper-es-mkp-2024.json"
+            },
+            {
+              "id": "p-es-reg-2023",
+              "group": "Exam hall",
+              "label": "End-sem · 2023 regular (Apr 2024)",
+              "title": "Comprehensive, 2023 (Regular, Apr 2024)",
+              "blurb": "Older 4 × 10 style, no key. Find β from momentum iterates, Cholesky, kernel trick on 1-D data, null space, sigmoid gradient, PCA on four points.",
+              "file": "content/sem1/aiml-zc416/paper-es-reg-2023.json"
+            },
+            {
+              "id": "p-es-prev-2023",
+              "group": "Exam hall",
+              "label": "End-sem · previous batch (Apr 2023)",
+              "title": "Comprehensive, previous batch (about Apr 2023)",
+              "blurb": "Scanned online paper, 9 short questions, no key. SVM dual add-a-point (asked again in Sep 2024), Gaussian elimination, SVD, PCA under rotation, AM–GM by Lagrange, convex sets, a quadratic form.",
+              "file": "content/sem1/aiml-zc416/paper-es-prev-2023.json"
+            },
+            {
+              "id": "p-es-mkp-2022",
+              "group": "Exam hall",
+              "label": "End-sem · 2022 makeup",
+              "title": "Comprehensive, 2022 (Makeup)",
+              "blurb": "Oldest style, 4 × 10. Quartic minima, PCA direction, KKT check, five short linear-algebra proofs, XᵀX trick, exact line search, GD on a parabola, kernel feature map.",
+              "file": "content/sem1/aiml-zc416/paper-es-mkp-2022.json"
+            },
+            {
+              "id": "p-es-reg-2022",
+              "group": "Exam hall",
+              "label": "End-sem · 2022 regular (Oct 2022)",
+              "title": "Comprehensive, 2022 (Regular)",
+              "blurb": "Oldest style, 3 long questions. PCA after scaling, SVM dual by hand, convexity proofs, SVD and trace, gradients, inner product from a matrix, nearest zero-trace matrix.",
+              "file": "content/sem1/aiml-zc416/paper-es-reg-2022.json"
+            },
+            {
+              "id": "p-pp",
+              "group": "Try it on your own",
+              "label": "Sourabh sir",
+              "title": "Practice Paper",
+              "blurb": "Sit it under exam conditions first. Eigen-structure, parametric system, Gram–Schmidt, momentum, PCA, hard-margin SVM, kernel SVM.",
+              "file": "content/sem1/aiml-zc416/paper-pp.json"
             }
           ],
           "weightage": {
             "title": "Where the marks are: MFML end-sem",
-            "intro": "Counted question by question from the two newest end-sem papers (Feb 2026 regular and Mar 2026 makeup, 40 marks each). Pre-mid = lectures 1–8 (linear algebra, decompositions, vector calculus); post-mid = lectures 9–15 (gradient descent, optimisation, PCA, KKT, SVM). The comprehensive is open book, 150 minutes, 40% of the course.",
+            "intro": "Counted question by question from the three newest end-sem papers, which share the current format (6 questions, 40 marks, 150 minutes): Sep 2025 regular, Feb 2026 regular and Mar 2026 makeup, 120 marks in all. Pre-mid = lectures 1–8 (linear algebra, decompositions, vector calculus); post-mid = lectures 9–15 (gradient descent, optimisation, PCA, KKT, SVM).",
             "tables": [
+              {
+                "title": "Lecture weightage: last three end-sem papers",
+                "head": [
+                  "Rank",
+                  "Lecture",
+                  "Sep 2025",
+                  "Feb 2026",
+                  "Mar 2026",
+                  "Total /120",
+                  "Share"
+                ],
+                "leftCols": 2,
+                "rows": [
+                  [
+                    "1",
+                    "11 · Momentum + Lagrangian, dual",
+                    "10",
+                    "3",
+                    "4",
+                    "**17**",
+                    "14%"
+                  ],
+                  [
+                    "2",
+                    "2 · Independence, basis, rank",
+                    "7",
+                    "8",
+                    "2",
+                    "**17**",
+                    "14%"
+                  ],
+                  [
+                    "3",
+                    "14 · KKT, SVM primal, kernel functions",
+                    "6",
+                    "11",
+                    "·",
+                    "**17**",
+                    "14%"
+                  ],
+                  [
+                    "4",
+                    "15 · Soft margin, dual",
+                    "7",
+                    "·",
+                    "7",
+                    "**14**",
+                    "12%"
+                  ],
+                  [
+                    "5",
+                    "9 · Gradient descent, line search",
+                    "·",
+                    "4",
+                    "7",
+                    "**11**",
+                    "9%"
+                  ],
+                  [
+                    "6",
+                    "3 · Inner products, Gram–Schmidt",
+                    "·",
+                    "2",
+                    "8",
+                    "**10**",
+                    "8%"
+                  ],
+                  [
+                    "6",
+                    "4 · Determinant, eigenvalues",
+                    "·",
+                    "5",
+                    "5",
+                    "**10**",
+                    "8%"
+                  ],
+                  [
+                    "8",
+                    "5 · Eigendecomposition, SVD",
+                    "4",
+                    "3",
+                    "·",
+                    "**7**",
+                    "6%"
+                  ],
+                  [
+                    "9",
+                    "13 · PCA in practice",
+                    "·",
+                    "·",
+                    "7",
+                    "**7**",
+                    "6%"
+                  ],
+                  [
+                    "10",
+                    "6 · Partial derivatives, gradients",
+                    "3",
+                    "1",
+                    "·",
+                    "**4**",
+                    "3%"
+                  ],
+                  [
+                    "11",
+                    "8 · Hessian, Taylor",
+                    "·",
+                    "3",
+                    "·",
+                    "**3**",
+                    "3%"
+                  ],
+                  [
+                    "11",
+                    "12 · PCA: maximum variance",
+                    "3",
+                    "·",
+                    "·",
+                    "**3**",
+                    "3%"
+                  ],
+                  [
+                    "·",
+                    "1, 7, 10, 16",
+                    "·",
+                    "·",
+                    "·",
+                    "**0**",
+                    "0%"
+                  ],
+                  [
+                    "Total",
+                    "",
+                    "40",
+                    "40",
+                    "40",
+                    "**120**",
+                    "100%"
+                  ]
+                ],
+                "note": "Ties are broken by the card details: papers asked (3 of 3 beats 2 of 3), then Practice Paper marks. Judgement calls: Feb 2026 Q3 split into Lecture 3 (inner product, 2), Lecture 11 (formulate + Lagrangian + dual, 3) and Lecture 14 (verify KKT, 3); Feb 2026 Q4 split into Lecture 6 (gradient, 1), Lecture 8 (Hessian, 3) and Lecture 9 (decay steps, 4); Sep 2025 Q6 (kernels) goes to Lecture 14, where the slides teach kernel functions. Lecture 16 had 10 marks in the 2023 papers."
+              },
+              {
+                "title": "Sourabh sir's Practice Paper pattern, mapped to 40 marks",
+                "head": [
+                  "Topic",
+                  "Practice Paper /40",
+                  "Past papers: average /40",
+                  "Past papers: range per paper",
+                  "Expect on 6 Dec /40",
+                  "My order"
+                ],
+                "leftCols": 1,
+                "rows": [
+                  [
+                    "==🎯 **SVM: Lecture 14 (Q6) + Lecture 16 (Q7)**==",
+                    "==10 (Q6 + Q7)==",
+                    "==9.3==",
+                    "==7–13==",
+                    "==8–10==",
+                    "==#1=="
+                  ],
+                  [
+                    "==🎯 **Momentum: Lecture 11 (Q4)**==",
+                    "==6 (Q4)==",
+                    "==7.3==",
+                    "==4–11==",
+                    "==6–8==",
+                    "==#2=="
+                  ],
+                  [
+                    "==🎯 **Eigen, SVD: Lectures 4–5 (Q1)**==",
+                    "==6 (Q1)==",
+                    "==5.7==",
+                    "==4–8==",
+                    "==6==",
+                    "==#3=="
+                  ],
+                  [
+                    "==🎯 **Linear systems: Lecture 1 (Q2)**==",
+                    "==6 (Q2)==",
+                    "==5.7==",
+                    "==2–8==",
+                    "==6==",
+                    "==#4=="
+                  ],
+                  [
+                    "Inner products: Lecture 3 (Q3)",
+                    "6 (Q3)",
+                    "3.3",
+                    "0–8",
+                    "2–6",
+                    "#5"
+                  ],
+                  [
+                    "PCA: Lecture 13 (Q5)",
+                    "6 (Q5)",
+                    "3.3",
+                    "0–7",
+                    "3–6",
+                    "#5"
+                  ],
+                  [
+                    "Lagrange, KKT: Lectures 11, 14",
+                    "0",
+                    "3",
+                    "0–6",
+                    "0–6",
+                    "#7"
+                  ],
+                  [
+                    "Vector calculus: Lectures 6–8",
+                    "0",
+                    "2.3",
+                    "0–4",
+                    "0–4",
+                    "#8"
+                  ],
+                  [
+                    "**Total**",
+                    "**40**",
+                    "**40**",
+                    "",
+                    "**40**",
+                    ""
+                  ]
+                ],
+                "note": "Past-paper average = marks in the last three end-sems (Sep 2025, Feb 2026, Mar 2026) ÷ 3. The top four 🎯 give **28 of the Practice Paper's 40** and about **28 of 40** in a real paper. Inner products and PCA add another 6–12, which takes you to 34–40. KKT and vector calculus are not in the Practice Paper, but past papers gave them up to 6 and 4 marks: keep them for the last 6."
+              },
               {
                 "title": "Pre-mid vs post-mid in the 2026 end-sems",
                 "head": [
@@ -1126,15 +2003,15 @@
                   ],
                   [
                     "Mar 2026 makeup",
-                    "14",
-                    "26",
-                    "35% / 65%"
+                    "15",
+                    "25",
+                    "37.5% / 62.5%"
                   ],
                   [
                     "**Total /80**",
-                    "**32**",
-                    "**48**",
-                    "**40% / 60%**"
+                    "**33**",
+                    "**47**",
+                    "**41% / 59%**"
                   ]
                 ],
                 "note": "Sourabh sir's estimate was 25–30% pre-mid. The real papers give 35–45%: about two full questions on eigenvalues, rank/basis and positive-definite inner products. Do not skip lectures 1–8."
@@ -1204,7 +2081,7 @@
                     "Q2",
                     "Positive definite, inner product, Gram–Schmidt",
                     "Pre",
-                    "7"
+                    "8"
                   ],
                   [
                     "Mar 2026",
@@ -1232,7 +2109,7 @@
                     "Q6",
                     "Soft-margin SVM, hinge loss",
                     "Post",
-                    "8"
+                    "7"
                   ]
                 ]
               },
@@ -1273,8 +2150,82 @@
                 ],
                 "note": "Gradient descent appears in every recent paper."
               }
+            ],
+            "open": true
+          },
+          "exam": "📝 EC-3 comprehensive · **6 Dec 2026, morning** · open book · 150 minutes · 40 marks · 40% of the course",
+          "target": {
+            "score": 40,
+            "outOf": 40,
+            "text": "Every question is compulsory, so 40 needs every lecture. Start with the five that carried **76 of 120 marks** in the last three papers; the answer keys give marks step by step.",
+            "points": [
+              "**Lecture 11** (momentum + Lagrangian): 17/120",
+              "**Lecture 2** (independence, basis, rank): 17/120",
+              "**Lecture 14** (KKT, SVM primal, kernel functions): 17/120",
+              "**Lecture 15** (soft margin, dual): 14/120",
+              "**Lecture 9** (gradient descent, line search): 11/120"
             ]
-          }
+          },
+          "groupIntros": {
+            "Exam hall": "Nine end-sem papers, newest first, solved step by step (with the answer keys' marks where a key exists). Start with Feb 2026, Mar 2026 and Sep 2025 (the current 6-question style). The Sep 2024 papers are the older 4 × 10 style; the four oldest (2022 to Apr 2024) are for extra practice. Each question is tagged with its lecture.",
+            "Try it on your own": "Sourabh sir's 40-mark practice paper. Sit it in 150 minutes before opening the solutions.",
+            "On the day of the exam": "Everything to remember in the exam hall, in one place. It keeps growing as we study."
+          },
+          "short": "MFML",
+          "minPerMark": 3.4,
+          "topics": [
+            {
+              "name": "Linear algebra",
+              "chapters": [
+                "ch01",
+                "ch02",
+                "ch03",
+                "ch04",
+                "ch05"
+              ],
+              "papers": "3 of 3",
+              "note": "Pre-mid: 2–3 questions in every paper. Practice Paper Q1, Q2, Q3: 18 marks."
+            },
+            {
+              "name": "Vector calculus",
+              "chapters": [
+                "ch06",
+                "ch07",
+                "ch08"
+              ],
+              "papers": "2 of 3",
+              "note": "Usually one part of a bigger question (chain rule, Hessian)."
+            },
+            {
+              "name": "Optimisation: GD, momentum, Lagrangian",
+              "chapters": [
+                "ch09",
+                "ch10",
+                "ch11"
+              ],
+              "papers": "3 of 3",
+              "note": "Practice Paper Q4: 6 marks."
+            },
+            {
+              "name": "PCA",
+              "chapters": [
+                "ch12",
+                "ch13"
+              ],
+              "papers": "2 of 3",
+              "note": "Practice Paper Q5: 6 marks. Both Sep 2024 papers: 10 marks each."
+            },
+            {
+              "name": "SVM",
+              "chapters": [
+                "ch14",
+                "ch15",
+                "ch16"
+              ],
+              "papers": "3 of 3",
+              "note": "Includes the 3-mark KKT check of Feb 2026 Q3(d) (Lecture 14), so pure SVM is 28. Practice Paper Q6 + Q7: 10 marks."
+            }
+          ]
         }
       ]
     }
