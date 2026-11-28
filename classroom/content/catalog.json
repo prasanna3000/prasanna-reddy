@@ -1521,17 +1521,18 @@
               "number": 5,
               "label": "Lecture 5",
               "title": "Eigendecomposition & SVD",
-              "blurb": "Diagonalisation, eigendecomposition, SVD, comparing SVD and EVD, rank-1 approximation. Before: eigenvalues (Lecture 4).",
+              "blurb": "Diagonalisation (PDP⁻¹, QΛQᵀ, powers), the SVD by hand for 2 × 2, 3 × 2 and 2 × 3 matrices, rank-k approximation and the spectral norm, EVD vs SVD. Types 1–4, 20 solved problems. Before: eigenvalues (Lecture 4).",
               "weight": {
                 "marks": 7,
                 "outOf": 120,
-                "papers": "2 of 3"
+                "papers": "2 of 3",
+                "note": "4 of the 10 papers overall (also previous batch Q4: 5 marks, 2022 Q2(b): 4 marks)"
               },
-              "comingSoon": true,
               "phase": "pre",
               "needs": [
                 "ch04"
-              ]
+              ],
+              "file": "content/sem1/aiml-zc416/ch05-lecture05.json"
             },
             {
               "id": "ch13",
@@ -2227,7 +2228,80 @@
             }
           ]
         }
-      ]
+      ],
+      "overlap": {
+        "title": "Topics shared across subjects",
+        "open": false,
+        "intro": "Learn these once and they pay off in more than one exam. Matched by chapter titles. Click a chapter to open it; chapters not written yet open the course page.",
+        "tables": [
+          {
+            "head": [
+              "Topic",
+              "Subjects",
+              "Where"
+            ],
+            "leftCols": 3,
+            "rows": [
+              [
+                "Linear regression / least squares",
+                "All 4",
+                "[MFML L11](#/sem1/aiml-zc416/ch11) (P23) · [ISM Ch 11](#/sem1/aiml-zc418/ch11) · [ML Ch 3](#/sem1/aiml-zg565/ch03) · [DNN Ch 3](#/sem1/aiml-zg511/ch03)"
+              ],
+              [
+                "Gradient descent and optimisers",
+                "3",
+                "[MFML L9](#/sem1/aiml-zc416/ch09) · [MFML L10](#/sem1/aiml-zc416/ch10) · [MFML L11](#/sem1/aiml-zc416/ch11) · [ML Ch 3](#/sem1/aiml-zg565/ch03) · [ML Ch 4](#/sem1/aiml-zg565/ch04) · [DNN Ch 10](#/sem1/aiml-zg511/ch10)"
+              ],
+              [
+                "Momentum, RMSProp, Adam",
+                "2",
+                "[MFML L11](#/sem1/aiml-zc416/ch11) · [DNN Ch 10](#/sem1/aiml-zg511/ch10)"
+              ],
+              [
+                "Backpropagation",
+                "2",
+                "[MFML L7](#/sem1/aiml-zc416/ch07) · [DNN Ch 5](#/sem1/aiml-zg511/ch05)"
+              ],
+              [
+                "SVM, KKT and kernels",
+                "2",
+                "[MFML L14](#/sem1/aiml-zc416/ch14) · [MFML L15](#/sem1/aiml-zc416/ch15) · [MFML L16](#/sem1/aiml-zc416/ch16) · [ML Ch 9](#/sem1/aiml-zg565/ch09)"
+              ],
+              [
+                "PCA",
+                "2",
+                "[MFML L12](#/sem1/aiml-zc416/ch12) · [MFML L13](#/sem1/aiml-zc416/ch13) · [ML Ch 14](#/sem1/aiml-zg565/ch14)"
+              ],
+              [
+                "Logistic regression / sigmoid classification",
+                "2",
+                "[ML Ch 4](#/sem1/aiml-zg565/ch04) · [DNN Ch 4](#/sem1/aiml-zg511/ch04)"
+              ],
+              [
+                "Bayes' theorem and Naïve Bayes",
+                "2",
+                "[ISM Ch 4](#/sem1/aiml-zc418/ch04) · [ML Ch 10](#/sem1/aiml-zg565/ch10)"
+              ],
+              [
+                "Maximum likelihood",
+                "2",
+                "[ISM Ch 10](#/sem1/aiml-zc418/ch10) · [ML Ch 10](#/sem1/aiml-zg565/ch10)"
+              ],
+              [
+                "Gaussian mixture models and EM",
+                "2",
+                "[ISM Ch 15](#/sem1/aiml-zc418/ch15) · [ML Ch 14](#/sem1/aiml-zg565/ch14)"
+              ],
+              [
+                "Model evaluation (error, bias–variance)",
+                "2",
+                "[ISM Ch 12](#/sem1/aiml-zc418/ch12) · [ML Ch 15](#/sem1/aiml-zg565/ch15)"
+              ]
+            ],
+            "note": "SVM and PCA, which you are doing next in MFML, come back in ML Ch 9 and Ch 14."
+          }
+        ]
+      }
     }
   ]
 }

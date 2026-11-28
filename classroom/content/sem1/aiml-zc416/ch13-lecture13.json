@@ -8,6 +8,12 @@
       "lead": "Lecture 13 turns the Lecture 12 recipe into practice: reduce, rebuild, wide data, the SVD route. The full table for both lectures is on [Lecture 12, board 1](#/sem1/aiml-zc416/ch12/lesson/0).",
       "blocks": [
         {
+          "type": "note",
+          "label": "Saurabh sir's advice for the end-sem",
+          "color": "red",
+          "text": "**The PCA question will be a straight numerical.** Practise the Companion's first three questions (**Q1, Q2, Q3**), which are marked Must do. **Q4–Q7 are only if things go worse**: do them after everything else."
+        },
+        {
           "type": "table",
           "head": [
             "Paper",
@@ -415,7 +421,7 @@
         },
         {
           "label": "STEP 1 · (a) Eigen",
-          "text": "Block [[3, 1], [1, 3]]: λ = 3 ± 1 = 4, 2 with (1, 1)/√2 and (1, −1)/√2\nLone entry: λ = 1 with (0, 0, 1)\nSorted: **λ = 4, 2, 1**; q₁ = (1, 1, 0)/√2, q₂ = (1, −1, 0)/√2, q₃ = (0, 0, 1)"
+          "text": "Formula: **det(S − λI) = 0**\nS − λI = [[3 − λ, 1, 0], [1, 3 − λ, 0], [0, 0, 1 − λ]]\nExpand along row 3 (it has two zeros): det = (1 − λ)·[(3 − λ)(3 − λ) − 1·1]\n    = (1 − λ)[(3 − λ)² − 1] = 0\n(3 − λ)² = 1 ⇒ 3 − λ = ±1 ⇒ λ = 2 or 4;   1 − λ = 0 ⇒ λ = 1\nSorted: **λ₁ = 4, λ₂ = 2, λ₃ = 1**\nCheck: 4 + 2 + 1 = 7 = tr S ✓;  4·2·1 = 8 = det S = 1·(9 − 1) ✓\nFormula: **(S − λI)q = 0**, q = (v₁, v₂, v₃). With 3 features use two rows, not one.\n**λ₁ = 4:** S − 4I = [[−1, 1, 0], [1, −1, 0], [0, 0, −3]] ⇒ −v₁ + v₂ = 0 and −3v₃ = 0 ⇒ v₂ = v₁, v₃ = 0 ⇒ (1, 1, 0) ⇒ **q₁ = (1, 1, 0)/√2**\n**λ₂ = 2:** S − 2I = [[1, 1, 0], [1, 1, 0], [0, 0, −1]] ⇒ v₁ + v₂ = 0 and −v₃ = 0 ⇒ (1, −1, 0) ⇒ **q₂ = (1, −1, 0)/√2**\n**λ₃ = 1:** S − I = [[2, 1, 0], [1, 2, 0], [0, 0, 0]] ⇒ 2v₁ + v₂ = 0 and v₁ + 2v₂ = 0 ⇒ v₁ = v₂ = 0, v₃ free ⇒ **q₃ = (0, 0, 1)**\nCheck: q₁·q₂ = q₁·q₃ = q₂·q₃ = 0 ✓"
         },
         {
           "label": "STEP 2 · (b) Fraction kept",
@@ -494,7 +500,7 @@
       ],
       "answer": "x* → (1, 2); z* = 2.2; x̃* = (1.32, 1.76); error 0.16.",
       "priority": "must",
-      "priorityWhy": "The one problem for a new point (slides p. 22–23)"
+      "priorityWhy": "Saurabh sir: the end-sem PCA question will be a straight numerical; practise Companion Q1–Q3"
     },
     {
       "title": "Reduce · Companion Q6: how many components, and why they are uncorrelated (5 marks)",
@@ -531,8 +537,8 @@
         }
       ],
       "answer": "Total 8.0; 82.5%; M = 3; Cov(Z) = diag(λ).",
-      "priority": "must",
-      "priorityWhy": "The one problem for choosing M and % variance"
+      "priority": "optional",
+      "priorityWhy": "Saurabh sir: Companion Q4–Q7 only if things go worse (after Q1–Q3 and the papers)"
     },
     {
       "title": "Reduce · Companion Q4: three variables, reading the structure first (6 marks)",
@@ -570,7 +576,7 @@
       ],
       "answer": "λ = 6, 3, 2; the lost part is (X₁ − X₂)/√2 with variance 2.",
       "priority": "optional",
-      "priorityWhy": "Extra practice of a type a must-do problem already covers"
+      "priorityWhy": "Saurabh sir: Companion Q4–Q7 only if things go worse (after Q1–Q3 and the papers)"
     },
     {
       "title": "Wide data · Sourabh P43: PCA through the N × N Gram matrix",
@@ -662,7 +668,7 @@
       ],
       "answer": "K = (1/N)XXᵀ is 40 × 40 with the same λ; w = Xᵀu/‖Xᵀu‖; ≤ 39 non-zero.",
       "priority": "optional",
-      "priorityWhy": "Extra practice of a type a must-do problem already covers"
+      "priorityWhy": "Saurabh sir: Companion Q4–Q7 only if things go worse (after Q1–Q3 and the papers)"
     },
     {
       "title": "Wide data · 2022 makeup Q3(2): eig() only works below 32 rows (3 marks)",
@@ -748,8 +754,8 @@
         }
       ],
       "answer": "λ = σ²/N = 4, 1, 0.25, 0.01; M = 2; errors 5 and √26.",
-      "priority": "must",
-      "priorityWhy": "The one problem for the SVD route"
+      "priority": "optional",
+      "priorityWhy": "Saurabh sir: Companion Q4–Q7 only if things go worse (after Q1–Q3 and the papers)"
     },
     {
       "title": "Reasoning · Previous batch Q5: PCA after a rotation and a shift",

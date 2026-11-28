@@ -62,6 +62,13 @@
         return `<span class="fr"><span class="fn">${s.slice(0, i).trim()}</span><span class="fd">${s.slice(i + 4).trim()}</span></span>`;
       });
     } while (t !== prev);
+    /* matrices written as [[a, b], [c, d]] (rows inside brackets) -> a real bracketed grid */
+    t = t.replace(/\[\[((?:[^\[\]]|\],\s*\[)*)\]\]/g, (m, inner) => {
+      const rows = inner.split(/\],\s*\[/).map((r) => r.split(/,\s*/).map((c) => c.trim()));
+      const n = rows[0].length;
+      if (!n || rows.some((r) => r.length !== n || r.some((c) => c === ''))) return m;
+      return `<span class="mx" role="math" aria-label="${m}"><span class="mx-b mx-l"></span><span class="mx-grid" style="grid-template-columns:repeat(${n},auto)">${rows.flat().map((c) => `<span>${c}</span>`).join('')}</span><span class="mx-b mx-r"></span></span>`;
+    });
     return t;
   }
 

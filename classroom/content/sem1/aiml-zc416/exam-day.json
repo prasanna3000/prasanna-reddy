@@ -159,10 +159,117 @@
           ]
         },
         {
+          "type": "h",
+          "text": "9 · PCA: expect a straight numerical"
+        },
+        {
+          "type": "note",
+          "label": "Saurabh sir",
+          "color": "red",
+          "text": "**The PCA question will be a straight numerical:** centre → S → eigenvalues → unit eigenvectors → scores → % variance. Practise [Companion Q1](#/sem1/aiml-zc416/ch12/f-full/6), [Q2](#/sem1/aiml-zc416/ch12/f-derive/13) and [Q3](#/sem1/aiml-zc416/ch13/f-reduce/2); Q4–Q7 only if things go worse."
+        },
+        {
+          "type": "h",
+          "text": "10 · PCA: divide by N, and don't standardise"
+        },
+        {
+          "type": "note",
+          "label": "Saurabh sir, 14 Nov lecture",
+          "color": "red",
+          "text": "**Covariance = (1/N)·XcᵀXc, never 1/(N − 1)** in this course (\"a mistake people do every single year\"). **Don't standardise** the data: it isn't in the slides. Centre only. Expect 2 features (at most 3) and 3–4 data points."
+        },
+        {
+          "type": "h",
+          "text": "11 · Write your assumptions first"
+        },
+        {
+          "type": "note",
+          "label": "Saurabh sir, 14 Nov",
+          "color": "red",
+          "text": "Start a derivation with one line saying what each symbol is (rows or columns, centred or not, unit vector, 1/N). \"No one can penalize you\" for a stated, consistent convention. Use the question's letters if it gives them. PCA example: [Type 2 board](#/sem1/aiml-zc416/ch12/lesson/5)."
+        },
+        {
+          "type": "h",
+          "text": "12 · PCA: \"verify Var(Y₁) = λ₁\""
+        },
+        {
+          "type": "steps",
+          "items": [
+            "**Scores** along the PC1 eigenvector (the eigenvector of λ₁): Y₁ₙ = α₁ᵀ(xₙ − μ), using the **unit** α₁ and the **centred** points.",
+            "**Mean** of the scores: (Y₁₁ + … + Y₁ₙ)/N (it comes out 0).",
+            "**Variance** using that mean, dividing by **N (not N − 1)**: Var(Y₁) = **(1/N)** Σ (Y₁ₙ − mean)². Same 1/N as the covariance matrix, so it matches λ₁.",
+            "**Compare:** the variance must equal λ₁. Write \"= λ₁ ✓\"."
+          ]
+        },
+        {
+          "type": "note",
+          "label": "Remember",
+          "color": "red",
+          "text": "If the variance is not λ₁, check: α₁ unit length (with (1, 1) instead of (1, 1)/√2 you get 2λ₁) · centred points used · (3√2)² = 18 (square the √2 too) · divided by N. Example: [Companion Q1](#/sem1/aiml-zc416/ch12/f-full/6): scores −3√2, 0, 0, 3√2 → mean 0 → Var = 36/4 = 9 = λ₁."
+        },
+        {
           "type": "note",
           "color": "red",
           "label": "Keep adding",
           "text": "New rules go at the end of this board as they come up while studying."
+        }
+      ]
+    },
+    {
+      "title": "What Saurabh sir said about the end-sem paper",
+      "lead": "From his 14 Nov 2026 PCA lecture. His intuition, not an official pattern.",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "Topic",
+            "Lectures",
+            "Questions he expects",
+            "Type"
+          ],
+          "rows": [
+            [
+              "SVM",
+              "L14–16",
+              "**2**",
+              "linear data · nonlinear data · kernel matrix"
+            ],
+            [
+              "PCA",
+              "L12–13",
+              "**1**",
+              "70–80% a straight numerical; otherwise the proof that w is an eigenvector and Var = λ"
+            ],
+            [
+              "Constrained optimisation",
+              "L11",
+              "**1**",
+              "write the Lagrangian, primal → dual, then solve"
+            ],
+            [
+              "Unconstrained optimisation",
+              "L9–10",
+              "**1**",
+              "a simple gradient descent or momentum question"
+            ],
+            [
+              "Pre-mid",
+              "L1–8",
+              "about **2–3**",
+              "rank, row echelon / reduced row echelon form, eigendecomposition / SVD, maxima–minima, Taylor series, gradient"
+            ]
+          ]
+        },
+        {
+          "type": "list",
+          "items": [
+            "Split: about **25% pre-mid, 75% post-mid**.",
+            "**SVM and PCA first** (\"scoring topics; the questions cannot change\"), then the two optimisation topics.",
+            "No 10 × 1-mark short questions expected: the new paper setter asks **direct, slightly easier** problems.",
+            "Power method is **not** used for PCA in this course.",
+            "Safe total: about **40 / 100** over EC-1 (30) + EC-2 (30) + EC-3 (40); aim much higher.",
+            "Open book: study everything before; use the slides only to cross-reference in the hall."
+          ]
         }
       ]
     }
@@ -207,6 +314,11 @@
       "name": "Directional derivative",
       "formula": "D_u f = ∇f · u,  u = d/‖d‖ (unit length first)",
       "note": "d = (3, 4) ⇒ u = (3/5, 4/5); skipping it gives 5× too big"
+    },
+    {
+      "name": "PCA: verify Var(Y₁) = λ₁",
+      "formula": "Y₁ₙ = α₁ᵀ(xₙ − μ) → mean of Y₁ₙ → Var = (1/N) Σ (Y₁ₙ − mean)² = λ₁   (1/N, not 1/(N − 1))",
+      "note": "Unit α₁, centred points, divide by N"
     }
   ]
 }

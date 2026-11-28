@@ -90,9 +90,15 @@
         },
         {
           "type": "note",
+          "label": "Saurabh sir's advice for the end-sem",
+          "color": "red",
+          "text": "**The PCA question will be a straight numerical.** Practise the Companion's first three questions (**Q1, Q2, Q3**), which are marked Must do. **Q4–Q7 are only if things go worse**: do them after everything else."
+        },
+        {
+          "type": "note",
           "label": "Practise everything",
           "color": "red",
-          "text": "Practise everything from Saurabh sir: P40–P43 and the seven Companion questions are all in the tabs here."
+          "text": "Practise everything from Saurabh sir: P40–P43 and the seven Companion questions are all in the tabs here. Order: Companion Q1–Q3 first, Q4–Q7 last."
         }
       ]
     },
@@ -297,7 +303,7 @@
           "type": "eqs",
           "groups": [
             {
-              "label": "1 · Mean",
+              "label": "1 · Mean of each feature",
               "lines": [
                 [
                   "μ",
@@ -312,12 +318,13 @@
                 [
                   "x̂ₙ",
                   "=",
-                  "xₙ − μ   (each column must now add to 0)"
+                  "xₙ − μ"
                 ]
-              ]
+              ],
+              "note": "X̂ = the centred points as rows (N × D). Check: each column of X̂ adds to 0."
             },
             {
-              "label": "3 · Covariance",
+              "label": "3 · Covariance matrix",
               "lines": [
                 [
                   "s₁₁",
@@ -333,16 +340,27 @@
                   "s₁₂",
                   "=",
                   "(1/N) Σ x̂₁x̂₂"
+                ],
+                [
+                  "S",
+                  "=",
+                  "(1/N) X̂ᵀX̂ = [[s₁₁, s₁₂], [s₁₂, s₂₂]]"
                 ]
-              ]
+              ],
+              "note": "Divide by **N, never N − 1**, in this course. Saurabh sir calls this matrix C. With 3 features S is 3 × 3: also s₃₃, s₁₃, s₂₃."
             },
             {
-              "label": "4 · Eigenvalues (2 × 2)",
+              "label": "4 · Eigenvalues (first line works for any size)",
               "lines": [
+                [
+                  "det(S − λI)",
+                  "=",
+                  "0"
+                ],
                 [
                   "λ² − (tr S)λ + det S",
                   "=",
-                  "0"
+                  "0   (2 × 2)"
                 ],
                 [
                   "λ",
@@ -350,47 +368,68 @@
                   "tr/2 ± √((tr/2)² − det)"
                 ]
               ],
-              "note": "Check: λ₁ + λ₂ = tr S, λ₁λ₂ = det S."
+              "note": "Sort them: λ₁ ≥ λ₂. Check: λ₁ + λ₂ = tr S and λ₁λ₂ = det S."
             },
             {
               "label": "5 · Unit eigenvectors",
               "lines": [
                 [
-                  "(s₁₁ − λ)a + s₁₂b",
+                  "(S − λI)b",
                   "=",
                   "0"
                 ],
                 [
-                  "v",
+                  "(s₁₁ − λ)a + s₁₂c",
                   "=",
-                  "(a, b)/√(a² + b²)"
-                ]
-              ],
-              "note": "PC1 = v for the larger λ. PC2 is perpendicular: swap and change one sign."
-            },
-            {
-              "label": "6 · Scores and share",
-              "lines": [
-                [
-                  "zₙ",
-                  "=",
-                  "v₁ᵀ(xₙ − μ)"
+                  "0   (row 1)"
                 ],
                 [
-                  "share",
-                  "=",
-                  "λ₁ / (λ₁ + λ₂)"
+                  "b ∝ (s₁₂, λ − s₁₁)",
+                  "⇒",
+                  "b = (a, c) / √(a² + c²)"
                 ]
               ],
-              "note": "Check: mean of zₙ² = λ₁."
+              "note": "PC1 = b₁ for λ₁. In 2-D, PC2 = b₂ is perpendicular: swap the two numbers and change one sign. Check: b₁ · b₂ = 0. (Quick form needs s₁₂ ≠ 0; if s₁₂ = 0 the PCs are the axes.)"
             },
             {
-              "label": "7 · Rebuild (if asked)",
+              "label": "6 · Scores (project the centred points)",
+              "lines": [
+                [
+                  "z₁ₙ",
+                  "=",
+                  "b₁ᵀ(xₙ − μ)"
+                ],
+                [
+                  "z₁",
+                  "=",
+                  "X̂b₁   (all points at once)"
+                ]
+              ],
+              "note": "Check: the scores add to 0, and (1/N) Σ z₁ₙ² = λ₁. Find z₂ₙ = b₂ᵀ(xₙ − μ) only if asked."
+            },
+            {
+              "label": "7 · Share of variance and how many to keep",
+              "lines": [
+                [
+                  "share of PCₖ",
+                  "=",
+                  "λₖ / (λ₁ + λ₂ + …) = λₖ / tr S"
+                ]
+              ],
+              "note": "Keep PC1, PC2, … until the running total reaches what the question asks (90% or 95%)."
+            },
+            {
+              "label": "8 · Rebuild and error (if asked)",
               "lines": [
                 [
                   "x̃ₙ",
                   "=",
-                  "μ + zₙv₁"
+                  "μ + z₁ₙb₁"
+                ],
+                [
+                  "(1/N) Σ ‖xₙ − x̃ₙ‖²",
+                  "=",
+                  "λ₂   (the λ you dropped)"
                 ]
               ]
             }
@@ -400,7 +439,7 @@
           "type": "note",
           "color": "red",
           "label": "Where marks are lost",
-          "text": "**Not centring** before S · mixing **1/N and 1/(N − 1)** (write which) · an eigenvector that is **not unit length** · picking the **smaller** λ · projecting raw points without saying so (centred and raw scores differ by a constant)."
+          "text": "**Not centring** before S · dividing by **N − 1** (this course uses 1/N) · an eigenvector that is **not unit length** · picking the **smaller** λ · not sorting λ₁ ≥ λ₂ · projecting raw points instead of centred ones (the scores then shift by a constant) · not writing the share as a %."
         },
         {
           "type": "table",
@@ -446,92 +485,364 @@
       "lead": "`Lecture_12.pdf` p. 9–23. Same Lagrange method as Lecture 11.",
       "blocks": [
         {
-          "type": "eqs",
-          "groups": [
+          "type": "tabs",
+          "tabs": [
             {
-              "label": "Variance of the shadows",
-              "ref": "p. 9–10",
-              "lines": [
-                [
-                  "V₁",
-                  "=",
-                  "(1/N) Σ (b₁ᵀxₙ)²"
-                ],
-                [
-                  "",
-                  "=",
-                  "b₁ᵀ((1/N) Σ xₙxₙᵀ)b₁ = b₁ᵀSb₁"
-                ]
+              "label": "Saurabh sir's class (14 Nov)",
+              "blocks": [
+                {
+                  "type": "p",
+                  "text": "Exactly as he did it in the 14 Nov class (and Companion §4). Write it in this order in the exam."
+                },
+                {
+                  "type": "note",
+                  "color": "blue",
+                  "label": "Write this line first",
+                  "text": "**Assumptions:** X is the N × D data matrix, one data point per row, already centred (mean 0). w is a D × 1 unit vector (wᵀw = 1). z = Xw are the projections of the N points onto w. C = (1/N)XᵀX is the covariance matrix (divide by N, not N − 1)."
+                },
+                {
+                  "type": "eqs",
+                  "groups": [
+                    {
+                      "label": "1 · Project the data onto a direction w (dot product)",
+                      "lines": [
+                        [
+                          "zᵢ",
+                          "=",
+                          "xᵢᵀw   (one point, row i of X)"
+                        ],
+                        [
+                          "z",
+                          "=",
+                          "Xw   (all N points at once)"
+                        ]
+                      ],
+                      "note": "Centre first so every direction is measured from the origin. Only the direction of w matters, not its length, so take ‖w‖ = 1."
+                    },
+                    {
+                      "label": "2 · Variance of the projected data",
+                      "lines": [
+                        [
+                          "Var(z)",
+                          "=",
+                          "(1/N) Σᵢ zᵢ²   (mean of z is 0)"
+                        ],
+                        [
+                          "",
+                          "=",
+                          "(1/N) zᵀz"
+                        ],
+                        [
+                          "",
+                          "=",
+                          "(1/N) (Xw)ᵀ(Xw)"
+                        ],
+                        [
+                          "",
+                          "=",
+                          "wᵀ (XᵀX / N) w"
+                        ],
+                        [
+                          "",
+                          "=",
+                          "wᵀCw"
+                        ]
+                      ],
+                      "note": "XᵀX / N is the covariance matrix C: this is why PCA uses it, it appears by itself once the data is centred. Divide by N, never N − 1, in this course."
+                    },
+                    {
+                      "label": "3 · Constrained problem",
+                      "lines": [
+                        [
+                          "max wᵀCw",
+                          "s.t.",
+                          "‖w‖ = 1  ⇔  wᵀw − 1 = 0"
+                        ]
+                      ]
+                    },
+                    {
+                      "label": "4 · Lagrangian",
+                      "lines": [
+                        [
+                          "L(w, λ)",
+                          "=",
+                          "wᵀCw − λ(wᵀw − 1)"
+                        ]
+                      ]
+                    },
+                    {
+                      "label": "5 · Differentiate with respect to w and set to 0",
+                      "lines": [
+                        [
+                          "∂L/∂w",
+                          "=",
+                          "2Cw − 2λw = 0"
+                        ],
+                        [
+                          "",
+                          "⇒",
+                          "Cw = λw"
+                        ]
+                      ],
+                      "note": "C is symmetric, so ∂(wᵀCw)/∂w = 2Cw; and ∂(wᵀw)/∂w = 2w. Cw = λw is the eigenvector equation: the best direction w is an **eigenvector of C**, and the multiplier λ is its **eigenvalue**."
+                    },
+                    {
+                      "label": "6 · The maximum variance is λ",
+                      "lines": [
+                        [
+                          "Var(z)",
+                          "=",
+                          "wᵀCw"
+                        ],
+                        [
+                          "",
+                          "=",
+                          "wᵀ(λw)   (put Cw = λw)"
+                        ],
+                        [
+                          "",
+                          "=",
+                          "λ (wᵀw)   (λ is a scalar)"
+                        ],
+                        [
+                          "",
+                          "=",
+                          "λ   (wᵀw = 1)"
+                        ]
+                      ],
+                      "note": "So pick the eigenvector with the **largest** λ: that is PC1. Last year's paper asked exactly these two things: show w is an eigenvector, and show the maximum variance is λ."
+                    },
+                    {
+                      "label": "7 · More than one direction, and the share of variance",
+                      "lines": [
+                        [
+                          "W",
+                          "=",
+                          "[w₁ w₂ … ]   (D × K)"
+                        ],
+                        [
+                          "Z",
+                          "=",
+                          "XW   (N × K)"
+                        ],
+                        [
+                          "share of PCk",
+                          "=",
+                          "λₖ / (sum of all the λ)"
+                        ]
+                      ],
+                      "note": "W holds the unit eigenvectors, largest λ first; column k of Z is the data projected on wₖ. Keep components until the share reaches what the question asks (90% or 95%)."
+                    },
+                    {
+                      "label": "8 · The components are uncorrelated (asked as \"correlation between Y₁ and Y₂\")",
+                      "lines": [
+                        [
+                          "Cov(z₁, z₂)",
+                          "=",
+                          "w₁ᵀCw₂"
+                        ],
+                        [
+                          "",
+                          "=",
+                          "w₁ᵀ(λ₂w₂)   (Cw₂ = λ₂w₂)"
+                        ],
+                        [
+                          "",
+                          "=",
+                          "λ₂(w₁ᵀw₂) = λ₂ · 0 = 0"
+                        ],
+                        [
+                          "Corr(z₁, z₂)",
+                          "=",
+                          "Cov / √(Var(z₁)·Var(z₂)) = 0 / √(λ₁λ₂) = 0"
+                        ]
+                      ],
+                      "note": "w₁ᵀw₂ = 0 because C is symmetric, so its eigenvectors are perpendicular. Example: [P41 (d)](#/sem1/aiml-zc416/ch12/f-derive/12): α₁ = (2, 1)/√5, α₂ = (1, −2)/√5 ⇒ α₁ᵀα₂ = (2 − 2)/5 = 0 ⇒ correlation 0."
+                    }
+                  ]
+                },
+                {
+                  "type": "note",
+                  "color": "blue",
+                  "label": "About the sign",
+                  "text": "In class he wrote L = wᵀCw **+** λ(wᵀw − 1). Differentiating gives Cw = −λw, and he then renamed −λ as a new letter. Writing **− λ(wᵀw − 1)**, as above, gives Cw = λw straight away. Both earn the marks."
+                },
+                {
+                  "type": "note",
+                  "color": "red",
+                  "label": "Notation rule (Saurabh sir, 14 Nov)",
+                  "text": "If the question gives letters (Z = XW, α, b₁…), **use the question's letters** and change the assumption line to match. If it gives none, use the line above. Never mix two notations in one answer."
+                }
               ]
             },
             {
-              "label": "Constrained problem",
-              "ref": "p. 11",
-              "lines": [
-                [
-                  "max b₁ᵀSb₁",
-                  "s.t.",
-                  "‖b₁‖² = b₁ᵀb₁ = 1"
-                ]
-              ],
-              "note": "Without the constraint, a longer b₁ gives a bigger number forever: only the direction should count."
+              "label": "Slides",
+              "blocks": [
+                {
+                  "type": "p",
+                  "text": "`Lecture_12.pdf` p. 9–23, in the slides' letters: b₁ for the direction, S for the covariance matrix."
+                },
+                {
+                  "type": "eqs",
+                  "groups": [
+                    {
+                      "label": "Variance of the shadows",
+                      "ref": "p. 9–10",
+                      "lines": [
+                        [
+                          "V₁",
+                          "=",
+                          "(1/N) Σ (b₁ᵀxₙ)²"
+                        ],
+                        [
+                          "",
+                          "=",
+                          "b₁ᵀ((1/N) Σ xₙxₙᵀ)b₁ = b₁ᵀSb₁"
+                        ]
+                      ]
+                    },
+                    {
+                      "label": "Constrained problem",
+                      "ref": "p. 11",
+                      "lines": [
+                        [
+                          "max b₁ᵀSb₁",
+                          "s.t.",
+                          "‖b₁‖² = b₁ᵀb₁ = 1"
+                        ]
+                      ],
+                      "note": "Without the constraint, a longer b₁ gives a bigger number forever: only the direction should count."
+                    },
+                    {
+                      "label": "Lagrangian",
+                      "ref": "p. 11–12",
+                      "lines": [
+                        [
+                          "L",
+                          "=",
+                          "b₁ᵀSb₁ + λ(1 − b₁ᵀb₁)"
+                        ],
+                        [
+                          "∂L/∂b₁ = 0",
+                          "⇒",
+                          "2Sb₁ − 2λb₁ = 0 ⇒ Sb₁ = λb₁"
+                        ],
+                        [
+                          "∂L/∂λ = 0",
+                          "⇒",
+                          "b₁ᵀb₁ = 1"
+                        ]
+                      ],
+                      "note": "So b₁ must be an eigenvector of S, and λ (the multiplier) is its eigenvalue."
+                    },
+                    {
+                      "label": "Which eigenvector",
+                      "ref": "p. 13",
+                      "lines": [
+                        [
+                          "V₁ = b₁ᵀSb₁",
+                          "=",
+                          "b₁ᵀλb₁ = λ"
+                        ]
+                      ],
+                      "note": "The variance along an eigenvector equals its eigenvalue, so take the **largest** λ."
+                    },
+                    {
+                      "label": "M components",
+                      "ref": "p. 16–23",
+                      "lines": [
+                        [
+                          "B",
+                          "=",
+                          "[b₁ b₂ … ] : the eigenvectors of the M largest λ"
+                        ],
+                        [
+                          "Vₘ",
+                          "=",
+                          "λₘ   (m = 1, …, M)"
+                        ]
+                      ],
+                      "note": "Each next PC is the best direction perpendicular to the ones already chosen; S is symmetric, so its eigenvectors are perpendicular (spectral theorem)."
+                    },
+                    {
+                      "label": "Uncorrelated components",
+                      "lines": [
+                        [
+                          "Cov(b₁ᵀx, b₂ᵀx)",
+                          "=",
+                          "b₁ᵀSb₂ = λ₂ b₁ᵀb₂ = 0"
+                        ]
+                      ],
+                      "note": "So the correlation between any two PCs is 0."
+                    }
+                  ]
+                },
+                {
+                  "type": "p",
+                  "text": "**Why ∇f = λ∇g (p. 14–15):** at the best point on the circle ‖b‖ = 1, moving along the circle cannot improve f, so ∇f has no part along the circle. ∇g is also perpendicular to the circle. Two vectors perpendicular to the same direction (in 2-D) are parallel: ∇f = λ∇g."
+                }
+              ]
             },
             {
-              "label": "Lagrangian",
-              "ref": "p. 11–12",
-              "lines": [
-                [
-                  "L",
-                  "=",
-                  "b₁ᵀSb₁ + λ(1 − b₁ᵀb₁)"
-                ],
-                [
-                  "∂L/∂b₁ = 0",
-                  "⇒",
-                  "2Sb₁ − 2λb₁ = 0 ⇒ Sb₁ = λb₁"
-                ],
-                [
-                  "∂L/∂λ = 0",
-                  "⇒",
-                  "b₁ᵀb₁ = 1"
-                ]
-              ],
-              "note": "So b₁ must be an eigenvector of S, and λ (the multiplier) is its eigenvalue."
-            },
-            {
-              "label": "Which eigenvector",
-              "ref": "p. 13",
-              "lines": [
-                [
-                  "V₁ = b₁ᵀSb₁",
-                  "=",
-                  "b₁ᵀλb₁ = λ"
-                ]
-              ],
-              "note": "The variance along an eigenvector equals its eigenvalue, so take the **largest** λ."
-            },
-            {
-              "label": "M components",
-              "ref": "p. 16–23",
-              "lines": [
-                [
-                  "B",
-                  "=",
-                  "[b₁ … b_M]: eigenvectors of the M largest λ"
-                ],
-                [
-                  "V_m",
-                  "=",
-                  "λ_m"
-                ]
-              ],
-              "note": "Each next PC is the best direction perpendicular to the ones already chosen; S is symmetric, so its eigenvectors are perpendicular (spectral theorem)."
+              "label": "Compare side by side",
+              "blocks": [
+                {
+                  "type": "table",
+                  "head": [
+                    "Step",
+                    "Slides (`Lecture_12.pdf` p. 9–13)",
+                    "Saurabh sir (14 Nov class, Companion §4)"
+                  ],
+                  "rows": [
+                    [
+                      "Assumptions",
+                      "xₙ are centred D × 1 points; b₁ is a unit vector (b₁ᵀb₁ = 1); S = (1/N) Σ xₙxₙᵀ",
+                      "X is N × D, one centred point per row; w is a unit vector (wᵀw = 1); z = Xw; C = (1/N)XᵀX"
+                    ],
+                    [
+                      "Projection of one point",
+                      "b₁ᵀxₙ",
+                      "zᵢ = xᵢᵀw (all points: z = Xw)"
+                    ],
+                    [
+                      "Variance",
+                      "V₁ = (1/N) Σ (b₁ᵀxₙ)² = b₁ᵀSb₁",
+                      "Var(z) = (1/N)zᵀz = (1/N)(Xw)ᵀ(Xw) = wᵀCw"
+                    ],
+                    [
+                      "Problem",
+                      "max b₁ᵀSb₁ s.t. b₁ᵀb₁ = 1",
+                      "max wᵀCw s.t. wᵀw = 1"
+                    ],
+                    [
+                      "Lagrangian",
+                      "L = b₁ᵀSb₁ + λ(1 − b₁ᵀb₁)",
+                      "L = wᵀCw − λ(wᵀw − 1)"
+                    ],
+                    [
+                      "Set ∂L = 0",
+                      "2Sb₁ − 2λb₁ = 0 ⇒ **Sb₁ = λb₁**",
+                      "2Cw − 2λw = 0 ⇒ **Cw = λw**"
+                    ],
+                    [
+                      "Maximum variance",
+                      "V₁ = b₁ᵀ(λb₁) = λ(b₁ᵀb₁) = **λ**",
+                      "Var(z) = wᵀ(λw) = λ(wᵀw) = **λ**"
+                    ],
+                    [
+                      "Conclusion",
+                      "PC1 = unit eigenvector of S with the largest λ",
+                      "PC1 = unit eigenvector of C with the largest λ"
+                    ]
+                  ]
+                },
+                {
+                  "type": "p",
+                  "text": "Only the letters change: b₁ ↔ w, S ↔ C, b₁ᵀxₙ ↔ z. λ(1 − bᵀb) and −λ(wᵀw − 1) are the same term, so both give the eigen-equation with +λ. (In class he wrote **+**λ(wᵀw − 1), which gives Cw = −λw, and then renamed −λ.) The assumption line above is the one to write for his version."
+                }
+              ]
             }
           ]
-        },
-        {
-          "type": "p",
-          "text": "**Why ∇f = λ∇g (p. 14–15):** at the best point on the circle ‖b‖ = 1, moving along the circle cannot improve f, so ∇f has no part along the circle. ∇g is also perpendicular to the circle. Two vectors perpendicular to the same direction (in 2-D) are parallel: ∇f = λ∇g."
         },
         {
           "type": "note",
@@ -589,15 +900,15 @@
         },
         {
           "label": "STEP 3 · Covariance  [2M]",
-          "text": "s₁₁ = (1 + 0 + 1)/3 = 2/3\ns₂₂ = (4 + 0 + 4)/3 = 8/3\ns₁₂ = (2 + 0 + 2)/3 = 4/3\n**S = [[2/3, 4/3], [4/3, 8/3]]**  (with 1/(N − 1) = 1/2: [[1, 2], [2, 4]]; also accepted)"
+          "text": "Saurabh sir's method: **S = (1/N) X̂ᵀX̂**, N = 3\nX̂ = [[−1, −2], [0, 0], [1, 2]]   (3 × 2, one centred point per row)\nX̂ᵀ = [[−1, 0, 1], [−2, 0, 2]]   (2 × 3: row 1 = feature 1, row 2 = feature 2)\nX̂ᵀX̂: each entry = a row of X̂ᵀ times a column of X̂, multiply in pairs and add\ntop-left (feature 1 · feature 1) = (−1)(−1) + (0)(0) + (1)(1) = 1 + 0 + 1 = 2\ntop-right (feature 1 · feature 2) = (−1)(−2) + (0)(0) + (1)(2) = 2 + 0 + 2 = 4\nbottom-left = top-right = 4 (symmetric)\nbottom-right (feature 2 · feature 2) = (−2)(−2) + (0)(0) + (2)(2) = 4 + 0 + 4 = 8\nX̂ᵀX̂ = [[2, 4], [4, 8]]\nS = (1/3)·[[2, 4], [4, 8]] = **[[2/3, 4/3], [4/3, 8/3]]**\nDivide by N, not N − 1 (this course).\nThe answer key also accepts 1/(N − 1) = 1/2, giving [[1, 2], [2, 4]], but stick to 1/N."
         },
         {
           "label": "STEP 4 · Eigenvalues  [1M]",
-          "text": "tr S = 2/3 + 8/3 = 10/3, det S = 16/9 − 16/9 = 0\nλ² − (10/3)λ + 0 = 0 ⇒ **λ₁ = 10/3, λ₂ = 0**"
+          "text": "Formula: **det(S − λI) = 0**\nS − λI = [[2/3 − λ, 4/3], [4/3, 8/3 − λ]]\ndet = (2/3 − λ)(8/3 − λ) − (4/3)(4/3)\n    = 16/9 − (2/3)λ − (8/3)λ + λ² − 16/9\n    = λ² − (10/3)λ\n    = λ(λ − 10/3) = 0\n⇒ **λ₁ = 10/3, λ₂ = 0**\nShortcut (same thing): λ² − (tr S)λ + det S = 0 with tr S = 10/3, det S = 0.\nCheck: λ₁ + λ₂ = 10/3 = tr S ✓, λ₁λ₂ = 0 = det S ✓"
         },
         {
           "label": "STEP 5 · Eigenvectors  [2M]",
-          "text": "λ = 10/3: (2/3 − 10/3)v₁ + (4/3)v₂ = 0 ⇒ −8v₁ + 4v₂ = 0 ⇒ v₂ = 2v₁ ⇒ **(1, 2)**, unit (1, 2)/√5\nλ = 0: (2/3)v₁ + (4/3)v₂ = 0 ⇒ v₁ = −2v₂ ⇒ **(−2, 1)**, unit (−2, 1)/√5\nCheck: (1)(−2) + (2)(1) = 0, perpendicular ✓"
+          "text": "Formula: **(S − λI)v = 0** for each λ, with v = (v₁, v₂).\n**λ₁ = 10/3:**\nS − (10/3)I = [[2/3 − 10/3, 4/3], [4/3, 8/3 − 10/3]] = [[−8/3, 4/3], [4/3, −2/3]]\n[[−8/3, 4/3], [4/3, −2/3]]·(v₁, v₂) = (0, 0)\nrow 1: −(8/3)v₁ + (4/3)v₂ = 0 ⇒ ×3: −8v₁ + 4v₂ = 0 ⇒ v₂ = 2v₁\nrow 2: (4/3)v₁ − (2/3)v₂ = 0 ⇒ v₂ = 2v₁ (same line: the rows always agree, so one row is enough)\nTake v₁ = 1 ⇒ (1, 2); length √(1² + 2²) = √5 ⇒ **unit v = (1, 2)/√5**\n**λ₂ = 0:**\nS − 0·I = S = [[2/3, 4/3], [4/3, 8/3]]\nrow 1: (2/3)v₁ + (4/3)v₂ = 0 ⇒ v₁ = −2v₂\nTake v₂ = 1 ⇒ (−2, 1); **unit v = (−2, 1)/√5**\nCheck: (1)(−2) + (2)(1) = 0, perpendicular ✓"
         },
         {
           "label": "STEP 6 · Principal subspace  [2M]",
@@ -647,19 +958,19 @@
         },
         {
           "label": "STEP 2 · (b) S  [1M]",
-          "text": "s₁₁ = (1 + 1 + 4 + 4)/4 = 10/4\ns₂₂ = (1 + 1 + 4 + 4)/4 = 10/4\ns₁₂ = (−1 − 1 + 4 + 4)/4 = 6/4\n**S = [[5/2, 3/2], [3/2, 5/2]]**"
+          "text": "Saurabh sir's method: **S = (1/N) X̂ᵀX̂**, N = 4\nX̂ = [[1, −1], [−1, 1], [2, 2], [−2, −2]]   (4 × 2, one centred point per row)\nX̂ᵀ = [[1, −1, 2, −2], [−1, 1, 2, −2]]   (2 × 4: row 1 = feature 1, row 2 = feature 2)\nX̂ᵀX̂: each entry = a row of X̂ᵀ times a column of X̂, multiply in pairs and add\ntop-left (feature 1 · feature 1) = (1)(1) + (−1)(−1) + (2)(2) + (−2)(−2) = 1 + 1 + 4 + 4 = 10\ntop-right (feature 1 · feature 2) = (1)(−1) + (−1)(1) + (2)(2) + (−2)(−2) = −1 − 1 + 4 + 4 = 6\nbottom-left = top-right = 6 (symmetric)\nbottom-right (feature 2 · feature 2) = (−1)(−1) + (1)(1) + (2)(2) + (−2)(−2) = 1 + 1 + 4 + 4 = 10\nX̂ᵀX̂ = [[10, 6], [6, 10]]\nS = (1/4)·[[10, 6], [6, 10]] = **[[5/2, 3/2], [3/2, 5/2]]**\nDivide by N, not N − 1 (this course)."
         },
         {
           "label": "STEP 3 · (c) Eigenvalues  [1M]",
-          "text": "tr = 5, det = 25/4 − 9/4 = 4\nλ² − 5λ + 4 = 0 ⇒ **λ = 4, 1**"
+          "text": "Formula: **det(S − λI) = 0**\nS − λI = [[5/2 − λ, 3/2], [3/2, 5/2 − λ]]\ndet = (5/2 − λ)(5/2 − λ) − (3/2)²\n    = λ² − (5/2 + 5/2)λ + 25/4 − 9/4\n    = λ² − 5λ + 4 = 0\n    = (λ − 4)(λ − 1) = 0\n⇒ **λ₁ = 4, λ₂ = 1**\nCheck: λ₁ + λ₂ = 5 = tr S ✓, λ₁λ₂ = 4 = det S ✓"
         },
         {
           "label": "STEP 4 · (c) Unit eigenvectors  [1M]",
-          "text": "λ = 4: (5/2 − 4)a + (3/2)b = 0 ⇒ a = b ⇒ **q₁ = (1, 1)/√2**\nλ = 1: (3/2)a + (3/2)b = 0 ⇒ b = −a ⇒ **q₂ = (1, −1)/√2**"
+          "text": "Formula: **(S − λI)v = 0** for each λ, with v = (v₁, v₂). Solving row 1 is enough: when λ is right, row 2 gives the same line.\n**λ₁ = 4:**\nS − 4I = [[−3/2, 3/2], [3/2, −3/2]]\nrow 1: −(3/2)v₁ + (3/2)v₂ = 0 ⇒ v₂ = v₁\nrow 2: (3/2)v₁ − (3/2)v₂ = 0 ⇒ the same line ✓\n⇒ (1, 1); length √(1² + 1²) = √2 ⇒ **q₁ = (1, 1)/√2**\n**λ₂ = 1:**\nS − I = [[3/2, 3/2], [3/2, 3/2]]\nrow 1: (3/2)v₁ + (3/2)v₂ = 0 ⇒ v₂ = −v₁\nrow 2: (3/2)v₁ + (3/2)v₂ = 0 ⇒ the same line ✓\n⇒ (1, −1); length √(1² + (−1)²) = √2 ⇒ **q₂ = (1, −1)/√2**\nCheck: q₁ · q₂ = 0, perpendicular ✓"
         },
         {
           "label": "STEP 5 · (d) Scores  [1M]",
-          "text": "zₙ = q₁ᵀ(xₙ − x̄) = (a + b)/√2 for each centred row:\n(1, −1) → 0; (−1, 1) → 0; (2, 2) → 4/√2 = **2√2**; (−2, −2) → **−2√2**\nCheck: mean of z² = (0 + 0 + 8 + 8)/4 = 4 = λ₁ ✓"
+          "text": "**What a score is:** where each point's shadow lands on the PC1 line, measured from the mean.\nFormula: **zₙ = q₁ᵀ(xₙ − μ)**   (μ = (1, 1), q₁ = (1/√2, 1/√2) from STEP 4)\nPoint 1: x₁ − μ = (2, 0) − (1, 1) = (1, −1)\nz₁ = (1/√2)(1) + (1/√2)(−1) = 1/√2 − 1/√2 = **0**\nPoint 2: x₂ − μ = (0, 2) − (1, 1) = (−1, 1)\nz₂ = (1/√2)(−1) + (1/√2)(1) = −1/√2 + 1/√2 = **0**\nPoint 3: x₃ − μ = (3, 3) − (1, 1) = (2, 2)\nz₃ = (1/√2)(2) + (1/√2)(2) = 2/√2 + 2/√2 = 4/√2 = **2√2**\nPoint 4: x₄ − μ = (−1, −1) − (1, 1) = (−2, −2)\nz₄ = (1/√2)(−2) + (1/√2)(−2) = −2/√2 − 2/√2 = −4/√2 = **−2√2**\n**z = (0, 0, 2√2, −2√2)**\nCheck: (1/N) Σ zₙ² = (0 + 0 + 8 + 8)/4 = 4 = λ₁ ✓"
         },
         {
           "label": "STEP 6 · (d) Share  [1M]",
@@ -681,13 +992,12 @@
     {
       "title": "Full PCA · Sep 2025 Q2(b): covariance and the direction of maximum variance (3 marks)",
       "tags": [
-        "Past paper",
-        "SVD link"
+        "Past paper"
       ],
       "problem": [
         {
           "type": "p",
-          "text": "A = [[−2, 0], [1, 1], [1, −1]]. Treat the rows of A as sample data. Find the eigenvalues of the covariance matrix and the direction of maximum variance. [3M] (Part (a), the SVD of A, is Lecture 5.)"
+          "text": "A = [[−2, 0], [1, 1], [1, −1]]. Treat the rows of A as sample data. Find the eigenvalues of the covariance matrix and the direction of maximum variance. [3M]"
         }
       ],
       "steps": [
@@ -709,15 +1019,11 @@
         },
         {
           "label": "STEP 2 · Covariance",
-          "text": "AᵀA = [[4 + 1 + 1, 0 + 1 − 1], [0, 0 + 1 + 1]] = [[6, 0], [0, 2]]\nSample covariance AᵀA/(N − 1) = AᵀA/2 = **[[3, 0], [0, 1]]**\n(With 1/N: [[2, 0], [0, 2/3]]. Say which one you use.)"
+          "text": "Saurabh sir's method: **S = (1/N) AᵀA**, N = 3\nA = [[−2, 0], [1, 1], [1, −1]]   (3 × 2, already centred)\nAᵀ = [[−2, 1, 1], [0, 1, −1]]   (2 × 3: row 1 = feature 1, row 2 = feature 2)\nAᵀA: each entry = a row of Aᵀ times a column of A, multiply in pairs and add\ntop-left (feature 1 · feature 1) = (−2)(−2) + (1)(1) + (1)(1) = 4 + 1 + 1 = 6\ntop-right (feature 1 · feature 2) = (−2)(0) + (1)(1) + (1)(−1) = 0 + 1 − 1 = 0\nbottom-left = top-right = 0 (symmetric)\nbottom-right (feature 2 · feature 2) = (0)(0) + (1)(1) + (−1)(−1) = 0 + 1 + 1 = 2\nAᵀA = [[6, 0], [0, 2]]\nWith 1/N (Saurabh sir's rule): S = (1/3)·[[6, 0], [0, 2]] = **[[2, 0], [0, 2/3]]**\nThe answer key divides by N − 1 = 2 because the question says \"sample\": S = **[[3, 0], [0, 1]]**. The next step uses the key's numbers; the direction is the same either way."
         },
         {
           "label": "STEP 3 · Eigenvalues and direction",
-          "text": "Diagonal matrix ⇒ eigenvalues are the diagonal entries: **3 and 1** (or 2 and 2/3).\nLargest belongs to (1, 0) ⇒ maximum variance along the **x₁-axis, direction (1, 0)**."
-        },
-        {
-          "label": "STEP 4 · Link to part (a)",
-          "text": "The SVD of A has σ₁ = √6, σ₂ = √2 and V = I. The eigenvalues of AᵀA are σ² = 6, 2, and dividing by N − 1 gives 3, 1: the same numbers (Lecture 13, λ = σ²/N)."
+          "text": "Formula: **det(S − λI) = 0** (S = [[3, 0], [0, 1]] as in the key)\nS − λI = [[3 − λ, 0], [0, 1 − λ]]\ndet = (3 − λ)(1 − λ) − 0·0 = 0 ⇒ **λ₁ = 3, λ₂ = 1** (with 1/N: 2 and 2/3)\nFormula: **(S − λI)v = 0**\n**λ₁ = 3:** S − 3I = [[0, 0], [0, −2]] ⇒ row 2: −2v₂ = 0 ⇒ v₂ = 0, v₁ free ⇒ **(1, 0)**\n**λ₂ = 1:** S − I = [[2, 0], [0, 0]] ⇒ row 1: 2v₁ = 0 ⇒ v₁ = 0, v₂ free ⇒ **(0, 1)**\n(Here row 1 alone says nothing for λ₁, so use the row that is not all zeros.)\nThe largest λ belongs to (1, 0) ⇒ maximum variance along the **x₁-axis, direction (1, 0)**.\nShortcut: a diagonal matrix's eigenvalues are its diagonal entries, and its eigenvectors are the axes."
         },
         {
           "label": "Answers at a glance",
@@ -732,7 +1038,7 @@
           "text": "Full question with the SVD part: [Exam hall · Sep 2025 Q2](#/sem1/aiml-zc416/p-es-reg-2025/worked/2)."
         }
       ],
-      "answer": "Eigenvalues 3 and 1; maximum variance along (1, 0).",
+      "answer": "Eigenvalues 3 and 1; maximum variance along (1, 0). (Side note, not asked: part (a)'s SVD gives σ² = 6, 2, the eigenvalues of AᵀA; ÷N gives 2, 2/3, ÷(N − 1) gives 3, 1.)",
       "priority": "must",
       "priorityWhy": "Recent paper (2025–2026)"
     },
@@ -767,15 +1073,15 @@
         },
         {
           "label": "STEP 2 · (b)",
-          "text": "s₁₁ = (9/4 + 1/4 + 1/4 + 9/4)/4 = 5/4\ns₂₂ = 5/4\ns₁₂ = (9/4 − 1/4 − 1/4 + 9/4)/4 = 1\n**S = [[5/4, 1], [1, 5/4]]**"
+          "text": "Saurabh sir's method: **S = (1/N) X̂ᵀX̂**, N = 4\nX̂ = [[−3/2, −3/2], [−1/2, 1/2], [1/2, −1/2], [3/2, 3/2]]   (4 × 2, one centred point per row)\nX̂ᵀ = [[−3/2, −1/2, 1/2, 3/2], [−3/2, 1/2, −1/2, 3/2]]   (2 × 4: row 1 = feature 1, row 2 = feature 2)\nX̂ᵀX̂: each entry = a row of X̂ᵀ times a column of X̂, multiply in pairs and add\ntop-left (feature 1 · feature 1) = (−3/2)(−3/2) + (−1/2)(−1/2) + (1/2)(1/2) + (3/2)(3/2) = 9/4 + 1/4 + 1/4 + 9/4 = 5\ntop-right (feature 1 · feature 2) = (−3/2)(−3/2) + (−1/2)(1/2) + (1/2)(−1/2) + (3/2)(3/2) = 9/4 − 1/4 − 1/4 + 9/4 = 4\nbottom-left = top-right = 4 (symmetric)\nbottom-right (feature 2 · feature 2) = (−3/2)(−3/2) + (1/2)(1/2) + (−1/2)(−1/2) + (3/2)(3/2) = 9/4 + 1/4 + 1/4 + 9/4 = 5\nX̂ᵀX̂ = [[5, 4], [4, 5]]\nS = (1/4)·[[5, 4], [4, 5]] = **[[5/4, 1], [1, 5/4]]**\nDivide by N, not N − 1 (this course)."
         },
         {
           "label": "STEP 3 · (c)",
-          "text": "tr = 5/2, det = 25/16 − 1 = 9/16\nλ² − (5/2)λ + 9/16 = 0 ⇒ **λ₁ = 9/4, λ₂ = 1/4**\nq₁ = (1, 1)/√2, q₂ = (1, −1)/√2"
+          "text": "Formula: **det(S − λI) = 0**\nS − λI = [[5/4 − λ, 1], [1, 5/4 − λ]]\ndet = (5/4 − λ)(5/4 − λ) − (1)²\n    = λ² − (5/4 + 5/4)λ + 25/16 − 1\n    = λ² − (5/2)λ + 9/16 = 0\n    = (λ − 9/4)(λ − 1/4) = 0\n⇒ **λ₁ = 9/4, λ₂ = 1/4**\nCheck: λ₁ + λ₂ = 5/2 = tr S ✓, λ₁λ₂ = 9/16 = det S ✓\nFormula: **(S − λI)v = 0** for each λ, with v = (v₁, v₂). Solving row 1 is enough: when λ is right, row 2 gives the same line.\n**λ₁ = 9/4:**\nS − (9/4)I = [[−1, 1], [1, −1]]\nrow 1: −v₁ + v₂ = 0 ⇒ v₂ = v₁\nrow 2: v₁ − v₂ = 0 ⇒ the same line ✓\n⇒ (1, 1); length √(1² + 1²) = √2 ⇒ **q₁ = (1, 1)/√2**\n**λ₂ = 1/4:**\nS − (1/4)I = [[1, 1], [1, 1]]\nrow 1: v₁ + v₂ = 0 ⇒ v₂ = −v₁\nrow 2: v₁ + v₂ = 0 ⇒ the same line ✓\n⇒ (1, −1); length √(1² + (−1)²) = √2 ⇒ **q₂ = (1, −1)/√2**\nCheck: q₁ · q₂ = 0, perpendicular ✓"
         },
         {
           "label": "STEP 4 · (d)",
-          "text": "Scores zₙ = q₁ᵀ(xₙ − x̄): −3/√2 = −3√2/2, 0, 0, 3√2/2\nExplained: (9/4)/(5/2) = **0.9 = 90%** (check: mean of z² = (9/2 + 9/2)/4 = 9/4 = λ₁ ✓)"
+          "text": "**First PC:** q₁ = (1/√2, 1/√2), the unit eigenvector of the largest eigenvalue λ₁ = 9/4 (STEP 3).\n**Scores.** Formula: **zₙ = q₁ᵀ(xₙ − μ)**   (μ = x̄ = (5/2, 5/2))\nPoint 1: x₁ − μ = (1, 1) − (5/2, 5/2) = (−3/2, −3/2)\nz₁ = (1/√2)(−3/2) + (1/√2)(−3/2) = −3/(2√2) − 3/(2√2) = −3/√2 = **−3√2/2**\nPoint 2: x₂ − μ = (2, 3) − (5/2, 5/2) = (−1/2, 1/2)\nz₂ = (1/√2)(−1/2) + (1/√2)(1/2) = −1/(2√2) + 1/(2√2) = **0**\nPoint 3: x₃ − μ = (3, 2) − (5/2, 5/2) = (1/2, −1/2)\nz₃ = (1/√2)(1/2) + (1/√2)(−1/2) = 1/(2√2) − 1/(2√2) = **0**\nPoint 4: x₄ − μ = (4, 4) − (5/2, 5/2) = (3/2, 3/2)\nz₄ = (1/√2)(3/2) + (1/√2)(3/2) = 3/(2√2) + 3/(2√2) = 3/√2 = **3√2/2**\n**z = (−3√2/2, 0, 0, 3√2/2)** ≈ (−2.12, 0, 0, 2.12)\nCheck: (1/N) Σ zₙ² = (9/2 + 0 + 0 + 9/2)/4 = 9/4 = λ₁ ✓\n**Fraction of variance.** Formula: **λ₁ / (λ₁ + λ₂)**\n= (9/4) / (9/4 + 1/4) = (9/4) / (10/4) = 9/10 = **0.9 = 90%**"
         },
         {
           "label": "Answers at a glance",
@@ -875,15 +1181,15 @@
         },
         {
           "label": "STEP 1 · (a)",
-          "text": "μ = (20/4, 24/4) = (5, 6)\nCentred: (−3, −3), (−1, 1), (1, −1), (3, 3)\nΣx₁² = 20, Σx₂² = 20, Σx₁x₂ = 9 − 1 − 1 + 9 = 16 ⇒ **Σ = [[5, 4], [4, 5]]**"
+          "text": "μ = (20/4, 24/4) = (5, 6)\nCentred: (−3, −3), (−1, 1), (1, −1), (3, 3)\nSaurabh sir's method: **Σ = (1/N) X̂ᵀX̂**, N = 4\nX̂ = [[−3, −3], [−1, 1], [1, −1], [3, 3]]   (4 × 2, one centred point per row)\nX̂ᵀ = [[−3, −1, 1, 3], [−3, 1, −1, 3]]   (2 × 4: row 1 = feature 1, row 2 = feature 2)\nX̂ᵀX̂: each entry = a row of X̂ᵀ times a column of X̂, multiply in pairs and add\ntop-left (feature 1 · feature 1) = (−3)(−3) + (−1)(−1) + (1)(1) + (3)(3) = 9 + 1 + 1 + 9 = 20\ntop-right (feature 1 · feature 2) = (−3)(−3) + (−1)(1) + (1)(−1) + (3)(3) = 9 − 1 − 1 + 9 = 16\nbottom-left = top-right = 16 (symmetric)\nbottom-right (feature 2 · feature 2) = (−3)(−3) + (1)(1) + (−1)(−1) + (3)(3) = 9 + 1 + 1 + 9 = 20\nX̂ᵀX̂ = [[20, 16], [16, 20]]\nΣ = (1/4)·[[20, 16], [16, 20]] = **[[5, 4], [4, 5]]**\nDivide by N, not N − 1 (this course)."
         },
         {
           "label": "STEP 2 · (b)",
-          "text": "(5 − λ)² = 16 ⇒ 5 − λ = ±4 ⇒ **λ = 9, 1** (9 + 1 = 10 = tr ✓, 9 = det ✓)\nα₁ = (1, 1)/√2, α₂ = (1, −1)/√2"
+          "text": "Formula: **det(Σ − λI) = 0**\nΣ − λI = [[5 − λ, 4], [4, 5 − λ]]\ndet = (5 − λ)(5 − λ) − (4)²\n    = λ² − (5 + 5)λ + 25 − 16\n    = λ² − 10λ + 9 = 0\n    = (λ − 9)(λ − 1) = 0\n⇒ **λ₁ = 9, λ₂ = 1**\nCheck: λ₁ + λ₂ = 10 = tr Σ ✓, λ₁λ₂ = 9 = det Σ ✓\nFormula: **(Σ − λI)v = 0** for each λ, with v = (v₁, v₂). Solving row 1 is enough: when λ is right, row 2 gives the same line.\n**λ₁ = 9:**\nΣ − 9I = [[−4, 4], [4, −4]]\nrow 1: −4v₁ + 4v₂ = 0 ⇒ v₂ = v₁\nrow 2: 4v₁ − 4v₂ = 0 ⇒ the same line ✓\n⇒ (1, 1); length √(1² + 1²) = √2 ⇒ **α₁ = (1, 1)/√2**\n**λ₂ = 1:**\nΣ − I = [[4, 4], [4, 4]]\nrow 1: 4v₁ + 4v₂ = 0 ⇒ v₂ = −v₁\nrow 2: 4v₁ + 4v₂ = 0 ⇒ the same line ✓\n⇒ (1, −1); length √(1² + (−1)²) = √2 ⇒ **α₂ = (1, −1)/√2**\nCheck: α₁ · α₂ = 0, perpendicular ✓"
         },
         {
           "label": "STEP 3 · (c)",
-          "text": "Y₁ = (x₁ + x₂)/√2 on centred rows: −6/√2 = −3√2, 0, 0, 3√2\nVar(Y₁) = (18 + 0 + 0 + 18)/4 = 9 = λ₁ ✓\nShare = 9/10 = **90%**"
+          "text": "**First PC scores.** Formula: **Y₁ₙ = α₁ᵀ(xₙ − μ)**   (μ = (5, 6), α₁ = (1/√2, 1/√2))\nPoint 1: (2, 3) − (5, 6) = (−3, −3) ⇒ Y₁ = (1/√2)(−3) + (1/√2)(−3) = −6/√2 = **−3√2**\nPoint 2: (4, 7) − (5, 6) = (−1, 1) ⇒ Y₁ = (1/√2)(−1) + (1/√2)(1) = **0**\nPoint 3: (6, 5) − (5, 6) = (1, −1) ⇒ Y₁ = (1/√2)(1) + (1/√2)(−1) = **0**\nPoint 4: (8, 9) − (5, 6) = (3, 3) ⇒ Y₁ = (1/√2)(3) + (1/√2)(3) = 6/√2 = **3√2**\n**Verify Var(Y₁) = λ₁:** compute the variance of these four scores directly, and check it equals λ₁ = 9 from STEP 2.\nMean of the scores: (−3√2 + 0 + 0 + 3√2)/4 = 0\nVar(Y₁) = (1/N) Σ (Y₁ₙ − 0)² = ((−3√2)² + 0² + 0² + (3√2)²)/4 = (18 + 0 + 0 + 18)/4 = 36/4 = **9**\n9 = λ₁ ✓ (the theory says the variance along a unit eigenvector equals its eigenvalue; this confirms it with numbers)\n**Share of total variance.** Formula: **λ₁ / (λ₁ + λ₂)** = 9 / (9 + 1) = 9/10 = **90%**"
         },
         {
           "label": "Answers at a glance",
@@ -891,8 +1197,8 @@
         }
       ],
       "answer": "λ = 9, 1; PC1 (1, 1)/√2; 90%.",
-      "priority": "optional",
-      "priorityWhy": "Extra practice of a type a must-do problem already covers"
+      "priority": "must",
+      "priorityWhy": "Saurabh sir: the end-sem PCA question will be a straight numerical; practise Companion Q1–Q3"
     },
     {
       "title": "Full PCA · 2023 regular Q4: four points from a figure (10 marks)",
@@ -1155,63 +1461,85 @@
       ],
       "problem": [
         {
+          "type": "note",
+          "color": "blue",
+          "label": "Notation for this solution",
+          "text": "**Our notation (Saurabh sir's class), used in the whole solution:** Σ → **C** (covariance), α → **w** (unit direction), Y = αᵀX → **z = wᵀX** (the projection / score), λ stays **λ**. X is the random vector."
+        },
+        {
           "type": "p",
-          "text": "A 2-D random vector has covariance Σ = [[5, 2], [2, 2]]. The first PC is Y₁ = αᵀX with αᵀα = 1. (a) Write the constrained problem and its Lagrangian. (b) Show the stationarity condition is Σα = λα and that Var(Y₁) = λ there. (c) Find α for PC1 and PC2 and their variances. (d) The correlation between Y₁ and Y₂ and the share of variance of Y₁. (Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`)"
+          "text": "A 2-D random vector X has covariance **Σ = [[5, 2], [2, 2]]**. The first PC is Y₁ = αᵀX with αᵀα = 1."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**(a)** Write the constrained problem and its Lagrangian.",
+            "**(b)** Show the stationarity condition is Σα = λα and that Var(Y₁) = λ there.",
+            "**(c)** Find α for PC1 and PC2 and their variances.",
+            "**(d)** The correlation between Y₁ and Y₂ and the share of variance of Y₁."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "(Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`)"
         }
       ],
       "steps": [
         {
           "label": "What is tested",
-          "text": "PCA as a constrained maximum (Lagrange, Lecture 11) and solving it on numbers."
+          "text": "PCA as a constrained maximum (Lagrange, Lecture 11), then solving it on numbers."
         },
         {
           "label": "Plan of attack",
-          "text": "max αᵀΣα s.t. αᵀα = 1 → L → ∇L = 0 → eigen-equation → multiply by αᵀ to get the variance → pick the largest λ."
+          "text": "max wᵀCw s.t. wᵀw = 1 → Lagrangian → ∂L/∂w = 0 → Cw = λw → put it back to get Var = λ → pick the largest λ → numbers."
         },
         {
           "label": "Notation",
-          "text": "Saurabh sir's symbols: **α** = unit direction (b₁ on the slides), **λ** = the Lagrange multiplier, which turns out to be the eigenvalue, Y = αᵀX = score."
+          "text": "Question's letters → ours:\nΣ → **C** = [[5, 2], [2, 2]] (given, so nothing to compute)\nα → **w** (unit direction), Y₁ = α₁ᵀX → **z₁ = w₁ᵀX**\nλ → **λ** (the Lagrange multiplier, which turns out to be the eigenvalue)\nWrite this mapping as the first line of your answer in the exam."
         },
         {
-          "label": "STEP 1 · (a) Problem and L",
-          "text": "max αᵀΣα s.t. αᵀα = 1\nL = αᵀΣα − λ(αᵀα − 1)"
+          "label": "STEP 1 · (a) Problem and Lagrangian",
+          "text": "Variance of the projection: Var(z) = wᵀCw\n**max wᵀCw   s.t.   wᵀw − 1 = 0**\n**L(w, λ) = wᵀCw − λ(wᵀw − 1)**"
         },
         {
           "label": "STEP 2 · (b) Stationarity",
-          "text": "∇(αᵀΣα) = 2Σα (Σ symmetric), ∇(αᵀα) = 2α\n∇L = 2Σα − 2λα = 0 ⇒ **Σα = λα**: α must be an eigenvector."
+          "text": "∂(wᵀCw)/∂w = 2Cw (C symmetric),   ∂(wᵀw)/∂w = 2w\n∂L/∂w = 2Cw − 2λw = 0 ⇒ **Cw = λw**: w must be an eigenvector of C.\n∂L/∂λ = 0 ⇒ wᵀw = 1 (the constraint)."
         },
         {
-          "label": "STEP 3 · (b) Variance = λ",
-          "text": "Var(Y₁) = αᵀΣα = αᵀ(λα) = λαᵀα = λ ⇒ to maximise, take the **largest** λ."
+          "label": "STEP 3 · (b) Var(z) = λ",
+          "text": "Var(z) = wᵀCw = wᵀ(λw) = λ(wᵀw) = λ · 1 = **λ**\nSo to maximise the variance, take the **largest** λ."
         },
         {
           "label": "STEP 4 · (c) Eigenvalues",
-          "text": "tr = 7, det = 10 − 4 = 6 ⇒ λ² − 7λ + 6 = 0 ⇒ **λ = 6, 1**"
+          "text": "Formula: **det(C − λI) = 0**\nC − λI = [[5 − λ, 2], [2, 2 − λ]]\ndet = (5 − λ)(2 − λ) − (2)²\n    = λ² − (5 + 2)λ + 10 − 4\n    = λ² − 7λ + 6 = 0\n    = (λ − 6)(λ − 1) = 0\n⇒ **λ₁ = 6, λ₂ = 1**\nCheck: λ₁ + λ₂ = 7 = tr C ✓, λ₁λ₂ = 6 = det C ✓"
         },
         {
-          "label": "STEP 5 · (c) Directions",
-          "text": "λ = 6: (5 − 6)a + 2b = 0 ⇒ a = 2b ⇒ **α₁ = (2, 1)/√5**, Var = 6\nλ = 1: 4a + 2b = 0 ⇒ b = −2a ⇒ **α₂ = (1, −2)/√5**, Var = 1"
+          "label": "STEP 5 · (c) Directions and variances",
+          "text": "Formula: **(C − λI)v = 0** for each λ, with v = (v₁, v₂). Solving row 1 is enough: when λ is right, row 2 gives the same line.\n**λ₁ = 6:**\nC − 6I = [[−1, 2], [2, −4]]\nrow 1: −v₁ + 2v₂ = 0 ⇒ v₁ = 2v₂\nrow 2: 2v₁ − 4v₂ = 0 ⇒ the same line ✓\n⇒ (2, 1); length √(2² + 1²) = √5 ⇒ **w₁ = (2, 1)/√5**\n**λ₂ = 1:**\nC − I = [[4, 2], [2, 1]]\nrow 1: 4v₁ + 2v₂ = 0 ⇒ v₂ = −2v₁\nrow 2: 2v₁ + v₂ = 0 ⇒ the same line ✓\n⇒ (1, −2); length √(1² + (−2)²) = √5 ⇒ **w₂ = (1, −2)/√5**\nCheck: w₁ · w₂ = 0, perpendicular ✓\n**Variances.** Formula: **Var(z) = wᵀCw**. Do it in two moves: first C times w, then w dotted with that.\n| Line | Working | Why |\n|---|---|---|\n| ① | Cw₁ = [[5, 2], [2, 2]] · (2, 1)/√5 | w₁ = (2, 1)/√5 |\n| ② | = (5·2 + 2·1, 2·2 + 2·1)/√5 = (12, 6)/√5 | row 1 · (2, 1), row 2 · (2, 1) |\n| ③ | w₁ᵀ(Cw₁) = (2, 1)/√5 · (12, 6)/√5 | dot w₁ with the result |\n| ④ | = (2·12 + 1·6)/5 = 30/5 = **6** | √5 · √5 = 5 |\n| ⑤ | Var(z₁) = 6 = **λ₁** ✓ | matches the eigenvalue |\n| ⑥ | Cw₂ = (5·1 + 2·(−2), 2·1 + 2·(−2))/√5 = (1, −2)/√5 | w₂ = (1, −2)/√5 |\n| ⑦ | w₂ᵀ(Cw₂) = (1·1 + (−2)(−2))/5 = 5/5 = **1** = **λ₂** ✓ | same two moves |"
         },
         {
-          "label": "STEP 6 · (d)",
-          "text": "Cov(Y₁, Y₂) = α₁ᵀΣα₂ = 1·α₁ᵀα₂ = 0 ⇒ **correlation 0**\nShare = 6/7 ≈ **85.71%**"
+          "label": "STEP 6 · (d) Correlation and share",
+          "text": "**Part 1 · Correlation.** Idea: correlation is 0 exactly when the covariance is 0, so find the covariance first.\nFormula: **Corr(z₁, z₂) = Cov(z₁, z₂) / √(Var(z₁)·Var(z₂))**\n| Line | Working | Why |\n|---|---|---|\n| ① | Cov(z₁, z₂) = w₁ᵀCw₂ | covariance of two projections |\n| ② | = w₁ᵀ(λ₂w₂) | w₂ is an eigenvector: Cw₂ = λ₂w₂ |\n| ③ | = λ₂ (w₁ᵀw₂) | λ₂ = 1 is a number, take it out |\n| ④ | w₁ᵀw₂ = (1/5)(2·1 + 1·(−2)) = 0 | w₁ = (2, 1)/√5, w₂ = (1, −2)/√5 |\n| ⑤ | Cov(z₁, z₂) = 1 · 0 = **0** | from ③ and ④ |\n| ⑥ | Corr(z₁, z₂) = 0 / √(6 · 1) = **0** | formula above |\nIn words: w₁ and w₂ are perpendicular, so the covariance is 0, so the correlation is 0. This is true for **any** two principal components.\n**Part 2 · Share of z₁.** Formula: **λ₁ / (λ₁ + λ₂)** = 6 / (6 + 1) = 6/7 ≈ **85.71%**"
         },
         {
           "label": "Answers at a glance",
-          "text": "L = αᵀΣα − λ(αᵀα − 1); Σα = λα, Var = λ; α₁ = (2, 1)/√5 (6), α₂ = (1, −2)/√5 (1); correlation 0; 85.71%."
+          "text": "L = wᵀCw − λ(wᵀw − 1); Cw = λw; Var(z) = λ\nw₁ = (2, 1)/√5 with Var 6; w₂ = (1, −2)/√5 with Var 1\nCorrelation 0; share 85.71%\nIn the question's letters: α₁ = w₁, Y₁ = z₁."
         },
         {
           "label": "Where marks are lost",
-          "text": "• Dropping the 2 on one term only (then the eigen-equation comes out wrong).\n• Choosing the smallest eigenvalue."
+          "text": "• Dropping the 2 on one term only (then the eigen-equation comes out wrong).\n• Stopping at Cw = λw without showing Var = λ.\n• Choosing the smallest eigenvalue.\n• Not writing the notation mapping first."
         },
         {
           "label": "More",
-          "text": "Same Lagrange method: [Lecture 11, Lagrangian tab](#/sem1/aiml-zc416/ch11/f-lagrange/16)."
+          "text": "Same Lagrange method: [Lecture 11, Lagrangian tab](#/sem1/aiml-zc416/ch11/f-lagrange/16). The full proof with data: [Type 2 board](#/sem1/aiml-zc416/ch12/lesson/5)."
         }
       ],
-      "answer": "Σα = λα; α₁ = (2, 1)/√5 with variance 6; 85.71%.",
+      "answer": "Cw = λw; w₁ (= α₁) = (2, 1)/√5 with variance 6; correlation 0; 85.71%.",
       "priority": "must",
-      "priorityWhy": "The one problem for the derivation (slides p. 11–13)"
+      "priorityWhy": "The one problem for the derivation (slides p. 11–13)",
+      "revisit": {
+        "note": "Pending: redo the proof in w, C, z (Cw = λw and Var = λ), then the numbers and the correlation."
+      }
     },
     {
       "title": "Derive · Companion Q2: find the three faults in a student's derivation (6 marks)",
@@ -1221,35 +1549,75 @@
       ],
       "problem": [
         {
+          "type": "note",
+          "color": "blue",
+          "label": "Notation for this solution",
+          "text": "**Our notation (Saurabh sir's class), used in the whole solution:** Σ → **C** (covariance), α → **w** (unit direction), Y = αᵀX → **z = wᵀX** (the projection / score), λ stays **λ**. X is the random vector. The student's lines below are kept in their own letters; the solution answers in ours."
+        },
+        {
           "type": "p",
-          "text": "Σ = [[5, 2], [2, 8]]. A student writes: (1) max αᵀΣα s.t. αᵀα = 1. (2) L = αᵀΣα − λ(αᵀα − 1). (3) ∂L/∂α = 2Σα − λα = 0, so Σα = ½λα. (4) det(Σ − λI) = λ² − 13λ + 36 ⇒ λ = 9, 4. (5) For λ = 9, α = (1, 2), so Y₁ = X₁ + 2X₂. (6) Var(Y₁) = 9. (a) Find the three faulty lines. [3M] (b) Correct them. [2M] (c) Compute Var(X₁ + 2X₂) directly. [1M] (Companion §15, Question 2)"
+          "text": "A student is asked to find the first principal component of a 2-D random vector X = (X₁, X₂)ᵀ with covariance **Σ = [[5, 2], [2, 8]]**, using Lagrange multipliers. Their complete attempt:"
+        },
+        {
+          "type": "list",
+          "items": [
+            "**(1)** Maximise Var(Y₁) = αᵀΣα subject to αᵀα = 1.",
+            "**(2)** L(α, λ) = αᵀΣα − λ(αᵀα − 1).",
+            "**(3)** ∂L/∂α = 2Σα − λα = 0, so Σα = ½λα.",
+            "**(4)** det(Σ − λI) = λ² − 13λ + 36 = 0, so λ = 9 and λ = 4.",
+            "**(5)** For the larger root, (Σ − 9I)α = 0 gives α = (1, 2)ᵀ, so Y₁ = X₁ + 2X₂.",
+            "**(6)** Var(Y₁) = 9, because the maximum variance is the largest eigenvalue."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Exactly three of the six lines are faulty."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**(a)** Identify the three faulty lines and state, in one sentence each, what is wrong. [3M]",
+            "**(b)** Rewrite the derivation correctly from the first faulty line onwards, and give the correct Y₁ and Var(Y₁). [2M]",
+            "**(c)** Line (6) contradicts line (5). Compute Var(X₁ + 2X₂) directly from Σ to show this, and state the general relation between Var(αᵀX) and λ when α is an eigenvector that has not been normalised. [1M]"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "(Companion §15, Question 2)"
         }
       ],
       "steps": [
         {
           "label": "What is tested",
-          "text": "Knowing the derivation well enough to mark it."
+          "text": "Knowing the derivation well enough to mark someone else's."
+        },
+        {
+          "label": "Notation",
+          "text": "Student's letters → ours: Σ → **C** = [[5, 2], [2, 8]], α → **w**, Y₁ → **z₁ = w₁ᵀX**, λ → λ.\nSo the student's line (2) is L = wᵀCw − λ(wᵀw − 1) in our letters."
         },
         {
           "label": "STEP 1 · (a) Faults",
-          "text": "**(3)** ∂(λαᵀα)/∂α = 2λα, not λα.\n**(5)** (1, 2) is not unit length (‖(1, 2)‖ = √5).\n**(6)** With the α of line (5), the variance is 45, not 9.\nLines (1), (2), (4) are correct."
+          "text": "Lines (1), (2) and (4) are correct. The three faults, one sentence each:\n**Line (3):** the derivative of the constraint term is wrong: ∂(λwᵀw)/∂w = 2λw, not λw, so it should read 2Cw − 2λw = 0.\n**Line (5):** the eigenvector is not normalised: (1, 2) is the right direction but its length is √5, and the derivation assumed wᵀw = 1.\n**Line (6):** with the w of line (5) the variance is 45, not 9; Var = λ holds only for a unit eigenvector."
         },
         {
           "label": "STEP 2 · (b) Corrected",
-          "text": "2Σα − 2λα = 0 ⇒ Σα = λα; λ = 9, 4 (9 + 4 = 13 = tr ✓, 36 = det ✓)\nα₁ = (1, 2)/√5, Y₁ = (X₁ + 2X₂)/√5, **Var(Y₁) = 9**; share 9/13 = 69.2%"
+          "text": "Line (3) corrected: ∂L/∂w = 2Cw − 2λw = 0 ⇒ **Cw = λw**\nLine (4) stands:\nFormula: **det(C − λI) = 0**\nC − λI = [[5 − λ, 2], [2, 8 − λ]]\ndet = (5 − λ)(8 − λ) − (2)²\n    = λ² − (5 + 8)λ + 40 − 4\n    = λ² − 13λ + 36 = 0\n    = (λ − 9)(λ − 4) = 0\n⇒ **λ₁ = 9, λ₂ = 4**\nCheck: λ₁ + λ₂ = 13 = tr C ✓, λ₁λ₂ = 36 = det C ✓\nFormula: **(C − λI)v = 0** for each λ, with v = (v₁, v₂). Solving row 1 is enough: when λ is right, row 2 gives the same line.\n**λ₁ = 9:**\nC − 9I = [[−4, 2], [2, −1]]\nrow 1: −4v₁ + 2v₂ = 0 ⇒ v₂ = 2v₁\nrow 2: 2v₁ − v₂ = 0 ⇒ the same line ✓\n⇒ (1, 2); length √(1² + 2²) = √5 ⇒ **w₁ = (1, 2)/√5**\n**λ₂ = 4:**\nC − 4I = [[1, 2], [2, 4]]\nrow 1: v₁ + 2v₂ = 0 ⇒ v₁ = −2v₂\nrow 2: 2v₁ + 4v₂ = 0 ⇒ the same line ✓\n⇒ (2, −1); length √(2² + (−1)²) = √5 ⇒ **w₂ = (2, −1)/√5**\nCheck: w₁ · w₂ = 0, perpendicular ✓\nLine (5) corrected: z₁ = w₁ᵀX = **(X₁ + 2X₂)/√5**\nLine (6) corrected: Var(z₁) = w₁ᵀCw₁ = λ₁(w₁ᵀw₁) = **9** (true because w₁ is unit); share 9/13 = **69.2%**"
         },
         {
-          "label": "STEP 3 · (c)",
-          "text": "Var(X₁ + 2X₂) = 5 + 4(8) + 4(2) = **45** = (1, 2)Σ(1, 2)ᵀ\nIn general Var(αᵀX) = λ‖α‖², so Var = λ only for a unit α (here ‖α‖² = 5, 5 × 9 = 45)."
+          "label": "STEP 3 · (c) Direct variance",
+          "text": "Formula: **Var(aX₁ + bX₂) = a²Var(X₁) + b²Var(X₂) + 2ab·Cov(X₁, X₂)**\nFrom C: Var(X₁) = 5, Var(X₂) = 8, Cov(X₁, X₂) = 2; here a = 1, b = 2\nVar(X₁ + 2X₂) = (1)²(5) + (2)²(8) + 2(1)(2)(2) = 5 + 32 + 8 = **45**\nSame in matrix form: (1, 2)C(1, 2)ᵀ = (1, 2)·(9, 18) = 9 + 36 = 45\n45 ≠ 9, so line (6) contradicts line (5).\n**General relation:** if Cw = λw, then Var(wᵀX) = wᵀCw = wᵀ(λw) = λ(wᵀw) = **λ‖w‖²**.\nSo Var = λ only when ‖w‖ = 1. Here ‖w‖² = 1² + 2² = 5, and 5 × 9 = 45 ✓"
         },
         {
           "label": "Answers at a glance",
-          "text": "Faults in (3), (5), (6); Y₁ = (X₁ + 2X₂)/√5 with variance 9; Var(X₁ + 2X₂) = 45."
+          "text": "Faults in lines (3), (5), (6)\nz₁ = (X₁ + 2X₂)/√5 with Var(z₁) = 9; share 69.2%\nVar(X₁ + 2X₂) = 45 = λ‖w‖² = 9 × 5\nIn the question's letters: α₁ = w₁, Y₁ = z₁."
         }
       ],
-      "answer": "Faulty lines 3, 5, 6; correct Y₁ = (X₁ + 2X₂)/√5, Var 9.",
-      "priority": "optional",
-      "priorityWhy": "Extra practice of a type a must-do problem already covers"
+      "answer": "Faulty lines 3, 5, 6; correct z₁ (= Y₁) = (X₁ + 2X₂)/√5 with Var 9; Var(X₁ + 2X₂) = 45.",
+      "priority": "must",
+      "priorityWhy": "Saurabh sir: the end-sem PCA question will be a straight numerical; practise Companion Q1–Q3",
+      "revisit": {
+        "note": "Pending: mark lines (1)–(6) yourself before revealing, then part (c) Var = λ‖w‖²."
+      }
     }
   ],
   "families": [
@@ -1289,15 +1657,134 @@
       "label": "Derive",
       "icon": "λ",
       "title": "Type 2 · Derive PCA with a Lagrangian",
-      "lead": "max bᵀSb s.t. bᵀb = 1 ⇒ Sb = λb, Var = λ. Saurabh P41 and Companion Q2.",
+      "lead": "Prove that the best direction is an eigenvector (Cw = λw) and that its variance is λ. Both problems here are Must do: Saurabh P41, then Companion Q2.",
       "problems": [
         "Derive ·"
       ],
       "blocks": [
         {
-          "type": "formula",
-          "text": "L = bᵀSb − λ(bᵀb − 1);   ∇L = 2Sb − 2λb = 0 ⇒ Sb = λb;   bᵀSb = λ",
-          "caption": "`Lecture_12.pdf` p. 11–13"
+          "type": "note",
+          "color": "red",
+          "label": "How likely (Saurabh sir, 14 Nov)",
+          "text": "70–80% chance the PCA question is a straight numerical; otherwise it is **this proof**. Last year's paper asked exactly two things: show w is an eigenvector, and show the maximum variance is λ."
+        },
+        {
+          "type": "note",
+          "color": "blue",
+          "label": "Write this line first",
+          "text": "**Assumptions:** X is N × D, one centred point per row. w is a D × 1 unit vector (wᵀw = 1). z = Xw are the projections. C = (1/N)XᵀX (divide by N, not N − 1)."
+        },
+        {
+          "type": "eqs",
+          "label": "The proof (Saurabh sir's notation)",
+          "groups": [
+            {
+              "label": "Variance of the projections",
+              "lines": [
+                [
+                  "Var(z)",
+                  "=",
+                  "(1/N) zᵀz = (1/N)(Xw)ᵀ(Xw)"
+                ],
+                [
+                  "",
+                  "=",
+                  "wᵀ((1/N)XᵀX)w = wᵀCw"
+                ]
+              ]
+            },
+            {
+              "label": "Problem and Lagrangian",
+              "lines": [
+                [
+                  "max wᵀCw",
+                  "s.t.",
+                  "wᵀw − 1 = 0"
+                ],
+                [
+                  "L(w, λ)",
+                  "=",
+                  "wᵀCw − λ(wᵀw − 1)"
+                ]
+              ]
+            },
+            {
+              "label": "Ending 1 · w is an eigenvector",
+              "lines": [
+                [
+                  "∂L/∂w",
+                  "=",
+                  "2Cw − 2λw = 0"
+                ],
+                [
+                  "",
+                  "⇒",
+                  "Cw = λw"
+                ]
+              ],
+              "note": "∂(wᵀCw)/∂w = 2Cw because C is symmetric; ∂(wᵀw)/∂w = 2w. Write **−λ** so you get Cw = λw directly."
+            },
+            {
+              "label": "Ending 2 · the variance is λ",
+              "lines": [
+                [
+                  "Var(z)",
+                  "=",
+                  "wᵀCw = wᵀ(λw) = λ(wᵀw) = λ"
+                ]
+              ],
+              "note": "So take the **largest** λ: PC1 is its unit eigenvector. Both endings carry marks."
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "Source",
+            "Direction",
+            "Covariance",
+            "Projection"
+          ],
+          "rows": [
+            [
+              "Saurabh sir's class",
+              "w",
+              "C",
+              "z = Xw"
+            ],
+            [
+              "Slides",
+              "b₁",
+              "S",
+              "b₁ᵀxₙ"
+            ],
+            [
+              "P41, Companion Q2",
+              "α",
+              "Σ",
+              "Y₁ = αᵀX"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "**Always answer in w, C, z, X.** If the question uses other letters (P41 and Companion Q2 use α, Σ, Y), write one mapping line first, e.g. \"Σ → C, α → w, Y → z\", then solve in our letters. Never mix two notations in one answer."
+        },
+        {
+          "type": "note",
+          "color": "blue",
+          "label": "When numbers follow the proof (P41 (c), Companion Q2 (b))",
+          "text": "Same as Type 1: det(C − λI) = 0 → (C − λI)w = 0 → **unit** w → largest λ. If asked to verify Var(z₁) = λ₁: scores → mean → (1/N) Σ (z₁ₙ − mean)² = λ₁ (exam-day rule 12)."
+        },
+        {
+          "type": "note",
+          "color": "red",
+          "label": "Where marks are lost",
+          "text": "Writing λα instead of 2λα · stopping at Cw = λw without showing Var = λ · saying Var = λ for a vector that is not unit length (then Var = λ‖α‖², Companion Q2's trap) · dividing by N − 1."
+        },
+        {
+          "type": "p",
+          "text": "Full proof with the slides' version and a side-by-side comparison: [Type 2 board](#/sem1/aiml-zc416/ch12/lesson/5)."
         }
       ]
     }

@@ -1,0 +1,1664 @@
+{
+ "id": "ch05",
+ "title": "Lecture 5 · Eigendecomposition & SVD",
+ "subtitle": "Lecture 5 · `Lecture_5.pdf` (30 pages) · diagonalisation and eigendecomposition (p. 3–10), the SVD and how to build U, Σ, V (p. 11–21), SVD vs EVD (p. 22–24), rank-k approximation and the spectral norm (p. 25–29)",
+ "lesson": [
+  {
+   "title": "Where the marks are: Lecture 5",
+   "lead": "SVD and eigendecomposition: asked in 4 of the 10 papers on the site, always as its own question.",
+   "blocks": [
+    {
+     "type": "table",
+     "head": [
+      "Paper",
+      "Question",
+      "What it asked",
+      "Marks",
+      "Solution"
+     ],
+     "rows": [
+      [
+       "Feb 2026 regular",
+       "Q1",
+       "Eigenvalues, P and D, singular values of B with BᵀB = A",
+       "8 (5 Lecture 4 + 3 Lecture 5)",
+       "[Open →](#/sem1/aiml-zc416/ch05/f-eigen/0)"
+      ],
+      [
+       "Sep 2025 regular",
+       "Q2(a)",
+       "Full SVD of a 3 × 2 matrix",
+       "4",
+       "[Open →](#/sem1/aiml-zc416/ch05/f-svd/7)"
+      ],
+      [
+       "Previous batch (Apr 2023)",
+       "Q4",
+       "SVD when the columns are orthogonal",
+       "5",
+       "[Open →](#/sem1/aiml-zc416/ch05/f-svd/13)"
+      ],
+      [
+       "2022 regular",
+       "Q2(b)",
+       "tr(AᵀA) = Σσ² (prove or disprove)",
+       "4",
+       "[Open →](#/sem1/aiml-zc416/ch05/f-theory/18)"
+      ]
+     ],
+     "leftCols": 3
+    },
+    {
+     "type": "note",
+     "label": "Why the card says only 7/120 (≈ 2.3 per paper)",
+     "color": "blue",
+     "text": "The weightage card counts **only the three newest papers** (Sep 2025, Feb 2026, Mar 2026): 4 + 3 + 0 = 7 of 120 marks. Across **all 10 papers**, Lecture 5 appears in 4, and Saurabh sir listed **eigen/SVD** in his pre-mid topics for this end-sem. Expect one question of about 4–5 marks."
+    },
+    {
+     "type": "note",
+     "label": "What to expect",
+     "color": "red",
+     "text": "**The SVD by hand of a small matrix (2 × 2, 3 × 2 or 2 × 3)** is the main type. Second: diagonalise a 3 × 3 symmetric matrix with a repeated eigenvalue, then a one-line singular-value part. Must do: the 8 problems marked **Must do**, about 2¾ hours."
+    }
+   ]
+  },
+  {
+   "title": "What Saurabh sir said in the SVD class (5 Sep)",
+   "lead": "From the transcript of his 5 Sep lecture. The first ~70 minutes are on decompositions and SVD; the rest starts calculus (Lecture 6).",
+   "blocks": [
+    {
+     "type": "note",
+     "label": "His exam advice",
+     "color": "red",
+     "text": "\"Do practice these questions because this is **one of the most important problems** that you will be facing in exam.\" The paper can ask eigendecomposition, SVD, **or both in one question**. A common form: **you are given P, D and P⁻¹; find A¹⁰**, which is just PD¹⁰P⁻¹."
+    },
+    {
+     "type": "h",
+     "text": "What he taught, in order"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "**Decomposition = simple moves.** A matrix does rotate, stretch or flip; factorising shows which. SVD is always **rotate → stretch → rotate**.",
+      "**Diagonalisation:** AP = PD ⇒ A = PDP⁻¹ ⇒ A² = PD(P⁻¹P)DP⁻¹ = PD²P⁻¹, and Aᵏ = PDᵏP⁻¹. Only the λ get raised to the power.",
+      "**Orthogonal matrices only rotate.** Example [[cos θ, −sin θ], [sin θ, cos θ]]: det = cos²θ + sin²θ = 1, so areas do not change.",
+      "**Symmetric A (spectral theorem):** eigenvalues are real and eigenvectors perpendicular ⇒ P is orthogonal ⇒ P⁻¹ = Pᵀ ⇒ **A = PDPᵀ**.",
+      "**SVD for any shape:** AAᵀ and AᵀA are always symmetric, so they have perpendicular eigenvectors: **U from AAᵀ, V from AᵀA**, and they **share** the non-zero eigenvalues.",
+      "**His board example:** A = [[3, 2, 2], [2, 3, −2]] → AAᵀ = [[17, 8], [8, 17]] → λ = 25, 9 → σ = 5, 3. [Full solution →](#/sem1/aiml-zc416/ch05/f-svd/6)",
+      "**Use the smaller matrix:** \"Whatever is easier, AAᵀ or AᵀA, use that. Whatever reduces your calculation.\"",
+      "**Σ:** same shape as A, biggest σ first, always positive. Column 1 of U and V goes with σ₁, column 2 with σ₂.",
+      "**Third vector of V (3 × 3):** take the **cross product** of the first two. Or use vᵢ = Aᵀuᵢ/σᵢ for the first two.",
+      "**Why it matters:** keep the directions with the biggest σ (or λ) and drop the rest. That is low-rank approximation, and later PCA (linear; t-SNE and UMAP are the non-linear cousins)."
+     ]
+    },
+    {
+     "type": "note",
+     "label": "One thing to say more carefully than in class",
+     "color": "blue",
+     "text": "In answer to a question he said you cannot diagonalise when two eigenvalues are the same. That is only true when the repeated λ has **too few eigenvectors** (Sourabh P13). A repeated λ with enough eigenvectors is fine: [Feb 2026 Q1](#/sem1/aiml-zc416/ch05/f-eigen/0) (λ = 4 twice) and [Sourabh P12](#/sem1/aiml-zc416/ch05/f-eigen/1) are both diagonalisable. Write the eigenvector-count reason in the exam."
+    }
+   ]
+  },
+  {
+   "title": "Before this lecture",
+   "lead": "Lecture 4: eigenvalues and eigenvectors. Everything here reuses those two steps.",
+   "blocks": [
+    {
+     "type": "list",
+     "items": [
+      "**det(A − λI) = 0** gives the eigenvalues. For 2 × 2: λ² − (tr A)λ + det A = 0.",
+      "**(A − λI)v = 0** gives each eigenvector. A repeated λ can have one or two of them: count the free variables.",
+      "**Unit length:** divide v by ‖v‖ = √(v₁² + v₂² + …)."
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Quick check (2 minutes)"
+    },
+    {
+     "type": "list",
+     "items": [
+      "Eigenvalues of [[2, 1], [1, 2]]? → *Answer:* (2 − λ)² − 1 = 0 ⇒ 3 and 1.",
+      "Unit eigenvector for λ = 3? → *Answer:* (1, 1)/√2.",
+      "Product of the eigenvalues? → *Answer:* 3 = det A = 4 − 1 ✓."
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Type 1 · Diagonalise: A = PDP⁻¹ and A = QΛQᵀ",
+   "lead": "`Lecture_5.pdf` p. 3–10, Companion Parts 1–2.",
+   "blocks": [
+    {
+     "type": "eqs",
+     "groups": [
+      {
+       "label": "Any square matrix with n independent eigenvectors",
+       "ref": "p. 4–6",
+       "lines": [
+        [
+         "AP",
+         "=",
+         "PD   (column i: Apᵢ = λᵢpᵢ)"
+        ],
+        [
+         "A",
+         "=",
+         "PDP⁻¹"
+        ],
+        [
+         "Aᵏ",
+         "=",
+         "PDᵏP⁻¹   (only the diagonal is raised)"
+        ]
+       ],
+       "note": "P = eigenvectors as columns, D = eigenvalues in the **same order**."
+      },
+      {
+       "label": "Symmetric matrix (spectral theorem)",
+       "ref": "p. 10",
+       "lines": [
+        [
+         "A",
+         "=",
+         "QΛQᵀ   (QᵀQ = I, so Q⁻¹ = Qᵀ)"
+        ],
+        [
+         "A",
+         "=",
+         "λ₁q₁q₁ᵀ + λ₂q₂q₂ᵀ + …"
+        ],
+        [
+         "Aᵏ",
+         "=",
+         "λ₁ᵏq₁q₁ᵀ + λ₂ᵏq₂q₂ᵀ + …   (k = −1 gives A⁻¹)"
+        ]
+       ],
+       "note": "Q = **unit** eigenvectors. Symmetric matrices always have them, and they are perpendicular."
+      }
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Is A diagonalisable?"
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Yes** if the λ are all different, or if A is symmetric.",
+      "A repeated λ: count its eigenvectors (free variables in (A − λI)v = 0). **Diagonalisable only if that count equals how often λ repeats.**",
+      "Triangular A: the eigenvalues are the diagonal entries."
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Fastest path (about 50 min)"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "**Do:** [Feb 2026 Q1](#/sem1/aiml-zc416/ch05/f-eigen/0), then [Sourabh P12](#/sem1/aiml-zc416/ch05/f-eigen/1).",
+      "**Do:** [Sourabh P14](#/sem1/aiml-zc416/ch05/f-eigen/2) for powers and the inverse."
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Type 2 · SVD by hand: A = UΣVᵀ",
+   "lead": "`Lecture_5.pdf` p. 11–21, Companion Part 3. Works for every matrix, any shape.",
+   "blocks": [
+    {
+     "type": "note",
+     "label": "Shapes",
+     "color": "blue",
+     "text": "A is m × n ⇒ **U is m × m, Σ is m × n (same as A), V is n × n**. U and V are orthogonal (unit, perpendicular columns). σ₁ ≥ σ₂ ≥ … ≥ 0."
+    },
+    {
+     "type": "eqs",
+     "groups": [
+      {
+       "label": "The recipe (use the smaller of AᵀA and AAᵀ)",
+       "ref": "p. 14–16",
+       "lines": [
+        [
+         "1 · Gram matrix",
+         "=",
+         "AᵀA (n × n), entries column·column"
+        ],
+        [
+         "2 · Eigenvalues",
+         ":",
+         "det(AᵀA − λI) = 0,  λ₁ ≥ λ₂ ≥ …"
+        ],
+        [
+         "3 · Singular values",
+         ":",
+         "σᵢ = √λᵢ"
+        ],
+        [
+         "4 · V",
+         ":",
+         "(AᵀA − λI)v = 0, unit vᵢ"
+        ],
+        [
+         "5 · U",
+         ":",
+         "uᵢ = Avᵢ / σᵢ   (σᵢ > 0)"
+        ],
+        [
+         "6 · Complete",
+         ":",
+         "missing vector: unit, ⊥ all others (3-D: cross product)"
+        ],
+        [
+         "7 · Assemble",
+         ":",
+         "A = UΣVᵀ, Σ padded with 0"
+        ]
+       ],
+       "note": "**Wide A (m < n):** start from AAᵀ (m × m) to get U and σ, then **vᵢ = Aᵀuᵢ/σᵢ**, and the missing v from Av = 0."
+      },
+      {
+       "label": "Why it works",
+       "ref": "p. 14–16",
+       "lines": [
+        [
+         "AᵀA",
+         "=",
+         "VΣᵀUᵀUΣVᵀ = V(ΣᵀΣ)Vᵀ"
+        ],
+        [
+         "AAᵀ",
+         "=",
+         "U(ΣΣᵀ)Uᵀ"
+        ],
+        [
+         "AV",
+         "=",
+         "UΣ  ⇒  Avᵢ = σᵢuᵢ"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "type": "note",
+     "label": "Saurabh sir's cross-product trick (3 × 3 V or U)",
+     "color": "blue",
+     "text": "When two of the three vectors are known, the third is **a × b = (a₂b₃ − a₃b₂, a₃b₁ − a₁b₃, a₁b₂ − a₂b₁)**, divided by its length. It is perpendicular to both automatically. Solving \"⊥ to both\" by equations gives the same vector (up to sign)."
+    },
+    {
+     "type": "h",
+     "text": "Fastest path (about 75 min)"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "**Do first:** [Saurabh sir's class example](#/sem1/aiml-zc416/ch05/f-svd/6) (2 × 3, the one he solved on the board).",
+      "**Do:** [Sourabh P15](#/sem1/aiml-zc416/ch05/f-svd/8) (2 × 2), then [Sep 2025 Q2(a)](#/sem1/aiml-zc416/ch05/f-svd/7) (3 × 2).",
+      "**Do:** [Sourabh P16](#/sem1/aiml-zc416/ch05/f-svd/9) (2 × 3, start from AAᵀ)."
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Type 3 · Rank-k approximation and the spectral norm",
+   "lead": "`Lecture_5.pdf` p. 25–29, Companion Part 4.",
+   "blocks": [
+    {
+     "type": "eqs",
+     "groups": [
+      {
+       "label": "A as a sum of rank-1 layers",
+       "ref": "p. 26–27",
+       "lines": [
+        [
+         "A",
+         "=",
+         "σ₁u₁v₁ᵀ + σ₂u₂v₂ᵀ + … + σᵣuᵣvᵣᵀ   (r = rank)"
+        ],
+        [
+         "Â(k)",
+         "=",
+         "σ₁u₁v₁ᵀ + … + σₖuₖvₖᵀ   (best rank k)"
+        ]
+       ]
+      },
+      {
+       "label": "Sizes and errors",
+       "ref": "p. 28",
+       "lines": [
+        [
+         "‖A‖₂",
+         "=",
+         "σ₁   (largest stretch)"
+        ],
+        [
+         "‖A‖²_{F}",
+         "=",
+         "Σ aᵢⱼ² = σ₁² + σ₂² + …"
+        ],
+        [
+         "‖A − Â(k)‖₂",
+         "=",
+         "σₖ₊₁"
+        ],
+        [
+         "‖A − Â(k)‖_{F}",
+         "=",
+         "√(σ²ₖ₊₁ + σ²ₖ₊₂ + …)"
+        ],
+        [
+         "energy kept",
+         "=",
+         "(σ₁² + … + σₖ²) / (σ₁² + σ₂² + …)"
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "type": "h",
+     "text": "Fastest path (about 20 min)"
+    },
+    {
+     "type": "steps",
+     "items": [
+      "**Do:** [Sourabh P17](#/sem1/aiml-zc416/ch05/f-lowrank/14)."
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Type 4 · EVD vs SVD, and the link to PCA",
+   "lead": "`Lecture_5.pdf` p. 22–24. Short-answer theory.",
+   "blocks": [
+    {
+     "type": "table",
+     "head": [
+      "",
+      "Eigendecomposition",
+      "SVD"
+     ],
+     "rows": [
+      [
+       "Form",
+       "A = PDP⁻¹ (QΛQᵀ if symmetric)",
+       "A = UΣVᵀ"
+      ],
+      [
+       "Works for",
+       "square, with n independent eigenvectors",
+       "**every** matrix"
+      ],
+      [
+       "Outer matrices",
+       "P, P⁻¹: inverses, not always orthogonal",
+       "U, V: always orthogonal, not inverses"
+      ],
+      [
+       "Diagonal",
+       "λ: can be negative (or complex)",
+       "σ: always real and ≥ 0"
+      ],
+      [
+       "Link",
+       "eigenvectors of AᵀA = V, of AAᵀ = U",
+       "σᵢ = √λᵢ(AᵀA)"
+      ]
+     ],
+     "leftCols": 1
+    },
+    {
+     "type": "list",
+     "items": [
+      "**Symmetric A:** σᵢ = |λᵢ|. If every λ ≥ 0, the EVD and the SVD are the same.",
+      "**Non-symmetric A:** σ ≠ λ (for [[3, 0], [4, 5]], λ = 3, 5 but σ = 3√5, √5).",
+      "**Why every matrix has an SVD:** AᵀA is always symmetric, so it always has perpendicular eigenvectors.",
+      "**PCA link:** centred data X̂ = UΣVᵀ ⇒ S = (1/N)X̂ᵀX̂ = V(Σ²/N)Vᵀ: the columns of V are the PCs and **λ = σ²/N**. For a PCA numerical, still use det(S − λI) ([Lecture 12](#/sem1/aiml-zc416/ch12/lesson/4))."
+     ]
+    }
+   ]
+  }
+ ],
+ "worked": [
+  {
+   "title": "Eigen · Feb 2026 Q1: eigenvalues, diagonalisation, singular values (8 marks)",
+   "tags": [
+    "Feb 2026 regular",
+    "Q1",
+    "Lecture 4–5"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A = [[3, 1, 0], [1, 3, 0], [0, 0, 4]].\n(a) Find all eigenvalues and eigenvectors. [5M]\n(b) Find a diagonal D and an invertible P with AP = PD. [2M]\n(c) An upper-triangular B satisfies BᵀB = A. Find the singular values of B. [1M]"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "A 3 × 3 characteristic polynomial, a **repeated eigenvalue with two eigenvectors**, building P and D, and the rule \"singular values of B = √(eigenvalues of BᵀB)\"."
+    },
+    {
+     "label": "Plan of attack",
+     "text": "Row 3 has two zeros: expand det(A − λI) along it. Solve (A − λI)v = 0 for each λ. Put the eigenvectors in P **in the same order** as the λ in D. For (c) you never need B itself."
+    },
+    {
+     "label": "STEP 1 · (a) Eigenvalues  [2M]",
+     "text": "Formula: **det(A − λI) = 0**\nA − λI = [[3 − λ, 1, 0], [1, 3 − λ, 0], [0, 0, 4 − λ]]\nExpand along row 3 (two zeros): det = (4 − λ)·[(3 − λ)(3 − λ) − 1·1]\n    = (4 − λ)[(3 − λ)² − 1]\n    = (4 − λ)(λ² − 6λ + 8)\n    = (4 − λ)(λ − 2)(λ − 4) = 0\n**λ = 2, 4, 4** (4 is repeated)\nCheck: 2 + 4 + 4 = 10 = tr A = 3 + 3 + 4 ✓;  2·4·4 = 32 = det A = 4·(9 − 1) ✓"
+    },
+    {
+     "label": "STEP 2 · (a) λ = 2  [1.5M]",
+     "text": "Formula: **(A − λI)v = 0**, v = (v₁, v₂, v₃)\nA − 2I = [[1, 1, 0], [1, 1, 0], [0, 0, 2]]\nRow 1: v₁ + v₂ = 0 ⇒ v₂ = −v₁\nRow 3: 2v₃ = 0 ⇒ v₃ = 0\nTake v₁ = 1: **v = (1, −1, 0)**"
+    },
+    {
+     "label": "STEP 3 · (a) λ = 4 (repeated)  [1.5M]",
+     "text": "A − 4I = [[−1, 1, 0], [1, −1, 0], [0, 0, 0]]\nRow 1: −v₁ + v₂ = 0 ⇒ v₂ = v₁\nRow 2 is the same equation; row 3 says nothing ⇒ **v₁ and v₃ are both free**\nv₁ = 1, v₃ = 0: **(1, 1, 0)**\nv₁ = 0, v₃ = 1: **(0, 0, 1)**\nTwo free variables ⇒ two independent eigenvectors for the repeated λ."
+    },
+    {
+     "label": "STEP 4 · (b) P and D  [2M]",
+     "text": "Eigenvectors as the columns of P, eigenvalues on D **in the same order**:\nP = [[1, 1, 0], [−1, 1, 0], [0, 0, 1]],   D = [[2, 0, 0], [0, 4, 0], [0, 0, 4]]\nCheck column 1: A·(1, −1, 0) = (3 − 1, 1 − 3, 0) = (2, −2, 0) = 2·(1, −1, 0) ✓\nP is invertible: three independent columns (det P = 1·1 − 1·(−1) = 2 ≠ 0)."
+    },
+    {
+     "label": "STEP 5 · (c) Singular values of B  [1M]",
+     "text": "Formula: **σᵢ(B) = √(eigenvalues of BᵀB)**\nBᵀB = A, whose eigenvalues are 4, 4, 2\nσ = √4, √4, √2 = **2, 2, √2**"
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "(a) λ = 2: (1, −1, 0); λ = 4: (1, 1, 0) and (0, 0, 1). (b) P = [[1, 1, 0], [−1, 1, 0], [0, 0, 1]], D = diag(2, 4, 4). (c) 2, 2, √2."
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "• Giving only **one** eigenvector for λ = 4: it has two free variables.\n• Writing P's columns in a different order from D's diagonal.\n• (c) Answering 4, 4, 2: those are σ², not σ."
+    }
+   ],
+   "answer": "λ = 2, 4, 4; P = [[1, 1, 0], [−1, 1, 0], [0, 0, 1]], D = diag(2, 4, 4); σ(B) = 2, 2, √2.",
+   "priority": "must",
+   "priorityWhy": "Newest regular paper, 8 marks: the pattern most likely to repeat"
+  },
+  {
+   "title": "Eigen · Sourabh P12: repeated eigenvalue and orthogonal diagonalisation",
+   "tags": [
+    "Sourabh sir",
+    "P12"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A = [[2, 0, 1], [0, 3, 0], [1, 0, 2]].\n(a) Find all eigenvalues and a basis of each eigenspace.\n(b) Find an invertible P and diagonal D with AP = PD. Is A orthogonally diagonalisable?\n(c) Using the eigenvalues only, find det(A), trace(A) and the eigenvalues of A² − 2A.\n(d) Find the singular values of A.\n(Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "Expanding along a sparse row, a repeated eigenvalue, eigenvalues of a polynomial in A, and σ = |λ| for a symmetric matrix."
+    },
+    {
+     "label": "Plan of attack",
+     "text": "Row 2 has one non-zero entry: expand along it. Then (A − λI)v = 0 for λ = 1 and λ = 3."
+    },
+    {
+     "label": "STEP 1 · (a) Eigenvalues",
+     "text": "Formula: **det(A − λI) = 0**\nA − λI = [[2 − λ, 0, 1], [0, 3 − λ, 0], [1, 0, 2 − λ]]\nExpand along row 2: det = (3 − λ)·[(2 − λ)(2 − λ) − 1·1]\n    = (3 − λ)[(2 − λ)² − 1]\n(2 − λ)² = 1 ⇒ 2 − λ = ±1 ⇒ λ = 1 or 3\n**λ = 1, 3, 3**\nCheck: 1 + 3 + 3 = 7 = 2 + 3 + 2 ✓"
+    },
+    {
+     "label": "STEP 2 · (a) Eigenvectors",
+     "text": "Formula: **(A − λI)v = 0**\n**λ = 1:** A − I = [[1, 0, 1], [0, 2, 0], [1, 0, 1]]\n    v₁ + v₃ = 0 and 2v₂ = 0 ⇒ v₃ = −v₁, v₂ = 0 ⇒ **(1, 0, −1)**\n**λ = 3:** A − 3I = [[−1, 0, 1], [0, 0, 0], [1, 0, −1]]\n    −v₁ + v₃ = 0 ⇒ v₃ = v₁;  v₂ is free\n    v₁ = 1, v₂ = 0: **(1, 0, 1)**;   v₁ = 0, v₂ = 1: **(0, 1, 0)**"
+    },
+    {
+     "label": "STEP 3 · (b) P, D and orthogonality",
+     "text": "P = [[1, 1, 0], [0, 0, 1], [−1, 1, 0]],   D = diag(1, 3, 3)\nA is symmetric, so **yes**, it is orthogonally diagonalisable. Check the columns are perpendicular:\n(1, 0, −1)·(1, 0, 1) = 1 − 1 = 0;  (1, 0, −1)·(0, 1, 0) = 0;  (1, 0, 1)·(0, 1, 0) = 0 ✓\nDivide each by its length: Q = [[1/√2, 1/√2, 0], [0, 0, 1], [−1/√2, 1/√2, 0]], and **A = QDQᵀ**."
+    },
+    {
+     "label": "STEP 4 · (c) From the eigenvalues only",
+     "text": "det A = product of λ = 1·3·3 = **9**\ntrace A = sum of λ = 1 + 3 + 3 = **7**\nIf Av = λv then (A² − 2A)v = (λ² − 2λ)v, so apply λ² − 2λ to each λ:\nλ = 1: 1 − 2 = **−1**;   λ = 3: 9 − 6 = **3** (twice)"
+    },
+    {
+     "label": "STEP 5 · (d) Singular values",
+     "text": "A is symmetric ⇒ AᵀA = A², whose eigenvalues are λ²: 1, 9, 9\nσ = √(λ²) = |λ| ⇒ **σ = 3, 3, 1**"
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "(a) λ = 1: (1, 0, −1); λ = 3: (1, 0, 1), (0, 1, 0). (b) D = diag(1, 3, 3); yes (A = QDQᵀ). (c) 9, 7; −1, 3, 3. (d) 3, 3, 1."
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "• Only one eigenvector for the repeated λ = 3.\n• Saying \"orthogonally diagonalisable\" without giving the reason: A is symmetric."
+    }
+   ],
+   "answer": "λ = 1, 3, 3; A = QDQᵀ; det 9, trace 7; A² − 2A: −1, 3, 3; σ = 3, 3, 1.",
+   "priority": "must",
+   "priorityWhy": "Saurabh sir's own problem, same shape as Feb 2026 Q1"
+  },
+  {
+   "title": "Eigen · Sourabh P14: spectral decomposition and matrix powers",
+   "tags": [
+    "Sourabh sir",
+    "P14"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A = [[5, 2], [2, 2]].\n(a) Find the eigenvalues and orthonormal eigenvectors of A.\n(b) Write the spectral decomposition A = λ₁q₁q₁ᵀ + λ₂q₂q₂ᵀ with both rank-one matrices written out.\n(c) Use it to compute A⁻¹ and A³.\n(Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "The spectral theorem A = QΛQᵀ written as a sum of projections, and using it for powers."
+    },
+    {
+     "label": "Plan of attack",
+     "text": "Get λ and **unit** q. Build qqᵀ for each. For any power k: Aᵏ = λ₁ᵏq₁q₁ᵀ + λ₂ᵏq₂q₂ᵀ (k = −1 gives the inverse)."
+    },
+    {
+     "label": "STEP 1 · (a) Eigenvalues",
+     "text": "Formula: **det(A − λI) = 0**\ndet [[5 − λ, 2], [2, 2 − λ]] = (5 − λ)(2 − λ) − 2·2\n    = λ² − 7λ + 10 − 4 = λ² − 7λ + 6 = (λ − 6)(λ − 1) = 0\n**λ₁ = 6, λ₂ = 1**"
+    },
+    {
+     "label": "STEP 2 · (a) Unit eigenvectors",
+     "text": "Formula: **(A − λI)v = 0**\n**λ = 6:** A − 6I = [[−1, 2], [2, −4]] ⇒ −v₁ + 2v₂ = 0 ⇒ v₁ = 2v₂ ⇒ (2, 1), length √5 ⇒ **q₁ = (2, 1)/√5**\n**λ = 1:** A − I = [[4, 2], [2, 1]] ⇒ 4v₁ + 2v₂ = 0 ⇒ v₂ = −2v₁ ⇒ (1, −2), length √5 ⇒ **q₂ = (1, −2)/√5**\nCheck q₁·q₂ = (2 − 2)/5 = 0 ✓"
+    },
+    {
+     "label": "STEP 3 · (b) The two projections",
+     "text": "q₁q₁ᵀ = (1/5)·(2, 1)ᵀ(2, 1) = (1/5)[[4, 2], [2, 1]]\nq₂q₂ᵀ = (1/5)·(1, −2)ᵀ(1, −2) = (1/5)[[1, −2], [−2, 4]]\nA = 6·(1/5)[[4, 2], [2, 1]] + 1·(1/5)[[1, −2], [−2, 4]]\n  = (1/5)[[24 + 1, 12 − 2], [12 − 2, 6 + 4]] = (1/5)[[25, 10], [10, 10]] = [[5, 2], [2, 2]] ✓"
+    },
+    {
+     "label": "STEP 4 · (c) A⁻¹ (k = −1)",
+     "text": "A⁻¹ = (1/6)q₁q₁ᵀ + (1/1)q₂q₂ᵀ\n  = (1/5)[[4/6 + 1, 2/6 − 2], [2/6 − 2, 1/6 + 4]] = (1/5)[[5/3, −5/3], [−5/3, 25/6]]\n  = **[[1/3, −1/3], [−1/3, 5/6]]**\nCheck row 1 of A·A⁻¹: 5·(1/3) + 2·(−1/3) = 1;  5·(−1/3) + 2·(5/6) = 0 ✓"
+    },
+    {
+     "label": "STEP 5 · (c) A³ (k = 3)",
+     "text": "A³ = 6³q₁q₁ᵀ + 1³q₂q₂ᵀ = 216·(1/5)[[4, 2], [2, 1]] + (1/5)[[1, −2], [−2, 4]]\n  = (1/5)[[864 + 1, 432 − 2], [432 − 2, 216 + 4]] = (1/5)[[865, 430], [430, 220]]\n  = **[[173, 86], [86, 44]]**"
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "λ = 6, 1; q₁ = (2, 1)/√5, q₂ = (1, −2)/√5; A⁻¹ = [[1/3, −1/3], [−1/3, 5/6]]; A³ = [[173, 86], [86, 44]]."
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "• Using (2, 1) instead of (2, 1)/√5 in qqᵀ: everything comes out 5 times too big.\n• Raising the projections to the power instead of the eigenvalues."
+    }
+   ],
+   "answer": "λ = 6, 1; A = 6q₁q₁ᵀ + q₂q₂ᵀ; A⁻¹ = [[1/3, −1/3], [−1/3, 5/6]]; A³ = [[173, 86], [86, 44]].",
+   "priority": "must",
+   "priorityWhy": "Saurabh sir's spectral-decomposition problem: powers and inverse in one go"
+  },
+  {
+   "title": "Eigen · Lecture example: A = PDP⁻¹ for a non-symmetric matrix",
+   "tags": [
+    "Slides p. 5",
+    "Companion Part 2"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A = [[1, 4], [2, 3]] (not symmetric).\n(a) Find P and D with A = PDP⁻¹, and P⁻¹.\n(b) Use the decomposition to find A³.\n(`Lecture_5.pdf` p. 5 and the Lecture 5 Companion, Part 2)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "Eigendecomposition when the eigenvectors are **not** perpendicular, so you need a real inverse P⁻¹, not Pᵀ."
+    },
+    {
+     "label": "STEP 1 · Eigenvalues",
+     "text": "det [[1 − λ, 4], [2, 3 − λ]] = (1 − λ)(3 − λ) − 4·2 = λ² − 4λ + 3 − 8 = λ² − 4λ − 5\n    = (λ − 5)(λ + 1) = 0 ⇒ **λ₁ = 5, λ₂ = −1**\nA negative eigenvalue is fine here (flip and scale)."
+    },
+    {
+     "label": "STEP 2 · Eigenvectors",
+     "text": "**λ = 5:** A − 5I = [[−4, 4], [2, −2]] ⇒ −4v₁ + 4v₂ = 0 ⇒ v₁ = v₂ ⇒ **p₁ = (1, 1)**\n**λ = −1:** A + I = [[2, 4], [2, 4]] ⇒ 2v₁ + 4v₂ = 0 ⇒ v₁ = −2v₂ ⇒ **p₂ = (−2, 1)**\np₁·p₂ = −2 + 1 = −1 ≠ 0: not perpendicular, so no Qᵀ shortcut."
+    },
+    {
+     "label": "STEP 3 · P, D, P⁻¹",
+     "text": "P = [[1, −2], [1, 1]],  D = [[5, 0], [0, −1]]\ndet P = 1·1 − (−2)·1 = 3\nP⁻¹ = (1/det P)·[[d, −b], [−c, a]] = **(1/3)[[1, 2], [−1, 1]]**"
+    },
+    {
+     "label": "STEP 4 · A³ = PD³P⁻¹",
+     "text": "D³ = [[125, 0], [0, −1]]\nPD³ = [[1·125, −2·(−1)], [1·125, 1·(−1)]] = [[125, 2], [125, −1]]\nPD³·P⁻¹ = (1/3)[[125·1 + 2·(−1), 125·2 + 2·1], [125·1 + (−1)(−1), 125·2 + (−1)·1]]\n  = (1/3)[[123, 252], [126, 249]] = **[[41, 84], [42, 83]]**"
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "P = [[1, −2], [1, 1]], D = diag(5, −1), P⁻¹ = (1/3)[[1, 2], [−1, 1]]; A³ = [[41, 84], [42, 83]]."
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "• Using Pᵀ instead of P⁻¹: only allowed when A is symmetric and P's columns are unit length.\n• The slides list the columns the other way round, P = [[−2, 1], [1, 1]] with D = diag(−1, 5). Both are right as long as P and D match."
+    }
+   ],
+   "answer": "A = PDP⁻¹ with P = [[1, −2], [1, 1]], D = diag(5, −1); A³ = [[41, 84], [42, 83]].",
+   "priority": "optional",
+   "priorityWhy": "Lecture example: read once to see why P⁻¹ ≠ Pᵀ"
+  },
+  {
+   "title": "Eigen · Sheet Problem 10: Aⁿ by diagonalisation",
+   "tags": [
+    "Sourabh sir",
+    "Decompositions sheet P10"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Using diagonalisation, find a closed form for Aⁿ and evaluate A⁴, where A = [[2, −1], [−1, 2]].\n(Saurabh sir's `Practice_Problems_Lectur1_4_and_5.pdf`, Problem 10, 4 marks)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "STEP 1 · Eigen",
+     "text": "det [[2 − λ, −1], [−1, 2 − λ]] = (2 − λ)² − 1 = (λ − 1)(λ − 3) ⇒ **λ = 1, 3**\nλ = 1: A − I = [[1, −1], [−1, 1]] ⇒ v₁ = v₂ ⇒ q₁ = (1, 1)/√2\nλ = 3: A − 3I = [[−1, −1], [−1, −1]] ⇒ v₁ = −v₂ ⇒ q₂ = (1, −1)/√2"
+    },
+    {
+     "label": "STEP 2 · Power formula",
+     "text": "Aⁿ = 1ⁿ·q₁q₁ᵀ + 3ⁿ·q₂q₂ᵀ = (1/2)[[1, 1], [1, 1]] + (3ⁿ/2)[[1, −1], [−1, 1]]\n  = **(1/2)[[1 + 3ⁿ, 1 − 3ⁿ], [1 − 3ⁿ, 1 + 3ⁿ]]**"
+    },
+    {
+     "label": "STEP 3 · n = 4",
+     "text": "3⁴ = 81 ⇒ A⁴ = (1/2)[[82, −80], [−80, 82]] = **[[41, −40], [−40, 41]]**\nCheck n = 1: (1/2)[[4, −2], [−2, 4]] = A ✓"
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "Aⁿ = (1/2)[[1 + 3ⁿ, 1 − 3ⁿ], [1 − 3ⁿ, 1 + 3ⁿ]]; A⁴ = [[41, −40], [−40, 41]]."
+    }
+   ],
+   "answer": "Aⁿ = (1/2)[[1 + 3ⁿ, 1 − 3ⁿ], [1 − 3ⁿ, 1 + 3ⁿ]]; A⁴ = [[41, −40], [−40, 41]].",
+   "priority": "optional",
+   "priorityWhy": "Same idea as P14; do it if you have time"
+  },
+  {
+   "title": "Eigen · Sourabh P13: when a matrix is not diagonalisable",
+   "tags": [
+    "Sourabh sir",
+    "P13"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A = [[2, 1, 0], [0, 2, 0], [0, 0, 3]].\n(a) Write the eigenvalues with their algebraic multiplicities.\n(b) Find each eigenspace, its basis and its dimension (geometric multiplicity).\n(c) Is A diagonalisable? Give the reason in one line.\n(d) Are the columns of A independent? Find det(A) and the eigenvalues of A⁻¹.\n(Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "The diagonalisability test: **for every λ, the number of independent eigenvectors (geometric) must equal how often λ repeats (algebraic).**"
+    },
+    {
+     "label": "STEP 1 · (a) Eigenvalues",
+     "text": "A is upper-triangular ⇒ eigenvalues are the diagonal entries: **λ = 2 (twice), 3 (once)**"
+    },
+    {
+     "label": "STEP 2 · (b) Eigenspaces",
+     "text": "**λ = 2:** A − 2I = [[0, 1, 0], [0, 0, 0], [0, 0, 1]] ⇒ v₂ = 0, v₃ = 0, v₁ free ⇒ basis {(1, 0, 0)}, **dimension 1**\n**λ = 3:** A − 3I = [[−1, 1, 0], [0, −1, 0], [0, 0, 0]] ⇒ v₂ = 0, then v₁ = 0, v₃ free ⇒ basis {(0, 0, 1)}, **dimension 1**"
+    },
+    {
+     "label": "STEP 3 · (c) Diagonalisable?",
+     "text": "**No.** λ = 2 repeats twice but has only one eigenvector (1 < 2), so there are only 1 + 1 = 2 < 3 independent eigenvectors: P cannot be built."
+    },
+    {
+     "label": "STEP 4 · (d) Invertible anyway",
+     "text": "det A = 2·2·3 = **12** ≠ 0 ⇒ the columns are independent.\nEigenvalues of A⁻¹ are 1/λ: **1/2, 1/2, 1/3**"
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "• \"Distinct-looking diagonal ⇒ diagonalisable\": the repeated 2 is the trap.\n• Saying a non-diagonalisable matrix must be singular: this one is invertible."
+    }
+   ],
+   "answer": "λ = 2 (×2), 3; each eigenspace has dimension 1 ⇒ not diagonalisable; det 12; A⁻¹: 1/2, 1/2, 1/3.",
+   "priority": "optional",
+   "priorityWhy": "Theory check for diagonalisability; a 1-mark reason in papers"
+  },
+  {
+   "title": "SVD · Saurabh sir's class (5 Sep): A = [[3, 2, 2], [2, 3, −2]]",
+   "tags": [
+    "Saurabh sir's class",
+    "5 Sep lecture"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Find the singular value decomposition A = UΣVᵀ of A = [[3, 2, 2], [2, 3, −2]].\n(The example Saurabh sir solved on the board in the 5 Sep lecture. He said: \"Do practice these questions because this is one of the most important problems that you will be facing in exam.\")"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "The full SVD of a wide 2 × 3 matrix, done **his** way: AAᵀ for U and σ, then V, and the third v by a **cross product**."
+    },
+    {
+     "label": "Plan of attack",
+     "text": "A is 2 × 3 ⇒ AAᵀ is 2 × 2 and AᵀA is 3 × 3. \"Whatever reduces your calculation\": start with AAᵀ.\nShapes: U 2 × 2, Σ 2 × 3, V 3 × 3."
+    },
+    {
+     "label": "Notation",
+     "text": "His symbols: B = AAᵀ (the matrix whose eigenvalues we find), σ = singular values, U = left, V = right singular vectors."
+    },
+    {
+     "label": "STEP 1 · B = AAᵀ (row × row of A)",
+     "text": "Aᵀ = [[3, 2], [2, 3], [2, −2]]\n(1, 1): row 1·row 1 = 3·3 + 2·2 + 2·2 = 17\n(1, 2): row 1·row 2 = 3·2 + 2·3 + 2·(−2) = 8\n(2, 2): row 2·row 2 = 2·2 + 3·3 + (−2)(−2) = 17\n**B = AAᵀ = [[17, 8], [8, 17]]** (symmetric, as it must be)"
+    },
+    {
+     "label": "STEP 2 · Eigenvalues of B",
+     "text": "Formula: **det(B − λI) = 0**\ndet [[17 − λ, 8], [8, 17 − λ]] = (17 − λ)² − 64 = 0\n17 − λ = ±8 ⇒ **λ₁ = 25, λ₂ = 9**\nAᵀA (3 × 3) shares these two and its third eigenvalue is **0**: you do not need to find it."
+    },
+    {
+     "label": "STEP 3 · Singular values and Σ",
+     "text": "σᵢ = √λᵢ ⇒ **σ₁ = 5, σ₂ = 3** (always take the positive root)\nΣ has the shape of A (2 × 3), biggest first:\n**Σ = [[5, 0, 0], [0, 3, 0]]**"
+    },
+    {
+     "label": "STEP 4 · U: eigenvectors of B",
+     "text": "Formula: **(B − λI)u = 0**, u = (x, y)\n**λ = 25:** B − 25I = [[−8, 8], [8, −8]] ⇒ −8x + 8y = 0 ⇒ x = y ⇒ (1, 1), length √2 ⇒ **u₁ = (1, 1)/√2**\n**λ = 9:** B − 9I = [[8, 8], [8, 8]] ⇒ 8x + 8y = 0 ⇒ x = −y ⇒ (−1, 1) ⇒ **u₂ = (−1, 1)/√2**\nColumn order follows Σ: column 1 goes with 5, column 2 with 3.\nU = [[1/√2, −1/√2], [1/√2, 1/√2]]"
+    },
+    {
+     "label": "STEP 5 · v₁ and v₂ from vᵢ = Aᵀuᵢ/σᵢ",
+     "text": "Why: A = UΣVᵀ ⇒ Aᵀ = VΣᵀUᵀ ⇒ Aᵀuᵢ = σᵢvᵢ\nAᵀu₁ = (1/√2)·(3 + 2, 2 + 3, 2 − 2) = (5, 5, 0)/√2\nv₁ = (5, 5, 0)/(5√2) ⇒ **v₁ = (1, 1, 0)/√2**\nAᵀu₂ = (1/√2)·(−3 + 2, −2 + 3, −2 − 2) = (−1, 1, −4)/√2\nv₂ = (−1, 1, −4)/(3√2) ⇒ **v₂ = (−1, 1, −4)/(3√2)**\nCheck lengths: (1 + 1 + 0)/2 = 1 ✓;  (1 + 1 + 16)/18 = 1 ✓"
+    },
+    {
+     "label": "STEP 6 · v₃ by the cross product (his trick)",
+     "text": "v₃ must be perpendicular to v₁ and v₂, and **a × b is always perpendicular to both a and b**.\nUse the unscaled vectors a = (1, 1, 0), b = (−1, 1, −4):\na × b = (a₂b₃ − a₃b₂,  a₃b₁ − a₁b₃,  a₁b₂ − a₂b₁)\n  = (1·(−4) − 0·1,  0·(−1) − 1·(−4),  1·1 − 1·(−1)) = (−4, 4, 2)\nDivide by its length √(16 + 16 + 4) = 6 ⇒ **v₃ = (−2, 2, 1)/3**\nCheck Av₃ = (1/3)(−6 + 4 + 2, −4 + 6 − 2) = (0, 0) ✓ (v₃ is the direction A crushes, σ₃ = 0)"
+    },
+    {
+     "label": "STEP 7 · Assemble",
+     "text": "U = [[1/√2, −1/√2], [1/√2, 1/√2]]   (2 × 2)\nΣ = [[5, 0, 0], [0, 3, 0]]   (2 × 3)\nV = [[1/√2, −1/(3√2), −2/3], [1/√2, 1/(3√2), 2/3], [0, −4/(3√2), 1/3]]   (3 × 3)\n**A = UΣVᵀ**. Check: σ₁u₁v₁ᵀ + σ₂u₂v₂ᵀ = (5/2)[[1, 1, 0], [1, 1, 0]] + (1/2)[[1, −1, 4], [−1, 1, −4]] = [[3, 2, 2], [2, 3, −2]] ✓"
+    },
+    {
+     "label": "His other route for V",
+     "text": "He also said you can find V as the eigenvectors of AᵀA = [[13, 12, 2], [12, 13, −2], [2, −2, 8]] for λ = 25 and 9. That works, but an eigenvector can come out as −v (here (1, −1, 4) instead of (−1, 1, −4)), and then UΣVᵀ ≠ A. **If you find U and V separately, fix the sign with uᵢ = Avᵢ/σᵢ.** vᵢ = Aᵀuᵢ/σᵢ avoids the problem."
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "σ = 5, 3; U = [(1, 1)/√2, (−1, 1)/√2]; Σ = [[5, 0, 0], [0, 3, 0]]; V = [(1, 1, 0)/√2, (−1, 1, −4)/(3√2), (−2, 2, 1)/3]."
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "• Σ written as 2 × 2: it is 2 × 3, padded with a zero column.\n• Columns of U or V in a different order from σ in Σ.\n• Taking the 3 × 3 AᵀA route first: a cubic to solve when a quadratic would do.\n• Mismatched signs between U and V (see \"His other route\")."
+    }
+   ],
+   "answer": "σ = 5, 3; U = (1/√2)[[1, −1], [1, 1]]; Σ = [[5, 0, 0], [0, 3, 0]]; v₁ = (1, 1, 0)/√2, v₂ = (−1, 1, −4)/(3√2), v₃ = (−2, 2, 1)/3.",
+   "priority": "must",
+   "priorityWhy": "Saurabh sir solved this in class and called SVD \"one of the most important problems\" for the exam"
+  },
+  {
+   "title": "SVD · Sep 2025 Q2(a): full SVD of a 3 × 2 matrix (4 marks)",
+   "tags": [
+    "Sep 2025 regular",
+    "Q2(a)"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A = [[−2, 0], [1, 1], [1, −1]]. Find the singular value decomposition A = UΣVᵀ. [4M]\n(Part (b), the PCA part, is on [Lecture 12](#/sem1/aiml-zc416/ch12/f-full/2).)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "The SVD recipe on a tall matrix, including the **third column of U** that no σ produces."
+    },
+    {
+     "label": "Plan of attack",
+     "text": "A is 3 × 2 ⇒ AᵀA is 2 × 2 (smaller): use it for σ and V. Then uᵢ = Avᵢ/σᵢ. Complete U with a unit vector perpendicular to u₁ and u₂."
+    },
+    {
+     "label": "Notation",
+     "text": "σᵢ = singular values, vᵢ = right singular vectors (columns of V), uᵢ = left singular vectors (columns of U)."
+    },
+    {
+     "label": "STEP 1 · AᵀA (row × column)",
+     "text": "Aᵀ = [[−2, 1, 1], [0, 1, −1]]\n(1, 1): (−2)(−2) + 1·1 + 1·1 = 6\n(1, 2): (−2)(0) + 1·1 + 1·(−1) = 0\n(2, 2): 0·0 + 1·1 + (−1)(−1) = 2\n**AᵀA = [[6, 0], [0, 2]]**"
+    },
+    {
+     "label": "STEP 2 · Eigenvalues and σ",
+     "text": "Formula: **det(AᵀA − λI) = 0**\n(6 − λ)(2 − λ) − 0 = 0 ⇒ λ₁ = 6, λ₂ = 2\nσᵢ = √λᵢ ⇒ **σ₁ = √6, σ₂ = √2**"
+    },
+    {
+     "label": "STEP 3 · V",
+     "text": "Formula: **(AᵀA − λI)v = 0**\nλ = 6: [[0, 0], [0, −4]]v = 0 ⇒ −4v₂ = 0 ⇒ **v₁ = (1, 0)**\nλ = 2: [[4, 0], [0, 0]]v = 0 ⇒ 4v₁ = 0 ⇒ **v₂ = (0, 1)**\nV = [[1, 0], [0, 1]] = I (AᵀA was already diagonal)"
+    },
+    {
+     "label": "STEP 4 · U from uᵢ = Avᵢ/σᵢ",
+     "text": "Av₁ = column 1 of A = (−2, 1, 1) ⇒ **u₁ = (−2, 1, 1)/√6**\nAv₂ = column 2 of A = (0, 1, −1) ⇒ **u₂ = (0, 1, −1)/√2**\nCheck u₁·u₂ = (0 + 1 − 1)/√12 = 0 ✓"
+    },
+    {
+     "label": "STEP 5 · Complete U (u₃)",
+     "text": "U must be 3 × 3, so find u₃ = (p, q, r) with u₃ ⊥ u₁ and u₃ ⊥ u₂:\n⊥ u₂: q − r = 0 ⇒ q = r\n⊥ u₁: −2p + q + r = 0 ⇒ −2p + 2q = 0 ⇒ p = q\nTake (1, 1, 1), length √3 ⇒ **u₃ = (1, 1, 1)/√3**"
+    },
+    {
+     "label": "STEP 6 · Assemble",
+     "text": "Σ has the shape of A (3 × 2): Σ = [[√6, 0], [0, √2], [0, 0]]\nU = [[−2/√6, 0, 1/√3], [1/√6, 1/√2, 1/√3], [1/√6, −1/√2, 1/√3]],   V = I\nCheck: UΣ = [σ₁u₁  σ₂u₂] = [(−2, 1, 1)  (0, 1, −1)] = A, and Vᵀ = I ⇒ UΣVᵀ = A ✓"
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "σ = √6, √2; U = [(−2, 1, 1)/√6, (0, 1, −1)/√2, (1, 1, 1)/√3]; Σ = [[√6, 0], [0, √2], [0, 0]]; V = I."
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "• Stopping at two columns of U: a full SVD of a 3 × 2 matrix needs a 3 × 3 U.\n• Writing Σ as 2 × 2: it must be the same shape as A.\n• Square-rooting the entries of A instead of the eigenvalues of AᵀA."
+    }
+   ],
+   "answer": "σ = √6, √2; U = [(−2, 1, 1)/√6, (0, 1, −1)/√2, (1, 1, 1)/√3]; Σ 3 × 2; V = I.",
+   "priority": "must",
+   "priorityWhy": "Recent paper (Sep 2025), straight SVD numerical"
+  },
+  {
+   "title": "SVD · Sourabh P15: SVD of a 2 × 2 matrix",
+   "tags": [
+    "Sourabh sir",
+    "P15",
+    "Companion Part 3"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A = [[3, 0], [4, 5]].\n(a) Compute AᵀA and its eigenvalues; hence the singular values of A.\n(b) Find the singular vectors and write the SVD A = UΣVᵀ (state the shapes).\n(c) Verify ‖A‖²_{F} = σ₁² + σ₂² and state rank(A).\n(Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "The full recipe on a square but **non-symmetric** matrix, where σ ≠ λ."
+    },
+    {
+     "label": "Plan of attack",
+     "text": "AᵀA → λ → σ = √λ → V → uᵢ = Avᵢ/σᵢ. Both matrices are 2 × 2, so no completion is needed."
+    },
+    {
+     "label": "STEP 1 · (a) AᵀA (row × column)",
+     "text": "Aᵀ = [[3, 4], [0, 5]]\n(1, 1): 3·3 + 4·4 = 25\n(1, 2): 3·0 + 4·5 = 20\n(2, 2): 0·0 + 5·5 = 25\n**AᵀA = [[25, 20], [20, 25]]**"
+    },
+    {
+     "label": "STEP 2 · (a) Eigenvalues and σ",
+     "text": "Formula: **det(AᵀA − λI) = 0**\n(25 − λ)² − 20² = 0 ⇒ 25 − λ = ±20 ⇒ λ = 45 or 5\nσ₁ = √45 = **3√5 ≈ 6.708**,  σ₂ = **√5 ≈ 2.236**"
+    },
+    {
+     "label": "STEP 3 · (b) V",
+     "text": "Formula: **(AᵀA − λI)v = 0**\nλ = 45: [[−20, 20], [20, −20]]v = 0 ⇒ v₁ = v₂ ⇒ **v₁ = (1, 1)/√2**\nλ = 5: [[20, 20], [20, 20]]v = 0 ⇒ v₁ = −v₂ ⇒ **v₂ = (1, −1)/√2**"
+    },
+    {
+     "label": "STEP 4 · (b) U from uᵢ = Avᵢ/σᵢ",
+     "text": "Av₁ = (1/√2)·(3 + 0, 4 + 5) = (3, 9)/√2\nu₁ = (3, 9)/(√2·3√5) = (1, 3)/√10 ⇒ **u₁ = (1, 3)/√10**\nAv₂ = (1/√2)·(3 − 0, 4 − 5) = (3, −1)/√2\nu₂ = (3, −1)/(√2·√5) ⇒ **u₂ = (3, −1)/√10**\nCheck u₁·u₂ = (3 − 3)/10 = 0 ✓"
+    },
+    {
+     "label": "STEP 5 · (b) Assemble",
+     "text": "U = [[1/√10, 3/√10], [3/√10, −1/√10]],  Σ = [[3√5, 0], [0, √5]],  V = [[1/√2, 1/√2], [1/√2, −1/√2]]  (all 2 × 2)"
+    },
+    {
+     "label": "STEP 6 · (c) Frobenius check and rank",
+     "text": "‖A‖²_{F} = 3² + 0² + 4² + 5² = 50;  σ₁² + σ₂² = 45 + 5 = 50 ✓\nTwo non-zero σ ⇒ **rank 2**"
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "σ = 3√5, √5; U = [(1, 3)/√10, (3, −1)/√10], V = [(1, 1)/√2, (1, −1)/√2]; ‖A‖²_{F} = 50; rank 2."
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "• Using A's own eigenvalues (3 and 5) as σ: they are different for a non-symmetric matrix.\n• Picking uᵢ separately from AAᵀ: the signs may not match. Always use uᵢ = Avᵢ/σᵢ."
+    }
+   ],
+   "answer": "σ = 3√5, √5; U = [(1, 3)/√10, (3, −1)/√10], Σ = diag(3√5, √5), V = [(1, 1)/√2, (1, −1)/√2].",
+   "priority": "must",
+   "priorityWhy": "Saurabh sir's 2 × 2 SVD: the core recipe"
+  },
+  {
+   "title": "SVD · Sourabh P16: SVD of a 2 × 3 matrix (start from AAᵀ)",
+   "tags": [
+    "Sourabh sir",
+    "P16",
+    "Decompositions sheet P12"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A = [[1, 1, 0], [0, 1, 1]].\n(a) Compute AAᵀ and its eigenvalues; hence the singular values of A.\n(b) Find the singular vectors and write the SVD A = UΣVᵀ (state the shapes).\n(c) Verify ‖A‖²_{F} = σ₁² + σ₂² and state rank(A).\n(Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`; also Problem 12 of Saurabh sir's `Practice_Problems_Lectur1_4_and_5.pdf`)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "A **wide** matrix: use the smaller AAᵀ, then get V from vᵢ = Aᵀuᵢ/σᵢ, and the last v from the null space."
+    },
+    {
+     "label": "Plan of attack",
+     "text": "A is 2 × 3 ⇒ AAᵀ is 2 × 2 (AᵀA would be 3 × 3). AAᵀ → σ and U → vᵢ = Aᵀuᵢ/σᵢ → v₃ from Av = 0."
+    },
+    {
+     "label": "STEP 1 · (a) AAᵀ (row × row of A)",
+     "text": "(1, 1): row 1·row 1 = 1 + 1 + 0 = 2\n(1, 2): row 1·row 2 = 0 + 1 + 0 = 1\n(2, 2): row 2·row 2 = 0 + 1 + 1 = 2\n**AAᵀ = [[2, 1], [1, 2]]**"
+    },
+    {
+     "label": "STEP 2 · (a) Eigenvalues and σ",
+     "text": "Formula: **det(AAᵀ − λI) = 0**\n(2 − λ)² − 1 = 0 ⇒ 2 − λ = ±1 ⇒ λ = 3, 1\n**σ₁ = √3, σ₂ = 1**"
+    },
+    {
+     "label": "STEP 3 · (b) U",
+     "text": "Formula: **(AAᵀ − λI)u = 0**\nλ = 3: [[−1, 1], [1, −1]]u = 0 ⇒ u₁ = u₂ ⇒ **u₁ = (1, 1)/√2**\nλ = 1: [[1, 1], [1, 1]]u = 0 ⇒ u₁ = −u₂ ⇒ **u₂ = (1, −1)/√2**"
+    },
+    {
+     "label": "STEP 4 · (b) V from vᵢ = Aᵀuᵢ/σᵢ",
+     "text": "Why: A = UΣVᵀ ⇒ Aᵀ = VΣᵀUᵀ ⇒ AᵀU = VΣᵀ ⇒ Aᵀuᵢ = σᵢvᵢ\nAᵀ = [[1, 0], [1, 1], [0, 1]]\nAᵀu₁ = (1/√2)·(1, 1 + 1, 1) = (1, 2, 1)/√2 ⇒ v₁ = (1, 2, 1)/(√2·√3) ⇒ **v₁ = (1, 2, 1)/√6**\nAᵀu₂ = (1/√2)·(1, 1 − 1, −1) = (1, 0, −1)/√2 ⇒ **v₂ = (1, 0, −1)/√2**"
+    },
+    {
+     "label": "STEP 5 · (b) v₃ from the null space",
+     "text": "V is 3 × 3 and only two v came from σ. The third solves Av = 0:\nv₁ + v₂ = 0 and v₂ + v₃ = 0 ⇒ take v₂ = −1: v₁ = 1, v₃ = 1 ⇒ (1, −1, 1)\nLength √3 ⇒ **v₃ = (1, −1, 1)/√3**\nCheck v₃·v₁ = (1 − 2 + 1) = 0 ✓;  v₃·v₂ = (1 − 1) = 0 ✓"
+    },
+    {
+     "label": "STEP 6 · (b) Assemble",
+     "text": "U = [[1/√2, 1/√2], [1/√2, −1/√2]] (2 × 2)\nΣ = [[√3, 0, 0], [0, 1, 0]] (2 × 3, same shape as A)\nV = [[1/√6, 1/√2, 1/√3], [2/√6, 0, −1/√3], [1/√6, −1/√2, 1/√3]] (3 × 3)"
+    },
+    {
+     "label": "STEP 7 · (c) Check and rank",
+     "text": "‖A‖²_{F} = 1 + 1 + 0 + 0 + 1 + 1 = 4;  σ₁² + σ₂² = 3 + 1 = 4 ✓\n**rank 2**"
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "σ = √3, 1; U = [(1, 1)/√2, (1, −1)/√2]; V = [(1, 2, 1)/√6, (1, 0, −1)/√2, (1, −1, 1)/√3]; Σ 2 × 3; rank 2."
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "• Using vᵢ = Aᵀuᵢ without dividing by σᵢ.\n• Forgetting v₃: V must be 3 × 3.\n• Σ written as 2 × 2."
+    }
+   ],
+   "answer": "σ = √3, 1; U = [(1, 1)/√2, (1, −1)/√2]; V = [(1, 2, 1)/√6, (1, 0, −1)/√2, (1, −1, 1)/√3]; Σ = [[√3, 0, 0], [0, 1, 0]].",
+   "priority": "must",
+   "priorityWhy": "Saurabh sir's wide-matrix SVD; appears in both of his sets"
+  },
+  {
+   "title": "SVD · Lecture example: the 2 × 3 matrix from the slides",
+   "tags": [
+    "Slides p. 17–21",
+    "Companion Part 3"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Find the SVD of A = [[1, 0, 1], [−2, 1, 0]]. (`Lecture_5.pdf` p. 17–21)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "The slides' own SVD example. The slides go through the 3 × 3 AᵀA; the 2 × 2 AAᵀ gives the same answer with less work."
+    },
+    {
+     "label": "STEP 1 · AAᵀ (row × row)",
+     "text": "(1, 1): 1 + 0 + 1 = 2;  (1, 2): −2 + 0 + 0 = −2;  (2, 2): 4 + 1 + 0 = 5\nAAᵀ = [[2, −2], [−2, 5]]\n(The slides' AᵀA = [[5, −2, 1], [−2, 1, 0], [1, 0, 1]] has eigenvalues 6, 1, 0: the same non-zero ones.)"
+    },
+    {
+     "label": "STEP 2 · σ",
+     "text": "det [[2 − λ, −2], [−2, 5 − λ]] = (2 − λ)(5 − λ) − 4 = λ² − 7λ + 6 = (λ − 6)(λ − 1)\n**σ₁ = √6, σ₂ = 1**"
+    },
+    {
+     "label": "STEP 3 · U",
+     "text": "λ = 6: [[−4, −2], [−2, −1]]u = 0 ⇒ −4u₁ − 2u₂ = 0 ⇒ u₂ = −2u₁ ⇒ **u₁ = (1, −2)/√5**\nλ = 1: [[1, −2], [−2, 4]]u = 0 ⇒ u₁ = 2u₂ ⇒ **u₂ = (2, 1)/√5**"
+    },
+    {
+     "label": "STEP 4 · V from vᵢ = Aᵀuᵢ/σᵢ",
+     "text": "Aᵀ = [[1, −2], [0, 1], [1, 0]]\nAᵀu₁ = (1/√5)(1 + 4, −2, 1) = (5, −2, 1)/√5 ⇒ v₁ = (5, −2, 1)/(√5·√6) = **(5, −2, 1)/√30**\nAᵀu₂ = (1/√5)(2 − 2, 1, 2) = (0, 1, 2)/√5 ⇒ **v₂ = (0, 1, 2)/√5**\nv₃ from Av = 0: v₁ + v₃ = 0, −2v₁ + v₂ = 0 ⇒ (1, 2, −1) ⇒ **v₃ = (1, 2, −1)/√6** (the slides print −v₃, which is equally right)"
+    },
+    {
+     "label": "STEP 5 · Assemble",
+     "text": "U = (1/√5)[[1, 2], [−2, 1]],  Σ = [[√6, 0, 0], [0, 1, 0]],  V = [v₁ v₂ v₃]"
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "σ = √6, 1; u₁ = (1, −2)/√5, u₂ = (2, 1)/√5; v₁ = (5, −2, 1)/√30, v₂ = (0, 1, 2)/√5, v₃ = (1, 2, −1)/√6."
+    }
+   ],
+   "answer": "σ = √6, 1; U = (1/√5)[[1, 2], [−2, 1]]; V = [(5, −2, 1)/√30, (0, 1, 2)/√5, (1, 2, −1)/√6].",
+   "priority": "optional",
+   "priorityWhy": "The slides' example; same method as P16"
+  },
+  {
+   "title": "SVD · Sheet Problem 11: full SVD of a 3 × 2 matrix",
+   "tags": [
+    "Sourabh sir",
+    "Decompositions sheet P11"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Find a full SVD A = UΣVᵀ of A = [[1, 1], [1, 0], [0, 1]], including the third column of U.\n(Saurabh sir's `Practice_Problems_Lectur1_4_and_5.pdf`, Problem 11, 6 marks)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "STEP 1 · AᵀA",
+     "text": "Aᵀ = [[1, 1, 0], [1, 0, 1]]\n(1, 1): 1 + 1 + 0 = 2;  (1, 2): 1 + 0 + 0 = 1;  (2, 2): 1 + 0 + 1 = 2 ⇒ AᵀA = [[2, 1], [1, 2]]"
+    },
+    {
+     "label": "STEP 2 · σ and V",
+     "text": "(2 − λ)² − 1 = 0 ⇒ λ = 3, 1 ⇒ **σ₁ = √3, σ₂ = 1**\nλ = 3: [[−1, 1], [1, −1]] ⇒ v₁ = (1, 1)/√2;  λ = 1: [[1, 1], [1, 1]] ⇒ v₂ = (1, −1)/√2"
+    },
+    {
+     "label": "STEP 3 · U from uᵢ = Avᵢ/σᵢ",
+     "text": "Av₁ = (1/√2)(1 + 1, 1, 1) = (2, 1, 1)/√2 ⇒ u₁ = (2, 1, 1)/(√2·√3) = **(2, 1, 1)/√6**\nAv₂ = (1/√2)(1 − 1, 1, −1) = (0, 1, −1)/√2 ⇒ **u₂ = (0, 1, −1)/√2**"
+    },
+    {
+     "label": "STEP 4 · Complete U",
+     "text": "u₃ = (p, q, r): ⊥ u₂ ⇒ q = r;  ⊥ u₁ ⇒ 2p + q + r = 0 ⇒ p = −q\n(−1, 1, 1), length √3 ⇒ **u₃ = (−1, 1, 1)/√3**"
+    },
+    {
+     "label": "STEP 5 · Assemble",
+     "text": "Σ = [[√3, 0], [0, 1], [0, 0]];  Vᵀ = (1/√2)[[1, 1], [1, −1]]"
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "σ = √3, 1; u₁ = (2, 1, 1)/√6, u₂ = (0, 1, −1)/√2, u₃ = (−1, 1, 1)/√3; V = [(1, 1)/√2, (1, −1)/√2]."
+    }
+   ],
+   "answer": "σ = √3, 1; U = [(2, 1, 1)/√6, (0, 1, −1)/√2, (−1, 1, 1)/√3]; Σ 3 × 2; V = [(1, 1)/√2, (1, −1)/√2].",
+   "priority": "optional",
+   "priorityWhy": "Same as Sep 2025 Q2(a) with a non-diagonal AᵀA; good second rep"
+  },
+  {
+   "title": "SVD · Sheet Problem 13: a zero singular value",
+   "tags": [
+    "Sourabh sir",
+    "Decompositions sheet P13"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "(a) Find the SVD of A = [[1, 1], [−1, −1]].\n(b) Show that A is not diagonalisable, yet its SVD exists, and explain why.\n(Saurabh sir's `Practice_Problems_Lectur1_4_and_5.pdf`, Problem 13, 6 marks)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "STEP 1 · (a) AᵀA and σ",
+     "text": "Aᵀ = [[1, −1], [1, −1]]\n(1, 1): 1 + 1 = 2;  (1, 2): 1·1 + (−1)(−1) = 2;  (2, 2): 2 ⇒ AᵀA = [[2, 2], [2, 2]]\ndet: (2 − λ)² − 4 = λ² − 4λ = λ(λ − 4) ⇒ λ = 4, 0 ⇒ **σ₁ = 2, σ₂ = 0** (so rank 1)"
+    },
+    {
+     "label": "STEP 2 · (a) V and U",
+     "text": "λ = 4: [[−2, 2], [2, −2]] ⇒ v₁ = (1, 1)/√2;  λ = 0: [[2, 2], [2, 2]] ⇒ v₂ = (1, −1)/√2\nu₁ = Av₁/σ₁ = (1/2)·(1/√2)(2, −2) = **(1, −1)/√2**\nu₂ cannot come from Av₂/σ₂ (σ₂ = 0): take the unit vector ⊥ u₁ ⇒ **u₂ = (1, 1)/√2**"
+    },
+    {
+     "label": "STEP 3 · (a) Assemble",
+     "text": "U = (1/√2)[[1, 1], [−1, 1]],  Σ = [[2, 0], [0, 0]],  V = (1/√2)[[1, 1], [1, −1]]\nCheck: σ₁u₁v₁ᵀ = 2·(1/2)[[1, 1], [−1, −1]] = A ✓"
+    },
+    {
+     "label": "STEP 4 · (b) Not diagonalisable",
+     "text": "det(A − λI) = (1 − λ)(−1 − λ) − (1)(−1) = λ² − 1 + 1 = λ² ⇒ λ = 0 twice\nA − 0I = A has rank 1 ⇒ only one eigenvector, (1, −1) ⇒ 1 < 2 ⇒ **not diagonalisable**"
+    },
+    {
+     "label": "STEP 5 · (b) Why the SVD still exists",
+     "text": "The SVD is built from AᵀA and AAᵀ, which are **always symmetric**, so they always have a full set of perpendicular eigenvectors. That is why every matrix has an SVD, diagonalisable or not."
+    }
+   ],
+   "answer": "σ = 2, 0; U = (1/√2)[[1, 1], [−1, 1]], V = (1/√2)[[1, 1], [1, −1]]; A is not diagonalisable (λ = 0 twice, one eigenvector), but AᵀA is symmetric so the SVD exists.",
+   "priority": "optional",
+   "priorityWhy": "The \"SVD always exists\" reason in one problem"
+  },
+  {
+   "title": "SVD · Previous batch Q4: SVD when the columns are orthogonal",
+   "tags": [
+    "Previous batch (Apr 2023)",
+    "Q4"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A = [mᵢⱼ] is a full-rank n × n real matrix whose columns are orthogonal. Find its singular value decomposition. [5M]"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "Reading the SVD straight off AᵀA when it is already diagonal."
+    },
+    {
+     "label": "Notation",
+     "text": "aⱼ = column j of A, dⱼ = ‖aⱼ‖ > 0 (full rank ⇒ no zero column)."
+    },
+    {
+     "label": "STEP 1 · AᵀA is diagonal",
+     "text": "Entry (i, j) of AᵀA = aᵢ·aⱼ = 0 for i ≠ j (orthogonal columns), and aⱼ·aⱼ = dⱼ²\nAᵀA = diag(d₁², …, dₙ²)"
+    },
+    {
+     "label": "STEP 2 · V and Σ",
+     "text": "A diagonal matrix's eigenvectors are the standard basis ⇒ **V = I**\nσⱼ = √(dⱼ²) = **‖aⱼ‖** ⇒ Σ = diag(‖a₁‖, …, ‖aₙ‖)\n(To list σ from largest to smallest, reorder: V becomes a permutation matrix.)"
+    },
+    {
+     "label": "STEP 3 · U",
+     "text": "uⱼ = Avⱼ/σⱼ = aⱼ/‖aⱼ‖ ⇒ **U = AΣ⁻¹**: the columns of A, each made unit length"
+    },
+    {
+     "label": "STEP 4 · Check",
+     "text": "UΣVᵀ = AΣ⁻¹·Σ·I = A ✓"
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "U = AΣ⁻¹ (normalised columns), Σ = diag(‖aⱼ‖), V = I (or a permutation to sort σ)."
+    }
+   ],
+   "answer": "U = columns of A made unit length, Σ = diag(column lengths), V = I.",
+   "priority": "optional",
+   "priorityWhy": "Older paper; a quick symbolic version of the recipe"
+  },
+  {
+   "title": "Low-rank · Sourabh P17: best rank-one approximation",
+   "tags": [
+    "Sourabh sir",
+    "P17"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A = [[1, 1], [1, 1], [1, −1]].\n(a) Find the singular values of A and the right singular vectors.\n(b) Compute the best rank-one approximation A₁ = σ₁u₁v₁ᵀ.\n(c) Find ‖A − A₁‖_{F} and the fraction of ‖A‖²_{F} ('energy') kept by A₁.\n(Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "Eckart–Young: keeping the largest σ gives the best rank-1 matrix, and the error is the dropped σ."
+    },
+    {
+     "label": "STEP 1 · (a) AᵀA",
+     "text": "Aᵀ = [[1, 1, 1], [1, 1, −1]]\n(1, 1): 1 + 1 + 1 = 3;  (1, 2): 1 + 1 − 1 = 1;  (2, 2): 1 + 1 + 1 = 3 ⇒ **AᵀA = [[3, 1], [1, 3]]**"
+    },
+    {
+     "label": "STEP 2 · (a) σ and V",
+     "text": "det: (3 − λ)² − 1 = 0 ⇒ λ = 4, 2 ⇒ **σ₁ = 2, σ₂ = √2**\nλ = 4: [[−1, 1], [1, −1]]v = 0 ⇒ **v₁ = (1, 1)/√2**\nλ = 2: [[1, 1], [1, 1]]v = 0 ⇒ **v₂ = (1, −1)/√2**"
+    },
+    {
+     "label": "STEP 3 · (b) u₁",
+     "text": "Av₁ = (1/√2)(1 + 1, 1 + 1, 1 − 1) = (2, 2, 0)/√2\nu₁ = Av₁/σ₁ = (2, 2, 0)/(2√2) = **(1, 1, 0)/√2**"
+    },
+    {
+     "label": "STEP 4 · (b) A₁ = σ₁u₁v₁ᵀ",
+     "text": "u₁v₁ᵀ = (1/√2)(1, 1, 0)ᵀ·(1/√2)(1, 1) = (1/2)[[1, 1], [1, 1], [0, 0]]\nA₁ = 2·(1/2)[[1, 1], [1, 1], [0, 0]] = **[[1, 1], [1, 1], [0, 0]]**"
+    },
+    {
+     "label": "STEP 5 · (c) Error and energy",
+     "text": "A − A₁ = [[0, 0], [0, 0], [1, −1]] ⇒ ‖A − A₁‖_{F} = √(1 + 1) = **√2 ≈ 1.414** = σ₂ ✓\n‖A‖²_{F} = 6 = σ₁² + σ₂² = 4 + 2 ✓\nEnergy kept = σ₁²/(σ₁² + σ₂²) = 4/6 = **66.67%**"
+    },
+    {
+     "label": "Answers at a glance",
+     "text": "σ = 2, √2; v₁ = (1, 1)/√2, v₂ = (1, −1)/√2; A₁ = [[1, 1], [1, 1], [0, 0]]; error √2; 66.67%."
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "• Writing the error as σ₂² (= 2) instead of σ₂ (= √2).\n• Using σ₁² in A₁ instead of σ₁."
+    }
+   ],
+   "answer": "σ = 2, √2; A₁ = [[1, 1], [1, 1], [0, 0]]; ‖A − A₁‖_{F} = √2; energy kept 2/3.",
+   "priority": "must",
+   "priorityWhy": "Saurabh sir's rank-1 problem; also the PCA reconstruction idea"
+  },
+  {
+   "title": "Low-rank · Sheet Problem 14: rank-1 approximation of a 2 × 2",
+   "tags": [
+    "Sourabh sir",
+    "Decompositions sheet P14"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "For A = [[2, 2], [−1, 1]], find the singular values and the best rank-1 approximation A₁ = σ₁u₁v₁ᵀ.\n(Saurabh sir's `Practice_Problems_Lectur1_4_and_5.pdf`, Problem 14, 4 marks)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "STEP 1 · AᵀA and σ",
+     "text": "Aᵀ = [[2, −1], [2, 1]]\n(1, 1): 4 + 1 = 5;  (1, 2): 4 − 1 = 3;  (2, 2): 4 + 1 = 5 ⇒ AᵀA = [[5, 3], [3, 5]]\n(5 − λ)² − 9 = 0 ⇒ λ = 8, 2 ⇒ **σ₁ = 2√2, σ₂ = √2**"
+    },
+    {
+     "label": "STEP 2 · v₁ and u₁",
+     "text": "λ = 8: [[−3, 3], [3, −3]] ⇒ v₁ = (1, 1)/√2\nAv₁ = (1/√2)(2 + 2, −1 + 1) = (4, 0)/√2 ⇒ u₁ = (4, 0)/(√2·2√2) = **(1, 0)**"
+    },
+    {
+     "label": "STEP 3 · A₁",
+     "text": "A₁ = 2√2·(1, 0)ᵀ·(1/√2)(1, 1) = 2·[[1, 1], [0, 0]] = **[[2, 2], [0, 0]]**\nA − A₁ = [[0, 0], [−1, 1]] ⇒ error √2 = σ₂ ✓"
+    }
+   ],
+   "answer": "σ = 2√2, √2; A₁ = [[2, 2], [0, 0]].",
+   "priority": "optional",
+   "priorityWhy": "Extra rep of P17"
+  },
+  {
+   "title": "Low-rank · Sheet Problem 15: SVD as a sum of rank-1 matrices",
+   "tags": [
+    "Sourabh sir",
+    "Decompositions sheet P15"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A matrix has σ₁ = 3, u₁ = v₁ = (1, 1)/√2 and σ₂ = 1, u₂ = v₂ = (1, −1)/√2.\n(a) Rebuild A = σ₁u₁v₁ᵀ + σ₂u₂v₂ᵀ. (b) Write the best rank-1 approximation and the share of energy it keeps.\n(Saurabh sir's `Practice_Problems_Lectur1_4_and_5.pdf`, Problem 15, 4 marks)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "STEP 1 · (a) Two layers",
+     "text": "σ₁u₁v₁ᵀ = 3·(1/2)[[1, 1], [1, 1]] = (3/2)[[1, 1], [1, 1]]\nσ₂u₂v₂ᵀ = 1·(1/2)[[1, −1], [−1, 1]]\nA = (1/2)[[3 + 1, 3 − 1], [3 − 1, 3 + 1]] = **[[2, 1], [1, 2]]**"
+    },
+    {
+     "label": "STEP 2 · (b) Rank 1",
+     "text": "Keep only σ₁: A₁ = **(3/2)[[1, 1], [1, 1]]**\nEnergy kept = σ₁²/(σ₁² + σ₂²) = 9/10 = **90%**"
+    }
+   ],
+   "answer": "A = [[2, 1], [1, 2]]; A₁ = (3/2)[[1, 1], [1, 1]] keeps 90%.",
+   "priority": "optional",
+   "priorityWhy": "Two-minute read: the sum-of-layers picture"
+  },
+  {
+   "title": "Low-rank · Sheet Problem 16: spectral norm",
+   "tags": [
+    "Sourabh sir",
+    "Decompositions sheet P16",
+    "Slides p. 28–29"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "Find the spectral norm ‖A‖₂ of A = [[4, 3], [0, 5]] and the right singular vector where it is reached.\n(Saurabh sir's `Practice_Problems_Lectur1_4_and_5.pdf`, Problem 16, 4 marks)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "Formula",
+     "text": "**‖A‖₂ = max ‖Ax‖/‖x‖ = σ₁ = √(largest eigenvalue of AᵀA)** (slides p. 28)"
+    },
+    {
+     "label": "STEP 1 · AᵀA",
+     "text": "Aᵀ = [[4, 0], [3, 5]]\n(1, 1): 16 + 0 = 16;  (1, 2): 12 + 0 = 12;  (2, 2): 9 + 25 = 34 ⇒ AᵀA = [[16, 12], [12, 34]]"
+    },
+    {
+     "label": "STEP 2 · Eigenvalues",
+     "text": "(16 − λ)(34 − λ) − 144 = λ² − 50λ + 544 − 144 = λ² − 50λ + 400 = (λ − 40)(λ − 10)\nσ₁ = √40 = **2√10 ≈ 6.32**  (σ₂ = √10)"
+    },
+    {
+     "label": "STEP 3 · Where it is reached",
+     "text": "λ = 40: [[−24, 12], [12, −6]]v = 0 ⇒ −24v₁ + 12v₂ = 0 ⇒ v₂ = 2v₁ ⇒ **v₁ = (1, 2)/√5**\nCheck: A(1, 2) = (10, 10), length 10√2; ÷ √5 ⇒ √40 ✓"
+    }
+   ],
+   "answer": "‖A‖₂ = 2√10 ≈ 6.32, along v₁ = (1, 2)/√5.",
+   "priority": "optional",
+   "priorityWhy": "Spectral norm = largest σ, one line in the slides"
+  },
+  {
+   "title": "Theory · 2022 regular Q2(b): trace of AᵀA and the singular values (4 marks)",
+   "tags": [
+    "2022 regular",
+    "Q2(b)"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A = UΣVᵀ, ‖Σ‖²_{F} = γ, B = AᵀA and α = B₁₁ + … + Bₙₙ. Prove or disprove:\n(a) G1: α = γ\n(b) G2: α = √γ\n(c) With C = AAᵀ and β = its trace, β = γ². [4M]"
+    }
+   ],
+   "steps": [
+    {
+     "label": "What is tested",
+     "text": "tr(AᵀA) = σ₁² + … + σₙ², using UᵀU = I, VᵀV = I and tr(MN) = tr(NM)."
+    },
+    {
+     "label": "STEP 1 · γ in terms of σ  [0.5M]",
+     "text": "‖Σ‖²_{F} = sum of squares of all entries of Σ = **σ₁² + σ₂² + … + σₙ² = γ**"
+    },
+    {
+     "label": "STEP 2 · α = tr(AᵀA)  [0.5M]",
+     "text": "AᵀA = VΣᵀUᵀ·UΣVᵀ = VΣᵀΣVᵀ   (UᵀU = I)\ntr(VΣᵀΣVᵀ) = tr(ΣᵀΣ·VᵀV) = tr(ΣᵀΣ)   (tr(MN) = tr(NM), VᵀV = I)\n= σ₁² + … + σₙ² = **γ**"
+    },
+    {
+     "label": "STEP 3 · Verdicts",
+     "text": "G1 (α = γ): **true** [1M]\nG2 (α = √γ): **false** in general, since α = γ (equal only if γ = 0 or 1) [1M]\nβ = tr(AAᵀ) = tr(UΣΣᵀUᵀ) = tr(ΣΣᵀ) = γ, so **β = γ² is false** (unless γ = 0 or 1) [1.5M]"
+    },
+    {
+     "label": "Where marks are lost",
+     "text": "• Not saying why tr(VMVᵀ) = tr(M): write tr(MN) = tr(NM) and VᵀV = I."
+    },
+    {
+     "label": "More",
+     "text": "The other parts of this question: [2022 regular paper](#/sem1/aiml-zc416/p-es-reg-2022/worked/1)."
+    }
+   ],
+   "answer": "α = γ (G1 true, G2 false); β = γ, so β = γ² is false.",
+   "priority": "optional",
+   "priorityWhy": "Older paper; the identity ‖A‖²_{F} = Σσ² in proof form"
+  },
+  {
+   "title": "Theory · Sheet Problem 17: eigendecomposition vs SVD of one matrix",
+   "tags": [
+    "Sourabh sir",
+    "Decompositions sheet P17",
+    "Slides p. 22–24"
+   ],
+   "problem": [
+    {
+     "type": "p",
+     "text": "A = [[1, 2], [2, 1]]. (a) Find its eigendecomposition (note the negative eigenvalue). (b) Find its SVD. (c) Explain exactly how the two are related.\n(Saurabh sir's `Practice_Problems_Lectur1_4_and_5.pdf`, Problem 17, 6 marks)"
+    }
+   ],
+   "steps": [
+    {
+     "label": "STEP 1 · (a) Eigendecomposition",
+     "text": "det: (1 − λ)² − 4 = 0 ⇒ 1 − λ = ±2 ⇒ **λ = 3, −1**\nλ = 3: [[−2, 2], [2, −2]] ⇒ q₁ = (1, 1)/√2;  λ = −1: [[2, 2], [2, 2]] ⇒ q₂ = (1, −1)/√2\nA = Q·diag(3, −1)·Qᵀ with Q = (1/√2)[[1, 1], [1, −1]]"
+    },
+    {
+     "label": "STEP 2 · (b) SVD",
+     "text": "AᵀA = A² = [[1 + 4, 2 + 2], [2 + 2, 4 + 1]] = [[5, 4], [4, 5]] ⇒ λ = 9, 1 ⇒ **σ = 3, 1**\nv₁ = (1, 1)/√2, v₂ = (1, −1)/√2 (the same as q₁, q₂)\nu₁ = Av₁/3 = (3, 3)/(3√2) = (1, 1)/√2 = v₁\nu₂ = Av₂/1 = (1 − 2, 2 − 1)/√2 = (−1, 1)/√2 = **−v₂**"
+    },
+    {
+     "label": "STEP 3 · (c) The relationship",
+     "text": "For a symmetric matrix: **σᵢ = |λᵢ|** and V = the eigenvectors.\nWhere λ > 0, uᵢ = vᵢ. Where λ < 0 (here λ₂ = −1), the minus sign moves into u: uᵢ = −vᵢ.\nSo EVD = SVD exactly when every λ ≥ 0 (positive semi-definite)."
+    }
+   ],
+   "answer": "EVD: λ = 3, −1 with Q = (1/√2)[[1, 1], [1, −1]]; SVD: σ = 3, 1, V = Q, u₂ = −v₂. σ = |λ| for symmetric A.",
+   "priority": "optional",
+   "priorityWhy": "The cleanest \"how are EVD and SVD related\" answer"
+  }
+ ],
+ "families": [
+  {
+   "id": "eigen",
+   "label": "Diagonalise",
+   "icon": "D",
+   "title": "Type 1 · Diagonalise and decompose",
+   "lead": "det(A − λI) = 0, (A − λI)v = 0, then P and D in the same order.",
+   "problems": [
+    "Eigen ·"
+   ],
+   "blocks": [
+    {
+     "type": "formula",
+     "text": "A = PDP⁻¹;   symmetric: A = QΛQᵀ = Σ λᵢqᵢqᵢᵀ;   Aᵏ = PDᵏP⁻¹",
+     "caption": "`Lecture_5.pdf` p. 4–10"
+    }
+   ]
+  },
+  {
+   "id": "svd",
+   "label": "SVD",
+   "icon": "Σ",
+   "title": "Type 2 · SVD by hand",
+   "lead": "Smaller Gram matrix → λ → σ = √λ → V → uᵢ = Avᵢ/σᵢ → complete → assemble.",
+   "problems": [
+    "SVD ·"
+   ],
+   "blocks": [
+    {
+     "type": "formula",
+     "text": "AᵀA = V(ΣᵀΣ)Vᵀ;   σᵢ = √λᵢ;   uᵢ = Avᵢ/σᵢ;   wide A: vᵢ = Aᵀuᵢ/σᵢ",
+     "caption": "U: m × m, Σ: m × n, V: n × n"
+    }
+   ]
+  },
+  {
+   "id": "lowrank",
+   "label": "Low rank",
+   "icon": "≈",
+   "title": "Type 3 · Rank-k approximation and norms",
+   "lead": "Keep the largest σ; the error is what you dropped.",
+   "problems": [
+    "Low-rank ·"
+   ],
+   "blocks": [
+    {
+     "type": "formula",
+     "text": "Â(k) = Σᵢ≤ₖ σᵢuᵢvᵢᵀ;   ‖A‖₂ = σ₁;   ‖A‖²_{F} = Σσᵢ²;   ‖A − Â(k)‖_{F} = √(Σᵢ>ₖ σᵢ²)",
+     "caption": "`Lecture_5.pdf` p. 25–29"
+    }
+   ]
+  },
+  {
+   "id": "theory",
+   "label": "Theory",
+   "icon": "?",
+   "title": "Type 4 · EVD vs SVD and proofs",
+   "lead": "σ = |λ| for symmetric A; tr(AᵀA) = Σσ²; the SVD always exists.",
+   "problems": [
+    "Theory ·"
+   ],
+   "blocks": [
+    {
+     "type": "formula",
+     "text": "tr(AᵀA) = tr(ΣᵀΣ) = Σσᵢ²;   symmetric: σᵢ = |λᵢ|",
+     "caption": "Use UᵀU = VᵀV = I and tr(MN) = tr(NM)"
+    }
+   ]
+  }
+ ],
+ "flashcards": [
+  {
+   "tag": "Formula",
+   "front": "Singular values from A",
+   "back": "σᵢ = √(eigenvalues of AᵀA), largest first"
+  },
+  {
+   "tag": "Formula",
+   "front": "Left singular vector from a right one",
+   "back": "uᵢ = Avᵢ / σᵢ"
+  },
+  {
+   "tag": "Formula",
+   "front": "Right singular vector from a left one (wide A)",
+   "back": "vᵢ = Aᵀuᵢ / σᵢ"
+  },
+  {
+   "tag": "Concept",
+   "front": "Shapes in A = UΣVᵀ for A m × n",
+   "back": "U m × m, Σ m × n (same as A), V n × n"
+  },
+  {
+   "tag": "Concept",
+   "front": "Missing column of U (or V)",
+   "back": "A unit vector perpendicular to the others (or a solution of Av = 0 for V)"
+  },
+  {
+   "tag": "Formula",
+   "front": "Spectral norm",
+   "back": "‖A‖₂ = σ₁"
+  },
+  {
+   "tag": "Formula",
+   "front": "Frobenius norm and σ",
+   "back": "‖A‖²_{F} = sum of aᵢⱼ² = σ₁² + σ₂² + …"
+  },
+  {
+   "tag": "Formula",
+   "front": "Best rank-1 approximation",
+   "back": "A₁ = σ₁u₁v₁ᵀ, error ‖A − A₁‖_{F} = √(σ₂² + …)"
+  },
+  {
+   "tag": "Concept",
+   "front": "When is A diagonalisable?",
+   "back": "Every λ has as many independent eigenvectors as it repeats"
+  },
+  {
+   "tag": "Trap",
+   "front": "σ vs λ for a non-symmetric matrix",
+   "back": "Different. σ = |λ| only for symmetric A."
+  },
+  {
+   "tag": "Formula",
+   "front": "Matrix power via eigen",
+   "back": "Aᵏ = PDᵏP⁻¹ (symmetric: Σ λᵢᵏqᵢqᵢᵀ)"
+  },
+  {
+   "tag": "Concept",
+   "front": "SVD and PCA",
+   "back": "X̂ = UΣVᵀ: V = PCs, λ = σ²/N"
+  }
+ ],
+ "quiz": [
+  {
+   "type": "numeric",
+   "q": "AᵀA has eigenvalues 9 and 4. Largest singular value of A?",
+   "answer": 3,
+   "tolerance": 0,
+   "explain": "σ₁ = √9 = 3.",
+   "set": "Numericals"
+  },
+  {
+   "type": "numeric",
+   "q": "A = [[3, 0], [4, 5]]. ‖A‖²_{F}?",
+   "answer": 50,
+   "tolerance": 0,
+   "explain": "9 + 0 + 16 + 25 = 50 = 45 + 5.",
+   "set": "Numericals"
+  },
+  {
+   "type": "numeric",
+   "q": "σ = 2 and √2. Percentage of energy kept by rank 1 (2 decimals)?",
+   "answer": 66.67,
+   "tolerance": 0.01,
+   "explain": "4/(4 + 2) = 66.67%.",
+   "set": "Numericals"
+  },
+  {
+   "type": "numeric",
+   "q": "A = [[5, 2], [2, 2]] has λ = 6, 1. Entry (1, 1) of A³ via 216q₁q₁ᵀ + q₂q₂ᵀ, with q₁ = (2, 1)/√5, q₂ = (1, −2)/√5?",
+   "answer": 173,
+   "tolerance": 0,
+   "explain": "(216·4 + 1)/5 = 865/5 = 173.",
+   "set": "Numericals"
+  },
+  {
+   "type": "mcq",
+   "q": "A is 3 × 2. The shape of Σ in A = UΣVᵀ is…",
+   "options": [
+    "3 × 2",
+    "2 × 2",
+    "3 × 3",
+    "2 × 3"
+   ],
+   "answer": 0,
+   "explain": "Σ always has the same shape as A.",
+   "set": "Concepts"
+  },
+  {
+   "type": "mcq",
+   "q": "For a wide 2 × 3 matrix, the quickest start is…",
+   "options": [
+    "AAᵀ (2 × 2)",
+    "AᵀA (3 × 3)",
+    "the eigenvalues of A",
+    "row-reduce A"
+   ],
+   "answer": 0,
+   "explain": "The smaller Gram matrix has the same non-zero eigenvalues.",
+   "set": "Concepts"
+  },
+  {
+   "type": "mcq",
+   "q": "Which is always true?",
+   "options": [
+    "Every matrix has an SVD",
+    "Every square matrix is diagonalisable",
+    "σᵢ = λᵢ for every square matrix",
+    "P in PDP⁻¹ is orthogonal"
+   ],
+   "answer": 0,
+   "explain": "AᵀA is symmetric, so the SVD always exists.",
+   "set": "Concepts"
+  },
+  {
+   "type": "mcq",
+   "q": "A = [[2, 1], [0, 2]] is…",
+   "options": [
+    "not diagonalisable",
+    "diagonalisable with D = diag(2, 2)",
+    "orthogonally diagonalisable",
+    "singular"
+   ],
+   "answer": 0,
+   "explain": "λ = 2 twice but only one eigenvector (1, 0).",
+   "set": "Concepts"
+  }
+ ],
+ "formulas": [
+  {
+   "name": "Eigendecomposition",
+   "formula": "A = PDP⁻¹,  Aᵏ = PDᵏP⁻¹",
+   "note": "p. 4–6"
+  },
+  {
+   "name": "Spectral decomposition",
+   "formula": "A = QΛQᵀ = Σ λᵢqᵢqᵢᵀ (symmetric)",
+   "note": "p. 10"
+  },
+  {
+   "name": "SVD",
+   "formula": "A = UΣVᵀ; U m × m, Σ m × n, V n × n",
+   "note": "p. 12–13"
+  },
+  {
+   "name": "Singular values",
+   "formula": "σᵢ = √λᵢ(AᵀA)",
+   "note": "p. 14"
+  },
+  {
+   "name": "Left / right vectors",
+   "formula": "uᵢ = Avᵢ/σᵢ;  vᵢ = Aᵀuᵢ/σᵢ",
+   "note": "p. 16"
+  },
+  {
+   "name": "Rank-k approximation",
+   "formula": "Â(k) = Σᵢ≤ₖ σᵢuᵢvᵢᵀ",
+   "note": "p. 26–27"
+  },
+  {
+   "name": "Norms",
+   "formula": "‖A‖₂ = σ₁;  ‖A‖²_{F} = Σσᵢ²",
+   "note": "p. 28"
+  },
+  {
+   "name": "PCA link",
+   "formula": "X̂ = UΣVᵀ ⇒ λ = σ²/N, PCs = columns of V",
+   "note": "Lecture 13"
+  }
+ ],
+ "readme": {
+  "summary": "**p. N** = PDF page of `Lecture_5.pdf` (the footer shows the same number). **Type 1–4** = the Lecture 5 question types.",
+  "sections": [
+   {
+    "title": "Symbols",
+    "head": [
+     "Here",
+     "Also written as",
+     "Meaning"
+    ],
+    "rows": [
+     [
+      "λ",
+      "",
+      "eigenvalue"
+     ],
+     [
+      "P, D",
+      "S (slides, for AAᵀ)",
+      "eigenvector matrix, diagonal of eigenvalues"
+     ],
+     [
+      "Q, Λ",
+      "P (slides)",
+      "orthogonal eigenvectors, eigenvalues (symmetric A)"
+     ],
+     [
+      "σᵢ",
+      "Σᵢᵢ",
+      "singular value"
+     ],
+     [
+      "uᵢ, vᵢ",
+      "left / right singular vectors",
+      "columns of U and V"
+     ],
+     [
+      "Â(k)",
+      "A_k, A₁",
+      "rank-k approximation"
+     ]
+    ]
+   },
+   {
+    "title": "Sources and short names",
+    "items": [
+     "**P12–P17** = Saurabh sir's `MFML_ZC416_Solved_Practice_Set.pdf`.",
+     "**Sheet Problem N** = Saurabh sir's `Practice_Problems_Lectur1_4_and_5.pdf` (17 problems on Lectures 4–5).",
+     "**Companion** = `Lecture_5_Companion.pdf`."
+    ]
+   }
+  ]
+ }
+}

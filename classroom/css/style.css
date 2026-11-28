@@ -942,6 +942,8 @@ mark { background: #FFF2C7; color: var(--navy); }
 .nb-problem .md-table th, .nb-problem .md-table td, .nb-problem .chalk-table th, .nb-problem .chalk-table td { border-color: rgba(255,255,255,.22); color: #F4F7FE; }
 .nb-problem .md-table th { background: rgba(255,255,255,.1); }
 .nb-problem .sticky { color: var(--ink); }
+.nb-problem .sticky strong, .nb-problem .sticky mark, .nb-problem .sticky code { color: var(--ink); }
+.nb-problem .sticky a { color: var(--brand); }
 .nb-step { border-top: 1px solid var(--line); }
 .step-label { font-weight: 700; font-size: .95rem; color: var(--brand); }
 .nb-answer { background: #E6FAF5; border: 0; border-left: 4px solid var(--good); border-radius: 12px; }
@@ -1172,3 +1174,13 @@ a.need-chip:hover { background: #e9efec; border-style: solid; }
 .phase-bar .pb-label { font-weight: 700; color: #5a6380; }
 .phase-bar .pb-note { flex-basis: 100%; font-size: .82rem; color: #5a6380; }
 .notebook[hidden] { display: none !important; }
+
+/* matrices: [[a, b], [c, d]] in content text (see mathMarkup in core/util.js) */
+.mx { display: inline-flex; align-items: stretch; vertical-align: middle; margin: 3px 2px; }
+.mx-b { width: .32em; border: 1.5px solid currentColor; }
+.mx-l { border-right: none; }
+.mx-r { border-left: none; }
+.mx-grid { display: inline-grid; column-gap: .9em; row-gap: .1em; padding: .12em .3em; text-align: center; line-height: 1.3; white-space: nowrap; }
+
+/* working tables inside solution steps read left to right */
+.nb-step .md-table td, .nb-step .md-table th { text-align: left; }

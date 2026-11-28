@@ -147,10 +147,18 @@
           return `<div class="tree-wrap"><ul class="tree">${node(b.root)}</ul>${b.caption ? `<div class="formula-cap">${md(b.caption)}</div>` : ''}</div>`;
         }
         case 'widget': { widgets.push(b); return `<div class="widget-slot" data-wi="${widgets.length - 1}"></div>`; }
+        /* small tabs inside a board: { type: 'tabs', tabs: [{ label, blocks: [...] }] } */
+        case 'tabs': return `<div class="btabs"><div class="nb-mtabs" role="tablist">${b.tabs.map((t, k) => `<button class="nb-mtab${k ? '' : ' on'}" role="tab" aria-selected="${!k}" data-btab="${k}" type="button">${md(t.label)}</button>`).join('')}</div>${b.tabs.map((t, k) => `<div class="btab-pane" data-k="${k}"${k ? ' hidden' : ''}>${renderBlocks(t.blocks, widgets)}</div>`).join('')}</div>`;
         default: return b.text ? `<p>${md(b.text)}</p>` : '';
       }
     }).join('');
   }
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-btab]'); if (!btn) return;
+    const box = btn.closest('.btabs');
+    box.querySelectorAll(':scope > .nb-mtabs [data-btab]').forEach((x) => { const on = x === btn; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); });
+    box.querySelectorAll(':scope > .btab-pane').forEach((p) => { p.hidden = p.dataset.k !== btn.dataset.btab; });
+  });
   function mountWidgets(root, widgets) {
     root.querySelectorAll('.widget-slot').forEach((slot) => {
       const w = widgets[+slot.dataset.wi];
@@ -318,6 +326,7 @@
       ${catalog.semesters.map((sem) => `
         <section class="dash-section">
           <div class="section-head"><h2>${esc(sem.title)}</h2>${sem.current ? liveBadge() : ''}${sem.subtitle ? `<span class="muted">${esc(sem.subtitle)}</span>` : ''}</div>
+          ${weightageHTML(sem.overlap, `${sem.id}-overlap`)}
           <div class="course-grid">
             ${sem.courses.map((c) => {
               const st = courseStats(sem, c);
@@ -334,12 +343,12 @@
             }).join('')}
           </div>
         </section>`).join('')}`;
-    /* optional catalog.school.schedule (same shape as course.weightage): a study plan on the dashboard */
-    app.querySelector('details.weightage')?.addEventListener('toggle', (ev) => {
+    /* optional catalog.school.schedule and sem.overlap (same shape as course.weightage) */
+    app.querySelectorAll('details.weightage').forEach((d) => d.addEventListener('toggle', (ev) => {
       const all = store.get('classroom.wtOpen', {}) || {};
       all[ev.target.dataset.course] = ev.target.open;
       store.set('classroom.wtOpen', all);
-    });
+    }));
     // warm the cache so the progress bars fill in
     catalog.semesters.forEach((s) => s.courses.forEach((c) => c.chapters.forEach((ch) => {
       if (ch.file && !ch.comingSoon && !chapterCache[ch.file]) loadChapter(ch).then(() => { if (location.hash.replace(/^#\/?/, '') === '') viewHome(); }).catch(() => {});
@@ -759,8 +768,9 @@
       setTimeout(() => hit.scrollIntoView({ behavior: 'instant', block: 'start' }), 150);
     }
     body.addEventListener('click', (ev) => {
-      const pb = ev.target.closest('[data-prio]');
-      const ph = ev.target.closest('[data-phase]');
+      /* only the filter buttons; the notebooks themselves also carry data-phase */
+      const pb = ev.target.closest('button[data-prio]');
+      const ph = ev.target.closest('button[data-phase]');
       if (pb || ph) {
         if (pb) {
           const on = pb.dataset.prio === 'must';
